@@ -1,0 +1,75 @@
+@charset "utf-8";
+/* CSS Document */
+
+.wizard {
+    margin:0 auto;
+	overflow-y:hidden;
+}
+.wizard .nav-tabs {
+	position: relative;
+	margin: 0px auto;
+	border:0;
+	text-align:center;
+}
+.wizard > div.wizard-inner {
+	position: relative;
+	display:none;
+}
+.wizard > .col-sm-2 div.wizard-inner {
+	display:block !important;
+	padding:20px 0 0 10px;
+}
+.wizard .nav-tabs > li.active > a, .wizard .nav-tabs > li.active > a:hover, .wizard .nav-tabs > li.active > a:focus {
+    color: #fff;
+	background:#2a3f54;
+    cursor: pointer;
+    border: 0;
+}
+.wizard .nav-tabs > li {
+	margin:5px;
+	display:inline-block;
+	vertical-align:top;
+	width:auto;
+}
+.wizard .nav-tabs > li a {
+	/*float:left;
+	display:block;*/
+	width:60px;
+	height:40px;
+	margin:0;
+	text-align:center;
+	padding:10px 0;
+	background:#e6e9ed;
+	color:#2a3f54;
+	border-radius:0;
+}
+.wizard .nav-tabs > li a:hover {
+    color: #fff;
+	background:#2a3f54;
+}
+
+.wizard .tab-pane {
+    position: relative;
+}
+
+
+@media( max-width : 585px ) {
+
+    .wizard {
+        width: 100%;
+		overflow-y:hidden;
+        /*height: auto !important;*/
+    }
+
+    /*.wizard .nav-tabs > li a {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+    }*/
+
+    /*.wizard li.active:after {
+        content: " ";
+        position: absolute;
+        left: 35%;
+    }*/
+}

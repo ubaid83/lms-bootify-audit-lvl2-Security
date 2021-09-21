@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><configuration>
+
+	<timestamp datePattern="yyyy-MM-dd'_'HH-mm-ss.SSS" key="myTimestamp"/>
+	<property name="DEV_HOME" value="/home/nmazuser/lms/logs/applogs/"/>
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILE-AUDIT">
+
+		<file>/data/logs/BSSA-NM-M/log-${myTimestamp}.log</file>
+
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} - %msg%n
+			</Pattern>
+		</encoder>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+
+			<fileNamePattern>/data/logs/BSSA-NM-M/archived/debug.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+
+	</appender>
+
+	<appender class="ch.qos.logback.core.ConsoleAppender" name="STDOUT">
+		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
+			by default -->
+		<encoder>
+			<pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="FILE-AUDIT"/>
+		<appender-ref ref="STDOUT"/>
+	</root>
+
+
+
+	 <logger level="DEBUG" name="org.springframework.jdbc.core.JdbcTemplate"/>
+
+	<logger level="TRACE" name="org.springframework.jdbc.core.StatementCreatorUtils"/> 
+	<!-- <logger name="jsforce" level="debug" -->
+	<!-- additivity="false"> -->
+	<!-- <appender-ref ref="FILE-AUDIT" /> -->
+	<!-- </logger> -->
+
+	<!-- <root level="error"> -->
+	<!-- <appender-ref ref="FILE-AUDIT" /> -->
+	<!-- </root> -->
+
+</configuration>

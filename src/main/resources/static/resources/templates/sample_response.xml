@@ -1,0 +1,67 @@
+<Response xmlns="urn:oasis:names:tc:SAML:2.0:protocol" Consent="urn:oasis:names:tc:SAML:2.0:consent:obtained" Destination="_DESTINATION" ID="_RESPONSE_ID" InResponseTo="a7314bcd5-7806-4bc1-afde-4b682669b4b0" IssueInstant="_ISSUE_INSTANT" Version="2.0">
+    <ns1:Issuer xmlns:ns1="urn:oasis:names:tc:SAML:2.0:assertion"  Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">_ISSUER
+	</ns1:Issuer>
+	
+    <Status>
+        <StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+    </Status>
+    <ns2:Assertion xmlns:ns2="urn:oasis:names:tc:SAML:2.0:assertion" ID="_ASSERTION_ID" IssueInstant="_ISSUE_INSTANT" Version="2.0">
+        <ns2:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">_ISSUER
+		</ns2:Issuer>
+		<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+		<ds:SignedInfo>
+		<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+		<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+		<ds:Reference URI="#_ASSERTION_ID">
+			<ds:Transforms>
+				<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+				<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+			</ds:Transforms>
+			<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+			<ds:DigestValue>##Digest Value##</ds:DigestValue>
+		</ds:Reference>
+		</ds:SignedInfo>
+		<ds:SignatureValue>
+		##Signature Value##
+		</ds:SignatureValue>
+		<ds:KeyInfo>
+			<ds:X509Data>
+				<ds:X509Certificate>
+				##Key##
+				</ds:X509Certificate>
+			</ds:X509Data>
+		</ds:KeyInfo>
+		</ds:Signature>
+        <ns2:Subject>
+            <ns2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">_NAMEID
+			</ns2:NameID>
+            <ns2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+                <ns2:SubjectConfirmationData InResponseTo="a7314bcd5-7806-4bc1-afde-4b682669b4b0" NotOnOrAfter="_NOTONORAFTER" Recipient="https://dc2-md-g23.tcsion.com/LX/INDEXES/ConsumeSAMLToken"/>
+            </ns2:SubjectConfirmation>
+        </ns2:Subject>
+        <ns2:Conditions NotBefore="_NOTBEFORE" NotOnOrAfter="_NOTONORAFTER">
+            <ns2:AudienceRestriction>
+                <ns2:Audience>_REQUEST_ID</ns2:Audience>
+            </ns2:AudienceRestriction>
+        </ns2:Conditions>
+        <ns2:AuthnStatement AuthnInstant="2017-09-13T07:16:57Z" SessionIndex="X2TeyQC9djuBJ89Ka/zYeZuJ2AM=+XO9CA==" SessionNotOnOrAfter="2017-09-13T07:23:14Z">
+            <ns2:AuthnContext>
+                <ns2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</ns2:AuthnContextClassRef>
+            </ns2:AuthnContext>
+        </ns2:AuthnStatement>
+        <ns2:AttributeStatement>
+            <ns2:Attribute	 Name="First_Name" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+                <ns2:AttributeValue>_FIRST_NAME</ns2:AttributeValue>
+            </ns2:Attribute>
+            <ns2:Attribute Name="Last_Name" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+                <ns2:AttributeValue>_LAST_NAME</ns2:AttributeValue>
+            </ns2:Attribute>
+            <ns2:Attribute Name="Email_address" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+                <ns2:AttributeValue>_EMAIL</ns2:AttributeValue>
+            </ns2:Attribute>
+            <ns2:Attribute Name="Unique_id" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+                <ns2:AttributeValue>_NAMEID</ns2:AttributeValue>
+            </ns2:Attribute>
+        </ns2:AttributeStatement>
+    </ns2:Assertion>
+</Response>

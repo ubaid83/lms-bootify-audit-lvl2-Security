@@ -1,0 +1,105 @@
+
+      <div class="modal-header">
+        <h3 class="modal-title">Event action occurred!</h3>
+      </div>
+      <div class="modal-body">
+        <p>Action:
+        <pre>{{ vm.action }}</pre>
+        </p>
+        <p>Event:
+        <pre>{{ vm.event | json }}</pre>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="$close()">OK</button>
+      </div>
+    <!--  <section class="container-fluid">
+		<form action="addCalenderEvent" method="post"
+			modelAttribute="calender">
+			<fieldset>
+				<div class="row page-body">
+
+				
+
+					<legend>Add Event</legend>
+
+					
+					<div class="row ">
+						<div class="col-sm-4 column">
+							<div class="form-group">
+								<label path="event" for="event">Event Name</label>
+								<input id="event" path="event" type="text"
+									placeholder="Event Name" class="form-control" />
+							</div>
+						</div>
+
+						<div class="col-sm-4 column">
+							<div class="form-group">
+								<label class="control-label" for="courseId">Course</label>
+								<select id="course" path="courseId" placeholder="Course"
+									class="form-control facultyparameter" required="required">
+									<option value="">Select Course</option>
+									<options items="${courseList}" itemLabel="courseName"
+										itemValue="id" />
+								</select>
+							</div>
+						</div>
+
+
+
+
+
+						<div class="col-sm-4 column">
+							<div class="form-group">
+								<label path="startDate" for="startDate">Start Date</label>
+								<input id="startDate" path="startDate"
+									type="datetime-local" placeholder="Start Date"
+									class="form-control" />
+							</div>
+						</div>
+					</div>
+					<div class="row">
+
+						<div class="col-sm-4 column">
+							<div class="form-group">
+								<label path="endDate" for="endDate">End Date</label>
+								<input id="endDate" path="endDate"
+									type="datetime-local" placeholder="End Date"
+									class="form-control" />
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-6 column">
+							<div class="form-group">
+								<label path="description" for="editor">Description</label>
+								<textarea class="form-group" path="description" id="editor"
+									style="margin-top: 30px;margin-bottom:10px" />
+							</div>
+						</div>
+					</div>
+					<div class="row ">
+
+						<div class="col-sm-4 column">
+							<div class="form-group">
+
+								<button id="submit" name="submit"
+									class="btn btn-large btn-primary" formaction="addCalenderEvent">Add</button>
+							
+								<button id="cancel" name="cancel" class="btn btn-danger"
+									formaction="homepage" formnovalidate="formnovalidate">Cancel</button>
+							</div>
+						</div>
+
+
+					</div>
+				</div>
+
+
+			</fieldset>
+		</form>
+
+
+
+
+	</section> -->

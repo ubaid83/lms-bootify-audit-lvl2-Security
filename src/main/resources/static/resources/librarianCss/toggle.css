@@ -1,0 +1,117 @@
+/* Toggle Styles */
+
+/*  End  */
+
+.sidenav {
+    height: auto !important;
+    width:16.66%;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #2a3f54;
+    overflow-x: hidden;
+    transition: 0.5s;
+	overflow:auto;
+}
+.sidenav a {
+    text-decoration: none;
+    display: block;
+    transition: 0.3s;
+}
+
+
+
+
+
+.rightpanel {
+    height: auto !important;
+	min-height:1000px;
+    width:26%;
+    position: absolute;
+   
+    top: 0;
+    right: 0;
+    transition: 0.5s;
+    padding:0px 0;
+	z-index:9;
+	overflow:auto;
+	overflow-x: hidden;
+	background:#fff;
+	border-left:1px solid #e6e9ed;
+}
+.rightpanel a {
+    display: block;
+    transition: 0.3s;
+}
+#main {
+    transition: margin-right .5s;
+    padding: 0px;
+	/* margin-right: 26%; */
+}
+
+
+
+.rightpanel1 {
+    height: auto !important;
+	min-height:1000px;
+    width:22%;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding:0px 0;
+	z-index:9999;
+	overflow:auto;
+	background:#fff;
+	border-left:1px solid #e6e9ed;
+}
+.rightpanel1 a {
+    display: block;
+    transition: 0.3s;
+}
+
+#main1 {
+    transition: margin-right .5s;
+	margin-right: 22%;
+	padding:0 !important;
+}
+
+
+
+@media only screen and (max-width: 1440px){
+	.rightpanel, .rightpanel1 {
+		min-height:750px;
+	}
+
+}
+@media only screen and (max-width: 980px){
+	
+	.rightpanel {
+		height: auto !important;
+		width:100%;
+		min-height:inherit !important;
+		position: relative;
+		overflow-x: hidden;
+	}
+	.rightpanel1 {
+		height: auto !important;
+		min-height:inherit !important;
+		width:100%;
+		position: relative;
+		overflow-x: hidden;
+	}
+	#main1 {
+		padding: 0px;
+		margin: 0%;
+	}
+	#main {
+		padding: 0px;
+		margin: 0%;
+	}
+}
+
+
+

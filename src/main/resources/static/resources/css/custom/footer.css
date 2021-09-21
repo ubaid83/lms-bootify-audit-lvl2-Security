@@ -1,0 +1,64 @@
+nav + section {
+	padding-top: 100px;
+}
+label.error {
+  color: red;
+  padding: 2px 8px;
+  margin-top: 2px;
+}
+.main-footer {
+  height: 50px; 
+  font-family: "Droid Sans", sans-serif;
+  background-color: #DCDCDC;
+  color: #101010;
+  line-height: 48px;
+  padding-bottom : 75px;
+}
+.archive {
+  float: right;
+  margin: 0;
+}
+
+.archive > li {
+  margin-left: 30px;
+}
+
+.archive .fa-li {
+  position: static;
+}
+
+.archive a:hover {
+  text-decoration: none;
+}
+
+.copyright {
+  float: left;
+}
+
+@media screen and (max-width: 767px) {
+	.main-footer {
+    position: static;
+	height: auto;
+    text-align: center;
+  }
+	
+  .archive {
+    float: none;
+    display: inline-block;	
+  }
+	
+  .archive.fa-ul {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+	
+  .archive > li {
+    margin: 0;
+  }
+	
+  .copyright {
+    float: none;	
+    display: block;
+  }
+}

@@ -1,0 +1,14 @@
+.mcs-open {
+	display : none;
+}
+#sessionSelect .mcs-item {
+	width : 25%
+}
+.mcs-item {
+	width : 50%
+}
+.mcs-container {
+	display: block;
+	padding-top: 0px;
+	padding-left: 0px;
+}

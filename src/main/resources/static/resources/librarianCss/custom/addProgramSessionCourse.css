@@ -1,0 +1,18 @@
+.mcs-open {
+	display : none;
+}
+#sessionSelect .mcs-item {
+	width : 12.5%
+}
+#courseSelect .mcs-item {
+	width : 25%;
+	margin-bottom: 5px;
+}
+.mcs-item {
+	width : 50%
+}
+.mcs-container {
+	display: block;
+	padding-top: 0px;
+	padding-left: 0px;
+}

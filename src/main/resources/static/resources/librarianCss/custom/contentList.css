@@ -1,0 +1,7 @@
+.lms-folder-o:before {
+  content: "\f114";
+}
+
+.expanded .lms-folder-o:before {
+  content: "\f115";
+}
