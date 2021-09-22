@@ -4661,12 +4661,12 @@ return  "redirect:/evaluateByStudentForModule?id="+assignmentId;
 			studentAssignmentService.updateStudentAssignmentTotalScore(sa);
 		}
 		
-		
+		setSuccess(redirectAttributes,"Marks uploaded Successfully");
 		}catch(Exception e) {
 			logger.error("Error--->"+e);
 			setError(redirectAttributes, "Error in uploading marks");
 		}
-		setSuccess(redirectAttributes,"Marks uploaded Successfully");
+		
 		return "redirect:/evaluateByStudent?id="+assignmentId;
 	}
 	

@@ -159,9 +159,15 @@ public class LorRegStaffDAO extends BaseDAO<LorRegStaff> {
 	}
 
 	public LorRegStaff getDepartmentAssistent(String department) {
-		String sql = "select  facultyId as username from lor_department_facuty where facultyId like '%_Staff%' and department=?  ";
+		String sql = "select  facultyId as username from lor_department_faculty where facultyId like '%_Staff%' and department=?  ";
 		
 		return findOneSQL(sql, new Object[] { department });
+	}
+
+	public LorRegStaff findByUserName(String staffUsername) {
+	String sql = "select * from lor_department_faculty where facultyId=?  ";
+		
+		return findOneSQL(sql, new Object[] { staffUsername });
 	}
 	
 }

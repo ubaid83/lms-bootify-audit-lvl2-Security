@@ -195,28 +195,52 @@ public class LorController extends BaseController {
 			if (!errorMessage.contains("Error in uploading file")) {
 				lorRegStaff.setLorFormatFilePath(filepath);
 				lorRegStaff.setId(id);
-				logger.info("lorRegStaff----->" + lorRegStaff);
 				lorRegStaffService.saveLorFormatFilePath(lorRegStaff);
-				
-				
+				lorRegStaff = lorRegStaffService.findByID(Long.valueOf(id));
+				lorRegStaff = lorRegStaffService.findByID(Long.valueOf(id));
+
+				LorRegDetails 	LorRegDetails =lorRegDetailsService.findByID(lorRegStaff.getLorRegId());			
 				LorRegStaff deptAssistent = lorRegStaffService.getDepartmentAssistent(lorRegStaff.getDepartment());
 				User user=userService.findByUserName(deptAssistent.getUsername());
-				 
+				User userfaculty=userService.findByUserName(lorRegStaff.getStaffId());
+			 
 				String subject = "LOR APPLICATION";
-				User facultyData=userService.findByUserName(staffUsername);
+				
 				
 				User ss= new User();
-				 
+				
+//				LorRegDetails 	LorRegDetails =lorRegDetailsService.findByID(lorRegStaff.getLorRegId());	
+//				User userfaculty=userService.findByUserName(staffUsername);
+//				
 				
 				
-				logger.info("printlorRegStaff----->" + lorRegStaff.getDepartment());
 				
-				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
-						+ "<br>  LOR Format uploaded by faculty " + facultyData.getFirstname()  + facultyData.getLastname() + ".<br>"
-						+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
-						+ "This is auto-generated email, do not reply on this.</body></html>";
+				
+				/*changes for email 16-09-2021
+				 * String notificationEmailMessage = "<html><body>" +
+				 * "<b>LOR APPLICATION </b><br>" + "<br>  LOR Format uploaded by faculty " +
+				 * facultyData.getFirstname() + facultyData.getLastname() + ".<br>" +
+				 * "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
+				 * + "This is auto-generated email, do not reply on this.</body></html>";
+				 */
+				logger.info("new---1"+userfaculty.getFirstname());
+				StringBuffer notificationEmailMessage = new StringBuffer(" ");
+				
+				
+				
+				notificationEmailMessage.append("<html><body> <b>LOR APPLICATION </b><br> <br>  LOR Format uploaded by faculty  ");
+				notificationEmailMessage.append(userfaculty.getFirstname());
+				notificationEmailMessage.append("  ");
+				notificationEmailMessage.append( userfaculty.getLastname());
+				notificationEmailMessage.append( " of Department ");
+				
+				notificationEmailMessage.append(lorRegStaff.getDepartment());
+				notificationEmailMessage.append( " for Student ");
+				notificationEmailMessage.append( LorRegDetails.getName());
+				notificationEmailMessage.append( " SAP ID ");
+				notificationEmailMessage.append( LorRegDetails.getUsername());
+				notificationEmailMessage.append(".<br> To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br> This is auto-generated email, do not reply on this.</body></html>");
 
-				
 				
 				
 				Map<String, Map<String, String>> result = null;
@@ -226,7 +250,7 @@ public class LorController extends BaseController {
 
 				Map<String, String> mobiles = new HashMap();
 				
-				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 				
 				
 				setSuccess(ra, "LOR format uploaded.");
@@ -291,13 +315,35 @@ public class LorController extends BaseController {
 			LorRegStaff lorRegStaffDB = lorRegStaffService.findByID(id);
 			User user = userService.findByUserName(userIntl);
 			User userStaff = userService.findByUserNameLike(lorRegStaffDB.getStaffId());
+			LorRegDetails 	LorRegDetails =lorRegDetailsService.findByID(lorRegStaffDB.getLorRegId());
+			
 			String subject = " LOR APPLICATION ";
-			String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
-					+ "<br> Final LOR uploaded by " + user.getFirstname() + " " + user.getLastname()
-					+ " for LOR application of department " + lorRegStaffDB.getDepartment() + " And Faculty/Staff "
-					+ userStaff.getFirstname() + " " + userStaff.getLastname() + ".<br>"
-					+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
-					+ "This is auto-generated email, do not reply on this.</body></html>";
+			
+			StringBuffer notificationEmailMessage = new StringBuffer("");
+			
+			notificationEmailMessage.append("<html><body> <b>LOR APPLICATION </b><br> <br> FINAL LOR  uploaded by Department assistant  ");
+			notificationEmailMessage.append(user.getFirstname());
+			notificationEmailMessage.append(" ");
+			notificationEmailMessage.append( user.getLastname());
+			notificationEmailMessage.append( "for LOR application of  department ");
+			notificationEmailMessage.append(lorRegStaffDB.getDepartment());
+			notificationEmailMessage.append( "for Student ");
+			notificationEmailMessage.append( LorRegDetails.getName());
+			notificationEmailMessage.append( "SAP ID ");
+			notificationEmailMessage.append( LorRegDetails.getUsername());
+
+			notificationEmailMessage.append(".<br> To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br> This is auto-generated email, do not reply on this.</body></html>");
+			
+			
+			
+			
+			
+//			String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
+//					+ "<br> Final LOR uploaded by " + user.getFirstname() + " " + user.getLastname()
+//					+ " for LOR application of department " + lorRegStaffDB.getDepartment() + " And Faculty/Staff "
+//					+ userStaff.getFirstname() + " " + userStaff.getLastname() + ".<br>"
+//					+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
+//					+ "This is auto-generated email, do not reply on this.</body></html>";
 
 			Map<String, Map<String, String>> result = null;
 			// result = userService.findEmailByUserName(userList);
@@ -306,7 +352,7 @@ public class LorController extends BaseController {
 
 			Map<String, String> mobiles = new HashMap();
 			// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-			notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+			notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 
 		} catch (Exception e) {
 			logger.error("Error---->" + e);
@@ -591,12 +637,37 @@ public class LorController extends BaseController {
 				User user = userService.findByUserName(username);
 				User userStaff = userService.findByUserNameLike(lorRegStaffDB.getStaffId());
 				String subject = " LOR APPLICATION ";
-				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>" + "<br> Student "
-						+ user.getFirstname() + " " + user.getLastname() + " ( SAPID: " + username + ")"
-						+ " has uploaded documents for LOR application of department " + lorRegStaffDB.getDepartment()
-						+ " And Faculty/Staff " + userStaff.getFirstname() + " " + userStaff.getLastname() + ".<br>"
-						+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
-						+ "This is auto-generated email, do not reply on this.</body></html>";
+				
+				StringBuffer notificationEmailMessage = new StringBuffer("");
+				
+				notificationEmailMessage.append("<html><body> <b>LOR APPLICATION </b> <br>   ");
+				notificationEmailMessage.append(user.getFirstname());
+				notificationEmailMessage.append(" ");
+				notificationEmailMessage.append( user.getLastname());
+				notificationEmailMessage.append(" (Sap Id");
+				notificationEmailMessage.append(user.getUsername());
+				notificationEmailMessage.append(" )");
+				notificationEmailMessage.append("  has uploaded documents for LOR application of department  ");
+
+				notificationEmailMessage.append(lorRegStaffDB.getDepartment());
+				notificationEmailMessage.append( " And Faculty/Staff");
+				notificationEmailMessage.append( userStaff.getFirstname());
+				notificationEmailMessage.append( " ");
+				notificationEmailMessage.append( userStaff.getLastname());
+
+				notificationEmailMessage.append(".<br> To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br> This is auto-generated email, do not reply on this.</body></html>");
+				
+				
+				
+				
+				
+				
+//				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>" + "<br> Student "
+//						+ user.getFirstname() + " " + user.getLastname() + " ( SAPID: " + username + ")"
+//						+ " has uploaded documents for LOR application of department " + lorRegStaffDB.getDepartment()
+//						+ " And Faculty/Staff " + userStaff.getFirstname() + " " + userStaff.getLastname() + ".<br>"
+//						+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
+//						+ "This is auto-generated email, do not reply on this.</body></html>";
 
 				Map<String, Map<String, String>> result = null;
 				// result = userService.findEmailByUserName(userList);
@@ -605,7 +676,7 @@ public class LorController extends BaseController {
 
 				Map<String, String> mobiles = new HashMap();
 				// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 				return "redirect:/viewLorApplication";
 			}
 		} catch (Exception e) {
@@ -759,14 +830,32 @@ public class LorController extends BaseController {
 				lorRegStaffService.insert(lorRegStaffs);
 				userList.add(staffIdStr.replace("_STAFF", ""));
 			}
-
-			User u = userService.findByUserName(username);
+		//	User user = userService.findByUserName(username);
+			User user = userService.findByUserName(username);
 			String subject = " LOR APPLICATION ";
-			String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>" + "<br> The Student "
-					+ u.getFirstname() + " " + u.getLastname() + " ( SAPID: " + username + ")"
-					+ " has applied for LOR.<br>"
-					+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
-					+ "This is auto-generated email, do not reply on this.</body></html>";
+			StringBuffer notificationEmailMessage = new StringBuffer("");
+
+			notificationEmailMessage.append("<html><body> <b>LOR APPLICATION </b> <br>    The Student ");
+			notificationEmailMessage.append(user.getFirstname());
+			notificationEmailMessage.append(" ");
+			notificationEmailMessage.append( user.getLastname());
+			notificationEmailMessage.append(" (Sap Id");
+			notificationEmailMessage.append(user.getUsername());
+			notificationEmailMessage.append(" )");
+			notificationEmailMessage.append("  has applied for LOR application of department  ");
+
+			notificationEmailMessage.append(lorRegStaff.getDepartment());
+			notificationEmailMessage.append( ".");
+			
+
+			notificationEmailMessage.append(".<br> To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br> This is auto-generated email, do not reply on this.</body></html>");
+			
+			
+//			String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>" + "<br> The Student "
+//					+ u.getFirstname() + " " + u.getLastname() + " ( SAPID: " + username + ")"
+//					+ " has applied for LOR.<br>"
+//					+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
+//					+ "This is auto-generated email, do not reply on this.</body></html>";
 			for (String s : userList) {
 				User userStaff = userService.findByUserNameLike(s);
 				if (null != userStaff) {
@@ -777,7 +866,7 @@ public class LorController extends BaseController {
 
 					Map<String, String> mobiles = new HashMap();
 					// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 				}
 			}
 
@@ -823,13 +912,32 @@ public class LorController extends BaseController {
 				User user = userService.findByUserName(lorRegStaffDB.getUsername());
 				User userStaff = userService.findByUserNameLike(username);
 				String subject = " LOR APPLICATION ";
-				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
-						+ "<br> Your LOR application is <b>Approved</b> of department " + lorRegStaffDB.getDepartment()
-						+ " And Faculty/Staff " + userStaff.getFirstname() + " " + userStaff.getLastname() + ".<br>"
-						+ " Now You Can Upload Your Documents.<br>"
-						+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
-						+ "This is auto-generated email, do not reply on this.</body></html>";
+//				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
+//						+ "<br> Your LOR application is <b>Approved</b> of department " + lorRegStaffDB.getDepartment()
+//						+ " And Faculty/Staff " + userStaff.getFirstname() + " " + userStaff.getLastname() + ".<br>"
+//						+ " Now You Can Upload Your Documents.<br>"
+//						+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
+//						+ "This is auto-generated email, do not reply on this.</body></html>";
 
+				StringBuffer notificationEmailMessage = new StringBuffer("");
+				
+				notificationEmailMessage.append("<html><body> <b>LOR APPLICATION </b> <br>   ");
+				
+				notificationEmailMessage.append("  Your LOR application is <b>Approved</b> of department  ");
+
+				notificationEmailMessage.append(lorRegStaffDB.getDepartment());
+				notificationEmailMessage.append( "And Faculty/Staff");
+				notificationEmailMessage.append( userStaff.getFirstname());
+				notificationEmailMessage.append( " ");
+				notificationEmailMessage.append( userStaff.getLastname());
+
+				notificationEmailMessage.append( ".<br>");
+				notificationEmailMessage.append( "Now You Can Upload Your Documents.");
+
+
+				notificationEmailMessage.append(".<br> To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br> This is auto-generated email, do not reply on this.</body></html>");
+				
+				
 				Map<String, Map<String, String>> result = null;
 				// result = userService.findEmailByUserName(userList);
 				Map<String, String> email = new HashMap();
@@ -837,18 +945,40 @@ public class LorController extends BaseController {
 
 				Map<String, String> mobiles = new HashMap();
 				// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 			} else if (lorRegStaffDB.getAppApproval().equals("Reject")) {
 				User user = userService.findByUserName(lorRegStaffDB.getUsername());
 				User userStaff = userService.findByUserNameLike(username);
 				String subject = " LOR APPLICATION ";
-				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
-						+ "<br> Your LOR application is <b>Rejected</b> of department " + lorRegStaffDB.getDepartment()
-						+ " And Faculty/Staff " + userStaff.getFirstname() + " " + userStaff.getLastname() + ".<br>"
-						+ " Reason: " + lorRegStaffDB.getAppRejectionReason() + "<br>"
-						+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
-						+ "This is auto-generated email, do not reply on this.</body></html>";
+				
+//				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
+//						+ "<br> Your LOR application is <b>Rejected</b> of department " + lorRegStaffDB.getDepartment()
+//						+ " And Faculty/Staff " + userStaff.getFirstname() + " " + userStaff.getLastname() + ".<br>"
+//						+ " Reason: " + lorRegStaffDB.getAppRejectionReason() + "<br>"
+//						+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
+//						+ "This is auto-generated email, do not reply on this.</body></html>";
+				
+				
+				StringBuffer notificationEmailMessage = new StringBuffer("");
+				
+				notificationEmailMessage.append("<html><body> <b>LOR APPLICATION </b> <br>   ");
+				
+				notificationEmailMessage.append("  Your LOR application is <b>Rejected</b> of department  ");
 
+				notificationEmailMessage.append(lorRegStaff.getDepartment());
+				notificationEmailMessage.append( "  And Faculty/Staff");
+				notificationEmailMessage.append( userStaff.getFirstname());
+
+				notificationEmailMessage.append( userStaff.getLastname());
+				notificationEmailMessage.append( " .<br>");
+				notificationEmailMessage.append( " Rejected reason ");
+				notificationEmailMessage.append(lorRegStaffDB.getAppRejectionReason());
+				notificationEmailMessage.append( ".<br>");
+
+
+
+				notificationEmailMessage.append(".<br> To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br> This is auto-generated email, do not reply on this.</body></html>");
+				
 				Map<String, Map<String, String>> result = null;
 				// result = userService.findEmailByUserName(userList);
 				Map<String, String> email = new HashMap();
@@ -856,7 +986,7 @@ public class LorController extends BaseController {
 
 				Map<String, String> mobiles = new HashMap();
 				// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 			}
 			return "{\"status\": \"success\", \"msg\": \"Application status updated successfully!\"}";
 
@@ -888,12 +1018,29 @@ public class LorController extends BaseController {
 				User user = userService.findByUserName(lorRegStaffDB.getUsername());
 				User userStaff = userService.findByUserNameLike(username);
 				String subject = " LOR APPLICATION ";
-				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
-						+ "<br> Your Uploaded Documents of LOR application is <b>Approved</b> of department "
-						+ lorRegStaffDB.getDepartment() + " And Faculty/Staff " + userStaff.getFirstname() + " "
-						+ userStaff.getLastname() + ".<br>"
-						+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
-						+ "This is auto-generated email, do not reply on this.</body></html>";
+//				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
+//						+ "<br> Your Uploaded Documents of LOR application is <b>Approved</b> of department "
+//						+ lorRegStaffDB.getDepartment() + " And Faculty/Staff " + userStaff.getFirstname() + " "
+//						+ userStaff.getLastname() + ".<br>"
+//						+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
+//						+ "This is auto-generated email, do not reply on this.</body></html>";
+				
+				StringBuffer notificationEmailMessage = new StringBuffer("");
+				
+				notificationEmailMessage.append("<html><body> <b>LOR APPLICATION </b> <br>   ");
+				
+				notificationEmailMessage.append("  Your Uploaded Documents of LOR application is <b>Approved</b> of department  ");
+			
+				notificationEmailMessage.append(lorRegStaffDB.getDepartment());
+				notificationEmailMessage.append( "And Faculty/Staff");
+				notificationEmailMessage.append( userStaff.getFirstname());
+			
+				notificationEmailMessage.append( userStaff.getLastname());
+				notificationEmailMessage.append( " .<br>");
+						
+			
+				notificationEmailMessage.append(".<br> To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br> This is auto-generated email, do not reply on this.</body></html>");
+				
 
 				Map<String, Map<String, String>> result = null;
 				// result = userService.findEmailByUserName(userList);
@@ -902,17 +1049,38 @@ public class LorController extends BaseController {
 
 				Map<String, String> mobiles = new HashMap();
 				// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 			} else if (lorRegStaffDB.getDocApproval().equals("Reject")) {
 				User user = userService.findByUserName(lorRegStaffDB.getUsername());
 				User userStaff = userService.findByUserNameLike(username);
 				String subject = " LOR APPLICATION ";
-				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
-						+ "<br> Your Uploaded Documents of LOR application is <b>Rejected</b> of department "
-						+ lorRegStaffDB.getDepartment() + " And Faculty/Staff " + userStaff.getFirstname() + " "
-						+ userStaff.getLastname() + ".<br>" + " Reason: " + lorRegStaffDB.getDocRejectionReason()
-						+ "<br>" + "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
-						+ "This is auto-generated email, do not reply on this.</body></html>";
+//				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
+//						+ "<br> Your Uploaded Documents of LOR application is <b>Rejected</b> of department "
+//						+ lorRegStaffDB.getDepartment() + " And Faculty/Staff " + userStaff.getFirstname() + " "
+//						+ userStaff.getLastname() + ".<br>" + " Reason: " + lorRegStaffDB.getDocRejectionReason()
+//						+ "<br>" + "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
+//						+ "This is auto-generated email, do not reply on this.</body></html>";
+				
+				
+	StringBuffer notificationEmailMessage = new StringBuffer("");
+				
+				notificationEmailMessage.append("<html><body> <b>LOR APPLICATION </b> <br>   ");
+				
+				notificationEmailMessage.append("  Your Uploaded Documents of LOR application is <b>Rejected</b> of department  ");
+			
+				
+				notificationEmailMessage.append(lorRegStaffDB.getDepartment());
+				notificationEmailMessage.append( "And Faculty/Staff");
+				notificationEmailMessage.append( userStaff.getFirstname());
+			
+				notificationEmailMessage.append( userStaff.getLastname());
+				notificationEmailMessage.append( " .<br>");
+				notificationEmailMessage.append( " Rejected reason ");
+				notificationEmailMessage.append(lorRegStaffDB.getDocRejectionReason());
+				notificationEmailMessage.append( ".<br>");
+				notificationEmailMessage.append(".<br> To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br> This is auto-generated email, do not reply on this.</body></html>");
+			
+
 
 				Map<String, Map<String, String>> result = null;
 				// result = userService.findEmailByUserName(userList);
@@ -921,7 +1089,7 @@ public class LorController extends BaseController {
 
 				Map<String, String> mobiles = new HashMap();
 				// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 			}
 			return "{\"status\": \"success\", \"msg\": \"Document status updated successfully!\"}";
 
@@ -954,12 +1122,29 @@ public class LorController extends BaseController {
 				User user = userService.findByUserName(lorRegStaffDB.getUsername());
 				User userStaff = userService.findByUserNameLike(username);
 				String subject = " LOR APPLICATION ";
-				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
-						+ "<br> Your LOR application is ready and now downloadable of department "
-						+ lorRegStaffDB.getDepartment() + " And Faculty/Staff " + userStaff.getFirstname() + " "
-						+ userStaff.getLastname() + ".<br>"
-						+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
-						+ "This is auto-generated email, do not reply on this.</body></html>";
+//				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
+//						+ "<br> Your LOR application is ready and now downloadable of department "
+//						+ lorRegStaffDB.getDepartment() + " And Faculty/Staff " + userStaff.getFirstname() + " "
+//						+ userStaff.getLastname() + ".<br>"
+//						+ "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
+//						+ "This is auto-generated email, do not reply on this.</body></html>";
+				
+				StringBuffer notificationEmailMessage = new StringBuffer("");
+				
+				notificationEmailMessage.append("<html><body> <b>LOR APPLICATION </b> <br>   ");
+				
+				notificationEmailMessage.append("  Your LOR application is ready and now downloadable of department  ");
+			
+				notificationEmailMessage.append(lorRegStaffDB.getDepartment());
+				notificationEmailMessage.append( "And Faculty/Staff");
+				notificationEmailMessage.append( userStaff.getFirstname());
+			
+				notificationEmailMessage.append( userStaff.getLastname());
+				notificationEmailMessage.append( " .<br>");
+
+				notificationEmailMessage.append(".<br> To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br> This is auto-generated email, do not reply on this.</body></html>");
+			
+				
 
 				Map<String, Map<String, String>> result = null;
 				// result = userService.findEmailByUserName(userList);
@@ -968,19 +1153,41 @@ public class LorController extends BaseController {
 
 				Map<String, String> mobiles = new HashMap();
 				// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 			} else if (lorRegStaffDB.getLorApproval().equals("Reject")) {
 				User user = userService.findByUserName(lorRegStaffDB.getUsername());
 				User userStaff = userService.findByUserNameLike(username);
 				User userIntl = userService.findByUserName(lorRegStaffDB.getFinalLorUploadedBy());
 				String subject = " LOR APPLICATION ";
-				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
-						+ "<br> Your uploaded LOR Rejected of Student " + user.getFirstname() + " " + user.getLastname()
-						+ " from department " + lorRegStaffDB.getDepartment() + " And Faculty/Staff "
-						+ userStaff.getFirstname() + " " + userStaff.getLastname() + ".<br>"
-						+ " You need to upload it again.<br>" + " Reason: " + lorRegStaffDB.getLorRejectionReason()
-						+ "<br>" + "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
-						+ "This is auto-generated email, do not reply on this.</body></html>";
+//				String notificationEmailMessage = "<html><body>" + "<b>LOR APPLICATION </b><br>"
+//						+ "<br> Your uploaded LOR Rejected of Student " + user.getFirstname() + " " + user.getLastname()
+//						+ " from department " + lorRegStaffDB.getDepartment() + " And Faculty/Staff "
+//						+ userStaff.getFirstname() + " " + userStaff.getLastname() + ".<br>"
+//						+ " You need to upload it again.<br>" + " Reason: " + lorRegStaffDB.getLorRejectionReason()
+//						+ "<br>" + "To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br>"
+//						+ "This is auto-generated email, do not reply on this.</body></html>";
+				
+				StringBuffer notificationEmailMessage = new StringBuffer("");
+				
+				notificationEmailMessage.append("<html><body> <b>LOR APPLICATION </b> <br>   ");
+				
+				notificationEmailMessage.append("  Your uploaded LOR Rejected of Student   ");
+			
+				notificationEmailMessage.append( user.getFirstname());
+				notificationEmailMessage.append(" ");
+				notificationEmailMessage.append( user.getLastname());
+				notificationEmailMessage.append(" from department ");
+				notificationEmailMessage.append(lorRegStaffDB.getDepartment());
+				notificationEmailMessage.append( "And Faculty/Staff");
+				notificationEmailMessage.append( userStaff.getFirstname());
+			
+				notificationEmailMessage.append( userStaff.getLastname());
+				notificationEmailMessage.append( " .<br>");
+				notificationEmailMessage.append( " You need to upload it again.<br>Reject Reason");
+				notificationEmailMessage.append(lorRegStaffDB.getLorRejectionReason());
+
+				notificationEmailMessage.append(".<br> To view kindly login to Url: https://portal.svkm.ac.in/usermgmt/login <br> This is auto-generated email, do not reply on this.</body></html>");
+				
 
 				Map<String, Map<String, String>> result = null;
 				// result = userService.findEmailByUserName(userList);
@@ -989,7 +1196,7 @@ public class LorController extends BaseController {
 
 				Map<String, String> mobiles = new HashMap();
 				// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 			}
 			return "{\"status\": \"success\", \"msg\": \"LOR approval updated successfully!\"}";
 

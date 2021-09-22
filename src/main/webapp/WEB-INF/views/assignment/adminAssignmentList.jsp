@@ -196,6 +196,8 @@
 																					title="Delete assignment"> <i class="fas fa-trash"></i></a>&nbsp;
 																					<a href="${exportAssign}" title="Export Assignment"><i
 																					class="fas fa-file-excel fa-lg"></i></a>&nbsp;
+																					<a href="downloadAllFile?assignmentId=${assignment.id}" title="Download Answer Files">
+																		<i class="fas fa-cloud-download-alt"></i></a>
 																				</sec:authorize>&nbsp; <sec:authorize
 																				access="hasAnyRole('ROLE_ADMIN')">
 																				<c:url value="makeAssignmentInactive"

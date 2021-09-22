@@ -94,4 +94,9 @@ public class LorRegStaffService extends BaseService<LorRegStaff> {
 		return lorRegStaffDAO.getDepartmentAssistent(department);
 	}
 
+	public LorRegStaff findByUserName(String staffUsername) {
+	
+		return lorRegStaffDAO.findByUserName(staffUsername);
+	}
+
 }
