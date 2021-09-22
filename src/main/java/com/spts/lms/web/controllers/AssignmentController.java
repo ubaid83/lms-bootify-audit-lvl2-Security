@@ -343,13 +343,42 @@ public class AssignmentController extends BaseController {
 		m.addAttribute("AcadSession", acadSession);
 
 		try {
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate())) {
+				setError(redirectAttributes, "Invalid Start date and End date");
+				return "redirect:/createAssignmentFromMenu";
+			}
+			/* New Audit changes end */
 			if (assignment.getId() != null) {
 				assignmentService.update(assignment);
 			} else {
 				for (MultipartFile file : files) {
 					if (!file.isEmpty()) {
-						String errorMessage = uploadAssignmentFileForS3(assignment,
-								file);
+						//Audit change start
+						if (file.getOriginalFilename().contains(".")) {
+							Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+							logger.info("length--->"+count);
+							if (count > 1 || count == 0) {
+								setError(redirectAttributes, "File uploaded is invalid!");
+								redirectAttributes.addAttribute("courseId", assignment.getCourseId());
+								return "redirect:/createAssignmentFromMenu";
+							}else {
+								String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+								logger.info("extension--->"+extension);
+								if(extension.equalsIgnoreCase("exe")) {
+									setError(redirectAttributes, "File uploaded is invalid!");
+									redirectAttributes.addAttribute("courseId", assignment.getCourseId());
+									return "redirect:/createAssignmentFromMenu";
+								}else {
+									String errorMessage = uploadAssignmentFileForS3(assignment, file);
+								}
+							}
+						}else {
+							setError(redirectAttributes, "File uploaded is invalid!");
+							redirectAttributes.addAttribute("courseId", assignment.getCourseId());
+							return "redirect:/createAssignmentFromMenu";
+						}
+						//Audit change end
 					}
 				}
 				// if (errorMessage == null) {
@@ -468,9 +497,37 @@ public class AssignmentController extends BaseController {
 					.findByID(assignment.getId());
 			for (MultipartFile file : files) {
 				if (file != null && !file.isEmpty()) {
-
-					errorMessage = uploadAssignmentFileForS3(assignment, file);
-
+					//Audit change start
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							setError(m, "File uploaded is invalid!");
+							if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
+								return "assignment/createAssignmentForAdmin";
+							}
+							return "assignment/createAssignment";
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								setError(m, "File uploaded is invalid!");
+								if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
+									return "assignment/createAssignmentForAdmin";
+								}
+								return "assignment/createAssignment";
+							}else {
+								errorMessage = uploadAssignmentFileForS3(assignment, file);
+							}
+						}
+					}else {
+						setError(m, "File uploaded is invalid!");
+						if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
+							return "assignment/createAssignmentForAdmin";
+						}
+						return "assignment/createAssignment";
+					}
+					//Audit change end
 				} else {
 					assignment.setFilePath(retrived.getFilePath());
 					assignment.setFilePreviewPath(retrived
@@ -996,7 +1053,7 @@ public class AssignmentController extends BaseController {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveGroupAssignment(@ModelAttribute Assignment assignment,
 			@RequestParam("file") List<MultipartFile> files, Model m,
-			Principal principal) {
+			Principal principal,RedirectAttributes redirectAttributes) {
 		m.addAttribute("webPage", new WebPage("assignment",
 				"Create Assignment", true, false));
 
@@ -1020,9 +1077,39 @@ public class AssignmentController extends BaseController {
 			courseId = Long.valueOf(assignment.getIdForCourse());
 			assignment.setCourseId(courseId);
 		}
+		/* New Audit changes start */
+		if(!Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate())) {
+			setError(redirectAttributes, "Invalid Start date and End date");
+			return "redirect:/createAssignmentFromGroup";
+		}
+		/* New Audit changes start */
 		for (MultipartFile file : files) {
 			if (!file.isEmpty()) {
-				String errorMessage = uploadAssignmentFileForS3(assignment, file);
+				//Audit change start
+				if (file.getOriginalFilename().contains(".")) {
+					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+					logger.info("length--->"+count);
+					if (count > 1 || count == 0) {
+						setError(m, "File uploaded is invalid!");
+						//redirectAttrs.addAttribute("courseId", assignment.getCourseId());
+						return "assignment/createAssignmentFromGroupFinal";
+					}else {
+						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+						logger.info("extension--->"+extension);
+						if(extension.equalsIgnoreCase("exe")) {
+							setError(m, "File uploaded is invalid!");
+							//redirectAttrs.addAttribute("courseId", assignment.getCourseId());
+							return "assignment/createAssignmentFromGroupFinal";
+						}else {
+							String errorMessage = uploadAssignmentFileForS3(assignment, file);
+						}
+					}
+				}else {
+					setError(m, "File uploaded is invalid!");
+					//redirectAttrs.addAttribute("courseId", assignment.getCourseId());
+					return "assignment/createAssignmentFromGroupFinal";
+				}
+				//Audit change end
 			}
 		}
 		if (sendAlertsToParents.equalsIgnoreCase("Y")) {
@@ -3088,6 +3175,13 @@ public class AssignmentController extends BaseController {
 		map.put(3, grps3);
 		map.put(4, grps4);
 		map.put(5, grps5);
+		
+		/* New Audit changes start */
+		if(!Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate())) {
+			setError(redirectAttrs, "Invalid Start date and End date");
+			return "redirect:/createGroupAssignmentsForm?courseId=" + assignment.getCourseId();
+		}
+		/* New Audit changes end */
 		if (grps1.isEmpty() && grps2.isEmpty() && grps3.isEmpty()
 				&& grps4.isEmpty() && grps5.isEmpty()) {
 			setNote(redirectAttrs, "No Groups Selected!");
@@ -3114,7 +3208,34 @@ public class AssignmentController extends BaseController {
 						if (mapper.get(i) != null) {
 							assignment.setFilePath(null);
 							assignment.setFilePreviewPath(null);
-							saveGroupAssignment(assignment, mapper.get(i), m, p);
+							//Audit change start
+							for(MultipartFile file : mapper.get(i)) {
+								if(!file.isEmpty()) {
+									if (file.getOriginalFilename().contains(".")) {
+										Long count = file.getOriginalFilename().chars().filter(o -> o == ('.')).count();
+										logger.info("length--->"+count);
+										if (count > 1 || count == 0) {
+											setError(redirectAttrs, "File uploaded is invalid!");
+											redirectAttrs.addAttribute("courseId", assignment.getCourseId());
+											return "redirect:/createGroupAssignmentsForm";
+										}else {
+											String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+											logger.info("extension--->"+extension);
+											if(extension.equalsIgnoreCase("exe")) {
+												setError(redirectAttrs, "File uploaded is invalid!");
+												redirectAttrs.addAttribute("courseId", assignment.getCourseId());
+												return "redirect:/createGroupAssignmentsForm";
+											}
+										}
+									}else {
+										setError(redirectAttrs, "File uploaded is invalid!");
+										redirectAttrs.addAttribute("courseId", assignment.getCourseId());
+										return "redirect:/createGroupAssignmentsForm";
+									}
+								}
+							}
+							saveGroupAssignment(assignment, mapper.get(i), m, p,redirectAttrs);
+							//Audit change end
 						} else {
 							/* logger.info("Multipart Files is null"); */
 						}
@@ -3237,10 +3358,36 @@ public class AssignmentController extends BaseController {
 			if (assignment.getId() != null) {
 				assignmentService.update(assignment);
 			} else {
+				/* New Audit changes start */
+				if(!Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate())) {
+					setError(redirectAttributes, "Invalid Start date and End date");
+					return "redirect:/createAssignmentModuleForm";
+				}
+				/* New Audit changes end */
 				for (MultipartFile file : files) {
 					if (!file.isEmpty()) {
-						String errorMessage = uploadAssignmentFileForS3(assignment,
-								file);
+						//Audit change start
+						if (file.getOriginalFilename().contains(".")) {
+							Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+							logger.info("length--->"+count);
+							if (count > 1 || count == 0) {
+								setError(redirectAttributes, "File uploaded is invalid!");
+								return "redirect:/createAssignmentModuleForm";
+							}else {
+								String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+								logger.info("extension--->"+extension);
+								if(extension.equalsIgnoreCase("exe")) {
+									setError(redirectAttributes, "File uploaded is invalid!");
+									return "redirect:/createAssignmentModuleForm";
+								}else {
+									String errorMessage = uploadAssignmentFileForS3(assignment, file);
+								}
+							}
+						}else {
+							setError(redirectAttributes, "File uploaded is invalid!");
+							return "redirect:/createAssignmentModuleForm";
+						}
+						//Audit change end
 					}
 				}
 				// if (errorMessage == null) {
@@ -3929,9 +4076,29 @@ public class AssignmentController extends BaseController {
 			String oldFile = retrived.getFilePath();
 			for (MultipartFile file : files) {
 				if (file != null && !file.isEmpty()) {
-
-					errorMessage = uploadAssignmentFileForS3(assignment, file);
-					logger.info("New File---->"+assignment.getFilePath());
+					//Audit change start
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							setError(m, "File uploaded is invalid!");
+							return "assignment/createAssignmentForModule";
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								setError(m, "File uploaded is invalid!");
+								return "assignment/createAssignmentForModule";
+							}else {
+								errorMessage = uploadAssignmentFileForS3(assignment, file);
+								logger.info("New File---->" + assignment.getFilePath());
+							}
+						}
+					}else {
+						setError(m, "File uploaded is invalid!");
+						return "assignment/createAssignmentForModule";
+					}
+					//Audit change end
 				} else {
 					assignment.setFilePath(retrived.getFilePath());
 					assignment.setFilePreviewPath(retrived.getFilePreviewPath());
@@ -4465,13 +4632,39 @@ public class AssignmentController extends BaseController {
 		m.addAttribute("AcadSession", acadSession);
 
 		try {
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate())) {
+				setError(redirectAttributes, "Invalid Start date and End date");
+				return "redirect:/createAssignmentByAdmin";
+			}
+			/* New Audit changes end */
 			if (assignment.getId() != null) {
 				assignmentService.update(assignment);
 			} else {
 				for (MultipartFile file : files) {
 					if (!file.isEmpty()) {
-						String errorMessage = uploadAssignmentFileForS3(assignment,
-								file);
+						//Audit change start
+						if (file.getOriginalFilename().contains(".")) {
+							Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+							logger.info("length--->"+count);
+							if (count > 1 || count == 0) {
+								setError(redirectAttributes, "File uploaded is invalid!");
+								return "redirect:/createAssignmentByAdmin";
+							}else {
+								String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+								logger.info("extension--->"+extension);
+								if(extension.equalsIgnoreCase("exe")) {
+									setError(redirectAttributes, "File uploaded is invalid!");
+									return "redirect:/createAssignmentByAdmin";
+								}else {
+									String errorMessage = uploadAssignmentFileForS3(assignment, file);
+								}
+							}
+						}else {
+							setError(redirectAttributes, "File uploaded is invalid!");
+							return "redirect:/createAssignmentByAdmin";
+						}
+						//Audit change end
 					}
 				}
 				// if (errorMessage == null) {

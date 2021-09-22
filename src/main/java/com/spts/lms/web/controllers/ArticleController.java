@@ -19,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.util.IOUtils;
@@ -49,7 +50,6 @@ import com.spts.lms.beans.user.User;
 import com.spts.lms.beans.webpages.Webpages;
 import com.spts.lms.daos.MultipleDBReferenceDAO;
 import com.spts.lms.daos.webpages.LmsWebpagesDAO;
-import com.spts.lms.daos.webpages.WebpagesDAO;
 import com.spts.lms.services.program.ProgramService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.services.webpages.WebpagesService;
@@ -234,7 +234,28 @@ public class ArticleController extends BaseController {
 				m.addAttribute("dbList", dbList);
 				for (MultipleDBReference dbName : dbList) {
 					if (!file.isEmpty()) {
-						String errorMessage = uploadArticleFile(webpages, file);
+						//Audit change start
+						if (file.getOriginalFilename().contains(".")) {
+							Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+							logger.info("length--->"+count);
+							if (count > 1 || count == 0) {
+								setError(redirectAttributes, "File uploaded is invalid!");
+								return "redirect:/viewArticles";
+							}else {
+								String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+								logger.info("extension--->"+extension);
+								if(extension.equalsIgnoreCase("exe")) {
+									setError(redirectAttributes, "File uploaded is invalid!");
+									return "redirect:/viewArticles";
+								}else {
+									String errorMessage = uploadArticleFile(webpages, file);
+								}
+							}
+						}else {
+							setError(redirectAttributes, "File uploaded is invalid!");
+							return "redirect:/viewArticles";
+						}
+						//Audit change end
 					}
 					if (webpages.getMakeAvailable() == null) {
 						webpages.setMakeAvailable("N");

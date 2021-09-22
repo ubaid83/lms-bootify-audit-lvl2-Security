@@ -25,23 +25,18 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Size;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.pdfbox.util.operator.SetWordSpacing;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFDataValidation;
@@ -49,16 +44,17 @@ import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -66,7 +62,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spts.lms.auth.Token;
@@ -86,10 +81,6 @@ import com.spts.lms.services.notification.Notifier;
 import com.spts.lms.services.program.ProgramService;
 import com.spts.lms.services.user.UserRoleService;
 import com.spts.lms.services.user.UserService;
-import com.spts.lms.web.utils.Utils;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 @Controller
 public class LorController extends BaseController {
@@ -179,7 +170,27 @@ public class LorController extends BaseController {
 					setError(ra, "Selected File is empty!");
 					return "redirect:/lorApplicationForm";
 				}
-				errorMessage = uploadFileForS3(file, userdetails);
+				if (file.getOriginalFilename().contains(".")) {
+					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+					logger.info("length--->"+count);
+					if (count > 1 || count == 0) {
+						setError(ra, "File uploaded is invalid!");
+						return "redirect:/viewAppliedApplicationStudentsForStaff";
+					}else {
+						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+						logger.info("extension--->"+extension);
+						if(extension.equalsIgnoreCase("exe")) {
+							setError(ra, "File uploaded is invalid!");
+							return "redirect:/viewAppliedApplicationStudentsForStaff";
+						}else {
+							errorMessage = uploadFileForS3(file, userdetails);
+						}
+					}
+				}else {
+					setError(ra, "File uploaded is invalid!");
+					return "redirect:/viewAppliedApplicationStudentsForStaff";
+				}
+				
 				if (!errorMessage.contains("Error in uploading file")) {
 					if (filepath.isEmpty() || filepath == null) {
 						filepath = errorMessage;
@@ -284,7 +295,39 @@ public class LorController extends BaseController {
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					logger.info("file---->");
-					errorMessage = uploadFileForS3(file, userdetails);
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							setError(ra, "File uploaded is invalid!");
+							if(userdetails.getAuthorities().contains(Role.ROLE_STAFF)) {
+								return "redirect:/viewAppliedApplicationStudentsForDepartment";
+							}else {
+								return "redirect:/viewAppliedApplicationStudentsForAdmin";
+							}
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								setError(ra, "File uploaded is invalid!");
+								if(userdetails.getAuthorities().contains(Role.ROLE_STAFF)) {
+									return "redirect:/viewAppliedApplicationStudentsForDepartment";
+								}else {
+									return "redirect:/viewAppliedApplicationStudentsForAdmin";
+								}
+							}else {
+								errorMessage = uploadFileForS3(file, userdetails);
+							}
+						}
+					}else {
+						setError(ra, "File uploaded is invalid!");
+						if(userdetails.getAuthorities().contains(Role.ROLE_STAFF)) {
+							return "redirect:/viewAppliedApplicationStudentsForDepartment";
+						}else {
+							return "redirect:/viewAppliedApplicationStudentsForAdmin";
+						}
+					}
+					
 					if (!errorMessage.contains("Error in uploading file")) {
 						if (filepath.isEmpty() || filepath == null) {
 							filepath = errorMessage;
@@ -607,18 +650,39 @@ public class LorController extends BaseController {
 			String filepath = "";
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
-
-					errorMessage = uploadStudentFileForS3(file);
-					if (!errorMessage.contains("Error in uploading file")) {
-						if (filepath.isEmpty() || filepath == null) {
-							filepath = errorMessage;
-						} else {
-							filepath = filepath + "," + errorMessage;
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							setError(redirect, "File uploaded is invalid!");
+							return"redirect:/viewLor";
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								setError(redirect, "File uploaded is invalid!");
+								return"redirect:/viewLor";
+							}else {
+								errorMessage = uploadStudentFileForS3(file);
+								if (!errorMessage.contains("Error in uploading file")) {
+									if (filepath.isEmpty() || filepath == null) {
+										filepath = errorMessage;
+									} else {
+										filepath = filepath + "," + errorMessage;
+									}
+								} else {
+									setError(redirect, "Error in uploading file");
+									return "redirect:/viewLor";
+								}
+								logger.info("filepath-----"+filepath);
+							}
 						}
-					} else {
-						setError(redirect, "Error in uploading file");
-						return "redirect:/viewLor";
+					}else {
+						setError(redirect, "File uploaded is invalid!");
+						return"redirect:/viewLor";
 					}
+					
+					
 				}
 			}
 			LorRegStaff lorRegStaff = new LorRegStaff();

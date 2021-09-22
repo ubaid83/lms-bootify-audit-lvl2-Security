@@ -48,10 +48,19 @@ public class User extends BaseBean implements Serializable, UserDetails {
     private String nad;
     private String enableS;
     private String address;
-    
-    
+    /* New Audit changes start */
+    private String isUserBlocked;
+    /* New Audit changes end */
 	//private String log_in_time;
 	
+	public String getIsUserBlocked() {
+		return isUserBlocked;
+	}
+
+	public void setIsUserBlocked(String isUserBlocked) {
+		this.isUserBlocked = isUserBlocked;
+	}
+
 	public String getAddress() {
 		return address;
 	}
@@ -874,42 +883,27 @@ public class User extends BaseBean implements Serializable, UserDetails {
 
 	@Override
 	public String toString() {
-		return "User [username=" + username + ", firstname=" + firstname
-				+ ", lastname=" + lastname + ", password=" + password
-				+ ", rollNo=" + rollNo + ", studentObjectId=" + studentObjectId
-				+ ", rolesForUser=" + rolesForUser + ", campusName="
-				+ campusName + ", campusId=" + campusId + ", schoolAbbr="
-				+ schoolAbbr + ", schoolObjId=" + schoolObjId
-				+ ", programName=" + programName + ", religion=" + religion
-				+ ", isLoggedIn=" + isLoggedIn + ", userImage=" + userImage
-				+ ", startDate=" + startDate + ", endDate=" + endDate
-				+ ", nad=" + nad + ", enableS=" + enableS + ", address="
-				+ address + ", logInTime=" + logInTime + ", logOutTime="
-				+ logOutTime + ", logInTimeText=" + logInTimeText
-				+ ", logOutTimeText=" + logOutTimeText + ", newPasswordMob="
-				+ newPasswordMob + ", reenterPasswordMob=" + reenterPasswordMob
-				+ ", icaId=" + icaId + ", secquestion=" + secquestion
-				+ ", secAnswer=" + secAnswer + ", deRegStatus=" + deRegStatus
-				+ ", deRegReason=" + deRegReason + ", reenterPassword="
-				+ reenterPassword + ", newPassword=" + newPassword
-				+ ", enabled=" + enabled + ", enrollmentYear=" + enrollmentYear
-				+ ", enrollmentMonth=" + enrollmentMonth + ", validityEndYear="
-				+ validityEndYear + ", validityEndMonth=" + validityEndMonth
-				+ ", fatherName=" + fatherName + ", motherName=" + motherName
-				+ ", programId=" + programId + ", email=" + email + ", mobile="
-				+ mobile + ", attempts=" + attempts + ", corseName="
-				+ corseName + ", operation=" + operation + ", role=" + role
-				+ ", acadSession=" + acadSession + ", type=" + type
-				+ ", course=" + course + ", roles=" + roles + ", userRoles="
-				+ userRoles + ", program=" + program + ", studentTestScores="
-				+ studentTestScores + ", studentAssignmentScores="
-				+ studentAssignmentScores + ", oldPassword=" + oldPassword
-				+ ", abbr=" + abbr + ", upsert=" + upsert
-				+ ", enrollmentMonths=" + enrollmentMonths
-				+ ", enrollmentEndMonths=" + enrollmentEndMonths + ", dept="
-				+ dept + ", acadYear=" + acadYear + ", courseId=" + courseId
-				+ ", courseName=" + courseName + ", count=" + count
-				+ ", playerId=" + playerId + "]";
+		return "User [username=" + username + ", firstname=" + firstname + ", lastname=" + lastname + ", password="
+				+ password + ", rollNo=" + rollNo + ", studentObjectId=" + studentObjectId + ", rolesForUser="
+				+ rolesForUser + ", campusName=" + campusName + ", campusId=" + campusId + ", schoolAbbr=" + schoolAbbr
+				+ ", schoolObjId=" + schoolObjId + ", programName=" + programName + ", religion=" + religion
+				+ ", isLoggedIn=" + isLoggedIn + ", userImage=" + userImage + ", startDate=" + startDate + ", endDate="
+				+ endDate + ", nad=" + nad + ", enableS=" + enableS + ", address=" + address + ", isUserBlocked="
+				+ isUserBlocked + ", logInTime=" + logInTime + ", logOutTime=" + logOutTime + ", logInTimeText="
+				+ logInTimeText + ", logOutTimeText=" + logOutTimeText + ", newPasswordMob=" + newPasswordMob
+				+ ", reenterPasswordMob=" + reenterPasswordMob + ", icaId=" + icaId + ", secquestion=" + secquestion
+				+ ", secAnswer=" + secAnswer + ", deRegStatus=" + deRegStatus + ", deRegReason=" + deRegReason
+				+ ", reenterPassword=" + reenterPassword + ", newPassword=" + newPassword + ", enabled=" + enabled
+				+ ", enrollmentYear=" + enrollmentYear + ", enrollmentMonth=" + enrollmentMonth + ", validityEndYear="
+				+ validityEndYear + ", validityEndMonth=" + validityEndMonth + ", fatherName=" + fatherName
+				+ ", motherName=" + motherName + ", programId=" + programId + ", email=" + email + ", mobile=" + mobile
+				+ ", attempts=" + attempts + ", corseName=" + corseName + ", operation=" + operation + ", role=" + role
+				+ ", acadSession=" + acadSession + ", type=" + type + ", course=" + course + ", roles=" + roles
+				+ ", userRoles=" + userRoles + ", program=" + program + ", studentTestScores=" + studentTestScores
+				+ ", studentAssignmentScores=" + studentAssignmentScores + ", oldPassword=" + oldPassword + ", abbr="
+				+ abbr + ", upsert=" + upsert + ", enrollmentMonths=" + enrollmentMonths + ", enrollmentEndMonths="
+				+ enrollmentEndMonths + ", dept=" + dept + ", acadYear=" + acadYear + ", courseId=" + courseId
+				+ ", courseName=" + courseName + ", count=" + count + ", playerId=" + playerId + "]";
 	}
 	
 	

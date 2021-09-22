@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -37,6 +36,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -63,7 +63,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spts.lms.auth.Token;
 import com.spts.lms.beans.amazon.AmazonS3ClientService;
-import com.spts.lms.beans.assignment.Assignment;
 import com.spts.lms.beans.content.Content;
 import com.spts.lms.beans.content.StudentContent;
 import com.spts.lms.beans.course.Course;
@@ -74,7 +73,6 @@ import com.spts.lms.beans.test.StudentTest;
 import com.spts.lms.beans.test.Test;
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
-import com.spts.lms.daos.content.ContentDAO;
 import com.spts.lms.helpers.excel.ExcelCreater;
 import com.spts.lms.services.content.ContentService;
 import com.spts.lms.services.content.StudentContentService;
@@ -393,6 +391,12 @@ public class ContentController extends BaseController {
 			if (content.getCourseId() == null) {
 				content.setCourseId(Long.valueOf(idForCourse));
 			}
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addContentForm";
+			}
+			/* New Audit changes end */
 			performFolderPathCheck(content);
 			Token userdetails1 = (Token) p;
 			String ProgramName = userdetails1.getProgramName();
@@ -407,8 +411,30 @@ public class ContentController extends BaseController {
 							"No file selected. Please select a file to upload.");
 					return "redirect:/addContentForm";
 				}
-				String errorMessage = uploadContentFileForS3(content,
-						content.getFolderPath(), file);
+				//Audit change start
+				String errorMessage = "";
+				if (file.getOriginalFilename().contains(".")) {
+					Long count = file.getOriginalFilename().chars().filter(o -> o == ('.')).count();
+					logger.info("length--->"+count);
+					if (count > 1 || count == 0) {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						return "redirect:/addContentForm";
+					}else {
+						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+						logger.info("extension--->"+extension);
+						if(extension.equalsIgnoreCase("exe")) {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							return "redirect:/addContentForm";
+						}else {
+							errorMessage = uploadContentFileForS3(content,
+					content.getFolderPath(), file);
+						}
+					}
+				}else {
+					setError(redirectAttrs, "File uploaded is invalid!");
+					return "redirect:/addContentForm";
+				}
+				//Audit change end
 
 				if (!errorMessage.contains("Error")) {
 					logger.info("errorMessage ---------- " + errorMessage);
@@ -484,7 +510,12 @@ public class ContentController extends BaseController {
 				idForModule = content.getModuleId();
 			}
 			boolean create = true;
-
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addContentForm";
+			}
+			/* New Audit changes end */
 			performFolderPathCheckForModule(content);
 			for (MultipartFile file : files) {
 				if (file == null || file.isEmpty()) {
@@ -543,9 +574,30 @@ public class ContentController extends BaseController {
 			
 
 				boolean created = false;
-				
-				String errorMessage = uploadContentFileForS3(content,
-						content.getFolderPath(), file);
+				//Audit change start
+				String errorMessage = "";
+				if (file.getOriginalFilename().contains(".")) {
+					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+					logger.info("length--->"+count);
+					if (count > 1 || count == 0) {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						return "redirect:/addContentForm";
+					}else {
+						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+						logger.info("extension--->"+extension);
+						if(extension.equalsIgnoreCase("exe")) {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							return "redirect:/addContentForm";
+						}else {
+							errorMessage = uploadContentFileForS3(content,
+										content.getFolderPath(), file);
+						}
+					}
+				}else {
+					setError(redirectAttrs, "File uploaded is invalid!");
+					return "redirect:/addContentForm";
+				}
+				//Audit change end
 
 				contentForMultiFileModule.setAcadMonth(acadMonth);
 				logger.info("ParentContent  -----------> "+content.getParentContentId());
@@ -653,7 +705,12 @@ public class ContentController extends BaseController {
 
 			m.addAttribute("Program_Name", ProgramName);
 			m.addAttribute("AcadSession", acadSession);
-
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addContentForm";
+			}
+			/* New Audit changes end */
 			String completFolderPath = content.getFolderPath()
 					+ content.getContentName();
 			file = new File(completFolderPath);
@@ -736,6 +793,12 @@ public class ContentController extends BaseController {
 			if (!acadYear.isEmpty() && acadYear != null) {
 				content.setAcadYear(Integer.valueOf(acadYear));
 			}
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addContentForm";
+			}
+			/* New Audit changes end */
 			String acadMonth = courseService.getAcadMonthByModuleIdAndAcadYear(
 					content.getModuleId(),
 					String.valueOf(content.getAcadYear()));
@@ -1274,6 +1337,12 @@ public class ContentController extends BaseController {
 			@RequestParam(name = "idForCourse", required = false, defaultValue = "") String idForCourse) {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addContentForm";
+			}
+			/* New Audit changes end */
 
 			if (content.getCourseId() == null) {
 				content.setCourseId(Long.valueOf(idForCourse));
@@ -1286,7 +1355,29 @@ public class ContentController extends BaseController {
 						"No file selected. Please select a file to upload.");
 				return "redirect:/addContentForm";
 			}
-			String errorMessage = uploadContentFileForS3(content, content.getFolderPath(), file);
+			//Audit change start
+			String errorMessage = "";
+			if (file.getOriginalFilename().contains(".")) {
+				Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+				logger.info("length--->"+count);
+				if (count > 1 || count == 0) {
+					setError(redirectAttrs, "File uploaded is invalid!");
+					return "redirect:/addContentForm";
+				}else {
+					String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+					logger.info("extension--->"+extension);
+					if(extension.equalsIgnoreCase("exe")) {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						return "redirect:/addContentForm";
+					}else {
+						errorMessage = uploadContentFileForS3(content, content.getFolderPath(), file);
+					}
+				}
+			}else {
+				setError(redirectAttrs, "File uploaded is invalid!");
+				return "redirect:/addContentForm";
+			}
+			//Audit change end
 			
 			Course c = null;
 			if (!errorMessage.contains("Error")) {
@@ -1355,7 +1446,12 @@ public class ContentController extends BaseController {
 		try {
 			String username = p.getName();
 			performFolderPathCheckForModule(content);
-
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addContentForm";
+			}
+			/* New Audit changes end */
 			if (idForModule != null) {
 				content.setModuleId(idForModule);
 			}
@@ -1411,8 +1507,29 @@ public class ContentController extends BaseController {
 						"No file selected. Please select a file to upload.");
 				return "redirect:/addContentForm";
 			}
-			String errorMessage = uploadContentFileForS3(content,
-					content.getFolderPath(), file);
+			//Audit change start
+			String errorMessage = "";
+			if (file.getOriginalFilename().contains(".")) {
+				Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+				logger.info("length--->"+count);
+				if (count > 1 || count == 0) {
+					setError(redirectAttrs, "File uploaded is invalid!");
+					return "redirect:/addContentForm";
+				}else {
+					String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+					logger.info("extension--->"+extension);
+					if(extension.equalsIgnoreCase("exe")) {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						return "redirect:/addContentForm";
+					}else {
+						errorMessage = uploadContentFileForS3(content, content.getFolderPath(), file);
+					}
+				}
+			}else {
+				setError(redirectAttrs, "File uploaded is invalid!");
+				return "redirect:/addContentForm";
+			}
+			//Audit change end
 
 			if (!errorMessage.contains("Error")) {
 				contentForModule.setFolderPath(content.getFolderPath());
@@ -1487,9 +1604,33 @@ public class ContentController extends BaseController {
 			if (file != null && !file.isEmpty()) {
 				Content c = contentService.findByID(content.getId());
 				String oldFilePath = c.getFilePath();
-				
-				String errorMessage = uploadContentFileForS3(content,
-						content.getFolderPath(), file);
+				//Audit change start
+				String errorMessage = "";
+				if (file.getOriginalFilename().contains(".")) {
+					Long count = file.getOriginalFilename().chars().filter(o -> o == ('.')).count();
+					logger.info("length--->"+count);
+					if (count > 1 || count == 0) {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						redirectAttrs.addFlashAttribute("edit", "true");
+						return "redirect:/addContentForm";
+					}else {
+						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+						logger.info("extension--->"+extension);
+						if(extension.equalsIgnoreCase("exe")) {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							redirectAttrs.addFlashAttribute("edit", "true");
+							return "redirect:/addContentForm";
+						}else {
+							errorMessage = uploadContentFileForS3(content,
+								content.getFolderPath(), file);
+						}
+					}
+				}else {
+					setError(redirectAttrs, "File uploaded is invalid!");
+					redirectAttrs.addFlashAttribute("edit", "true");
+					return "redirect:/addContentForm";
+				}
+				//Audit change end
 				String newFilePath = content.getFilePath();
 					
 					if(oldFilePath.startsWith("/")) {
@@ -1573,9 +1714,33 @@ public class ContentController extends BaseController {
 			if (file != null && !file.isEmpty()) {
 				
 				String oldFilePath = contentDB.getFilePath();
-				
-				String errorMessage = uploadContentFileForS3(content,
-						content.getFolderPath(), file);
+				//Audit change start
+				String errorMessage = "";
+				if (file.getOriginalFilename().contains(".")) {
+					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+					logger.info("length--->"+count);
+					if (count > 1 || count == 0) {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						redirectAttrs.addFlashAttribute("edit", "true");
+						return "redirect:/addContentForm";
+					}else {
+						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+						logger.info("extension--->"+extension);
+						if(extension.equalsIgnoreCase("exe")) {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							redirectAttrs.addFlashAttribute("edit", "true");
+							return "redirect:/addContentForm";
+						}else {
+							errorMessage = uploadContentFileForS3(content,
+									content.getFolderPath(), file);
+						}
+					}
+				}else {
+					setError(redirectAttrs, "File uploaded is invalid!");
+					redirectAttrs.addFlashAttribute("edit", "true");
+					return "redirect:/addContentForm";
+				}
+				//Audit change end
 				
 				String newFilePath = content.getFilePath();
 					if(oldFilePath.startsWith("/")) {
@@ -1675,6 +1840,12 @@ public class ContentController extends BaseController {
 						+ content.getCourseId());
 				content.setCourseId(Long.valueOf(idForCourse));
 			}
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addContentForm";
+			}
+			/* New Audit changes end */
 			performFolderPathCheck(content);
 			Course c = null;
 			if (StringUtils.isEmpty(idForCourse)) {
@@ -1725,6 +1896,12 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
 			String username = p.getName();
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addContentForm";
+			}
+			/* New Audit changes end */
 			List<Course> courseIdList = new ArrayList<>();
 			courseIdList = courseService.findCoursesByModuleId(
 					Long.valueOf(idForModule), username, acadYear);

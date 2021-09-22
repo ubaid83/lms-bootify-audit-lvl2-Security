@@ -90,8 +90,7 @@ import com.spts.lms.web.utils.Utils;
 @Controller
 public class RegistrationController extends BaseController {
 
-	private static final Logger logger = Logger
-			.getLogger(RegistrationController.class);
+	private static final Logger logger = Logger.getLogger(RegistrationController.class);
 
 	@Autowired
 	ApplicationContext act;
@@ -104,17 +103,17 @@ public class RegistrationController extends BaseController {
 
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	TrainingProgramService trainingProgramService;
-	
+
 	@Autowired
 	TrainingProgram trainingProgram;
-	
+
 	@Autowired
-	
+
 	ProgramCampusService programCampusService;
-	
+
 	@Autowired
 	private ProgramService programService;
 	@Autowired
@@ -156,12 +155,12 @@ public class RegistrationController extends BaseController {
 
 	@Value("${userMgmtCrudUrl}")
 	private String userRoleMgmtCrudUrl;
-	
+
 	@Value("${imgPath}")
 	private String saveimagePath;
 	/*
-	 * @Value("#{'${userRoleMgmtCrudUrl:http://13.76.166.129:8080/usermgmtcrud}'}"
-	 * ) String userRoleMgmtCrudUrl;
+	 * @Value("#{'${userRoleMgmtCrudUrl:http://13.76.166.129:8080/usermgmtcrud}'}" )
+	 * String userRoleMgmtCrudUrl;
 	 */
 
 	Client client = ClientBuilder.newClient();
@@ -192,25 +191,21 @@ public class RegistrationController extends BaseController {
 	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/addUserForm", method = RequestMethod.GET)
 	public String addUserForm(@ModelAttribute("user") User user, Model m) {
-		m.addAttribute("webPage", new WebPage("register", "Register User",
-				true, true, true, true, false));
+		m.addAttribute("webPage", new WebPage("register", "Register User", true, true, true, true, false));
 		m.addAttribute("acadSessionList", acadSessionList);
 		return "user/register";
 	}
-	
-	@RequestMapping(value ="/downloadAttendence_Report",method = { RequestMethod.GET,RequestMethod.POST})
-	public ModelAndView downloadAttendence_Report()
-	{
-	 ModelAndView mav = new ModelAndView("homepage/downloadAttendence");
-	 return mav;
+
+	@RequestMapping(value = "/downloadAttendence_Report", method = { RequestMethod.GET, RequestMethod.POST })
+	public ModelAndView downloadAttendence_Report() {
+		ModelAndView mav = new ModelAndView("homepage/downloadAttendence");
+		return mav;
 	}
 
 	@Secured({ "ROLE_USER" })
-	@RequestMapping(value = "/addFacultyDetailsForm", method = {
-			RequestMethod.POST, RequestMethod.GET })
-	public String addFacultyDetailsForm(
-			@ModelAttribute FacultyDetails facultyDetails, Model m,
-			Principal p, @RequestParam(required = false) Long id) {
+	@RequestMapping(value = "/addFacultyDetailsForm", method = { RequestMethod.POST, RequestMethod.GET })
+	public String addFacultyDetailsForm(@ModelAttribute FacultyDetails facultyDetails, Model m, Principal p,
+			@RequestParam(required = false) Long id) {
 		String username1 = p.getName();
 		Token userdetails1 = (Token) p;
 		String ProgramName = userdetails1.getProgramName();
@@ -221,8 +216,7 @@ public class RegistrationController extends BaseController {
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
-		m.addAttribute("webPage", new WebPage("register",
-				"Add Faculty Detaiils", true, true, true, true, false));
+		m.addAttribute("webPage", new WebPage("register", "Add Faculty Detaiils", true, true, true, true, false));
 		if (id != null) {
 			facultyDetails = facultyDetailsService.findByID(id);
 			m.addAttribute("edit", "true");
@@ -230,8 +224,7 @@ public class RegistrationController extends BaseController {
 		}
 		Collection<String> similar = new HashSet<String>();
 		Collection<String> different = new HashSet<String>();
-		List<User> allFaculties = userService.findAllFacultyByProgramId(Long
-				.valueOf(userdetails1.getProgramId()));
+		List<User> allFaculties = userService.findAllFacultyByProgramId(Long.valueOf(userdetails1.getProgramId()));
 		List<FacultyDetails> addedFaculties = facultyDetailsService.findAll();
 		for (User u : allFaculties) {
 			String username = u.getUsername();
@@ -254,8 +247,7 @@ public class RegistrationController extends BaseController {
 
 			User u = userService.findByUserName(s);
 
-			s = u.getUsername() + " " + u.getFirstname() + " "
-					+ u.getLastname();
+			s = u.getUsername() + " " + u.getFirstname() + " " + u.getLastname();
 			finalList.add(s);
 		}
 		m.addAttribute("finalList", finalList);
@@ -267,21 +259,18 @@ public class RegistrationController extends BaseController {
 	}
 
 	@Secured({ "ROLE_USER" })
-	@RequestMapping(value = "/addFacultyDetails", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String addFacultyDetails(RedirectAttributes redirectAttrs,
-			Principal principal, Model m,
+	@RequestMapping(value = "/addFacultyDetails", method = { RequestMethod.GET, RequestMethod.POST })
+	public String addFacultyDetails(RedirectAttributes redirectAttrs, Principal principal, Model m,
 			@ModelAttribute FacultyDetails facultyDetails) {
 
-		m.addAttribute("webPage", new WebPage("register",
-				"Add Faculty Details", true, false, true, true, false));
+		m.addAttribute("webPage", new WebPage("register", "Add Faculty Details", true, false, true, true, false));
 		String username = principal.getName();
 		try {
 			// if (!file.isEmpty()) {
 			// String errorMessage = uploadFacultyImage(facultyDetails, file);
 			// if (errorMessage == null) {
-			facultyDetails.setUsername(facultyDetails.getUsername().substring(
-					0, facultyDetails.getUsername().indexOf(" ")));
+			facultyDetails
+					.setUsername(facultyDetails.getUsername().substring(0, facultyDetails.getUsername().indexOf(" ")));
 			facultyDetails.setCreatedBy(username);
 			facultyDetails.setLastModifiedBy(username);
 			facultyDetailsService.insertWithIdReturn(facultyDetails);
@@ -291,16 +280,14 @@ public class RegistrationController extends BaseController {
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in adding details");
-			m.addAttribute("webPage", new WebPage("register",
-					"Add Faculty Details", true, false, true, true, false));
+			m.addAttribute("webPage", new WebPage("register", "Add Faculty Details", true, false, true, true, false));
 			return "user/addFacultyDetails";
 		}
 
 		return "redirect:/viewFacultyDetails";
 	}
 
-	@RequestMapping(value = "/uploadFacultyDetailsForm", method = {
-			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/uploadFacultyDetailsForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String uploadFacultyDetailsForm(Model m, Principal p) {
 		Token userdetails1 = (Token) p;
 		String username = p.getName();
@@ -312,8 +299,7 @@ public class RegistrationController extends BaseController {
 
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
-		m.addAttribute("webPage", new WebPage("groups", "Upload FAQs", false,
-				false));
+		m.addAttribute("webPage", new WebPage("groups", "Upload FAQs", false, false));
 
 		FacultyDetails facultyDetails = new FacultyDetails();
 		m.addAttribute("facultyDetails", facultyDetails);
@@ -322,11 +308,9 @@ public class RegistrationController extends BaseController {
 	}
 
 	@RequestMapping(value = "/uploadFacultyDetails", method = { RequestMethod.POST })
-	public String uploadFacultyDetails(@ModelAttribute FacultyDetails faq,
-			@RequestParam("file") MultipartFile file, Model m,
-			RedirectAttributes redirectAttributes, Principal principal) {
-		m.addAttribute("webPage", new WebPage("test", "Upload FAQs", true,
-				false));
+	public String uploadFacultyDetails(@ModelAttribute FacultyDetails faq, @RequestParam("file") MultipartFile file,
+			Model m, RedirectAttributes redirectAttributes, Principal principal) {
+		m.addAttribute("webPage", new WebPage("test", "Upload FAQs", true, false));
 		List<String> validateHeaders = null;
 		String username = principal.getName();
 
@@ -339,15 +323,13 @@ public class RegistrationController extends BaseController {
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
-		validateHeaders = new ArrayList<String>(Arrays.asList("username",
-				"experience", "overview", "designation", "dob", "mobile",
-				"email"));
+		validateHeaders = new ArrayList<String>(
+				Arrays.asList("username", "experience", "overview", "designation", "dob", "mobile", "email"));
 
 		ExcelReader excelReader = new ExcelReader();
 
 		try {
-			List<Map<String, Object>> maps = excelReader
-					.readExcelFileUsingColumnHeader(file, validateHeaders);
+			List<Map<String, Object>> maps = excelReader.readExcelFileUsingColumnHeader(file, validateHeaders);
 
 			if (maps.size() == 0) {
 				setNote(m, "Excel File is empty");
@@ -355,8 +337,7 @@ public class RegistrationController extends BaseController {
 
 				Map<String, Object> map = maps.get(0);
 				/*
-				 * int firstQuestionanswer = Integer.parseInt((String) map
-				 * .get("answer"));
+				 * int firstQuestionanswer = Integer.parseInt((String) map .get("answer"));
 				 */
 
 				for (Map<String, Object> mapper : maps) {
@@ -394,8 +375,7 @@ public class RegistrationController extends BaseController {
 						// mapper.put("courseId", null);
 						facultyDetailsService.insertUsingMap(mapper);
 						// setSuccess(m, "FAQ file uploaded successfully");
-						setSuccess(redirectAttributes,
-								"FAQ file uploaded successfully");
+						setSuccess(redirectAttributes, "FAQ file uploaded successfully");
 
 					}
 				}
@@ -414,12 +394,11 @@ public class RegistrationController extends BaseController {
 	 * @RequestMapping(value = "/searchUser", method = { RequestMethod.GET,
 	 * RequestMethod.POST }) public String searchUser(@RequestParam(required =
 	 * false) Integer pageNo, Model m, @ModelAttribute User user) {
-	 * logger.debug("searchUserCourse called." + user);
-	 * m.addAttribute("webPage", new WebPage("courseList",
-	 * "View Course Enrollments", false, false));
+	 * logger.debug("searchUserCourse called." + user); m.addAttribute("webPage",
+	 * new WebPage("courseList", "View Course Enrollments", false, false));
 	 * 
-	 * try { Page<User> page = userService.searchByExactMatch(user, pageNo ==
-	 * null || pageNo == 0 ? 1 : pageNo, pageSize);
+	 * try { Page<User> page = userService.searchByExactMatch(user, pageNo == null
+	 * || pageNo == 0 ? 1 : pageNo, pageSize);
 	 * 
 	 * List<User> users = page.getPageItems();
 	 * 
@@ -432,29 +411,24 @@ public class RegistrationController extends BaseController {
 	 * 
 	 * if (users == null || users.size() == 0) { setNote(m, "No Users found"); }
 	 * 
-	 * } catch (Exception e) { e.printStackTrace(); logger.error(e.getMessage(),
-	 * e); setError(m, "Error in getting userCourseList List"); } return
+	 * } catch (Exception e) { e.printStackTrace(); logger.error(e.getMessage(), e);
+	 * setError(m, "Error in getting userCourseList List"); } return
 	 * "user/searchUser"; }
 	 */
 
-	@RequestMapping(value = "/searchUser", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String searchUser(@RequestParam(required = false) Integer pageNo,
-			Model m, @ModelAttribute User user) {
+	@RequestMapping(value = "/searchUser", method = { RequestMethod.GET, RequestMethod.POST })
+	public String searchUser(@RequestParam(required = false) Integer pageNo, Model m, @ModelAttribute User user) {
 
-		m.addAttribute("webPage", new WebPage("courseList",
-				"View Course Enrollments", false, false));
+		m.addAttribute("webPage", new WebPage("courseList", "View Course Enrollments", false, false));
 
 		try {
-			Page<User> page = userService.findUsers(user, pageNo == null
-					|| pageNo == 0 ? 1 : pageNo, pageSize);
+			Page<User> page = userService.findUsers(user, pageNo == null || pageNo == 0 ? 1 : pageNo, pageSize);
 
 			List<User> users = page.getPageItems();
 
 			for (User u : users) {
 
-				UserRole ur = userRoleService.findRoleByUsername(u
-						.getUsername());
+				UserRole ur = userRoleService.findRoleByUsername(u.getUsername());
 				u.setRole(String.valueOf(ur.getRole()));
 			}
 
@@ -473,10 +447,8 @@ public class RegistrationController extends BaseController {
 		return "user/searchUser";
 	}
 
-	@RequestMapping(value = "/deleteUser", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String deleteUser(@RequestParam String username,
-			RedirectAttributes redirectAttrs) {
+	@RequestMapping(value = "/deleteUser", method = { RequestMethod.GET, RequestMethod.POST })
+	public String deleteUser(@RequestParam String username, RedirectAttributes redirectAttrs) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			User user = userService.findByUserName(username);
@@ -487,12 +459,10 @@ public class RegistrationController extends BaseController {
 			 * logger.info("userRoleMgmtCrudUrl" + userRoleMgmtCrudUrl);
 			 * logger.info(" json--->" + (json));
 			 */
-			WebTarget webTarget = client.target(URIUtil
-					.encodeQuery(userRoleMgmtCrudUrl
-							+ "/makeUserInactive?json=" + json));
+			WebTarget webTarget = client
+					.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/makeUserInactive?json=" + json));
 
-			Invocation.Builder invocationBuilder = webTarget
-					.request(MediaType.APPLICATION_JSON);
+			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 
 			String resp = invocationBuilder.get(String.class);
 
@@ -506,18 +476,15 @@ public class RegistrationController extends BaseController {
 		return "redirect:/searchUser";
 	}
 
-	@RequestMapping(value = "/deleteUserFromAll", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String deleteUserFromAll(@RequestParam String username,
-			RedirectAttributes redirectAttrs) {
+	@RequestMapping(value = "/deleteUserFromAll", method = { RequestMethod.GET, RequestMethod.POST })
+	public String deleteUserFromAll(@RequestParam String username, RedirectAttributes redirectAttrs) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			User user = userService.findByUserName(username);
 			UserRole uRole = userRoleService.findRoleByUsername(username);
 
 			userService.makeUserIncactive(user);
-			studentFeedbackService.makeUserCourseInactiveForFeedback(username,
-					uRole.getRole().getAuthority());
+			studentFeedbackService.makeUserCourseInactiveForFeedback(username, uRole.getRole().getAuthority());
 			userCourseService.makeUserInActiveByUsername(username);
 
 			String json = mapper.writeValueAsString(user);
@@ -526,12 +493,10 @@ public class RegistrationController extends BaseController {
 			 * logger.info("userRoleMgmtCrudUrl" + userRoleMgmtCrudUrl);
 			 * logger.info(" json--->" + (json));
 			 */
-			WebTarget webTarget = client.target(URIUtil
-					.encodeQuery(userRoleMgmtCrudUrl
-							+ "/makeUserInactiveFromAll?json=" + json));
+			WebTarget webTarget = client
+					.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/makeUserInactiveFromAll?json=" + json));
 
-			Invocation.Builder invocationBuilder = webTarget
-					.request(MediaType.APPLICATION_JSON);
+			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 
 			String resp = invocationBuilder.get(String.class);
 
@@ -546,8 +511,7 @@ public class RegistrationController extends BaseController {
 	}
 
 	/*
-	 * private String uploadFacultyImage(FacultyDetails bean, MultipartFile
-	 * file) {
+	 * private String uploadFacultyImage(FacultyDetails bean, MultipartFile file) {
 	 * 
 	 * String errorMessage = null; InputStream inputStream = null; OutputStream
 	 * outputStream = null;
@@ -557,8 +521,7 @@ public class RegistrationController extends BaseController {
 	 * 
 	 * // Replace special characters in file fileName = fileName.replaceAll("'",
 	 * "_"); fileName = fileName.replaceAll(",", "_"); fileName =
-	 * fileName.replaceAll("&", "and"); fileName = fileName.replaceAll(" ",
-	 * "_");
+	 * fileName.replaceAll("&", "and"); fileName = fileName.replaceAll(" ", "_");
 	 * 
 	 * fileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_" +
 	 * RandomStringUtils.randomAlphanumeric(10) +
@@ -566,15 +529,14 @@ public class RegistrationController extends BaseController {
 	 * 
 	 * logger.info("fileName-->" + fileName);
 	 * 
-	 * try { inputStream = file.getInputStream(); String imagePath =
-	 * projectFolder + File.separator + fileName;
-	 * logger.info("projectFolder--------------" + projectFolder);
-	 * logger.info("imagePath-----------------------" + imagePath);
+	 * try { inputStream = file.getInputStream(); String imagePath = projectFolder +
+	 * File.separator + fileName; logger.info("projectFolder--------------" +
+	 * projectFolder); logger.info("imagePath-----------------------" + imagePath);
 	 * bean.setImagePath(imagePath); bean.setImagePreviewPath(imagePath);
 	 * logger.info("imagePath-->" + imagePath); File folderPath = new
-	 * File(projectFolder); if (!folderPath.exists()) { folderPath.mkdirs(); }
-	 * File newFile = new File(imagePath); outputStream = new
-	 * FileOutputStream(newFile); IOUtils.copy(inputStream, outputStream);
+	 * File(projectFolder); if (!folderPath.exists()) { folderPath.mkdirs(); } File
+	 * newFile = new File(imagePath); outputStream = new FileOutputStream(newFile);
+	 * IOUtils.copy(inputStream, outputStream);
 	 * 
 	 * } catch (IOException e) { errorMessage = "Error in uploading Image  : " +
 	 * e.getMessage(); logger.error("Exception" + errorMessage, e); } finally {
@@ -588,12 +550,9 @@ public class RegistrationController extends BaseController {
 	 * return errorMessage; }
 	 */
 	@Secured({ "ROLE_STUDENT" })
-	@RequestMapping(value = "/viewFacultyDetails", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String viewFacultyDetails(Model m,
-			@ModelAttribute FacultyDetails facultyDetails) {
-		m.addAttribute("webPage", new WebPage("faculty",
-				"View Faculty Details", true, true, true, true, false));
+	@RequestMapping(value = "/viewFacultyDetails", method = { RequestMethod.GET, RequestMethod.POST })
+	public String viewFacultyDetails(Model m, @ModelAttribute FacultyDetails facultyDetails) {
+		m.addAttribute("webPage", new WebPage("faculty", "View Faculty Details", true, true, true, true, false));
 		List<FacultyDetails> facultyList = facultyDetailsService.findAll();
 		m.addAttribute("facultyDetails", facultyDetails);
 		m.addAttribute("facultyList", facultyList);
@@ -601,13 +560,10 @@ public class RegistrationController extends BaseController {
 	}
 
 	@Secured({ "ROLE_USER" })
-	@RequestMapping(value = "/knowMyFaculty", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String knowMyFaculty(Model m, Principal principal,
-			@ModelAttribute FacultyDetails facultyDetails,
+	@RequestMapping(value = "/knowMyFaculty", method = { RequestMethod.GET, RequestMethod.POST })
+	public String knowMyFaculty(Model m, Principal principal, @ModelAttribute FacultyDetails facultyDetails,
 			@RequestParam Long courseId) {
-		m.addAttribute("webPage", new WebPage("facultys",
-				"View Faculty Details", true, true, true, true, false));
+		m.addAttribute("webPage", new WebPage("facultys", "View Faculty Details", true, true, true, true, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
@@ -616,7 +572,7 @@ public class RegistrationController extends BaseController {
 
 		ObjectMapper objMapper = new ObjectMapper();
 		String acadSession = u1.getAcadSession();
-		
+
 		List<Course> courseList = userdetails1.getCourseList();
 		m.addAttribute("courseList", courseList);
 		m.addAttribute("courseId", courseId);
@@ -625,27 +581,24 @@ public class RegistrationController extends BaseController {
 
 		List<FacultyDetails> facultyList = new ArrayList<>();
 		try {
-			WebTarget webTarget = client.target(URIUtil
-					.encodeQuery(userRoleMgmtCrudUrl
-							+ "/getFacultyProfile?courseId=" + courseId));
+			WebTarget webTarget = client
+					.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/getFacultyProfile?courseId=" + courseId));
 
-			Invocation.Builder invocationBuilder = webTarget
-					.request(MediaType.APPLICATION_JSON);
+			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 
 			String resp = invocationBuilder.get(String.class);
-			facultyList = objMapper.readValue(resp,
-					new TypeReference<List<FacultyDetails>>() {
-					});
+			facultyList = objMapper.readValue(resp, new TypeReference<List<FacultyDetails>>() {
+			});
 		} catch (Exception ex) {
 			logger.error("Exception ", ex);
 		}
 
 		if (facultyList == null || facultyList.size() == 0) {
-			
-			if(courseId != null){
+
+			if (courseId != null) {
 				setNote(m, "No Records found");
 			}
-			
+
 			m.addAttribute("showDetails", false);
 		} else {
 			m.addAttribute("showDetails", true);
@@ -671,8 +624,8 @@ public class RegistrationController extends BaseController {
 			 * String path = fd.getImagePath();
 			 * 
 			 * Integer pathx = path.lastIndexOf("resources"); String imagePath =
-			 * path.substring(pathx); logger.info("imagePath------------------"
-			 * + imagePath); m.addAttribute("imagePath", imagePath);
+			 * path.substring(pathx); logger.info("imagePath------------------" +
+			 * imagePath); m.addAttribute("imagePath", imagePath);
 			 */
 		}
 		m.addAttribute("facultyDetails", facultyDetails);
@@ -683,17 +636,15 @@ public class RegistrationController extends BaseController {
 	@Secured({ "ROLE_USER" })
 	/*
 	 * @RequestMapping(value = "/updateFacultyDetails", method = {
-	 * RequestMethod.GET, RequestMethod.POST }) public String
-	 * updateFacultyDetails(
+	 * RequestMethod.GET, RequestMethod.POST }) public String updateFacultyDetails(
 	 * 
-	 * @ModelAttribute FacultyDetails facultyDetails, Model m, Principal
-	 * principal, RedirectAttributes redirectAttrs) {
+	 * @ModelAttribute FacultyDetails facultyDetails, Model m, Principal principal,
+	 * RedirectAttributes redirectAttrs) {
 	 * 
-	 * m.addAttribute("webPage", new WebPage("register", "Faculty Details",
-	 * false, false)); try { String username = principal.getName();
-	 * FacultyDetails facultyDb = facultyDetailsService
-	 * .findByID(facultyDetails.getId()); facultyDb =
-	 * LMSHelper.copyNonNullFields(facultyDb, facultyDetails);
+	 * m.addAttribute("webPage", new WebPage("register", "Faculty Details", false,
+	 * false)); try { String username = principal.getName(); FacultyDetails
+	 * facultyDb = facultyDetailsService .findByID(facultyDetails.getId());
+	 * facultyDb = LMSHelper.copyNonNullFields(facultyDb, facultyDetails);
 	 * facultyDb.setLastModifiedBy(username);
 	 * 
 	 * facultyDetailsService.update(facultyDb);
@@ -703,24 +654,19 @@ public class RegistrationController extends BaseController {
 	 * 
 	 * } catch (Exception e) {
 	 * 
-	 * logger.error(e.getMessage(), e); setError(m,
-	 * "Error in updating details"); return "redirect:/addFacultyDetailsForm"; }
-	 * return "redirect:/viewFacultyDetails"; }
+	 * logger.error(e.getMessage(), e); setError(m, "Error in updating details");
+	 * return "redirect:/addFacultyDetailsForm"; } return
+	 * "redirect:/viewFacultyDetails"; }
 	 */
-	@RequestMapping(value = "/updateFacultyDetails", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String updateFacultyDetails(
-			@ModelAttribute FacultyDetails facultyDetails, Model m,
-			@RequestParam("file") MultipartFile file, Principal principal,
-			RedirectAttributes redirectAttrs) {
+	@RequestMapping(value = "/updateFacultyDetails", method = { RequestMethod.GET, RequestMethod.POST })
+	public String updateFacultyDetails(@ModelAttribute FacultyDetails facultyDetails, Model m,
+			@RequestParam("file") MultipartFile file, Principal principal, RedirectAttributes redirectAttrs) {
 
-		m.addAttribute("webPage", new WebPage("register", "Faculty Details",
-				false, false));
+		m.addAttribute("webPage", new WebPage("register", "Faculty Details", false, false));
 		try {
 			// String errorMessage = null;
 			String username = principal.getName();
-			FacultyDetails facultyDb = facultyDetailsService
-					.findByID(facultyDetails.getId());
+			FacultyDetails facultyDb = facultyDetailsService.findByID(facultyDetails.getId());
 			// if (file != null && !file.isEmpty()) {
 			// errorMessage = uploadFacultyImage(facultyDetails, file);
 			// } else {
@@ -758,31 +704,26 @@ public class RegistrationController extends BaseController {
 	 * principal) { String username = principal.getName();
 	 * user.setCreatedBy(username); user.setLastModifiedBy(username);
 	 * logger.info("Adding user " + username); m.addAttribute("webPage", new
-	 * WebPage("register", "Register User", true, true, true, true, false)); try
-	 * { userService.registerUser(user); setSuccess(m,
-	 * "User added successfully."); } catch (ValidationException ex) {
-	 * setError(m, ""); } catch (DuplicateKeyException ex) { setError(m, ""); }
-	 * return "user/register"; }
+	 * WebPage("register", "Register User", true, true, true, true, false)); try {
+	 * userService.registerUser(user); setSuccess(m, "User added successfully."); }
+	 * catch (ValidationException ex) { setError(m, ""); } catch
+	 * (DuplicateKeyException ex) { setError(m, ""); } return "user/register"; }
 	 */
-	@RequestMapping(value = "/uploadStudentForm", method = { RequestMethod.GET,
-			RequestMethod.POST })
+	@RequestMapping(value = "/uploadStudentForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String uploadStudentForm(Model m) {
-		m.addAttribute("webPage", new WebPage("uploadStudent",
-				"Upload Students", false, false, true, true, false));
+		m.addAttribute("webPage", new WebPage("uploadStudent", "Upload Students", false, false, true, true, false));
 		m.addAttribute("user", new User());
 		return "user/uploadStudent";
 	}
 
 	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/addUser", method = RequestMethod.POST)
-	public String addUser(@ModelAttribute("user") User user, Model m,
-			Principal principal) {
+	public String addUser(@ModelAttribute("user") User user, Model m, Principal principal) {
 		String username = principal.getName();
 		user.setCreatedBy(username);
 		user.setLastModifiedBy(username);
 
-		m.addAttribute("webPage", new WebPage("register", "Register User",
-				true, true, true, true, false));
+		m.addAttribute("webPage", new WebPage("register", "Register User", true, true, true, true, false));
 		try {
 
 			List<String> userRoleList = new ArrayList<>();
@@ -805,12 +746,10 @@ public class RegistrationController extends BaseController {
 			 * logger.info("userRoleMgmtCrudUrl" + userRoleMgmtCrudUrl);
 			 * logger.info(" json--->" + (json));
 			 */
-			WebTarget webTarget = client.target(URIUtil
-					.encodeQuery(userRoleMgmtCrudUrl + "/addOrUpdateUser?json="
-							+ json));
+			WebTarget webTarget = client
+					.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/addOrUpdateUser?json=" + json));
 
-			Invocation.Builder invocationBuilder = webTarget
-					.request(MediaType.APPLICATION_JSON);
+			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 
 			String resp = invocationBuilder.get(String.class);
 
@@ -819,11 +758,9 @@ public class RegistrationController extends BaseController {
 				ur.setLastModifiedBy(username);
 				ur.setOperation("INSERT");
 				String jsonUserRole = mapper.writeValueAsString(ur);
-				WebTarget webTarget1 = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/addOrUpdateUserRole?json=" + jsonUserRole));
-				Invocation.Builder invocationBuilder1 = webTarget1
-						.request(MediaType.APPLICATION_JSON);
+				WebTarget webTarget1 = client
+						.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/addOrUpdateUserRole?json=" + jsonUserRole));
+				Invocation.Builder invocationBuilder1 = webTarget1.request(MediaType.APPLICATION_JSON);
 				String resp1 = invocationBuilder1.get(String.class);
 
 			}
@@ -833,24 +770,20 @@ public class RegistrationController extends BaseController {
 			 * menuLoadParams.setUsername(user.getUsername()); String jsonMenu =
 			 * mapper.writeValueAsString(menuLoadParams);
 			 * 
-			 * if (getRole.contains("ROLE_ADMIN") ||
-			 * getRole.contains("ROLE_FACULTY")) {
+			 * if (getRole.contains("ROLE_ADMIN") || getRole.contains("ROLE_FACULTY")) {
 			 * logger.info("user role got -------" + getRole.get(1)); if
 			 * (getRole.get(1).contains("ROLE_ADMIN")) {
-			 * logger.info("user role is admin -------"); WebTarget
-			 * webTargetMenu = client.target(URIUtil .encodeQuery(conversionUrl
-			 * + "/fullLoadMenuRightsForAdminByAbbr?json=" + jsonMenu));
-			 * Invocation.Builder invocationBuilderMenu = webTargetMenu
-			 * .request(MediaType.APPLICATION_JSON); String respMenu =
-			 * invocationBuilderMenu.get(String.class); logger.info("resp" +
-			 * respMenu); } else { logger.info("user role is faculty-------");
-			 * WebTarget webTargetMenu = client .target(URIUtil
-			 * .encodeQuery(conversionUrl +
-			 * "/fullLoadMenuRightsForFacultyByAbbr?json=" + jsonMenu));
-			 * Invocation.Builder invocationBuilderMenu = webTargetMenu
-			 * .request(MediaType.APPLICATION_JSON); String respMenu =
-			 * invocationBuilderMenu.get(String.class); logger.info("resp" +
-			 * respMenu); } }
+			 * logger.info("user role is admin -------"); WebTarget webTargetMenu =
+			 * client.target(URIUtil .encodeQuery(conversionUrl +
+			 * "/fullLoadMenuRightsForAdminByAbbr?json=" + jsonMenu)); Invocation.Builder
+			 * invocationBuilderMenu = webTargetMenu .request(MediaType.APPLICATION_JSON);
+			 * String respMenu = invocationBuilderMenu.get(String.class); logger.info("resp"
+			 * + respMenu); } else { logger.info("user role is faculty-------"); WebTarget
+			 * webTargetMenu = client .target(URIUtil .encodeQuery(conversionUrl +
+			 * "/fullLoadMenuRightsForFacultyByAbbr?json=" + jsonMenu)); Invocation.Builder
+			 * invocationBuilderMenu = webTargetMenu .request(MediaType.APPLICATION_JSON);
+			 * String respMenu = invocationBuilderMenu.get(String.class); logger.info("resp"
+			 * + respMenu); } }
 			 */
 
 			setSuccess(m, "User added successfully.");
@@ -870,184 +803,48 @@ public class RegistrationController extends BaseController {
 	}
 
 	/*
-	 * @RequestMapping(value = "/uploadStudent", method = RequestMethod.POST)
-	 * public String uploadStudent(@ModelAttribute User user, Principal
-	 * principal,
+	 * @RequestMapping(value = "/uploadStudent", method = RequestMethod.POST) public
+	 * String uploadStudent(@ModelAttribute User user, Principal principal,
 	 * 
-	 * @RequestParam("file") MultipartFile file, RedirectAttributes
-	 * redirectAttrs) { StudentExcelHelper studentExcelHelper =
-	 * getStudentExcelHelper(); String username = principal.getName(); try { if
-	 * (!file.isEmpty()) { user.setEnrollmentMonths(new ArrayList<String>(Arrays
+	 * @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs) {
+	 * StudentExcelHelper studentExcelHelper = getStudentExcelHelper(); String
+	 * username = principal.getName(); try { if (!file.isEmpty()) {
+	 * user.setEnrollmentMonths(new ArrayList<String>(Arrays
 	 * .asList(enrollmentMonths))); user.setEnrollmentEndMonths(new
 	 * ArrayList<String>(Arrays .asList(enrollmentEndMonths)));
 	 * user.setCreatedBy(username); user.setLastModifiedBy(username);
 	 * studentExcelHelper.initHelper(user);
 	 * studentExcelHelper.readExcel((MultipartFile) file); }
 	 * 
-	 * } catch (Exception e) { logger.error("Exception", e);
-	 * setError(redirectAttrs, "Error in uploading File: " + e.getMessage());
-	 * return "redirect:/uploadStudentForm"; }
+	 * } catch (Exception e) { logger.error("Exception", e); setError(redirectAttrs,
+	 * "Error in uploading File: " + e.getMessage()); return
+	 * "redirect:/uploadStudentForm"; }
 	 * 
-	 * if (studentExcelHelper.getErrorList().isEmpty()) {
-	 * setSuccess(redirectAttrs, "File uploaded successfully"); return
-	 * "redirect:/uploadStudentForm"; } else { setErrorList(redirectAttrs,
+	 * if (studentExcelHelper.getErrorList().isEmpty()) { setSuccess(redirectAttrs,
+	 * "File uploaded successfully"); return "redirect:/uploadStudentForm"; } else {
+	 * setErrorList(redirectAttrs,
 	 * "Errors encountered uploading file: No Records Added",
-	 * studentExcelHelper.getErrorList()); return "redirect:/uploadStudentForm";
-	 * }
+	 * studentExcelHelper.getErrorList()); return "redirect:/uploadStudentForm"; }
 	 * 
 	 * }
 	 */
 
 	@RequestMapping(value = "/uploadStudent", method = RequestMethod.POST)
 	public String uploadStudent(@ModelAttribute User user, Principal principal,
-			@RequestParam("file") MultipartFile file,
-			RedirectAttributes redirectAttrs) {
+			@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs) {
 		StudentExcelHelper studentExcelHelper = getStudentExcelHelper();
 		String username = principal.getName();
 		try {
 			if (!file.isEmpty()) {
-				user.setEnrollmentMonths(new ArrayList<String>(Arrays
-						.asList(enrollmentMonths)));
-				user.setEnrollmentEndMonths(new ArrayList<String>(Arrays
-						.asList(enrollmentEndMonths)));
+				user.setEnrollmentMonths(new ArrayList<String>(Arrays.asList(enrollmentMonths)));
+				user.setEnrollmentEndMonths(new ArrayList<String>(Arrays.asList(enrollmentEndMonths)));
 				user.setCreatedBy(username);
 				user.setLastModifiedBy(username);
 				studentExcelHelper.initHelper(user);
 				studentExcelHelper.readExcel((MultipartFile) file);
 				List<User> userList = studentExcelHelper.getSuccessList();
 				ObjectMapper mapper = new ObjectMapper();
-				String json = mapper.writeValueAsString(studentExcelHelper
-						.getSuccessList());
-
-				/*
-				 * logger.info("encoded json--->" + URIUtil.encodeQuery(json));
-				 * logger.info("userRoleMgmtCrudUrl" + userRoleMgmtCrudUrl);
-				 * logger.info(" json--->" + (json));
-				 */
-				/*WebTarget webTarget = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/addOrUpdateUserBulk?json=" + json));
-				Invocation.Builder invocationBuilder = webTarget
-						.request(MediaType.APPLICATION_JSON);
-				String resp = invocationBuilder.get(String.class);*/
-				
-				ClientConfig clientConfig = null;
-				Client clientWS = null;
-				WebTarget webTarget = null;
-				Invocation.Builder invocationBuilder = null;
-				Response response = null;
-				clientConfig = new ClientConfig();
-
-				clientWS = ClientBuilder.newClient(clientConfig);
-				webTarget = clientWS.target(userRoleMgmtCrudUrl
-						+ "/addOrUpdateUserBulk");
-				// .target(LMSURL+"/MPSTME-NM-M/createAssignmentFromJson/");
-
-				// set file upload values
-				invocationBuilder = webTarget.request();
-
-				response = invocationBuilder.post(Entity.entity(
-						json.toString(), MediaType.APPLICATION_JSON));
-
-				/*
-				 * response = webTarget.request(MediaType.APPLICATION_JSON).post
-				 * (Entity.json(json), Response.class);
-				 */
-
-				// get response code
-				int responseCode = response.getStatus();
-				
-				
-				for (User ur : userList) {
-
-					String jsonUserRole = mapper.writeValueAsString(ur
-							.getUserRoles());
-
-					/*
-					 * logger.info("encoded json--->" +
-					 * URIUtil.encodeQuery(jsonUserRole));
-					 */
-					WebTarget webTarget1 = client.target(URIUtil
-							.encodeQuery(userRoleMgmtCrudUrl
-									+ "/addOrUpdateUserRoleBulk?json="
-									+ jsonUserRole));
-					Invocation.Builder invocationBuilder1 = webTarget1
-							.request(MediaType.APPLICATION_JSON);
-					String resp1 = invocationBuilder1.get(String.class);
-
-				}
-
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			setError(redirectAttrs,
-					"Error in uploading File: " + e.getMessage());
-			return "redirect:/uploadStudentForm";
-		}
-
-		if (studentExcelHelper.getErrorList().isEmpty()) {
-			setSuccess(redirectAttrs, "File uploaded successfully");
-			return "redirect:/uploadStudentForm";
-		} else {
-			setErrorList(redirectAttrs,
-					"Errors encountered uploading file: No Records Added",
-					studentExcelHelper.getErrorList());
-			return "redirect:/uploadStudentForm";
-		}
-
-	}
-
-	@RequestMapping(value = "/uploadFacultyForm", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String uploadFacultyForm(Model m) {
-		m.addAttribute("webPage", new WebPage("uploadFaculty",
-				"Upload Faculties", false, false, true, true, false));
-		m.addAttribute("user", new User());
-		return "user/uploadFaculty";
-	}
-
-	/*
-	 * @RequestMapping(value = "/uploadFaculty", method = RequestMethod.POST)
-	 * public String uploadFaculty(@ModelAttribute User user, Principal
-	 * principal,
-	 * 
-	 * @RequestParam("file") MultipartFile file, RedirectAttributes
-	 * redirectAttrs) { FacultyExcelHelper facultyExcelHelper =
-	 * getFacultyExcelHelper(); String username = principal.getName(); try { if
-	 * (!file.isEmpty()) { user.setCreatedBy(username);
-	 * user.setLastModifiedBy(username); facultyExcelHelper.initHelper(user);
-	 * facultyExcelHelper.readExcel((MultipartFile) file); }
-	 * 
-	 * } catch (Exception e) { logger.error("Exception", e);
-	 * setError(redirectAttrs, "Error in uploading File: " + e.getMessage());
-	 * return "redirect:/uploadFacultyForm"; }
-	 * 
-	 * if (facultyExcelHelper.getErrorList().isEmpty()) {
-	 * setSuccess(redirectAttrs, "File uploaded successfully"); return
-	 * "redirect:/uploadFacultyForm"; } else { setErrorList(redirectAttrs,
-	 * "Errors encountered uploading file: No Records Added",
-	 * facultyExcelHelper.getErrorList()); return "redirect:/uploadFacultyForm";
-	 * }
-	 * 
-	 * }
-	 */
-	@RequestMapping(value = "/uploadFaculty", method = RequestMethod.POST)
-	public String uploadFaculty(@ModelAttribute User user, Principal principal,
-			@RequestParam("file") MultipartFile file,
-			RedirectAttributes redirectAttrs) {
-		FacultyExcelHelper facultyExcelHelper = getFacultyExcelHelper();
-		String username = principal.getName();
-		try {
-			if (!file.isEmpty()) {
-				user.setCreatedBy(username);
-				user.setLastModifiedBy(username);
-				facultyExcelHelper.initHelper(user);
-				facultyExcelHelper.readExcel((MultipartFile) file);
-				List<User> userList = facultyExcelHelper.getSuccessList();
-				ObjectMapper mapper = new ObjectMapper();
-				String json = mapper.writeValueAsString(facultyExcelHelper
-						.getSuccessList());
+				String json = mapper.writeValueAsString(studentExcelHelper.getSuccessList());
 
 				/*
 				 * logger.info("encoded json--->" + URIUtil.encodeQuery(json));
@@ -1060,32 +857,41 @@ public class RegistrationController extends BaseController {
 				 * = webTarget .request(MediaType.APPLICATION_JSON); String resp =
 				 * invocationBuilder.get(String.class);
 				 */
-				
-				WebTarget webTarget = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/addOrUpdateUserBulk"));
 
-				 Invocation.Builder  invocationBuilder = webTarget.request();
+				ClientConfig clientConfig = null;
+				Client clientWS = null;
+				WebTarget webTarget = null;
+				Invocation.Builder invocationBuilder = null;
+				Response response = null;
+				clientConfig = new ClientConfig();
 
-					Response  resp = invocationBuilder.post(Entity.entity(
-							json.toString(), MediaType.APPLICATION_JSON));
-					
-					logger.info("reponse is--->"+resp.getStatus());
+				clientWS = ClientBuilder.newClient(clientConfig);
+				webTarget = clientWS.target(userRoleMgmtCrudUrl + "/addOrUpdateUserBulk");
+				// .target(LMSURL+"/MPSTME-NM-M/createAssignmentFromJson/");
+
+				// set file upload values
+				invocationBuilder = webTarget.request();
+
+				response = invocationBuilder.post(Entity.entity(json.toString(), MediaType.APPLICATION_JSON));
+
+				/*
+				 * response = webTarget.request(MediaType.APPLICATION_JSON).post
+				 * (Entity.json(json), Response.class);
+				 */
+
+				// get response code
+				int responseCode = response.getStatus();
 
 				for (User ur : userList) {
 
-					String jsonUserRole = mapper.writeValueAsString(ur
-							.getUserRoles());
+					String jsonUserRole = mapper.writeValueAsString(ur.getUserRoles());
+
 					/*
-					 * logger.info("encoded json--->" +
-					 * URIUtil.encodeQuery(jsonUserRole));
+					 * logger.info("encoded json--->" + URIUtil.encodeQuery(jsonUserRole));
 					 */
-					WebTarget webTarget1 = client.target(URIUtil
-							.encodeQuery(userRoleMgmtCrudUrl
-									+ "/addOrUpdateUserRoleBulk?json="
-									+ jsonUserRole));
-					Invocation.Builder invocationBuilder1 = webTarget1
-							.request(MediaType.APPLICATION_JSON);
+					WebTarget webTarget1 = client.target(
+							URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/addOrUpdateUserRoleBulk?json=" + jsonUserRole));
+					Invocation.Builder invocationBuilder1 = webTarget1.request(MediaType.APPLICATION_JSON);
 					String resp1 = invocationBuilder1.get(String.class);
 
 				}
@@ -1094,8 +900,104 @@ public class RegistrationController extends BaseController {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			setError(redirectAttrs,
-					"Error in uploading File: " + e.getMessage());
+			setError(redirectAttrs, "Error in uploading File: " + e.getMessage());
+			return "redirect:/uploadStudentForm";
+		}
+
+		if (studentExcelHelper.getErrorList().isEmpty()) {
+			setSuccess(redirectAttrs, "File uploaded successfully");
+			return "redirect:/uploadStudentForm";
+		} else {
+			setErrorList(redirectAttrs, "Errors encountered uploading file: No Records Added",
+					studentExcelHelper.getErrorList());
+			return "redirect:/uploadStudentForm";
+		}
+
+	}
+
+	@RequestMapping(value = "/uploadFacultyForm", method = { RequestMethod.GET, RequestMethod.POST })
+	public String uploadFacultyForm(Model m) {
+		m.addAttribute("webPage", new WebPage("uploadFaculty", "Upload Faculties", false, false, true, true, false));
+		m.addAttribute("user", new User());
+		return "user/uploadFaculty";
+	}
+
+	/*
+	 * @RequestMapping(value = "/uploadFaculty", method = RequestMethod.POST) public
+	 * String uploadFaculty(@ModelAttribute User user, Principal principal,
+	 * 
+	 * @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs) {
+	 * FacultyExcelHelper facultyExcelHelper = getFacultyExcelHelper(); String
+	 * username = principal.getName(); try { if (!file.isEmpty()) {
+	 * user.setCreatedBy(username); user.setLastModifiedBy(username);
+	 * facultyExcelHelper.initHelper(user);
+	 * facultyExcelHelper.readExcel((MultipartFile) file); }
+	 * 
+	 * } catch (Exception e) { logger.error("Exception", e); setError(redirectAttrs,
+	 * "Error in uploading File: " + e.getMessage()); return
+	 * "redirect:/uploadFacultyForm"; }
+	 * 
+	 * if (facultyExcelHelper.getErrorList().isEmpty()) { setSuccess(redirectAttrs,
+	 * "File uploaded successfully"); return "redirect:/uploadFacultyForm"; } else {
+	 * setErrorList(redirectAttrs,
+	 * "Errors encountered uploading file: No Records Added",
+	 * facultyExcelHelper.getErrorList()); return "redirect:/uploadFacultyForm"; }
+	 * 
+	 * }
+	 */
+	@RequestMapping(value = "/uploadFaculty", method = RequestMethod.POST)
+	public String uploadFaculty(@ModelAttribute User user, Principal principal,
+			@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs) {
+		FacultyExcelHelper facultyExcelHelper = getFacultyExcelHelper();
+		String username = principal.getName();
+		try {
+			if (!file.isEmpty()) {
+				user.setCreatedBy(username);
+				user.setLastModifiedBy(username);
+				facultyExcelHelper.initHelper(user);
+				facultyExcelHelper.readExcel((MultipartFile) file);
+				List<User> userList = facultyExcelHelper.getSuccessList();
+				ObjectMapper mapper = new ObjectMapper();
+				String json = mapper.writeValueAsString(facultyExcelHelper.getSuccessList());
+
+				/*
+				 * logger.info("encoded json--->" + URIUtil.encodeQuery(json));
+				 * logger.info("userRoleMgmtCrudUrl" + userRoleMgmtCrudUrl);
+				 * logger.info(" json--->" + (json));
+				 */
+				/*
+				 * WebTarget webTarget = client.target(URIUtil .encodeQuery(userRoleMgmtCrudUrl
+				 * + "/addOrUpdateUserBulk?json=" + json)); Invocation.Builder invocationBuilder
+				 * = webTarget .request(MediaType.APPLICATION_JSON); String resp =
+				 * invocationBuilder.get(String.class);
+				 */
+
+				WebTarget webTarget = client.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/addOrUpdateUserBulk"));
+
+				Invocation.Builder invocationBuilder = webTarget.request();
+
+				Response resp = invocationBuilder.post(Entity.entity(json.toString(), MediaType.APPLICATION_JSON));
+
+				logger.info("reponse is--->" + resp.getStatus());
+
+				for (User ur : userList) {
+
+					String jsonUserRole = mapper.writeValueAsString(ur.getUserRoles());
+					/*
+					 * logger.info("encoded json--->" + URIUtil.encodeQuery(jsonUserRole));
+					 */
+					WebTarget webTarget1 = client.target(
+							URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/addOrUpdateUserRoleBulk?json=" + jsonUserRole));
+					Invocation.Builder invocationBuilder1 = webTarget1.request(MediaType.APPLICATION_JSON);
+					String resp1 = invocationBuilder1.get(String.class);
+
+				}
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			setError(redirectAttrs, "Error in uploading File: " + e.getMessage());
 			return "redirect:/uploadFacultyForm";
 		}
 
@@ -1103,136 +1005,108 @@ public class RegistrationController extends BaseController {
 			setSuccess(redirectAttrs, "File uploaded successfully");
 			return "redirect:/uploadFacultyForm";
 		} else {
-			setErrorList(redirectAttrs,
-					"Errors encountered uploading file: No Records Added",
+			setErrorList(redirectAttrs, "Errors encountered uploading file: No Records Added",
 					facultyExcelHelper.getErrorList());
 			return "redirect:/uploadFacultyForm";
 		}
 
 	}
-	
-	//02-07-2020
-	
 
-	@RequestMapping(value = "/updateProfileForm", method = { RequestMethod.GET,
-			RequestMethod.POST })
+	// 02-07-2020
+
+	@RequestMapping(value = "/updateProfileForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String updateProfileForm(Model m, Principal principal) {
 		String username = principal.getName();
-		m.addAttribute("webPage", new WebPage("updateProfile",
-				"Update Profile", false, false, true, true, false));
+		m.addAttribute("webPage", new WebPage("updateProfile", "Update Profile", false, false, true, true, false));
 		m.addAttribute("user", userService.findByUserName(username));
 		return "user/newUpdateProfile";
 	}
 
-	
-	/*//25-01-2021
+	/*
+	 * //25-01-2021
+	 * 
+	 * @RequestMapping(value = "/updateProfile", method = RequestMethod.POST) public
+	 * String updateProfile(Model m, @ModelAttribute User user, RedirectAttributes
+	 * redirectAttrs, Principal principal) { try {
+	 * 
+	 * String username = principal.getName(); User userDB =
+	 * userService.findByUserName(username); userDB.setUsername(username);
+	 * userDB.setLastModifiedBy(username); userDB.setEmail(user.getEmail());
+	 * userDB.setMobile(user.getMobile()); userDB.setOperation("UPDATE");
+	 * 
+	 * User userBean = new User(); User userBean2 =
+	 * userService.findStudentObjectId(username);
+	 * 
+	 * WsdlLog wsLog = new WsdlLog();
+	 * 
+	 * userBean = userService.findByUserName(username);
+	 * 
+	 * m.addAttribute("userBean", userBean); session.setAttribute("userBean",
+	 * userBean);
+	 * 
+	 * String studentObjId = ""; if (userBean2 == null) {
+	 * 
+	 * WebTarget webTarget12 = client.target(URIUtil
+	 * .encodeQuery(userRoleMgmtCrudUrl + "/getStudentObjIdByUsername?username=" +
+	 * username)); Invocation.Builder invocationBuilder12 = webTarget12
+	 * .request(MediaType.APPLICATION_JSON); studentObjId =
+	 * invocationBuilder12.get(String.class);
+	 * 
+	 * User newUserForScoolMap = new User();
+	 * 
+	 * newUserForScoolMap.setUsername(username);
+	 * newUserForScoolMap.setStudentObjectId(studentObjId);
+	 * 
+	 * userService.insertStudentMapping(newUserForScoolMap);
+	 * 
+	 * } else { studentObjId = userBean2.getStudentObjectId(); }
+	 * 
+	 * if (!studentObjId.equals("null")) { ZCHANGESTMOBILEEMAILWSSEP ws = new
+	 * ZCHANGESTMOBILEEMAILWSSEP(); Holder<ZmessageLogTt> lst = new
+	 * Holder<ZmessageLogTt>();
+	 * 
+	 * try {
+	 * 
+	 * String resp = ws.getZCHANGESTMOBILEEMAILBINDSEP()
+	 * .zchangeStMobileEmail(user.getEmail(), user.getMobile(), "", studentObjId,
+	 * lst); logger.info("ZmessageProfileLog----->" + lst.value); } catch (Exception
+	 * e) {
+	 * 
+	 * logger.error("Exception while calling a webservice", e);
+	 * wsLog.setStudentObjectid(studentObjId); wsLog.setUsername(username);
+	 * wsLog.setMobile(user.getMobile()); wsLog.setEmail(user.getEmail());
+	 * wsLog.setFailedReason(e.toString()); wsLog.setCreatedBy(username);
+	 * wsLog.setLastModifiedBy(username); try { wsdlLogService.insert(wsLog); }
+	 * catch (Exception ee) { logger.error("Exception while logging error", ee); }
+	 * 
+	 * }
+	 * 
+	 * userService.updateProfile(userDB);
+	 * 
+	 * ObjectMapper mapper = new ObjectMapper(); String json =
+	 * mapper.writeValueAsString(userDB);
+	 * 
+	 * WebTarget webTarget1 = client.target(URIUtil .encodeQuery(userRoleMgmtCrudUrl
+	 * + "/addOrUpdateUser?json=" + json)); Invocation.Builder invocationBuilder1 =
+	 * webTarget1 .request(MediaType.APPLICATION_JSON); String resp1 =
+	 * invocationBuilder1.get(String.class);
+	 * 
+	 * setSuccess(redirectAttrs, "Profile updated successfully"); } else {
+	 * 
+	 * setError(redirectAttrs, "Entry not found in SAP"); return
+	 * "redirect:/updateProfileForm"; }
+	 * 
+	 * } catch (Exception e) { logger.error("Exception", e); setError(redirectAttrs,
+	 * "Error in updating Profile");
+	 * 
+	 * } return "redirect:/updateProfileForm"; }
+	 */
+
 	@RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
-	public String updateProfile(Model m, @ModelAttribute User user,
-			RedirectAttributes redirectAttrs, Principal principal) {
+	public String updateProfile(Model m, @ModelAttribute User user, RedirectAttributes redirectAttrs,
+			Principal principal, @RequestParam("file") MultipartFile file) {
 		try {
 
-			String username = principal.getName();
-			User userDB = userService.findByUserName(username);
-			userDB.setUsername(username);
-			userDB.setLastModifiedBy(username);
-			userDB.setEmail(user.getEmail());
-			userDB.setMobile(user.getMobile());
-			userDB.setOperation("UPDATE");
-
-			User userBean = new User();
-			User userBean2 = userService.findStudentObjectId(username);
-
-			WsdlLog wsLog = new WsdlLog();
-
-			userBean = userService.findByUserName(username);
-
-			m.addAttribute("userBean", userBean);
-			session.setAttribute("userBean", userBean);
-
-			String studentObjId = "";
-			if (userBean2 == null) {
-
-				WebTarget webTarget12 = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/getStudentObjIdByUsername?username="
-								+ username));
-				Invocation.Builder invocationBuilder12 = webTarget12
-						.request(MediaType.APPLICATION_JSON);
-				studentObjId = invocationBuilder12.get(String.class);
-
-				User newUserForScoolMap = new User();
-
-				newUserForScoolMap.setUsername(username);
-				newUserForScoolMap.setStudentObjectId(studentObjId);
-
-				userService.insertStudentMapping(newUserForScoolMap);
-
-			} else {
-				studentObjId = userBean2.getStudentObjectId();
-			}
-
-			if (!studentObjId.equals("null")) {
-				ZCHANGESTMOBILEEMAILWSSEP ws = new ZCHANGESTMOBILEEMAILWSSEP();
-				Holder<ZmessageLogTt> lst = new Holder<ZmessageLogTt>();
-
-				try {
-
-					String resp = ws.getZCHANGESTMOBILEEMAILBINDSEP()
-							.zchangeStMobileEmail(user.getEmail(),
-									user.getMobile(), "", studentObjId, lst);
-					logger.info("ZmessageProfileLog----->" + lst.value);
-				} catch (Exception e) {
-
-					logger.error("Exception while calling a webservice", e);
-					wsLog.setStudentObjectid(studentObjId);
-					wsLog.setUsername(username);
-					wsLog.setMobile(user.getMobile());
-					wsLog.setEmail(user.getEmail());
-					wsLog.setFailedReason(e.toString());
-					wsLog.setCreatedBy(username);
-					wsLog.setLastModifiedBy(username);
-					try {
-						wsdlLogService.insert(wsLog);
-					} catch (Exception ee) {
-						logger.error("Exception while logging error", ee);
-					}
-
-				}
-
-				userService.updateProfile(userDB);
-
-				ObjectMapper mapper = new ObjectMapper();
-				String json = mapper.writeValueAsString(userDB);
-
-				WebTarget webTarget1 = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/addOrUpdateUser?json=" + json));
-				Invocation.Builder invocationBuilder1 = webTarget1
-						.request(MediaType.APPLICATION_JSON);
-				String resp1 = invocationBuilder1.get(String.class);
-
-				setSuccess(redirectAttrs, "Profile updated successfully");
-			}
-			else {
-
-				setError(redirectAttrs, "Entry not found in SAP");
-				return "redirect:/updateProfileForm";
-			}
-
-		} catch (Exception e) {
-			logger.error("Exception", e);
-			setError(redirectAttrs, "Error in updating Profile");
-
-		}
-		return "redirect:/updateProfileForm";
-	}*/
-	
-	@RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
-	public String updateProfile(Model m, @ModelAttribute User user,
-			RedirectAttributes redirectAttrs, Principal principal,
-			@RequestParam("file") MultipartFile file) {
-		try {
-			
 			String username = principal.getName();
 			User userDB = userService.findByUserName(username);
 			userDB.setUsername(username);
@@ -1243,57 +1117,75 @@ public class RegistrationController extends BaseController {
 			userDB.setOperation("UPDATE");
 			user.setUsername(username);
 			m.addAttribute("fileuploaderror", "");
-			
+
 			String encodedString = null;
-			
-			if(!file.isEmpty()) {
+
+			if (!file.isEmpty()) {
 				String originalfileName = file.getOriginalFilename();
+				//Audit change start
+				if (originalfileName.contains(".")) {
+					Long count = originalfileName.chars().filter(c -> c == ('.')).count();
+					logger.info("length--->" + count);
+					if (count > 1 || count == 0) {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						return "redirect:/updateProfileForm";
+					} else {
+						String extension = FilenameUtils.getExtension(originalfileName);
+						logger.info("extension--->" + extension);
+						if (extension.equalsIgnoreCase("exe")) {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							return "redirect:/updateProfileForm";
+						} else {
+							//Audit change end
+							File convFile = new File(originalfileName);
+							File saveimage = new File(saveimagePath);
 
-				File convFile = new File(originalfileName);
-				File saveimage = new File(saveimagePath);
-				
-				
-				double kilobyteSize = file.getSize();
-				double ogfilesize = 200;// in kb
+							double kilobyteSize = file.getSize();
+							double ogfilesize = 200;// in kb
 
-				double kilo = Utils.round((kilobyteSize / 1024), 2);
+							double kilo = Utils.round((kilobyteSize / 1024), 2);
 
-						
-				
+							String uploadimagepath = saveimagePath;
+							String realstorpath = saveimagePath.substring(7, uploadimagepath.length() - 1);
 
-				String uploadimagepath = saveimagePath;
-				String realstorpath = saveimagePath.substring(7,
-						uploadimagepath.length() - 1);
-				
-				if (kilo <= ogfilesize && kilo > 0) {
-					if (originalfileName.contains(".")) {
-						String name = FilenameUtils.getBaseName(originalfileName);
-						String repo = name.replace(name, username);
-						logger.info("RepoName------------------->" + repo);
-						// Get the file and save it somewhere
-						byte[] bytes = file.getBytes();
+							if (kilo <= ogfilesize && kilo > 0) {
+								if (originalfileName.contains(".")) {
+									String name = FilenameUtils.getBaseName(originalfileName);
+									String repo = name.replace(name, username);
+									logger.info("RepoName------------------->" + repo);
+									// Get the file and save it somewhere
+									byte[] bytes = file.getBytes();
 
-						// Convert File Int Bytes
+									// Convert File Int Bytes
 
-						encodedString = Base64.getEncoder().encodeToString(bytes);
-						user.setUserImage(encodedString);
+									encodedString = Base64.getEncoder().encodeToString(bytes);
+									user.setUserImage(encodedString);
 
-						 /*BASE64Decoder decoder = new BASE64Decoder();
-						 byte[] decodedBytes = decoder.decodeBuffer(encodedString);*/
-						
+									/*
+									 * BASE64Decoder decoder = new BASE64Decoder(); byte[] decodedBytes =
+									 * decoder.decodeBuffer(encodedString);
+									 */
 
-						File of = new File(realstorpath + "/" +username+".JPG");
-						FileOutputStream osf = new FileOutputStream(of);
-						osf.write(bytes);
-						osf.close();
-						
+									File of = new File(realstorpath + "/" + username + ".JPG");
+									FileOutputStream osf = new FileOutputStream(of);
+									osf.write(bytes);
+									osf.close();
+
+								}
+							} else {
+								String fileuploaderror = "File size must not be greater 200kb";
+								m.addAttribute("fileuploaderror", fileuploaderror);
+								setError(redirectAttrs, "File size must not be greater 200kb");
+								return "redirect:/updateProfileForm";
+							}
+							//Audit change start
+						}
 					}
 				} else {
-					String fileuploaderror = "File size must not be greater 200kb";
-					m.addAttribute("fileuploaderror", fileuploaderror);
-					setError(redirectAttrs, "File size must not be greater 200kb");
+					setError(redirectAttrs, "File uploaded is invalid!");
 					return "redirect:/updateProfileForm";
 				}
+				//Audit change end
 			}
 
 			User userBean = new User();
@@ -1307,20 +1199,17 @@ public class RegistrationController extends BaseController {
 			String studentObjId = "";
 			if (userBean2 == null) {
 				try {
-				WebTarget webTarget12 = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/getStudentObjIdByUsername?username="
-								+ username));
-				Invocation.Builder invocationBuilder12 = webTarget12
-						.request(MediaType.APPLICATION_JSON);
-				studentObjId = invocationBuilder12.get(String.class);
+					WebTarget webTarget12 = client.target(URIUtil
+							.encodeQuery(userRoleMgmtCrudUrl + "/getStudentObjIdByUsername?username=" + username));
+					Invocation.Builder invocationBuilder12 = webTarget12.request(MediaType.APPLICATION_JSON);
+					studentObjId = invocationBuilder12.get(String.class);
 
-				User newUserForScoolMap = new User();
+					User newUserForScoolMap = new User();
 
-				newUserForScoolMap.setUsername(username);
-				newUserForScoolMap.setStudentObjectId(studentObjId);
+					newUserForScoolMap.setUsername(username);
+					newUserForScoolMap.setStudentObjectId(studentObjId);
 
-				userService.insertStudentMapping(newUserForScoolMap);
+					userService.insertStudentMapping(newUserForScoolMap);
 				} catch (Exception e) {
 					logger.error("Exception while getting student Id or inserting data", e);
 				}
@@ -1330,61 +1219,56 @@ public class RegistrationController extends BaseController {
 
 			if (!studentObjId.equals("null")) {
 				String wsdlresponse = "";
-				
-				  ZCHANGESTMOBILEEMAILWSSEP ws = new ZCHANGESTMOBILEEMAILWSSEP();
-				  Holder<ZmessageLogTt> lst = new Holder<ZmessageLogTt>();
-				  
-				  try {
-					if(!file.isEmpty()) {
-						wsdlresponse = ws.getZCHANGESTMOBILEEMAILBINDSEP()
-						.zchangeStMobileEmail(user.getEmail(), user.getMobile(), encodedString, studentObjId,lst);	
-					}else {
-						wsdlresponse = ws.getZCHANGESTMOBILEEMAILBINDSEP()
-						.zchangeStMobileEmail(user.getEmail(), user.getMobile(), "", studentObjId,lst);
+
+				ZCHANGESTMOBILEEMAILWSSEP ws = new ZCHANGESTMOBILEEMAILWSSEP();
+				Holder<ZmessageLogTt> lst = new Holder<ZmessageLogTt>();
+
+				try {
+					if (!file.isEmpty()) {
+						wsdlresponse = ws.getZCHANGESTMOBILEEMAILBINDSEP().zchangeStMobileEmail(user.getEmail(),
+								user.getMobile(), encodedString, studentObjId, lst);
+					} else {
+						wsdlresponse = ws.getZCHANGESTMOBILEEMAILBINDSEP().zchangeStMobileEmail(user.getEmail(),
+								user.getMobile(), "", studentObjId, lst);
 					}
-				   
-				  logger.info("resp----------<><>< " + wsdlresponse);
-				  logger.info("ZmessageProfileLog----->" + lst.value); 
-				  } catch (Exception e) {
-				  logger.error("Exception while calling a webservice", e);
-				  }
-				 
+
+					logger.info("resp----------<><>< " + wsdlresponse);
+					logger.info("ZmessageProfileLog----->" + lst.value);
+				} catch (Exception e) {
+					logger.error("Exception while calling a webservice", e);
+				}
 
 				if (wsdlresponse.equalsIgnoreCase("SUCCESS")) {
 					userService.updateProfile(userDB);
-					
+
 					ObjectMapper mapper = new ObjectMapper();
 					String json = mapper.writeValueAsString(userDB);
 
-					WebTarget webTarget1 = client.target(URIUtil
-							.encodeQuery(userRoleMgmtCrudUrl
-									+ "/addOrUpdateUser?json=" + json));
-					Invocation.Builder invocationBuilder1 = webTarget1
-							.request(MediaType.APPLICATION_JSON);
+					WebTarget webTarget1 = client
+							.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/addOrUpdateUser?json=" + json));
+					Invocation.Builder invocationBuilder1 = webTarget1.request(MediaType.APPLICATION_JSON);
 					String resp1 = invocationBuilder1.get(String.class);
-					if(!file.isEmpty()) {
-					ObjectMapper mapper1 = new ObjectMapper();
-					String json1 = mapper1.writeValueAsString(user);
+					if (!file.isEmpty()) {
+						ObjectMapper mapper1 = new ObjectMapper();
+						String json1 = mapper1.writeValueAsString(user);
 
-					logger.info("json1 value for usermgmt------------------------------->"
-									+ json1);
-					WebTarget webTarget2 = client.target(
-							URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/insertUpdateImageForStudent"));
+						logger.info("json1 value for usermgmt------------------------------->" + json1);
+						WebTarget webTarget2 = client
+								.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/insertUpdateImageForStudent"));
 
-					Invocation.Builder invocationBuilder2 = webTarget2.request();
-					Response response = invocationBuilder2
-							.post(Entity.entity(json1.toString(), MediaType.APPLICATION_JSON));
+						Invocation.Builder invocationBuilder2 = webTarget2.request();
+						Response response = invocationBuilder2
+								.post(Entity.entity(json1.toString(), MediaType.APPLICATION_JSON));
 
-					logger.info("response---->" + response);
-					String resp = response.readEntity(String.class);
+						logger.info("response---->" + response);
+						String resp = response.readEntity(String.class);
 					}
 					setSuccess(redirectAttrs, "Profile updated successfully");
-			}else {
-				setError(redirectAttrs, "Error occurred while updating profile!");
-			}
+				} else {
+					setError(redirectAttrs, "Error occurred while updating profile!");
+				}
 
-				
-			}else {
+			} else {
 
 				setError(redirectAttrs, "Student Id entry not found in SAP");
 				return "redirect:/updateProfileForm";
@@ -1398,21 +1282,18 @@ public class RegistrationController extends BaseController {
 		return "redirect:/updateProfileForm";
 	}
 
-	@RequestMapping(value = "/addNewAdminSchoolWiseForm", method = {
-			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/addNewAdminSchoolWiseForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addNewAdminSchoolWiseForm(Principal principal, Model m) {
-		m.addAttribute("webPage", new WebPage("addNewAdminSchoolWiseForm",
-				"Add new Admin", true, true, true, true, false));
+		m.addAttribute("webPage",
+				new WebPage("addNewAdminSchoolWiseForm", "Add new Admin", true, true, true, true, false));
 		m.addAttribute("user", new User());
 		return "user/addNewAdminSchoolWise";
 	}
 
-	@RequestMapping(value = "/addNewAdminSchoolWise", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String addNewAdminSchoolWise(@ModelAttribute User user,
-			Principal principal, Model m) {
-		m.addAttribute("webPage", new WebPage("addNewAdminSchoolWiseForm",
-				"Add new Admin", true, true, true, true, false));
+	@RequestMapping(value = "/addNewAdminSchoolWise", method = { RequestMethod.GET, RequestMethod.POST })
+	public String addNewAdminSchoolWise(@ModelAttribute User user, Principal principal, Model m) {
+		m.addAttribute("webPage",
+				new WebPage("addNewAdminSchoolWiseForm", "Add new Admin", true, true, true, true, false));
 
 		try {
 			if (user != null) {
@@ -1424,11 +1305,9 @@ public class RegistrationController extends BaseController {
 				 * logger.info("userRoleMgmtCrudUrl" + userRoleMgmtCrudUrl);
 				 * logger.info(" json--->" + (json));
 				 */
-				WebTarget webTarget = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/addAdminUsersSchoolWise?json=" + json));
-				Invocation.Builder invocationBuilder = webTarget
-						.request(MediaType.APPLICATION_JSON);
+				WebTarget webTarget = client
+						.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/addAdminUsersSchoolWise?json=" + json));
+				Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 				String resp = invocationBuilder.get(String.class);
 
 				setSuccess(m, "Admin Added Successfully!");
@@ -1442,59 +1321,49 @@ public class RegistrationController extends BaseController {
 		return "user/addNewAdminSchoolWise";
 	}
 
-	@RequestMapping(value = "/addAdminProgramForm", method = {
-			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/addAdminProgramForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addAdminProgramForm(Principal principal, Model m) {
-		m.addAttribute("webPage", new WebPage("addNewAdminSchoolWiseForm",
-				"Add new Admin", true, true, true, true, false));
+		m.addAttribute("webPage",
+				new WebPage("addNewAdminSchoolWiseForm", "Add new Admin", true, true, true, true, false));
 		m.addAttribute("user", new User());
 		return "user/addAdminProgram";
 	}
-	
-	
-	
+
 	@RequestMapping(value = "getProgramByObjectId", method = { RequestMethod.POST })
-	public @ResponseBody Object selectCompanyMapping(Model m, @RequestParam(name="schoolObjId")String schoolobj) throws JsonParseException, JsonMappingException, IOException {
-		
+	public @ResponseBody Object selectCompanyMapping(Model m, @RequestParam(name = "schoolObjId") String schoolobj)
+			throws JsonParseException, JsonMappingException, IOException {
 
-			logger.info("school Object: Hitting=================> " +schoolobj);
-			
-			WebTarget webTarget = client.target(URIUtil
-					.encodeQuery(userRoleMgmtCrudUrl
-							+ "/getAdminProgramMappingbyObjectId?schoolobj=" + schoolobj));
-			Invocation.Builder invocationBuilder = webTarget
-					.request(MediaType.APPLICATION_JSON);
-			String resp = invocationBuilder.get(String.class);
-			
-			logger.info("school Object: Hitting resp=================> " +resp);
-			
-			ObjectMapper mapper = new ObjectMapper();
-			
-			List<Program> secquestionList = mapper.readValue(resp, new TypeReference<List<Program>>() {
-			});
-			
-			logger.info("secquestionList------------>>"+secquestionList);
-			
-			// Converting the Object to JSONString
-			String jsonString = null;
-			try {
+		logger.info("school Object: Hitting=================> " + schoolobj);
+
+		WebTarget webTarget = client.target(
+				URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/getAdminProgramMappingbyObjectId?schoolobj=" + schoolobj));
+		Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+		String resp = invocationBuilder.get(String.class);
+
+		logger.info("school Object: Hitting resp=================> " + resp);
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		List<Program> secquestionList = mapper.readValue(resp, new TypeReference<List<Program>>() {
+		});
+
+		logger.info("secquestionList------------>>" + secquestionList);
+
+		// Converting the Object to JSONString
+		String jsonString = null;
+		try {
 			jsonString = mapper.writeValueAsString(secquestionList);
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-			System.out.println("******JsonString*****" + jsonString);
-			return jsonString;
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
 		}
-	
-	
-	
+		System.out.println("******JsonString*****" + jsonString);
+		return jsonString;
+	}
 
-	@RequestMapping(value = "/addAdminProgram", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String addAdminProgram(@ModelAttribute User user,
-			Principal principal, Model m) {
-		m.addAttribute("webPage", new WebPage("addNewAdminSchoolWiseForm",
-				"Add new Admin", true, true, true, true, false));
+	@RequestMapping(value = "/addAdminProgram", method = { RequestMethod.GET, RequestMethod.POST })
+	public String addAdminProgram(@ModelAttribute User user, Principal principal, Model m) {
+		m.addAttribute("webPage",
+				new WebPage("addNewAdminSchoolWiseForm", "Add new Admin", true, true, true, true, false));
 
 		try {
 			if (user != null) {
@@ -1506,11 +1375,9 @@ public class RegistrationController extends BaseController {
 				 * logger.info("userRoleMgmtCrudUrl" + userRoleMgmtCrudUrl);
 				 * logger.info(" json--->" + (json));
 				 */
-				WebTarget webTarget = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/addAdminProgramMapping?json=" + json));
-				Invocation.Builder invocationBuilder = webTarget
-						.request(MediaType.APPLICATION_JSON);
+				WebTarget webTarget = client
+						.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/addAdminProgramMapping?json=" + json));
+				Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 				String resp = invocationBuilder.get(String.class);
 
 				setSuccess(m, "Admin Prgram Mapping Added Successfully!");
@@ -1524,21 +1391,18 @@ public class RegistrationController extends BaseController {
 		return "user/addAdminProgram";
 	}
 
-	@RequestMapping(value = "/addAdminMenuRightsForm", method = {
-			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/addAdminMenuRightsForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addAdminMenuRightsForm(Principal principal, Model m) {
-		m.addAttribute("webPage", new WebPage("addNewAdminSchoolWiseForm",
-				"Add new Admin", true, true, true, true, false));
+		m.addAttribute("webPage",
+				new WebPage("addNewAdminSchoolWiseForm", "Add new Admin", true, true, true, true, false));
 		m.addAttribute("user", new User());
 		return "user/addAdminMenuRights";
 	}
 
-	@RequestMapping(value = "/addAdminMenuRights", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String addAdminMenuRights(@ModelAttribute User user,
-			Principal principal, Model m) {
-		m.addAttribute("webPage", new WebPage("addNewAdminSchoolWiseForm",
-				"Add new Admin", true, true, true, true, false));
+	@RequestMapping(value = "/addAdminMenuRights", method = { RequestMethod.GET, RequestMethod.POST })
+	public String addAdminMenuRights(@ModelAttribute User user, Principal principal, Model m) {
+		m.addAttribute("webPage",
+				new WebPage("addNewAdminSchoolWiseForm", "Add new Admin", true, true, true, true, false));
 
 		try {
 			if (user != null) {
@@ -1550,13 +1414,9 @@ public class RegistrationController extends BaseController {
 				 * logger.info("userRoleMgmtCrudUrl" + userRoleMgmtCrudUrl);
 				 * logger.info(" json--->" + (json));
 				 */
-				WebTarget webTarget = client
-						.target(URIUtil
-								.encodeQuery(userRoleMgmtCrudUrl
-										+ "/fullLoadMenuRightsForAdminByAbbrNonJson?json="
-										+ json));
-				Invocation.Builder invocationBuilder = webTarget
-						.request(MediaType.APPLICATION_JSON);
+				WebTarget webTarget = client.target(URIUtil
+						.encodeQuery(userRoleMgmtCrudUrl + "/fullLoadMenuRightsForAdminByAbbrNonJson?json=" + json));
+				Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 				String resp = invocationBuilder.get(String.class);
 
 				setSuccess(m, "Admin Menu Rights Added Successfully!");
@@ -1570,21 +1430,18 @@ public class RegistrationController extends BaseController {
 		return "user/addAdminMenuRights";
 	}
 
-	@RequestMapping(value = "/addOtherUserForm", method = { RequestMethod.GET,
-			RequestMethod.POST })
+	@RequestMapping(value = "/addOtherUserForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addOtherUserForm(Principal principal, Model m) {
-		m.addAttribute("webPage", new WebPage("addNewAdminSchoolWiseForm",
-				"Add new Librarian", true, true, true, true, false));
+		m.addAttribute("webPage",
+				new WebPage("addNewAdminSchoolWiseForm", "Add new Librarian", true, true, true, true, false));
 		m.addAttribute("user", new User());
 		return "user/addOtherUser";
 	}
 
-	@RequestMapping(value = "/addOtherUser", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String addOtherUser(@ModelAttribute User user, Principal principal,
-			Model m) {
-		m.addAttribute("webPage", new WebPage("addNewAdminSchoolWiseForm",
-				"Add new User", true, true, true, true, false));
+	@RequestMapping(value = "/addOtherUser", method = { RequestMethod.GET, RequestMethod.POST })
+	public String addOtherUser(@ModelAttribute User user, Principal principal, Model m) {
+		m.addAttribute("webPage",
+				new WebPage("addNewAdminSchoolWiseForm", "Add new User", true, true, true, true, false));
 
 		try {
 			if (user != null) {
@@ -1596,11 +1453,9 @@ public class RegistrationController extends BaseController {
 				 * logger.info("userRoleMgmtCrudUrl" + userRoleMgmtCrudUrl);
 				 * logger.info(" json--->" + (json));
 				 */
-				WebTarget webTarget = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/addOtherUser?json=" + json));
-				Invocation.Builder invocationBuilder = webTarget
-						.request(MediaType.APPLICATION_JSON);
+				WebTarget webTarget = client
+						.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/addOtherUser?json=" + json));
+				Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 				String resp = invocationBuilder.get(String.class);
 
 				setSuccess(m, "New User Added Successfully!");
@@ -1614,25 +1469,22 @@ public class RegistrationController extends BaseController {
 		return "user/addOtherUser";
 	}
 
-	@RequestMapping(value = "/visitExamApp", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public ModelAndView visitExamApp(Model m, Principal principal,
-			RedirectAttributes rm) throws ParseException {
+	@RequestMapping(value = "/visitExamApp", method = { RequestMethod.GET, RequestMethod.POST })
+	public ModelAndView visitExamApp(Model m, Principal principal, RedirectAttributes rm) throws ParseException {
 		String json = "";
 		String projectUrl = "";
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			/*
-			 * m.addAttribute("webPage", new WebPage("assignment",
-			 * "View Attendnace", true, false));
+			 * m.addAttribute("webPage", new WebPage("assignment", "View Attendnace", true,
+			 * false));
 			 */
 
 			String username = principal.getName();
 			Token userdetails1 = (Token) principal;
 			String ProgramName = userdetails1.getProgramName();
 			User u = userService.findByUserName(username);
-			logger.info("ACAD SESSION------------------------->"
-					+ u.getAcadSession());
+			logger.info("ACAD SESSION------------------------->" + u.getAcadSession());
 
 			String acadSession = u.getAcadSession();
 			// session.setAttribute("userdetails1", userdetails1);
@@ -1659,8 +1511,7 @@ public class RegistrationController extends BaseController {
 				rm.addAttribute("json", json);
 				return new ModelAndView(view);
 
-			} else if (userdetails1.getAuthorities().contains(
-					Role.ROLE_EXAM_ADMIN)) {
+			} else if (userdetails1.getAuthorities().contains(Role.ROLE_EXAM_ADMIN)) {
 				projectUrl = practicalExamUrl + "/superAdminExam";
 				RedirectView view = new RedirectView(projectUrl);
 				User newUser = userService.findByUserName(username);
@@ -1682,8 +1533,7 @@ public class RegistrationController extends BaseController {
 				rm.addAttribute("json", json);
 				return new ModelAndView(view);
 
-			} else if (userdetails1.getAuthorities()
-					.contains(Role.ROLE_FACULTY)) {
+			} else if (userdetails1.getAuthorities().contains(Role.ROLE_FACULTY)) {
 				projectUrl = practicalExamUrl + "/facultyUserExam";
 				RedirectView view = new RedirectView(projectUrl);
 				User newUser = userService.findByUserName(username);
@@ -1702,130 +1552,120 @@ public class RegistrationController extends BaseController {
 
 		return new ModelAndView("/");
 	}
-	
-	
-	
-/*	@RequestMapping(value = "/createTrainingProgram", method = {
-            RequestMethod.GET, RequestMethod.POST })
-public String createTrainingProgram(Principal principal, Model m) {
-      m.addAttribute("webPage", new WebPage("createTrainingProgram",
-                  "Add new Librarian", true, true, true, true, false));
-      m.addAttribute("TrainingProgram", new TrainingProgram());
-      return "homepage/createTrainingProgram";
-}*/
-	
-	
-	@RequestMapping(value = "/createTrainingProgram", method = {
-            RequestMethod.GET, RequestMethod.POST })
-public String createTrainingProgram(Principal principal, Model m,
 
-            @ModelAttribute TrainingProgram TrainingProgram,RedirectAttributes redirectAttrs) throws IOException {
+	/*
+	 * @RequestMapping(value = "/createTrainingProgram", method = {
+	 * RequestMethod.GET, RequestMethod.POST }) public String
+	 * createTrainingProgram(Principal principal, Model m) {
+	 * m.addAttribute("webPage", new WebPage("createTrainingProgram",
+	 * "Add new Librarian", true, true, true, true, false));
+	 * m.addAttribute("TrainingProgram", new TrainingProgram()); return
+	 * "homepage/createTrainingProgram"; }
+	 */
 
-	ProgramCampus CampAbbr =  programCampusService.getCampusNameByCampusId(TrainingProgram.getCampusId());
-	
-	TrainingProgram.setSchool(CampAbbr.getCampusAbbr());
-	String username = principal.getName();
-	TrainingProgram.setCreatedBy(username);
-	TrainingProgram.setLastModifiedBy(username);
-      logger.info("TrainingProgram--->"+TrainingProgram.getTrainingTitle());
-      trainingProgramService.insertWithIdReturn(TrainingProgram);
-      setSuccess(redirectAttrs, "Program added successfully");
-      return "redirect:/createTraingProgramForm";
-}
+	@RequestMapping(value = "/createTrainingProgram", method = { RequestMethod.GET, RequestMethod.POST })
+	public String createTrainingProgram(Principal principal, Model m,
 
-@RequestMapping(value = "/createTraingProgramForm", method = {
-            RequestMethod.GET, RequestMethod.POST })
-public String createTraingProgramForm(Principal principal, Model m,
-            @ModelAttribute TrainingProgram TrainingProgram,RedirectAttributes redirectAttrs) throws IOException {
-      logger.info("TrainingProgram--->"+TrainingProgram);
-      trainingProgramService.insertWithIdReturn(TrainingProgram);
-      setSuccess(redirectAttrs, "Program added successfully");
-      ObjectMapper mapper = new ObjectMapper();
-      String json = mapper.writeValueAsString(TrainingProgram);
-      WebTarget webTarget = client.target(URIUtil
-                  .encodeQuery(userRoleMgmtCrudUrl
-                              + "/selectCampusLocationAndAbbr?json=" + TrainingProgram));
-      Invocation.Builder invocationBuilder = webTarget
-                  .request(MediaType.APPLICATION_JSON);
-      String resp = invocationBuilder.get(String.class);
-      m.addAttribute("resp", resp);
-      logger.info("resp========================~~~~~~>"+resp);
-      return "homepage/createTrainingProgram";
-}
-	
-	
+			@ModelAttribute TrainingProgram TrainingProgram, RedirectAttributes redirectAttrs) throws IOException {
 
-@RequestMapping(value = "/viewscheduledprogram", method = {
+		ProgramCampus CampAbbr = programCampusService.getCampusNameByCampusId(TrainingProgram.getCampusId());
 
-        RequestMethod.GET, RequestMethod.POST })
+		TrainingProgram.setSchool(CampAbbr.getCampusAbbr());
+		String username = principal.getName();
+		TrainingProgram.setCreatedBy(username);
+		TrainingProgram.setLastModifiedBy(username);
+		logger.info("TrainingProgram--->" + TrainingProgram.getTrainingTitle());
+		trainingProgramService.insertWithIdReturn(TrainingProgram);
+		setSuccess(redirectAttrs, "Program added successfully");
+		return "redirect:/createTraingProgramForm";
+	}
 
-public String viewscheduledprogram(Principal principal, Model m) {
-  m.addAttribute("webPage", new WebPage("createTrainingProgram",
-              "Add new Librarian", true, true, true, true, false));
-  m.addAttribute("TrainingProgram", new TrainingProgram());
+	@RequestMapping(value = "/createTraingProgramForm", method = { RequestMethod.GET, RequestMethod.POST })
+	public String createTraingProgramForm(Principal principal, Model m, @ModelAttribute TrainingProgram TrainingProgram,
+			RedirectAttributes redirectAttrs) throws IOException {
+		logger.info("TrainingProgram--->" + TrainingProgram);
+		trainingProgramService.insertWithIdReturn(TrainingProgram);
+		setSuccess(redirectAttrs, "Program added successfully");
+		ObjectMapper mapper = new ObjectMapper();
+		String json = mapper.writeValueAsString(TrainingProgram);
+		WebTarget webTarget = client.target(
+				URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/selectCampusLocationAndAbbr?json=" + TrainingProgram));
+		Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+		String resp = invocationBuilder.get(String.class);
+		m.addAttribute("resp", resp);
+		logger.info("resp========================~~~~~~>" + resp);
+		return "homepage/createTrainingProgram";
+	}
 
-  List<TrainingProgram> listofprogram = trainingProgramService.findTrainingProgramList();
-  m.addAttribute("listofprogram",listofprogram);
-  List<ProgramCampus>  programCampus = programCampusService.getProgramCampusName();
-  logger.info("programCampus--->"+programCampus);
-  m.addAttribute("programName",programCampus);
-  logger.info("Listofprogram  -- > "+listofprogram);
-  return "homepage/viewscheduledprogram";
+	@RequestMapping(value = "/viewscheduledprogram", method = {
 
-}
+			RequestMethod.GET, RequestMethod.POST })
 
+	public String viewscheduledprogram(Principal principal, Model m) {
+		m.addAttribute("webPage",
+				new WebPage("createTrainingProgram", "Add new Librarian", true, true, true, true, false));
+		m.addAttribute("TrainingProgram", new TrainingProgram());
 
+		List<TrainingProgram> listofprogram = trainingProgramService.findTrainingProgramList();
+		m.addAttribute("listofprogram", listofprogram);
+		List<ProgramCampus> programCampus = programCampusService.getProgramCampusName();
+		logger.info("programCampus--->" + programCampus);
+		m.addAttribute("programName", programCampus);
+		logger.info("Listofprogram  -- > " + listofprogram);
+		return "homepage/viewscheduledprogram";
 
-@RequestMapping(value = "/getCampuseNameForTraining", method = {
+	}
 
-            RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/getCampuseNameForTraining", method = {
 
-public @ResponseBody String getCampuseNameForTraining(
+			RequestMethod.GET, RequestMethod.POST })
 
-            @RequestParam(name = "campusName") String campusName,@RequestParam(name = "programId") String programId,Model m) {
-      String json = "";
+	public @ResponseBody String getCampuseNameForTraining(
 
-      //logger.info("campusName " + campusid);
-      List<ProgramCampus>  campusNameDrop = programCampusService.getCampusNameDropDown(campusName);
+			@RequestParam(name = "campusName") String campusName, @RequestParam(name = "programId") String programId,
+			Model m) {
+		String json = "";
 
-      logger.info("campusNameDrop======>"+campusNameDrop);
-      //List<ProgramCampus>  programCampus = programCampusService.getProgramCampusNameList(campusid);
+		// logger.info("campusName " + campusid);
+		List<ProgramCampus> campusNameDrop = programCampusService.getCampusNameDropDown(campusName);
 
-      List<ProgramCampus>  campusNameDropid = programCampusService.getCampusNameDropDownId(programId);
+		logger.info("campusNameDrop======>" + campusNameDrop);
+		// List<ProgramCampus> programCampus =
+		// programCampusService.getProgramCampusNameList(campusid);
 
-      logger.info("GetProgramCampusNameList------------------------> "+campusNameDropid);
+		List<ProgramCampus> campusNameDropid = programCampusService.getCampusNameDropDownId(programId);
 
-      //m.addAttribute("programName",programCampus);
+		logger.info("GetProgramCampusNameList------------------------> " + campusNameDropid);
 
-      logger.info("programCampus--->"+campusNameDropid);
-      //m.addAttribute("programName",programCampus);
+		// m.addAttribute("programName",programCampus);
 
-      List<Map<String, String>> res = new ArrayList<Map<String, String>>();
+		logger.info("programCampus--->" + campusNameDropid);
+		// m.addAttribute("programName",programCampus);
 
-      for (ProgramCampus ass : campusNameDrop) {
+		List<Map<String, String>> res = new ArrayList<Map<String, String>>();
 
-            Map<String, String> returnMap = new HashMap<String, String>();
+		for (ProgramCampus ass : campusNameDrop) {
 
-            returnMap.put(String.valueOf(ass.getCampusName()),ass.getProgramId());
+			Map<String, String> returnMap = new HashMap<String, String>();
 
-            res.add(returnMap);
-      }
+			returnMap.put(String.valueOf(ass.getCampusName()), ass.getProgramId());
 
-      ObjectMapper mapper = new ObjectMapper();
+			res.add(returnMap);
+		}
 
-      try {
+		ObjectMapper mapper = new ObjectMapper();
 
-            json = mapper.writeValueAsString(res);
+		try {
 
-      } catch (JsonProcessingException e) {
+			json = mapper.writeValueAsString(res);
 
-            logger.error("Exception", e);
+		} catch (JsonProcessingException e) {
 
-      }
-      logger.info("json" + json);
-      return json;
-}
+			logger.error("Exception", e);
 
-
+		}
+		logger.info("json" + json);
+		return json;
+	}
 
 }

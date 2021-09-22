@@ -3,13 +3,15 @@ package com.spts.lms.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 import com.spts.lms.auth.CustomAuthenticationProvider;
+import com.spts.lms.filter.XSSFilter;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -36,6 +38,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * "hasRole('ROLE_ADMIN') or hasRole('ROLE_FACULTY') or hasRole('ROLE_STUDENT') or hasRole('ROLE_PARENT') "
 	 * ) .and().httpBasic(); } }
 	 */
+	
+	@Bean
+	public FilterRegistrationBean xssPreventFilter() {
+	    FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+
+	    registrationBean.setFilter(new XSSFilter());
+	    registrationBean.addUrlPatterns("/*");
+
+	    return registrationBean;
+	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {

@@ -32,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -670,9 +671,66 @@ public class AnnouncementController extends BaseController {
 
 		List<String> parentList = new ArrayList<String>();
 		try {
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				if (typeOfAnn != null) {
+					if ("PROGRAM".equals(typeOfAnn)) {
+						return "redirect:/addAnnouncementFormProgram";
+					}
+				}
+				return "redirect:/addAnnouncementForm";
+			} 
+			/* New Audit changes end */
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
-					uploadAnnouncementFileForS3(announcement, file);
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY")) {
+								return "redirect:/addAnnouncementFormLibrary";
+							}
+								if (typeOfAnn != null) {
+									if ("PROGRAM".equals(typeOfAnn)) {
+										return "redirect:/addAnnouncementFormProgram";
+									}
+								}
+
+								return "redirect:/addAnnouncementForm";
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								setError(redirectAttrs, "File uploaded is invalid!");
+								if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY")) {
+									return "redirect:/addAnnouncementFormLibrary";
+								}
+								if (typeOfAnn != null) {
+									if ("PROGRAM".equals(typeOfAnn)) {
+										return "redirect:/addAnnouncementFormProgram";
+									}
+								}
+
+								return "redirect:/addAnnouncementForm";
+							}else {
+								uploadAnnouncementFileForS3(announcement, file);
+							}
+						}
+					}else {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY")) {
+							return "redirect:/addAnnouncementFormLibrary";
+						}
+								if (typeOfAnn != null) {
+									if ("PROGRAM".equals(typeOfAnn)) {
+										return "redirect:/addAnnouncementFormProgram";
+									}
+								}
+
+								return "redirect:/addAnnouncementForm";
+					}
 				}
 			}
 			if (sendAlertsToParents.equalsIgnoreCase("Y")) {
@@ -1241,7 +1299,58 @@ public class AnnouncementController extends BaseController {
 		try {
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
-					uploadAnnouncementFileForS3(announcement, file);
+					//Audit change start
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY") || userdetails1.getAuthorities().contains(
+									Role.ROLE_LIBRARIAN)) {
+								redirectAttrs.addAttribute("id", announcement.getId());
+								return "redirect:/addAnnouncementFormLibrary";
+							}
+							if (typeOfAnn != null) {
+								if ("PROGRAM".equals(typeOfAnn)) {
+									return "redirect:/addAnnouncementFormProgram";
+								}
+							}
+							return "redirect:/addAnnouncementForm";
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								setError(redirectAttrs, "File uploaded is invalid!");
+								if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY") || userdetails1.getAuthorities().contains(
+										Role.ROLE_LIBRARIAN)) {
+									redirectAttrs.addAttribute("id", announcement.getId());
+									return "redirect:/addAnnouncementFormLibrary";
+								}
+								if (typeOfAnn != null) {
+									if ("PROGRAM".equals(typeOfAnn)) {
+										return "redirect:/addAnnouncementFormProgram";
+									}
+								}
+								return "redirect:/addAnnouncementForm";
+							}else {
+								uploadAnnouncementFileForS3(announcement, file);
+							}
+						}
+					}else {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY") || userdetails1.getAuthorities().contains(
+								Role.ROLE_LIBRARIAN)) {
+							redirectAttrs.addAttribute("id", announcement.getId());
+							return "redirect:/addAnnouncementFormLibrary";
+						}
+						if (typeOfAnn != null) {
+							if ("PROGRAM".equals(typeOfAnn)) {
+								return "redirect:/addAnnouncementFormProgram";
+							}
+						}
+						return "redirect:/addAnnouncementForm";
+					}
+					//Audit change end
 				}
 			}
 			if (sendAlertsToParents.equalsIgnoreCase("Y")) {
@@ -2480,9 +2589,55 @@ public class AnnouncementController extends BaseController {
 
 		List<String> parentList = new ArrayList<String>();
 		try {
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				if (typeOfAnn != null) {
+					if ("PROGRAM".equals(typeOfAnn)) {
+						return "redirect:/addAnnouncementFormMultiProgram";
+					}
+				}
+				return "redirect:/addAnnouncementForm";
+			} /* New Audit changes end */
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
-					uploadAnnouncementFileForS3(announcement, file);
+					//Audit change start
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							setError(redirectAttrs, "File Uploaded is not valid");
+							if (typeOfAnn != null) {
+								if ("PROGRAM".equals(typeOfAnn)) {
+									return "redirect:/addAnnouncementFormMultiProgram";
+								}
+							}
+							return "redirect:/addAnnouncementForm";
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								setError(redirectAttrs, "File Uploaded is not valid");
+								if (typeOfAnn != null) {
+									if ("PROGRAM".equals(typeOfAnn)) {
+										return "redirect:/addAnnouncementFormMultiProgram";
+									}
+								}
+								return "redirect:/addAnnouncementForm";
+							}else {
+								uploadAnnouncementFileForS3(announcement, file);
+							}
+						}
+					}else {
+						setError(redirectAttrs, "File Uploaded is not valid");
+						if (typeOfAnn != null) {
+							if ("PROGRAM".equals(typeOfAnn)) {
+								return "redirect:/addAnnouncementFormMultiProgram";
+							}
+						}
+						return "redirect:/addAnnouncementForm";
+					}
+					//Audit change end
 				}
 			}
 			if (sendAlertsToParents.equalsIgnoreCase("Y")) {
@@ -2813,9 +2968,43 @@ public class AnnouncementController extends BaseController {
 
 			for (MultipartFile file : files) {
 				if (file != null && !file.isEmpty()) {
-
-					errorMessage = uploadAnnouncementFileForS3(announcement, file);
-
+					//Audit change start
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							setError(redirectAttrs, "File Uploaded is not valid");
+							if (typeOfAnn != null) {
+								if ("PROGRAM".equals(typeOfAnn)) {
+									return "redirect:/addAnnouncementFormMultiProgram";
+								}
+							}
+							return "redirect:/addAnnouncementForm";
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								setError(redirectAttrs, "File Uploaded is not valid");
+								if (typeOfAnn != null) {
+									if ("PROGRAM".equals(typeOfAnn)) {
+										return "redirect:/addAnnouncementFormMultiProgram";
+									}
+								}
+								return "redirect:/addAnnouncementForm";
+							}else {
+								errorMessage = uploadAnnouncementFileForS3(announcement, file);
+							}
+						}
+					}else {
+						setError(redirectAttrs, "File Uploaded is not valid");
+						if (typeOfAnn != null) {
+							if ("PROGRAM".equals(typeOfAnn)) {
+								return "redirect:/addAnnouncementFormMultiProgram";
+							}
+						}
+						return "redirect:/addAnnouncementForm";
+					}
+					//Audit change end
 				} else {
 					announcement.setFilePath(announcementDb.getFilePath());
 					announcement.setFilePreviewPath(announcementDb
@@ -3253,7 +3442,43 @@ public class AnnouncementController extends BaseController {
 		try {
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
-					uploadAnnouncementFileForS3(announcement, file);
+					//Audit change start
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							if(typeOfAnn!=null){
+								if("PROGRAM".equals(typeOfAnn)){
+									return "redirect:/addTimeTableForm";
+								}
+							}
+							return "redirect:/addAnnouncementForm";
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								setError(redirectAttrs, "File uploaded is invalid!");
+								if(typeOfAnn!=null){
+									if("PROGRAM".equals(typeOfAnn)){
+										return "redirect:/addTimeTableForm";
+									}
+								}
+								return "redirect:/addAnnouncementForm";
+							}else {
+								uploadAnnouncementFileForS3(announcement, file);
+							}
+						}
+					}else {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						if(typeOfAnn!=null){
+							if("PROGRAM".equals(typeOfAnn)){
+								return "redirect:/addTimeTableForm";
+							}
+						}
+						return "redirect:/addAnnouncementForm";
+					}
+					//Audit change end
 				}
 			}
 			if (sendAlertsToParents.equalsIgnoreCase("Y")) {

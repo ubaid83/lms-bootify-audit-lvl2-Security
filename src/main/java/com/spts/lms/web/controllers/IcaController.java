@@ -40,6 +40,7 @@ import javax.validation.ValidationException;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -132,8 +133,6 @@ import com.spts.lms.services.test.TestService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
-
-import javassist.expr.NewArray;
 
 @Controller
 public class IcaController extends BaseController {
@@ -2650,7 +2649,21 @@ public class IcaController extends BaseController {
 			for (MultipartFile file : input) {
 				if (!file.isEmpty()) {
 					// 28-04-2020 Start
-					String filePath = baseDirS3 + "/" + "ICAUploads";
+					//Audit change start
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							setError(redirectAttributes, "File uploaded is invalid!");
+							return "redirect:/showIcaQueries";
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								setError(redirectAttributes, "File uploaded is invalid!");
+								return "redirect:/showIcaQueries";
+							}else {
+								String filePath = baseDirS3 + "/" + "ICAUploads";
 					Map<String, String> returnMap = amazonS3ClientService.uploadFileToS3BucketWithRandomString(file,
 							filePath);
 					if (!returnMap.containsKey("ERROR")) {
@@ -2667,6 +2680,13 @@ public class IcaController extends BaseController {
 					} else {
 						errCount++;
 					}
+							}
+						}
+					}else {
+						setError(redirectAttributes, "File uploaded is invalid!");
+						return "redirect:/showIcaQueries";
+					}
+					//Audit change end
 //					String filePath = uploadIcaApprovalFile(file);
 //
 //					if (!filePath.equals("Error")) {
@@ -2768,24 +2788,41 @@ public class IcaController extends BaseController {
 			for (MultipartFile file : input) {
 				if (!file.isEmpty()) {
 					// 28-04-2020 Start
-					String filePath = baseDirS3 + "/" + "ICAUploads";
-					Map<String, String> returnMap = amazonS3ClientService.uploadFileToS3BucketWithRandomString(file,
-							filePath);
-					if (!returnMap.containsKey("ERROR")) {
-						if (input.size() == 1) {
-							multipleFilePath = filePath + "/" + returnMap.get("SUCCESS");
-						} else {
-							if (i == 0) {
-								multipleFilePath = filePath + "/" + returnMap.get("SUCCESS");
-								i++;
-							} else {
-								multipleFilePath = multipleFilePath + "," + filePath + "/" + returnMap.get("SUCCESS");
+					//Audit change start
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							errCount++;
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								errCount++;
+							}else {
+								String filePath = baseDirS3 + "/" + "ICAUploads";
+								Map<String, String> returnMap = amazonS3ClientService.uploadFileToS3BucketWithRandomString(file,
+										filePath);
+								if (!returnMap.containsKey("ERROR")) {
+									if (input.size() == 1) {
+										multipleFilePath = filePath + "/" + returnMap.get("SUCCESS");
+									} else {
+										if (i == 0) {
+											multipleFilePath = filePath + "/" + returnMap.get("SUCCESS");
+											i++;
+										} else {
+											multipleFilePath = multipleFilePath + "," + filePath + "/" + returnMap.get("SUCCESS");
+										}
+									}
+								} else {
+									errCount++;
+								}
 							}
 						}
-					} else {
+					}else {
 						errCount++;
 					}
-
+					//Audit change end
 //					String filePath = uploadIcaApprovalFile(file);
 //
 //					if (!filePath.equals("Error")) {

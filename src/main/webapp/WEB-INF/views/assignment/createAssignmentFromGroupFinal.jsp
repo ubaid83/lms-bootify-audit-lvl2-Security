@@ -65,6 +65,8 @@
 							%>
 						</ol>
 					</nav>
+					<!-- 14-06-2021 -->
+					<jsp:include page="../common/alert.jsp" />	
 					<div class="card bg-white">
 						<div class="card-body">
 

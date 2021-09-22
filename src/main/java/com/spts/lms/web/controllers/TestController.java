@@ -392,6 +392,12 @@ public class TestController extends BaseController {
 		m.addAttribute("AcadSession", acadSession);
 		m.addAttribute("username", username);
 		try {
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/createTestForm";
+			}
+			/* New Audit changes end */
 			if ("Y".equals(test.getRandomQuestion()) && "Y".equals(test.getSameMarksQue())) {
 				double total = test.getMarksPerQue() * Double.valueOf(test.getMaxQuestnToShow());
 				if (total != test.getMaxScore()) {
@@ -6520,6 +6526,12 @@ public class TestController extends BaseController {
 		m.addAttribute("AcadSession", acadSession);
 		m.addAttribute("username", username);
 		try {
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addTestFormByAdmin";
+			}
+			/* New Audit changes end */
 			if ("Y".equals(test.getRandomQuestion()) && "Y".equals(test.getSameMarksQue())) {
 				double total = test.getMarksPerQue() * Double.valueOf(test.getMaxQuestnToShow());
 				if (total != test.getMaxScore()) {

@@ -284,4 +284,37 @@ public static String addDaysToDate(String date,int numberOfDaysToAdd){
 	    return list == null || list.isEmpty();
 	}	
 	
+	/* New Audit changes start */
+	public static boolean validateStartAndEndDates(String date1,String date2){
+		
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date d1 = null;
+		Date d2 = null;
+		Date d3 = Utils.getInIST();
+		String date3 = format.format(d3);
+		long startEndDiff = 0;
+		long startDiff = 0;
+		long endDiff = 0;
+		try {
+			if(date1.contains("T")) {
+				date1 = date1.replace("T", " ");
+			}
+			if(date2.contains("T")) {
+				date2 = date2.replace("T", " ");
+			}
+			d1 = format.parse(date1);
+			d2 = format.parse(date2);
+			d3 = format.parse(date3);
+			startEndDiff = ((d2.getTime() - d1.getTime()) / 1000);
+			startDiff = ((d1.getTime() - d3.getTime()) / 1000);
+			endDiff = ((d2.getTime() - d3.getTime()) / 1000);
+			if(startEndDiff > 0 && startDiff > - 300 && endDiff > 0) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	/* New Audit changes end */
 }

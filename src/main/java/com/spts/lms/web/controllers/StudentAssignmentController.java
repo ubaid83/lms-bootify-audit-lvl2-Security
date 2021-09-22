@@ -365,6 +365,25 @@ public class StudentAssignmentController extends BaseController {
 			rd.addAttribute("courseId", assignment.getCourseId());
 			setError(rd, "Please select the file!");
 			return "redirect:/viewAssignmentFinal";
+		}else {
+			if (file.getOriginalFilename().contains(".")) {
+				Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+				logger.info("length--->"+count);
+				if (count > 1 || count == 0) {
+					setError(rd, "File uploaded is invalid!");
+					return "redirect:/viewAssignmentFinal";
+				}else {
+					String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+					logger.info("extension--->"+extension);
+					if(extension.equalsIgnoreCase("exe")) {
+						setError(rd, "File uploaded is invalid!");
+						return "redirect:/viewAssignmentFinal";
+					}
+				}
+			}else {
+				setError(rd, "File uploaded is invalid!");
+				return "redirect:/viewAssignmentFinal";
+			}
 		}
 		String username = principal.getName();
 
@@ -3124,6 +3143,25 @@ public class StudentAssignmentController extends BaseController {
 
 		redirectAttrs.addAttribute("id", assignment.getId());
 		try {
+			//Audit change start
+			if (file.getOriginalFilename().contains(".")) {
+				Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+				logger.info("length--->"+count);
+				if (count > 1 || count == 0) {
+					setError(redirectAttrs, "File uploaded is invalid!");
+					return "redirect:/submitAssignmentForm";
+				}else {
+					logger.info("extension--->"+extension);
+					if(extension.equalsIgnoreCase("exe")) {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						return "redirect:/submitAssignmentForm";
+					}
+				}
+			}else {
+				setError(redirectAttrs, "File uploaded is invalid!");
+				return "redirect:/submitAssignmentForm";
+			}
+			//Audit change end
 			if (extension.equals("zip")) {
 
 				File normalFile = convert(file);
@@ -4056,12 +4094,31 @@ public class StudentAssignmentController extends BaseController {
 		//StudentAssignment assignmentSubmission = studentAssignmentService.findAssignmentSubmission(username, assignmentId);
 
 		List<String> studentsUsernameList = studentAssignmentService.getAllSapIdsOfStudentFromAssignmentForRemark(assignmentId);
-
+		
 		String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 
 		redirectAttrs.addAttribute("id", assignment.getId());
 		redirectAttrs.addAttribute("courseId", assignment.getCourseId());
 		List<Long> childAssignmentId = assignmentService.getIdByParentModuleId(assignment.getId());
+		if (file.getOriginalFilename().contains(".")) {
+			Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+			logger.info("length--->"+count);
+			if (count > 1 || count == 0) {
+				setError(redirectAttrs, "File uploaded is invalid!");
+				if(childAssignmentId.size() == 0) {
+					return "redirect:/evaluateByStudent";
+				}else {
+					return "redirect:/evaluateByStudentForModule";
+				}
+			}
+		}else {
+			setError(redirectAttrs, "File uploaded is invalid!");
+			if(childAssignmentId.size() == 0) {
+				return "redirect:/evaluateByStudent";
+			}else {
+				return "redirect:/evaluateByStudentForModule";
+			}
+		}
 		try {
 			//List<Long> childAssignmentId = assignmentService.getIdByParentModuleId(assignment.getId());
 			if(childAssignmentId.size() == 0) {
@@ -4695,6 +4752,26 @@ return  "redirect:/evaluateByStudentForModule?id="+assignmentId;
 			
 			File submittedFile = new File(submissionFolderLocal + File.separator + file.getOriginalFilename());
 			try {
+				//Audit change start
+				if (file.getOriginalFilename().contains(".")) {
+					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+					logger.info("length--->"+count);
+					if (count > 1 || count == 0) {
+						setError(rd, "File uploaded is invalid!");
+						return "redirect:/viewAssignmentFinal";
+					}else {
+						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+						logger.info("extension--->"+extension);
+						if(extension.equalsIgnoreCase("exe")) {
+							setError(rd, "File uploaded is invalid!");
+							return "redirect:/viewAssignmentFinal";
+						}
+					}
+				}else {
+					setError(rd, "File uploaded is invalid!");
+					return "redirect:/viewAssignmentFinal";
+				}
+				//Audit change end
 				logger.info("file is:" + file.getOriginalFilename());
 				logger.info("file is:" + file.getName());
 				

@@ -530,7 +530,26 @@ public class LibraryController extends BaseController {
 		String type = "LIBRARY";
 		try {
 			if (!file.isEmpty()) {
-				String errorMessage = uploadWebpageFile(webpages, file);
+				if (file.getOriginalFilename().contains(".")) {
+					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+					logger.info("length--->"+count);
+					if (count > 1 || count == 0) {
+						setError(redirectAttributes, "File uploaded is invalid!");
+						return "redirect:/viewLibraryAnnouncements";
+					}else {
+						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+						logger.info("extension--->"+extension);
+						if(extension.equalsIgnoreCase("exe")) {
+							setError(redirectAttributes, "File uploaded is invalid!");
+							return "redirect:/viewLibraryAnnouncements";
+						}else {
+							String errorMessage = uploadWebpageFile(webpages, file);
+						}
+					}
+				}else {
+					setError(redirectAttributes, "File uploaded is invalid!");
+					return "redirect:/viewLibraryAnnouncements";
+				}
 			}
 			if (webpages.getMakeAvailable() == null) {
 				webpages.setMakeAvailable("N");
@@ -604,7 +623,26 @@ public class LibraryController extends BaseController {
 			logger.info("filePathupdate-------------->"+filePathupdate.getFilePath());
 			
 			if (!file.isEmpty() && file != null) {
-				String errorMessage = uploadWebpageFile(webpages, file);
+				if (file.getOriginalFilename().contains(".")) {
+					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+					logger.info("length--->"+count);
+					if (count > 1 || count == 0) {
+						setError(redirectAttributes, "File uploaded is invalid!");
+						return "redirect:/viewLibraryAnnouncements";
+					}else {
+						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+						logger.info("extension--->"+extension);
+						if(extension.equalsIgnoreCase("exe")) {
+							setError(redirectAttributes, "File uploaded is invalid!");
+							return "redirect:/viewLibraryAnnouncements";
+						}else {
+							String errorMessage = uploadWebpageFile(webpages, file);
+						}
+					}
+				}else {
+					setError(redirectAttributes, "File uploaded is invalid!");
+					return "redirect:/viewLibraryAnnouncements";
+				}
 			}else
 			{
 				webpages.setFilePath(filePathupdate.getFilePath());
@@ -1048,6 +1086,24 @@ public class LibraryController extends BaseController {
 			// for (MultipartFile file : files) {
 
 			if (!file.isEmpty()) {
+				if (file.getOriginalFilename().contains(".")) {
+					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+					logger.info("length--->"+count);
+					if (count > 1 || count == 0) {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						return "redirect:/addLibraryItemForm";
+					}else {
+						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+						logger.info("extension--->"+extension);
+						if(extension.equalsIgnoreCase("exe")) {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							return "redirect:/addLibraryItemForm";
+						}
+					}
+				}else {
+					setError(redirectAttrs, "File uploaded is invalid!");
+					return "redirect:/addLibraryItemForm";
+				}
 				if (!file.getOriginalFilename().contains(".zip")) {
 					setError(redirectAttrs, "Selected File is not a zip file.");
 					return "redirect:/addLibraryItemForm";
@@ -2133,8 +2189,29 @@ public class LibraryController extends BaseController {
 
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
-
-					String errorMessage = uploadLibraryFile(library, library.getFolderPath(), file);
+					//Audit change start
+					String errorMessage = "";
+					if (file.getOriginalFilename().contains(".")) {
+						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+						logger.info("length--->"+count);
+						if (count > 1 || count == 0) {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							return "redirect:/addLibraryItemForm";
+						}else {
+							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+							logger.info("extension--->"+extension);
+							if(extension.equalsIgnoreCase("exe")) {
+								setError(redirectAttrs, "File uploaded is invalid!");
+								return "redirect:/addLibraryItemForm";
+							}else {
+								errorMessage = uploadLibraryFile(library, library.getFolderPath(), file);
+							}
+						}
+					}else {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						return "redirect:/addLibraryItemForm";
+					}
+					//Audit change end
 
 					if (errorMessage == null) {
 
@@ -2289,8 +2366,38 @@ public class LibraryController extends BaseController {
 			performFolderPathCheck(library);
 
 			if (file != null && !file.isEmpty()) {
-				String errorMessage = uploadLibraryFile(library, library.getFolderPath(), file);
-
+				//Audit change start
+				String errorMessage = "";
+				if (file.getOriginalFilename().contains(".")) {
+					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+					logger.info("length--->"+count);
+					if (count > 1 || count == 0) {
+						setError(redirectAttrs, "File uploaded is invalid!");
+						redirectAttrs.addAttribute("id", library.getId());
+						redirectAttrs.addAttribute("contentType", library.getContentType());
+						redirectAttrs.addFlashAttribute("edit", "true");
+						return "redirect:/addLibraryItemForm";
+					}else {
+						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+						logger.info("extension--->"+extension);
+						if(extension.equalsIgnoreCase("exe")) {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							redirectAttrs.addAttribute("id", library.getId());
+							redirectAttrs.addAttribute("contentType", library.getContentType());
+							redirectAttrs.addFlashAttribute("edit", "true");
+							return "redirect:/addLibraryItemForm";
+						}else {
+							errorMessage = uploadLibraryFile(library, library.getFolderPath(), file);
+						}
+					}
+				}else {
+					setError(redirectAttrs, "File uploaded is invalid!");
+					redirectAttrs.addAttribute("id", library.getId());
+					redirectAttrs.addAttribute("contentType", library.getContentType());
+					redirectAttrs.addFlashAttribute("edit", "true");
+					return "redirect:/addLibraryItemForm";
+				}
+				//Audit change end
 				logger.info("errorMessage -- " + errorMessage);
 				if (errorMessage != null) {
 					setError(redirectAttrs, "Error in uploading file " + errorMessage);

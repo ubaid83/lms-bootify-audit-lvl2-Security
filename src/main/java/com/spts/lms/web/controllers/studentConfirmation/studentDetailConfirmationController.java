@@ -121,7 +121,29 @@ public class studentDetailConfirmationController extends BaseController {
 				+ user.getSecAnswer());
 		logger.info("file1----------------->" + file.getName());
 		String originalfileName = file.getOriginalFilename();
-
+		//Audit change start
+		if (originalfileName.contains(".")) {
+			Long count = originalfileName.chars().filter(c -> c == ('.')).count();
+			logger.info("length--->"+count);
+			if (count > 1 || count == 0) {
+				m.addAttribute("fileuploaderror", "File uploaded is invalid!");
+				setError(r, "File uploaded is invalid!");
+				return "redirect:/homepage";
+			}else {
+				String extension = FilenameUtils.getExtension(originalfileName);
+				logger.info("extension--->"+extension);
+				if(extension.equalsIgnoreCase("exe")) {
+					m.addAttribute("fileuploaderror", "File uploaded is invalid!");
+					setError(r, "File uploaded is invalid!");
+					return "redirect:/homepage";
+				}
+			}
+		}else {
+			m.addAttribute("fileuploaderror", "File uploaded is invalid!");
+			setError(r, "File uploaded is invalid!");
+			return "redirect:/homepage";
+		}
+		//Audit change end
 		File convFile = new File(originalfileName);
 		File saveimage = new File(saveimagePath);
 

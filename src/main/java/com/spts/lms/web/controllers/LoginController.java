@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.Inflater;
 import java.util.zip.ZipEntry;
@@ -53,7 +55,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -133,7 +134,6 @@ import com.spts.lms.beans.attendance.Attendance;
 import com.spts.lms.beans.attendance.StudentCourseAttendance;
 import com.spts.lms.beans.copyleaksAudit.CopyleaksAudit;
 import com.spts.lms.beans.course.Course;
-import com.spts.lms.beans.course.UserCourse;
 import com.spts.lms.beans.dashboard.DashBoard;
 import com.spts.lms.beans.feedback.Feedback;
 import com.spts.lms.beans.feedback.StudentFeedback;
@@ -941,7 +941,20 @@ public class LoginController extends BaseController {
 
 		// logger.info("Changing password " + user.getUsername());
 		try {
-			userService.changePasswordForStudentByAdmin(user);
+			String regex = "^(?=.*[0-9])"
+                    + "(?=.*[a-z])(?=.*[A-Z])"
+                    + "(?=.*[@#$%^&+=])"
+                    + "(?=\\S+$).{8,20}$";
+					   
+			Pattern p = Pattern.compile(regex);
+			Matcher m = p.matcher(user.getNewPassword());
+			boolean isPassPerfect = m.matches();
+			if(isPassPerfect == true) {
+				userService.changePasswordForStudentByAdmin(user);
+			} else {
+				throw new ValidationException(
+						"Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
+			}
 		} catch (ValidationException ex) {
 			setError(redirectAttrs, ex.getMessage());
 			return "redirect:/changePasswordFormStudentByAdmin";
@@ -1027,7 +1040,21 @@ public class LoginController extends BaseController {
 		user.setPassword(userFromUsermgmt.getPassword());
 
 		try {
-			userService.changePassword(user);
+			String regex = "^(?=.*[0-9])"
+                    + "(?=.*[a-z])(?=.*[A-Z])"
+                    + "(?=.*[@#$%^&+=])"
+                    + "(?=\\S+$).{8,20}$";
+					   
+			Pattern p = Pattern.compile(regex);
+			Matcher m = p.matcher(user.getNewPassword());
+			boolean isPassPerfect = m.matches();
+			if(isPassPerfect == true) {
+				userService.changePassword(user);
+			} else {
+				throw new ValidationException(
+						"Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
+			}
+			
 		} catch (ValidationException ex) {
 			setError(redirectAttrs, ex.getMessage());
 			return "redirect:/changePasswordForm";
@@ -11641,7 +11668,7 @@ public class LoginController extends BaseController {
 
 		return "redirect:/changePasswordBySupportAdminForm";
 	}
-
+	  /* New Audit changes start */
 	@RequestMapping(value = "/searchUserBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchUserBySupportAdmin(Principal principal, @ModelAttribute("user") User user, Model m,
 			RedirectAttributes redirectAttrs, @RequestParam(required = false) String username) {
@@ -11654,13 +11681,13 @@ public class LoginController extends BaseController {
 			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 			String resp = invocationBuilder.get(String.class);
 			ObjectMapper objMapper = new ObjectMapper();
-			List<User> userList = objMapper.readValue(resp, new TypeReference<List<User>>() {
-			});
+			User userList = objMapper.readValue(resp,User.class);
 
-			if (userList.isEmpty()) {
+			if (null == userList) {
 				m.addAttribute("note", "No User Found");
 			}
-			String json = mapper.writeValueAsString(username);
+			logger.info("userList-->"+userList);
+			//String json = mapper.writeValueAsString(username);
 			m.addAttribute("userList", userList);
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
@@ -11668,6 +11695,33 @@ public class LoginController extends BaseController {
 		}
 		return "user/changePasswordBySupportAdmin";
 	}
+	  /* New Audit changes end */
+//	@RequestMapping(value = "/searchUserBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
+//	public String searchUserBySupportAdmin(Principal principal, @ModelAttribute("user") User user, Model m,
+//			RedirectAttributes redirectAttrs, @RequestParam(required = false) String username) {
+//
+//		try {
+//			User userDB = userService.findByUserName(user.getUsername());
+//			ObjectMapper mapper = new ObjectMapper();
+//			WebTarget webTarget = client.target(
+//					URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/searchUserBySupportAdmin?username=" + username));
+//			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+//			String resp = invocationBuilder.get(String.class);
+//			ObjectMapper objMapper = new ObjectMapper();
+//			List<User> userList = objMapper.readValue(resp, new TypeReference<List<User>>() {
+//			});
+//
+//			if (userList.isEmpty()) {
+//				m.addAttribute("note", "No User Found");
+//			}
+//			String json = mapper.writeValueAsString(username);
+//			m.addAttribute("userList", userList);
+//		} catch (Exception ex) {
+//			logger.error(ex.getMessage(), ex);
+//			setError(redirectAttrs, "");
+//		}
+//		return "user/changePasswordBySupportAdmin";
+//	}
 
 	/*
 	 * @RequestMapping(value = "/getAttendanceDataSentToSapForApp", method = {
