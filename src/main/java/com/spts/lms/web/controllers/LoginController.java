@@ -2543,9 +2543,21 @@ public class LoginController extends BaseController {
 
 	@RequestMapping(value = { "/showStudentAttendanceForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String showStudentAttendanceForApp(@RequestBody StudentCourseAttendance studentCourseAttd,
-			HttpServletResponse resp) {
+			HttpServletResponse resp,@RequestHeader Map<String, String> headers) {
 		try {
+			studentCourseAttd = (StudentCourseAttendance) decryptRequestBody(
+					studentCourseAttd.getEncrypted_key(), "StudentCourseAttendance");
+			boolean auth = isUserAuthorized(headers.get("token"), studentCourseAttd.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
 
+				json = encryptResponseBody(json);
+				return json;
+			}
 			SimpleDateFormat dateFormatApp = new SimpleDateFormat("dd-MM-yyyy");
 			// Date d = new Date(studentCourseAttd.getAttdDate());]
 			Date d = dateFormatApp.parse(studentCourseAttd.getAttdDate());
@@ -2558,16 +2570,13 @@ public class LoginController extends BaseController {
 					studentCourseAttd.getCourseId(), startTime, endTime, studentCourseAttd.getFacultyId());
 
 			String json = new Gson().toJson(SCAList);
-
-			// logger.info("Course List ------->" + json);
-
+			json = encryptResponseBody(json);
 			return json;
-			// return "{\"Status\":\"Success\"}";
 
 		} catch (Exception e) {
-			logger.error("Exception", e);
-			return "{\"Status\":\"Fail\"}";
-
+			String json = "{\"Status\":\"Fail\"}";
+			json = encryptResponseBody(json);
+			return json;
 		}
 
 	}
@@ -3097,29 +3106,20 @@ public class LoginController extends BaseController {
 			}
 			String username = user.getUsername();
 			String playerId = user.getPlayerId();
-
 			User u = userService.findPlayerIdByUserName(username);
-
-			if (u != null) {
-
+			if (u != null && !StringUtils.isEmpty(username) && !StringUtils.isEmpty(playerId)) {
 				userService.updateUserPlayerId(username, playerId);
-
 			} else {
-
 				userService.insertUserPlayerId(username, playerId);
 			}
 			String json = "{\"Status\":\"Success\"}";
-
 			json = encryptResponseBody(json);
 			return json;
-
 		} catch (Exception e) {
 			logger.error("Exception", e);
 			String json = "{\"Status\":\"Fail\"}";
-
 			json = encryptResponseBody(json);
 			return json;
-
 		}
 	}
 
@@ -3853,6 +3853,7 @@ public class LoginController extends BaseController {
 			assignmentSubmission.setAssignmentStatus("Completed");
 
 			String json = new Gson().toJson(assignmentSubmission);
+			json = encryptResponseBody(json);
 			return ResponseEntity.ok(json);
 		} else if (null != approvalStatus && approvalStatus.contains("Reject")) {
 			assignmentSubmission.setAssignmentError("Faculty has already rejected your assignment");
@@ -3862,6 +3863,7 @@ public class LoginController extends BaseController {
 			assignmentSubmission.setAssignmentStatus("Completed___Evaluated___Rejected");
 
 			String json = new Gson().toJson(assignmentSubmission);
+			json = encryptResponseBody(json);
 			return ResponseEntity.ok(json);
 		} else {
 			int chkStartDate = studentAssignmentService.chkStartandEndDateOfAssignment(username, assignment.getId());
@@ -4185,7 +4187,7 @@ public class LoginController extends BaseController {
 			assignments = assignmentService.findByUserAndCourse(username, courseId);
 		} else {
 
-			String schoolNotPermitted = "SBM-NM-M,PDSEFBM,ASMSOC";
+			String schoolNotPermitted = "SBM-NM-M";
 			logger.info("schoolName --> " + app);
 
 			if (schoolNotPermitted.contains(app)) {
@@ -4799,9 +4801,8 @@ public class LoginController extends BaseController {
 	 * return copyLeaksMsg; }
 	 */
 
-//	@RequestMapping(value = "/submitAssignmentByIdForApp", method = {
-//
-//			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/submitAssignmentByIdForApp", method = {
+			RequestMethod.GET, RequestMethod.POST })
 	public Map<String, String> submitAssignmentByIdForApp(
 
 			@RequestParam("assignmentId") Long assignmentId, @RequestParam("username") String username,
@@ -7269,23 +7270,27 @@ public class LoginController extends BaseController {
 	private String[] fetchWorkload(String data) {
 		String[] workLoad = new String[3];
 		try {
-			JSONObject jsonObject = new JSONObject(data);
-			String allottedLecture = "", conductedLecture = "", remainingLecture = "";
-			if (jsonObject.has("allottedLecture")) {
-				allottedLecture = String.valueOf(jsonObject.get("allottedLecture"));
-			}
-			if (jsonObject.has("conductedLecture")) {
-				conductedLecture = String.valueOf(jsonObject.get("conductedLecture"));
-			}
+			logger.info("fetchWorkload ===> "+data);
+			if(!StringUtils.isEmpty(data)) {
+				JSONObject jsonObject = new JSONObject(data);
+				String allottedLecture = "", conductedLecture = "", remainingLecture = "";
+				if (jsonObject.has("allottedLecture")) {
+					allottedLecture = String.valueOf(jsonObject.get("allottedLecture"));
+				}
+				if (jsonObject.has("conductedLecture")) {
+					conductedLecture = String.valueOf(jsonObject.get("conductedLecture"));
+				}
 
-			if (!allottedLecture.equals("") && !conductedLecture.equals("")) {
-				remainingLecture = String
-						.valueOf(Double.parseDouble(allottedLecture) - Double.parseDouble(conductedLecture));
-			}
+				if (!allottedLecture.equals("") && !conductedLecture.equals("")) {
+					remainingLecture = String
+							.valueOf(Double.parseDouble(allottedLecture) - Double.parseDouble(conductedLecture));
+				}
 
-			workLoad[0] = allottedLecture;
-			workLoad[1] = conductedLecture;
-			workLoad[2] = remainingLecture;
+				workLoad[0] = allottedLecture;
+				workLoad[1] = conductedLecture;
+				workLoad[2] = remainingLecture;
+			}
+			
 
 			return workLoad;
 		} catch (Exception e) {
@@ -7380,12 +7385,9 @@ public class LoginController extends BaseController {
 
 				logger.info("eventIdWL=======>" + String.valueOf(tmtl.getEventId()));
 				logger.info("FacultyIdWL=======>" + username);
-				String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),
-						username);
-
+				String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),username);
 				if (null != workLoadResponse) {
 					String workload[] = fetchWorkload(workLoadResponse);
-
 					tmtl.setAllottedLecture(workload[0]);
 					tmtl.setConductedLecture(workload[1]);
 					tmtl.setRemainingLecture(workload[2]);
@@ -13105,7 +13107,7 @@ public class LoginController extends BaseController {
 			}
 
 			String json = new Gson().toJson(masterLectureStudentList);
-			logger.info("masterLectureStudentList----------> " + masterLectureStudentList);
+			logger.info("masterLectureStudentList----------> " + json);
 			json = encryptResponseBody(json);
 			return json;
 		} catch (Exception e) {

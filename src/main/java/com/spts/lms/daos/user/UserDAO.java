@@ -789,7 +789,7 @@ public class UserDAO extends BaseDAO<User> {
 	}
 
 	public User findPlayerIdByUserName(String username) {
-		final String sql = " select id, username, playerId " + " from user_playerid " + " where username = ? ";
+		final String sql = " select id, username, playerId " + " from user_playerid " + " where username = ? and active = 'Y'";
 		return findOneSQL(sql, new Object[] { username });
 	}
 

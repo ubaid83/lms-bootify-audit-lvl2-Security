@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "ZFACULTY_WORKLOAD_WS", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/E:/wsdl/zfaculty_workload_bin_sep_02122019.wsdl")
+@WebServiceClient(name = "ZFACULTY_WORKLOAD_WS", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/data/wsdl/zfaculty_workload_bin_feq_02122019.wsdl")
 public class ZFACULTYWORKLOADWS
     extends Service
 {
@@ -29,7 +29,8 @@ public class ZFACULTYWORKLOADWS
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/data/wsdl/zfaculty_workload_bin_sep_02122019.wsdl");
+        	url = new URL("file:/data/wsdl/zfaculty_workload_bin_feq_02122019.wsdl"); 
+//        	url = new URL("file:D:/wsdl/zfaculty_workload_bin_feq_02122019.wsdl"); 
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
