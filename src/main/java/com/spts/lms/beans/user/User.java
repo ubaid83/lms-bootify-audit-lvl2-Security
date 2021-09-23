@@ -66,6 +66,26 @@ public class User extends BaseBean implements Serializable, UserDetails {
 	}
 
 
+	private String encrypted_key;
+    private String oldPasswordMob;
+	
+	
+	
+	public String getOldPasswordMob() {
+		return oldPasswordMob;
+	}
+
+	public void setOldPasswordMob(String oldPasswordMob) {
+		this.oldPasswordMob = oldPasswordMob;
+	}
+
+	public String getEncrypted_key() {
+		return encrypted_key;
+	}
+
+	public void setEncrypted_key(String encrypted_key) {
+		this.encrypted_key = encrypted_key;
+	}
 
 
 
@@ -889,17 +909,18 @@ public class User extends BaseBean implements Serializable, UserDetails {
 				+ ", schoolObjId=" + schoolObjId + ", programName=" + programName + ", religion=" + religion
 				+ ", isLoggedIn=" + isLoggedIn + ", userImage=" + userImage + ", startDate=" + startDate + ", endDate="
 				+ endDate + ", nad=" + nad + ", enableS=" + enableS + ", address=" + address + ", isUserBlocked="
-				+ isUserBlocked + ", logInTime=" + logInTime + ", logOutTime=" + logOutTime + ", logInTimeText="
-				+ logInTimeText + ", logOutTimeText=" + logOutTimeText + ", newPasswordMob=" + newPasswordMob
-				+ ", reenterPasswordMob=" + reenterPasswordMob + ", icaId=" + icaId + ", secquestion=" + secquestion
-				+ ", secAnswer=" + secAnswer + ", deRegStatus=" + deRegStatus + ", deRegReason=" + deRegReason
-				+ ", reenterPassword=" + reenterPassword + ", newPassword=" + newPassword + ", enabled=" + enabled
-				+ ", enrollmentYear=" + enrollmentYear + ", enrollmentMonth=" + enrollmentMonth + ", validityEndYear="
-				+ validityEndYear + ", validityEndMonth=" + validityEndMonth + ", fatherName=" + fatherName
-				+ ", motherName=" + motherName + ", programId=" + programId + ", email=" + email + ", mobile=" + mobile
-				+ ", attempts=" + attempts + ", corseName=" + corseName + ", operation=" + operation + ", role=" + role
-				+ ", acadSession=" + acadSession + ", type=" + type + ", course=" + course + ", roles=" + roles
-				+ ", userRoles=" + userRoles + ", program=" + program + ", studentTestScores=" + studentTestScores
+				+ isUserBlocked + ", encrypted_key=" + encrypted_key + ", oldPasswordMob=" + oldPasswordMob
+				+ ", logInTime=" + logInTime + ", logOutTime=" + logOutTime + ", logInTimeText=" + logInTimeText
+				+ ", logOutTimeText=" + logOutTimeText + ", newPasswordMob=" + newPasswordMob + ", reenterPasswordMob="
+				+ reenterPasswordMob + ", icaId=" + icaId + ", secquestion=" + secquestion + ", secAnswer=" + secAnswer
+				+ ", deRegStatus=" + deRegStatus + ", deRegReason=" + deRegReason + ", reenterPassword="
+				+ reenterPassword + ", newPassword=" + newPassword + ", enabled=" + enabled + ", enrollmentYear="
+				+ enrollmentYear + ", enrollmentMonth=" + enrollmentMonth + ", validityEndYear=" + validityEndYear
+				+ ", validityEndMonth=" + validityEndMonth + ", fatherName=" + fatherName + ", motherName=" + motherName
+				+ ", programId=" + programId + ", email=" + email + ", mobile=" + mobile + ", attempts=" + attempts
+				+ ", corseName=" + corseName + ", operation=" + operation + ", role=" + role + ", acadSession="
+				+ acadSession + ", type=" + type + ", course=" + course + ", roles=" + roles + ", userRoles="
+				+ userRoles + ", program=" + program + ", studentTestScores=" + studentTestScores
 				+ ", studentAssignmentScores=" + studentAssignmentScores + ", oldPassword=" + oldPassword + ", abbr="
 				+ abbr + ", upsert=" + upsert + ", enrollmentMonths=" + enrollmentMonths + ", enrollmentEndMonths="
 				+ enrollmentEndMonths + ", dept=" + dept + ", acadYear=" + acadYear + ", courseId=" + courseId

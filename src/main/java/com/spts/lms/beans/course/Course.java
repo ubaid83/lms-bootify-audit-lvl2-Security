@@ -58,6 +58,17 @@ public class Course extends BaseBean implements Serializable {
     private String courseId;
 	
 	private String programIds;
+	private String encrypted_key;
+	
+	
+	
+	public String getEncrypted_key() {
+		return encrypted_key;
+	}
+
+	public void setEncrypted_key(String encrypted_key) {
+		this.encrypted_key = encrypted_key;
+	}
 	
 	
 	
@@ -342,9 +353,9 @@ public class Course extends BaseBean implements Serializable {
 				+ ", classDate=" + classDate + ", moduleId=" + moduleId + ", moduleAbbr=" + moduleAbbr + ", deptCode="
 				+ deptCode + ", moduleCategoryCode=" + moduleCategoryCode + ", count=" + count
 				+ ", isContinuousLecture=" + isContinuousLecture + ", isAttendanceAllowed=" + isAttendanceAllowed
-				+ ", courseId=" + courseId + ", programIds=" + programIds + ", operation=" + operation + ", eventName="
-				+ eventName + ", username=" + username + ", firstname=" + firstname + ", lastname=" + lastname
-				+ ", rollNo=" + rollNo + "]";
+				+ ", courseId=" + courseId + ", programIds=" + programIds + ", encrypted_key=" + encrypted_key
+				+ ", operation=" + operation + ", eventName=" + eventName + ", username=" + username + ", firstname="
+				+ firstname + ", lastname=" + lastname + ", rollNo=" + rollNo + "]";
 	}
 
 	public Long getProgramId() {

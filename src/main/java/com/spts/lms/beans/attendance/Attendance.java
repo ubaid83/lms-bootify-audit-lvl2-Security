@@ -18,6 +18,20 @@ public class Attendance extends BaseBean implements Serializable {
 	private String facultyId;
 	private String startDate;
 	private String endDate;
+	
+
+	private String encrypted_key;
+	
+	
+	
+	public String getEncrypted_key() {
+		return encrypted_key;
+	}
+
+	public void setEncrypted_key(String encrypted_key) {
+		this.encrypted_key = encrypted_key;
+	}
+	
 	private List<String> students = new ArrayList<String>();
 
 	public List<String> getStudents() {
@@ -73,10 +87,9 @@ public class Attendance extends BaseBean implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Attendance [username=" + username + ", courseName="
-				+ courseName + ", courseId=" + courseId + ", facultyId="
-				+ facultyId + ", startDate=" + startDate + ", endDate="
-				+ endDate + ", students=" + students + "]";
+		return "Attendance [username=" + username + ", courseName=" + courseName + ", courseId=" + courseId
+				+ ", facultyId=" + facultyId + ", startDate=" + startDate + ", endDate=" + endDate + ", encrypted_key="
+				+ encrypted_key + ", students=" + students + "]";
 	}
 
 

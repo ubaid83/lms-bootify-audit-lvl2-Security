@@ -73,7 +73,18 @@ public class StudentCourseAttendance extends BaseBean implements Serializable {
     private String failStatus;
     
     
-    
+
+	private String encrypted_key;
+	
+	
+	
+	public String getEncrypted_key() {
+		return encrypted_key;
+	}
+
+	public void setEncrypted_key(String encrypted_key) {
+		this.encrypted_key = encrypted_key;
+	}
     
     
 
@@ -537,8 +548,8 @@ public class StudentCourseAttendance extends BaseBean implements Serializable {
 				+ ", isAttendanceAllowed=" + isAttendanceAllowed + ", createdDateApp=" + createdDateApp
 				+ ", lastModifiedDateApp=" + lastModifiedDateApp + ", lastModifiedDateSap=" + lastModifiedDateSap
 				+ ", presentFacultyId=" + presentFacultyId + ", allFacultyId=" + allFacultyId + ", failStatus="
-				+ failStatus + ", isAbsentAll=" + isAbsentAll + ", students=" + students + ", statusList=" + statusList
-				+ ", active=" + active + "]";
+				+ failStatus + ", encrypted_key=" + encrypted_key + ", isAbsentAll=" + isAbsentAll + ", students="
+				+ students + ", statusList=" + statusList + ", active=" + active + "]";
 	}
 
 	

@@ -1002,4 +1002,9 @@ public class UserDAO extends BaseDAO<User> {
 		String sql = "select * from users u, user_course uc where u.username = uc.username and uc.active = 'Y' and u.enabled=1 and uc.courseId = ? and uc.role = 'ROLE_FACULTY'";
 		return findAllSQL(sql, new Object[] { courseId });
 	}
+	
+	public void changeEmailMobileByApp(String email,String mobile,String username) {
+		executeUpdateSql("Update users set email = ?, mobile = ? where username= ?",
+				new Object[] { email, mobile, username });
+	}
 }
