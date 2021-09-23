@@ -152,6 +152,7 @@ public class AnnouncementController extends BaseController {
 	private static final Logger logger = Logger
 			.getLogger(AnnouncementController.class);
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/addAnnouncementFormProgram", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String addAnnouncementFormProgram(
@@ -262,6 +263,7 @@ public class AnnouncementController extends BaseController {
 	 * "announcement/announcementListForLibrary"; }
 	 */
 
+	@Secured("ROLE_LIBRARIAN")
 	@RequestMapping(value = "/addAnnouncementFormLibrary", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String addAnnouncementFormLibrary(
@@ -297,6 +299,7 @@ public class AnnouncementController extends BaseController {
 		return "announcement/addAnnouncementLibrary";
 	}
 
+	@Secured("ROLE_COUNSELOR")
 	@RequestMapping(value = "/addAnnouncementFormCounselor", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String addAnnouncementFormCounselor(
@@ -332,6 +335,7 @@ public class AnnouncementController extends BaseController {
 		return "announcement/addAnnouncementCounselor";
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM"})
 	@RequestMapping(value = "/addAnnouncementForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String addAnnouncementForm(@RequestParam(required = false) Long id,
@@ -481,6 +485,7 @@ public class AnnouncementController extends BaseController {
 	 * "announcement/userAnnouncementList"; }
 	 */
 
+	@Secured("ROLE_STUDENT")
 	@RequestMapping(value = "/viewUserAnnouncementsSearch", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewUserAnnouncementsSearch(
@@ -640,6 +645,7 @@ public class AnnouncementController extends BaseController {
 		return "announcement/userAnnouncementList";
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/addAnnouncement", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addAnnouncement(@ModelAttribute Announcement announcement,
@@ -979,6 +985,7 @@ public class AnnouncementController extends BaseController {
 		}
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR","ROLE_STUDENT"})
 	@RequestMapping(value = "/sendAnnouncementFile", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ResponseEntity<ByteArrayResource> sendAnnouncementFile(
@@ -1190,6 +1197,7 @@ public class AnnouncementController extends BaseController {
 		return errorMessage;
 	}
 	
+	@Secured("ROLE_PARENT")
 	@RequestMapping(value = "/announcementFormForParents", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String gradeCenterForm(Model m, Principal principal) {
@@ -1216,6 +1224,7 @@ public class AnnouncementController extends BaseController {
 		return "announcement/announcementListForParents";
 	}
 
+	@Secured("ROLE_PARENT")
 	@RequestMapping("/announcementListForParents")
 	public String pendingTaskForParents(Principal principal,
 			@RequestParam String uname, Model modal,
@@ -1265,6 +1274,7 @@ public class AnnouncementController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/updateAnnouncement", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String updateAnnouncement(@ModelAttribute Announcement announcement,
@@ -1563,6 +1573,7 @@ public class AnnouncementController extends BaseController {
 		
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR","ROLE_STUDENT"})
 	@RequestMapping(value = "/viewAnnouncement", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewAnnouncement(@ModelAttribute Announcement announcement,
@@ -1606,6 +1617,7 @@ public class AnnouncementController extends BaseController {
 		}
 	}
 
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/getAnnouncementDetails", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getAnnouncementDetails(
@@ -1629,6 +1641,7 @@ public class AnnouncementController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/searchAnnouncement", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchAnnouncement(
@@ -1768,6 +1781,7 @@ public class AnnouncementController extends BaseController {
 		return "announcement/announcementList";
 	}
 
+	@Secured("ROLE_LIBRARIAN")
 	@RequestMapping(value = "/searchAnnouncementForLibrarian", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchAnnouncementForLibrarian(
@@ -1837,6 +1851,7 @@ public class AnnouncementController extends BaseController {
 		return "announcement/announcementListForLibrary";
 	}
 
+	@Secured("ROLE_COUNSELOR")
 	@RequestMapping(value = "/searchAnnouncementForCounselor", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchAnnouncementForCounselor(
@@ -2003,6 +2018,7 @@ public class AnnouncementController extends BaseController {
 	 * 
 	 * }
 	 */
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/viewUserAnnouncements", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewUserAnnouncements(
@@ -2195,6 +2211,7 @@ public class AnnouncementController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR","ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/deleteAnnouncement", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String deleteCourse(@RequestParam Integer id,
@@ -2211,7 +2228,7 @@ public class AnnouncementController extends BaseController {
 		return "redirect:/searchAnnouncement";
 	}
 	
-	
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR","ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/deleteFacultyAnnouncement", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String deleteFacultyAnnouncement(@RequestParam Integer id,
@@ -2229,7 +2246,7 @@ public class AnnouncementController extends BaseController {
 	}
 	
 	
-
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR","ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/makeAnnouncementInactive", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView makeAnnouncementInactive(HttpServletRequest request,
@@ -2244,6 +2261,7 @@ public class AnnouncementController extends BaseController {
 		return new ModelAndView("redirect:/viewUserAnnouncements");
 	}
 
+	@Secured("ROLE_SUPPORT_ADMIN")
 	@RequestMapping(value = "/supportAdminViewUserAnnouncements", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String supportAdminViewUserAnnouncements(
@@ -2325,6 +2343,7 @@ public class AnnouncementController extends BaseController {
 
 	}
 
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/viewUserAnnouncementsSearchNew", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewUserAnnouncementsSearchNew(Model m, Principal principal,RedirectAttributes redirectAttrs) {
@@ -2485,6 +2504,7 @@ public class AnnouncementController extends BaseController {
 	}
 
 	// Nafeesa
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/addAnnouncementFormMultiProgram", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String addAnnouncementFormMultiProgram(
@@ -2554,6 +2574,7 @@ public class AnnouncementController extends BaseController {
 		return "announcement/addAnnouncementMultiProgram";
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/addAnnouncementMultiProgram", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String addAnnouncementMultiProgram(
@@ -2935,6 +2956,7 @@ public class AnnouncementController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/newUpdateAnnouncement", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String newUpdateAnnouncement(
@@ -3040,6 +3062,7 @@ public class AnnouncementController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/addTimeTableForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addTimeTableForm(@RequestParam(required = false) Long id,
@@ -3412,6 +3435,7 @@ public class AnnouncementController extends BaseController {
 	
 	}*/
 	
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/addTimeTable", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addTimeTable(@ModelAttribute Announcement announcement,
@@ -3698,6 +3722,7 @@ public class AnnouncementController extends BaseController {
 		}
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/updateTimeTable", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String updateTimeTable(@ModelAttribute Announcement announcement,
@@ -3745,6 +3770,7 @@ public class AnnouncementController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/timetableResult", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String timetableResult(
@@ -3777,6 +3803,7 @@ public class AnnouncementController extends BaseController {
 		}
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/downloadStudentsReport", method = RequestMethod.GET)
 	public void downloadStudentsRCForms(HttpServletResponse response,
 			Principal principal, @RequestParam("id") Long id) {
@@ -3856,7 +3883,7 @@ public class AnnouncementController extends BaseController {
 
 	}
 	
-	
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/getCourseByProgramIdAdmin", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getCourseBySemester(

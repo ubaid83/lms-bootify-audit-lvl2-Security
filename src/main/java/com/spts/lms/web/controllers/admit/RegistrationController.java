@@ -188,7 +188,7 @@ public class RegistrationController extends BaseController {
 		return (FacultyExcelHelper) act.getBean("facultyExcelHelper");
 	}
 
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/addUserForm", method = RequestMethod.GET)
 	public String addUserForm(@ModelAttribute("user") User user, Model m) {
 		m.addAttribute("webPage", new WebPage("register", "Register User", true, true, true, true, false));
@@ -196,13 +196,14 @@ public class RegistrationController extends BaseController {
 		return "user/register";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT" })
 	@RequestMapping(value = "/downloadAttendence_Report", method = { RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView downloadAttendence_Report() {
 		ModelAndView mav = new ModelAndView("homepage/downloadAttendence");
 		return mav;
 	}
 
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/addFacultyDetailsForm", method = { RequestMethod.POST, RequestMethod.GET })
 	public String addFacultyDetailsForm(@ModelAttribute FacultyDetails facultyDetails, Model m, Principal p,
 			@RequestParam(required = false) Long id) {
@@ -258,7 +259,7 @@ public class RegistrationController extends BaseController {
 		return "user/addFacultyDetails";
 	}
 
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/addFacultyDetails", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addFacultyDetails(RedirectAttributes redirectAttrs, Principal principal, Model m,
 			@ModelAttribute FacultyDetails facultyDetails) {
@@ -287,6 +288,7 @@ public class RegistrationController extends BaseController {
 		return "redirect:/viewFacultyDetails";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/uploadFacultyDetailsForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String uploadFacultyDetailsForm(Model m, Principal p) {
 		Token userdetails1 = (Token) p;
@@ -307,6 +309,7 @@ public class RegistrationController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/uploadFacultyDetails", method = { RequestMethod.POST })
 	public String uploadFacultyDetails(@ModelAttribute FacultyDetails faq, @RequestParam("file") MultipartFile file,
 			Model m, RedirectAttributes redirectAttributes, Principal principal) {
@@ -416,6 +419,7 @@ public class RegistrationController extends BaseController {
 	 * "user/searchUser"; }
 	 */
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/searchUser", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchUser(@RequestParam(required = false) Integer pageNo, Model m, @ModelAttribute User user) {
 
@@ -447,6 +451,7 @@ public class RegistrationController extends BaseController {
 		return "user/searchUser";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/deleteUser", method = { RequestMethod.GET, RequestMethod.POST })
 	public String deleteUser(@RequestParam String username, RedirectAttributes redirectAttrs) {
 		try {
@@ -476,6 +481,7 @@ public class RegistrationController extends BaseController {
 		return "redirect:/searchUser";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/deleteUserFromAll", method = { RequestMethod.GET, RequestMethod.POST })
 	public String deleteUserFromAll(@RequestParam String username, RedirectAttributes redirectAttrs) {
 		try {
@@ -549,7 +555,7 @@ public class RegistrationController extends BaseController {
 	 * 
 	 * return errorMessage; }
 	 */
-	@Secured({ "ROLE_STUDENT" })
+	@Secured({ "ROLE_STUDENT","ROLE_ADMIN" })
 	@RequestMapping(value = "/viewFacultyDetails", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewFacultyDetails(Model m, @ModelAttribute FacultyDetails facultyDetails) {
 		m.addAttribute("webPage", new WebPage("faculty", "View Faculty Details", true, true, true, true, false));
@@ -559,7 +565,7 @@ public class RegistrationController extends BaseController {
 		return "user/viewAllFaculties";
 	}
 
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_STUDENT" })
 	@RequestMapping(value = "/knowMyFaculty", method = { RequestMethod.GET, RequestMethod.POST })
 	public String knowMyFaculty(Model m, Principal principal, @ModelAttribute FacultyDetails facultyDetails,
 			@RequestParam Long courseId) {
@@ -633,7 +639,7 @@ public class RegistrationController extends BaseController {
 		return "user/knowMyFaculty";
 	}
 
-	@Secured({ "ROLE_USER" })
+	
 	/*
 	 * @RequestMapping(value = "/updateFacultyDetails", method = {
 	 * RequestMethod.GET, RequestMethod.POST }) public String updateFacultyDetails(
@@ -658,6 +664,7 @@ public class RegistrationController extends BaseController {
 	 * return "redirect:/addFacultyDetailsForm"; } return
 	 * "redirect:/viewFacultyDetails"; }
 	 */
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/updateFacultyDetails", method = { RequestMethod.GET, RequestMethod.POST })
 	public String updateFacultyDetails(@ModelAttribute FacultyDetails facultyDetails, Model m,
 			@RequestParam("file") MultipartFile file, Principal principal, RedirectAttributes redirectAttrs) {
@@ -709,6 +716,7 @@ public class RegistrationController extends BaseController {
 	 * catch (ValidationException ex) { setError(m, ""); } catch
 	 * (DuplicateKeyException ex) { setError(m, ""); } return "user/register"; }
 	 */
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/uploadStudentForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String uploadStudentForm(Model m) {
 		m.addAttribute("webPage", new WebPage("uploadStudent", "Upload Students", false, false, true, true, false));
@@ -716,7 +724,7 @@ public class RegistrationController extends BaseController {
 		return "user/uploadStudent";
 	}
 
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/addUser", method = RequestMethod.POST)
 	public String addUser(@ModelAttribute("user") User user, Model m, Principal principal) {
 		String username = principal.getName();
@@ -829,6 +837,7 @@ public class RegistrationController extends BaseController {
 	 * }
 	 */
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/uploadStudent", method = RequestMethod.POST)
 	public String uploadStudent(@ModelAttribute User user, Principal principal,
 			@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs) {
@@ -915,6 +924,7 @@ public class RegistrationController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/uploadFacultyForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String uploadFacultyForm(Model m) {
 		m.addAttribute("webPage", new WebPage("uploadFaculty", "Upload Faculties", false, false, true, true, false));
@@ -945,6 +955,7 @@ public class RegistrationController extends BaseController {
 	 * 
 	 * }
 	 */
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/uploadFaculty", method = RequestMethod.POST)
 	public String uploadFaculty(@ModelAttribute User user, Principal principal,
 			@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs) {
@@ -1014,6 +1025,7 @@ public class RegistrationController extends BaseController {
 
 	// 02-07-2020
 
+	@Secured({ "ROLE_STUDENT" })
 	@RequestMapping(value = "/updateProfileForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String updateProfileForm(Model m, Principal principal) {
 		String username = principal.getName();
@@ -1102,6 +1114,7 @@ public class RegistrationController extends BaseController {
 	 * } return "redirect:/updateProfileForm"; }
 	 */
 
+	@Secured({ "ROLE_STUDENT" })
 	@RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
 	public String updateProfile(Model m, @ModelAttribute User user, RedirectAttributes redirectAttrs,
 			Principal principal, @RequestParam("file") MultipartFile file) {
@@ -1282,6 +1295,7 @@ public class RegistrationController extends BaseController {
 		return "redirect:/updateProfileForm";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/addNewAdminSchoolWiseForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addNewAdminSchoolWiseForm(Principal principal, Model m) {
 		m.addAttribute("webPage",
@@ -1290,6 +1304,7 @@ public class RegistrationController extends BaseController {
 		return "user/addNewAdminSchoolWise";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/addNewAdminSchoolWise", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addNewAdminSchoolWise(@ModelAttribute User user, Principal principal, Model m) {
 		m.addAttribute("webPage",
@@ -1321,6 +1336,7 @@ public class RegistrationController extends BaseController {
 		return "user/addNewAdminSchoolWise";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/addAdminProgramForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addAdminProgramForm(Principal principal, Model m) {
 		m.addAttribute("webPage",
@@ -1329,6 +1345,7 @@ public class RegistrationController extends BaseController {
 		return "user/addAdminProgram";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "getProgramByObjectId", method = { RequestMethod.POST })
 	public @ResponseBody Object selectCompanyMapping(Model m, @RequestParam(name = "schoolObjId") String schoolobj)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -1360,6 +1377,7 @@ public class RegistrationController extends BaseController {
 		return jsonString;
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/addAdminProgram", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addAdminProgram(@ModelAttribute User user, Principal principal, Model m) {
 		m.addAttribute("webPage",
@@ -1391,6 +1409,7 @@ public class RegistrationController extends BaseController {
 		return "user/addAdminProgram";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/addAdminMenuRightsForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addAdminMenuRightsForm(Principal principal, Model m) {
 		m.addAttribute("webPage",
@@ -1399,6 +1418,7 @@ public class RegistrationController extends BaseController {
 		return "user/addAdminMenuRights";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/addAdminMenuRights", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addAdminMenuRights(@ModelAttribute User user, Principal principal, Model m) {
 		m.addAttribute("webPage",
@@ -1430,6 +1450,7 @@ public class RegistrationController extends BaseController {
 		return "user/addAdminMenuRights";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/addOtherUserForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addOtherUserForm(Principal principal, Model m) {
 		m.addAttribute("webPage",
@@ -1438,6 +1459,7 @@ public class RegistrationController extends BaseController {
 		return "user/addOtherUser";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/addOtherUser", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addOtherUser(@ModelAttribute User user, Principal principal, Model m) {
 		m.addAttribute("webPage",
@@ -1469,6 +1491,7 @@ public class RegistrationController extends BaseController {
 		return "user/addOtherUser";
 	}
 
+	@Secured({ "ROLE_STUDENT", "ROLE_EXAM", "ROLE_EXAM_ADMIN", "ROLE_IT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/visitExamApp", method = { RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView visitExamApp(Model m, Principal principal, RedirectAttributes rm) throws ParseException {
 		String json = "";
@@ -1563,6 +1586,7 @@ public class RegistrationController extends BaseController {
 	 * "homepage/createTrainingProgram"; }
 	 */
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/createTrainingProgram", method = { RequestMethod.GET, RequestMethod.POST })
 	public String createTrainingProgram(Principal principal, Model m,
 
@@ -1580,6 +1604,7 @@ public class RegistrationController extends BaseController {
 		return "redirect:/createTraingProgramForm";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/createTraingProgramForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String createTraingProgramForm(Principal principal, Model m, @ModelAttribute TrainingProgram TrainingProgram,
 			RedirectAttributes redirectAttrs) throws IOException {
@@ -1597,6 +1622,7 @@ public class RegistrationController extends BaseController {
 		return "homepage/createTrainingProgram";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/viewscheduledprogram", method = {
 
 			RequestMethod.GET, RequestMethod.POST })
@@ -1616,6 +1642,7 @@ public class RegistrationController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/getCampuseNameForTraining", method = {
 
 			RequestMethod.GET, RequestMethod.POST })

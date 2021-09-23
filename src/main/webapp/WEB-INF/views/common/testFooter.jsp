@@ -68,7 +68,31 @@
 
 <%-- <script src="<c:url value="/resources/js/studentFeedback.js" />" type="text/javascript" ></script>
  --%>
+<script>
+$("form").submit(function () {
+	
+    var clickedForm = $(this); // Select Form
+	var form = $(this).attr('id');
+    
+   // var elementArr = document.getElementById(form).elements;
+   
+    var elementArr = document.getElementsByTagName('input');
+    console.log('elementArr length:'+elementArr.length);
+    for(var i = 0; i < elementArr.length; i++){
+    	
+    	if(elementArr[i].type == 'text'){
+    		var value = elementArr[i].value;
+    		if(value.includes('<html>')){
+    			alert('HTML Script is not allowed in text boxes');
+    		      return false;
+    		}
+    	}
+    		
+      }
 
+  });
+
+</script>
 <script>
 	var csrf_token = $('meta[name="csrf-token"]').attr('content');
 	$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
