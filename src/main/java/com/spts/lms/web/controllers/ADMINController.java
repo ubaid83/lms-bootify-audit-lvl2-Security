@@ -127,6 +127,7 @@ public class ADMINController extends BaseController{
 
 	private static final Logger logger = Logger.getLogger(ADMINController.class);
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/addNewFeatures", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addNewFeatures(Principal principal, Model m, @ModelAttribute Announcement announcement) {
 
@@ -134,6 +135,7 @@ public class ADMINController extends BaseController{
 
 	}
 	
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/addNewFeaturesAdvance", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addNewFeaturesAdvance(Principal principal, Model m, @ModelAttribute Announcement announcement)
 
@@ -317,7 +319,7 @@ public class ADMINController extends BaseController{
 	}*/
 	
 	
-	
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/uploadTimeLimitSession", method = {
             RequestMethod.GET, RequestMethod.POST })
 public String downloadExamReport(Principal principal, Model m) {
@@ -328,7 +330,7 @@ public String downloadExamReport(Principal principal, Model m) {
     
       //return "library/libraryPage";
 }
-	
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
     @RequestMapping(value = "/downloadUploadTemp", method = RequestMethod.GET)
     public void downloadUploadTemp(HttpServletResponse response,
                 Principal principal) {
@@ -433,7 +435,7 @@ int rowNum=1;
   }
     
     
-    
+    @Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/uploadTimeLimit", method = RequestMethod.POST)
 	public String uploadStudent(@ModelAttribute UploadTimeLimitSession timeSession, Principal principal,
 			@RequestParam("file") MultipartFile  file,
@@ -502,7 +504,7 @@ int rowNum=1;
 
 	}
     
-	
+    @Secured({ "ROLE_LIBRARIAN", "ROLE_EXAM" })
 	@RequestMapping(value = "/downloadReportLinkExam", method = {
             RequestMethod.GET, RequestMethod.POST })
 public String downloadReportLinkExam(Principal principal, Model m) {

@@ -1,8 +1,7 @@
-<<<<<<< HEAD
-activeProfiles=lms-bootifyIcaDevelop
-=======
-activeProfiles=
->>>>>>> refs/remotes/origin/master
+=\=\=\=\=\=\=
+<<<<<<<=HEAD
+>>>>>>>=refs/remotes/origin/master
+activeProfiles=lms-bootify23Sept21
 eclipse.preferences.version=1
 resolveWorkspaceProjects=true
 version=1
