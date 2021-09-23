@@ -27,6 +27,17 @@ private String trainingProgramId;
 
 
 
+private String encrypted_key;
+
+
+
+public String getEncrypted_key() {
+	return encrypted_key;
+}
+
+public void setEncrypted_key(String encrypted_key) {
+	this.encrypted_key = encrypted_key;
+}
 public String getProgramName() {
 	return programName;
 }
@@ -113,14 +124,11 @@ public void setUserType(String userType) {
 }
 @Override
 public String toString() {
-	return "TrainingProgram [trainingTitle=" + trainingTitle + ", date=" + date
-			+ ", startTime=" + startTime + ", endTime=" + endTime
-			+ ", userType=" + userType + ", ConductedBy=" + ConductedBy
-			+ ", location=" + location + ", school=" + school
-			+ ", programName=" + programName + ", campusAbbr=" + campusAbbr
-			+ ", programId=" + programId + ", campusId=" + campusId
-			+ ", username=" + username + ", trainingProgramId="
-			+ trainingProgramId + "]";
+	return "TrainingProgram [trainingTitle=" + trainingTitle + ", date=" + date + ", startTime=" + startTime
+			+ ", endTime=" + endTime + ", userType=" + userType + ", ConductedBy=" + ConductedBy + ", location="
+			+ location + ", school=" + school + ", programName=" + programName + ", campusAbbr=" + campusAbbr
+			+ ", programId=" + programId + ", campusId=" + campusId + ", username=" + username + ", trainingProgramId="
+			+ trainingProgramId + ", encrypted_key=" + encrypted_key + "]";
 }
 
 

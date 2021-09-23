@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
@@ -72,6 +73,7 @@ import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -103,6 +105,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -202,6 +205,7 @@ import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSSEP;
 import com.spts.lms.studentms.sap.ZmessageLogTt;
 import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.AESEncryption;
 import com.spts.lms.web.utils.Utils;
 
 @Controller
@@ -310,6 +314,15 @@ public class LoginController extends BaseController {
 
 	@Value("${copyleaskKey:''}")
 	private String copyleaskKey;
+	
+	@Value("#{'${aes.secretKey}'}")
+	String secretKey;
+
+	@Value("#{'${aes.saltKey}'}")
+	String salt;
+	
+	@Value("${userMgmtUrlApp}")
+	private String userMgmtUrlApp;
 
 	@Autowired
 	StudentAssignmentController studentAssignmentController;
@@ -1935,184 +1948,188 @@ public class LoginController extends BaseController {
 	}
 
 	@RequestMapping(value = { "/getCourseByUsernameForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String getCourseByUsernameForApp(@RequestBody User users, HttpServletResponse resp) {
+	public @ResponseBody String getCourseByUsernameForApp(@RequestBody User users, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 		try {
 
+			boolean auth = isUserAuthorized(headers.get("token"), users.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
+				json = encryptResponseBody(json);
+				return json;
+			}
 			String username = users.getUsername();
 			long programId = users.getProgramId();
-
 			User user = userService.findByUserName(username);
-
 			if (user != null) {
-
 				UserRole roles = userRoleService.findRoleByUsername(username);
 				List<Role> role = new ArrayList<>();
-
 				role.add(roles.getRole());
-
 				user.setRoles(role);
-
 				List<Course> courseList = courseService.findCoursesByUserForApp(username);
-
 				String json = new Gson().toJson(courseList);
-
 				// logger.info("Course List ------->" + json);
 				return json;
-
 			} else {
 				return "{}";
 			}
-
 		} catch (Exception e) {
 			logger.error("Exception", e);
 			return "{}";
-
 		}
-
 	}
 
 	@RequestMapping(value = { "/getProgramsByUsernameForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String getProgramsByUsernameForApp(@RequestBody User users, HttpServletResponse resp) {
+	public @ResponseBody String getProgramsByUsernameForApp(@RequestBody User users, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 		try {
-
+			boolean auth = isUserAuthorized(headers.get("token"), users.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
+				json = encryptResponseBody(json);
+				return json;
+			}
 			String username = users.getUsername();
-
 			User user = userService.findByUserName(username);
-
 			if (user != null) {
-
 				UserRole roles = userRoleService.findRoleByUsername(username);
 				List<Role> role = new ArrayList<>();
-
 				role.add(roles.getRole());
-
 				user.setRoles(role);
-
 				List<Course> programList = courseService.findProgramsByUserForApp(username);
-
 				String json = new Gson().toJson(programList);
-
-				// logger.info("Program List ------->" + json);
 				return json;
-
 			} else {
 				return "{}";
 			}
-
 		} catch (Exception e) {
 			logger.error("Exception", e);
 			return "{}";
-
 		}
-
 	}
 
 	@RequestMapping(value = { "/getCourseByUsernameAndProgramForApp" }, method = { RequestMethod.GET,
 			RequestMethod.POST })
-	public @ResponseBody String getCourseByUsernameAndProgramForApp(@RequestBody User users, HttpServletResponse resp) {
+	public @ResponseBody String getCourseByUsernameAndProgramForApp(@RequestBody User users, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 		try {
-
+			boolean auth = isUserAuthorized(headers.get("token"), users.getUsername());
+			logger.info("HttpHeadersToken ==> " + users.getUsername());
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
+				json = encryptResponseBody(json);
+				return json;
+			}
 			String username = users.getUsername();
 			long programId = users.getProgramId();
-
 			User user = userService.findByUserName(username);
-
 			if (user != null) {
-
 				UserRole roles = userRoleService.findRoleByUsername(username);
 				List<Role> role = new ArrayList<>();
-
 				role.add(roles.getRole());
-
 				user.setRoles(role);
-
 				List<Course> courseList = courseService.findCoursesByUserAndProgramIdForApp(username, programId);
-
 				String json = new Gson().toJson(courseList);
-
-				// logger.info("Course List ------->" + json);
 				return json;
-
 			} else {
 				return "{}";
 			}
-
 		} catch (Exception e) {
 			logger.error("Exception", e);
 			return "{}";
-
 		}
-
 	}
 
 	@RequestMapping(value = { "/getStudentsByCourseForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String getStudentsByCourseForApp(@RequestBody Course course, HttpServletResponse resp) {
+	public @ResponseBody String getStudentsByCourseForApp(@RequestBody Course course, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 		try {
-
-			long courseId = course.getId();
-
-			Course courseDetails = courseService.findByID(courseId);
-
-			if (courseDetails != null) {
-
-				List<Course> courseList = courseService.findStudentsByCourseIdForApp(courseId);
-
-				String json = new Gson().toJson(courseList);
-
-				// logger.info("Course List ------->" + json);
+			boolean auth = isUserAuthorized(headers.get("token"), course.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
+				json = encryptResponseBody(json);
 				return json;
-
+			}
+			long courseId = course.getId();
+			Course courseDetails = courseService.findByID(courseId);
+			if (courseDetails != null) {
+				List<Course> courseList = courseService.findStudentsByCourseIdForApp(courseId);
+				String json = new Gson().toJson(courseList);
+				return json;
 			} else {
 				return "{}";
 			}
-
 		} catch (Exception e) {
 			logger.error("Exception", e);
 			return "{}";
-
 		}
-
 	}
 
 	@RequestMapping(value = { "/insertStudentAttendanceForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String insertStudentAttendanceForApp(@RequestBody StudentCourseAttendance studentCourseAttd,
-			HttpServletResponse resp) {
+	public @ResponseBody String insertStudentAttendanceForApp(
+			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 		try {
+			boolean auth = isUserAuthorized(headers.get("token"), studentCourseAttendance.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
 
+				json = encryptResponseBody(json);
+				return json;
+			}
 			List<Course> StudentList = courseService
-					.findStudentsByCourseIdForApp(Long.parseLong(studentCourseAttd.getCourseId()));
-			logger.info("flag--------->" + studentCourseAttd.getFlag());
-			String courseId = studentCourseAttd.getCourseId();
+					.findStudentsByCourseIdForApp(Long.parseLong(studentCourseAttendance.getCourseId()));
+			logger.info("flag--------->" + studentCourseAttendance.getFlag());
+			String courseId = studentCourseAttendance.getCourseId();
 			String eventId = courseId.substring(0, 8);
 			String programId = courseId.substring(8);
 			String username = "", acadSession = "", acadYear = "", startTime = "", endTime = "";
 			List<StudentCourseAttendance> studentCourseAttdList = new ArrayList<>();
 
-			logger.info("----->" + studentCourseAttd.getListofAbsStud());
+			logger.info("----->" + studentCourseAttendance.getListofAbsStud());
 
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date date = Utils.getInIST();
 
-			startTime = dateFormat.format(date) + " " + studentCourseAttd.getStartTime();
-			endTime = dateFormat.format(date) + " " + studentCourseAttd.getEndTime();
+			startTime = dateFormat.format(date) + " " + studentCourseAttendance.getStartTime();
+			endTime = dateFormat.format(date) + " " + studentCourseAttendance.getEndTime();
 
 			for (Course cr : StudentList) {
 				User u = userService.findByUserName(cr.getUsername());
 
 				StudentCourseAttendance sca = new StudentCourseAttendance();
 
-				sca.setCourseId(studentCourseAttd.getCourseId());
+				sca.setCourseId(studentCourseAttendance.getCourseId());
 				sca.setEventId(eventId);
 				sca.setProgramId(programId);
 
 				username = u.getUsername();
 				sca.setUsername(u.getUsername());
 				sca.setRollNo(u.getRollNo());
-				sca.setFacultyId(studentCourseAttd.getFacultyId());
-				sca.setCreatedBy(studentCourseAttd.getFacultyId());
-				sca.setLastModifiedBy(studentCourseAttd.getFacultyId());
-				sca.setNoOfLec(studentCourseAttd.getNoOfLec());
-				sca.setFlag(studentCourseAttd.getFlag());
+				sca.setFacultyId(studentCourseAttendance.getFacultyId());
+				sca.setCreatedBy(studentCourseAttendance.getFacultyId());
+				sca.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+				sca.setNoOfLec(studentCourseAttendance.getNoOfLec());
+				sca.setFlag(studentCourseAttendance.getFlag());
 
 				acadSession = u.getAcadSession();
 				sca.setAcadSession(u.getAcadSession());
@@ -2124,10 +2141,12 @@ public class LoginController extends BaseController {
 				sca.setStartTime(startTime);
 				sca.setEndTime(endTime);
 
-				logger.info("----->" + studentCourseAttd.getListofAbsStud());
+				logger.info("----->" + studentCourseAttendance.getListofAbsStud());
 
-				if (null != studentCourseAttd.getListofAbsStud() || !studentCourseAttd.getListofAbsStud().equals("")) {
-					List<String> absentUsers = Arrays.asList(studentCourseAttd.getListofAbsStud().split("\\s*,\\s*"));
+				if (null != studentCourseAttendance.getListofAbsStud()
+						|| !studentCourseAttendance.getListofAbsStud().equals("")) {
+					List<String> absentUsers = Arrays
+							.asList(studentCourseAttendance.getListofAbsStud().split("\\s*,\\s*"));
 
 					logger.info("----->" + absentUsers);
 
@@ -2145,19 +2164,20 @@ public class LoginController extends BaseController {
 
 			}
 
-			if (studentCourseAttd.getListofAbsStud().equals(null) || studentCourseAttd.getListofAbsStud().equals("")) {
+			if (studentCourseAttendance.getListofAbsStud().equals(null)
+					|| studentCourseAttendance.getListofAbsStud().equals("")) {
 
 				StudentCourseAttendance sca1 = new StudentCourseAttendance();
 
-				sca1.setCourseId(studentCourseAttd.getCourseId());
+				sca1.setCourseId(studentCourseAttendance.getCourseId());
 				sca1.setEventId(eventId);
 				sca1.setProgramId(programId);
 
-				sca1.setFacultyId(studentCourseAttd.getFacultyId());
-				sca1.setCreatedBy(studentCourseAttd.getFacultyId());
-				sca1.setLastModifiedBy(studentCourseAttd.getFacultyId());
-				sca1.setNoOfLec(studentCourseAttd.getNoOfLec());
-				sca1.setFlag(studentCourseAttd.getFlag());
+				sca1.setFacultyId(studentCourseAttendance.getFacultyId());
+				sca1.setCreatedBy(studentCourseAttendance.getFacultyId());
+				sca1.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+				sca1.setNoOfLec(studentCourseAttendance.getNoOfLec());
+				sca1.setFlag(studentCourseAttendance.getFlag());
 
 				sca1.setAcadSession(acadSession);
 				sca1.setAcadYear(acadYear);
@@ -2185,44 +2205,55 @@ public class LoginController extends BaseController {
 	}
 
 	@RequestMapping(value = { "/updateStudentAttendanceForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String updateStudentAttendanceForApp(@RequestBody StudentCourseAttendance studentCourseAttd,
-			HttpServletResponse resp) {
+	public @ResponseBody String updateStudentAttendanceForApp(
+			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 		try {
+			boolean auth = isUserAuthorized(headers.get("token"), studentCourseAttendance.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
 
+				json = encryptResponseBody(json);
+				return json;
+			}
 			List<Course> StudentList = courseService
-					.findStudentsByCourseIdForApp(Long.parseLong(studentCourseAttd.getCourseId()));
-			logger.info("flag--------->" + studentCourseAttd.getFlag());
-			String courseId = studentCourseAttd.getCourseId();
+					.findStudentsByCourseIdForApp(Long.parseLong(studentCourseAttendance.getCourseId()));
+			logger.info("flag--------->" + studentCourseAttendance.getFlag());
+			String courseId = studentCourseAttendance.getCourseId();
 			String eventId = courseId.substring(0, 8);
 			String programId = courseId.substring(8);
 			String username = "", acadSession = "", acadYear = "", startTime = "", endTime = "";
 			List<StudentCourseAttendance> studentCourseAttdList = new ArrayList<>();
 
-			logger.info("----->" + studentCourseAttd.getListofAbsStud());
+			logger.info("----->" + studentCourseAttendance.getListofAbsStud());
 
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date date = Utils.getInIST();
 
-			startTime = dateFormat.format(date) + " " + studentCourseAttd.getStartTime();
-			endTime = dateFormat.format(date) + " " + studentCourseAttd.getEndTime();
+			startTime = dateFormat.format(date) + " " + studentCourseAttendance.getStartTime();
+			endTime = dateFormat.format(date) + " " + studentCourseAttendance.getEndTime();
 
 			for (Course cr : StudentList) {
 				User u = userService.findByUserName(cr.getUsername());
 
 				StudentCourseAttendance sca = new StudentCourseAttendance();
 
-				sca.setCourseId(studentCourseAttd.getCourseId());
+				sca.setCourseId(studentCourseAttendance.getCourseId());
 				sca.setEventId(eventId);
 				sca.setProgramId(programId);
 
 				username = u.getUsername();
 				sca.setUsername(u.getUsername());
 				sca.setRollNo(u.getRollNo());
-				sca.setFacultyId(studentCourseAttd.getFacultyId());
-				sca.setCreatedBy(studentCourseAttd.getFacultyId());
-				sca.setLastModifiedBy(studentCourseAttd.getFacultyId());
-				sca.setNoOfLec(studentCourseAttd.getNoOfLec());
-				sca.setFlag(studentCourseAttd.getFlag());
+				sca.setFacultyId(studentCourseAttendance.getFacultyId());
+				sca.setCreatedBy(studentCourseAttendance.getFacultyId());
+				sca.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+				sca.setNoOfLec(studentCourseAttendance.getNoOfLec());
+				sca.setFlag(studentCourseAttendance.getFlag());
 
 				acadSession = u.getAcadSession();
 				sca.setAcadSession(u.getAcadSession());
@@ -2234,10 +2265,12 @@ public class LoginController extends BaseController {
 				sca.setStartTime(startTime);
 				sca.setEndTime(endTime);
 
-				logger.info("----->" + studentCourseAttd.getListofAbsStud());
+				logger.info("----->" + studentCourseAttendance.getListofAbsStud());
 
-				if (null != studentCourseAttd.getListofAbsStud() || !studentCourseAttd.getListofAbsStud().equals("")) {
-					List<String> absentUsers = Arrays.asList(studentCourseAttd.getListofAbsStud().split("\\s*,\\s*"));
+				if (null != studentCourseAttendance.getListofAbsStud()
+						|| !studentCourseAttendance.getListofAbsStud().equals("")) {
+					List<String> absentUsers = Arrays
+							.asList(studentCourseAttendance.getListofAbsStud().split("\\s*,\\s*"));
 
 					logger.info("----->" + absentUsers);
 
@@ -2258,9 +2291,10 @@ public class LoginController extends BaseController {
 			studentCourseAttendanceService.updateBatch(studentCourseAttdList);
 
 			StudentCourseAttendance stca = studentCourseAttendanceService.getAllPresentRecord(courseId, startTime,
-					endTime, studentCourseAttd.getFacultyId());
+					endTime, studentCourseAttendance.getFacultyId());
 
-			if (studentCourseAttd.getListofAbsStud().equals(null) || studentCourseAttd.getListofAbsStud().equals("")) {
+			if (studentCourseAttendance.getListofAbsStud().equals(null)
+					|| studentCourseAttendance.getListofAbsStud().equals("")) {
 
 				if (stca != null) {
 
@@ -2273,15 +2307,15 @@ public class LoginController extends BaseController {
 
 					StudentCourseAttendance sca1 = new StudentCourseAttendance();
 
-					sca1.setCourseId(studentCourseAttd.getCourseId());
+					sca1.setCourseId(studentCourseAttendance.getCourseId());
 					sca1.setEventId(eventId);
 					sca1.setProgramId(programId);
 
-					sca1.setFacultyId(studentCourseAttd.getFacultyId());
-					sca1.setCreatedBy(studentCourseAttd.getFacultyId());
-					sca1.setLastModifiedBy(studentCourseAttd.getFacultyId());
-					sca1.setNoOfLec(studentCourseAttd.getNoOfLec());
-					sca1.setFlag(studentCourseAttd.getFlag());
+					sca1.setFacultyId(studentCourseAttendance.getFacultyId());
+					sca1.setCreatedBy(studentCourseAttendance.getFacultyId());
+					sca1.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+					sca1.setNoOfLec(studentCourseAttendance.getNoOfLec());
+					sca1.setFlag(studentCourseAttendance.getFlag());
 
 					sca1.setAcadSession(acadSession);
 					sca1.setAcadYear(acadYear);
@@ -2557,7 +2591,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://localhost:3307/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "timetable_metadata");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable);
@@ -2622,7 +2656,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://localhost:3307/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "timetable_metadata");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable); String cid = ""; long eventId = 0;
@@ -2710,10 +2744,21 @@ public class LoginController extends BaseController {
 	 * } }
 	 */
 	@RequestMapping(value = { "/getTimetableByCourseForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String getTimetableByCourseForApp(@RequestBody Course course, HttpServletResponse resp) {
+	public @ResponseBody String getTimetableByCourseForApp(@RequestBody Course course, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 		try {
+			course = (Course) decryptRequestBody(course.getEncrypted_key(), "Course");
+			boolean auth = isUserAuthorized(headers.get("token"), course.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
 
-			// logger.info("Course----->"+course);
+				json = encryptResponseBody(json);
+				return json;
+			}
 
 			MultipleDBConnection multipleDBConnection = new MultipleDBConnection();
 
@@ -2725,7 +2770,7 @@ public class LoginController extends BaseController {
 
 			DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 
-					.createConnectionByDS("jdbc:mysql://10.25.10.50:3307/", defaultUsername, defaultPassword,
+					.createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword,
 							"timetable_metadata");
 
 			timetableDAO.setDS(dataSourceTimetable);
@@ -2848,6 +2893,7 @@ public class LoginController extends BaseController {
 
 			timetableDAO.setDS(dataSourceDefaultLms);
 
+			json = encryptResponseBody(json);
 			return json;
 			// return "{\"Status\":\"Success\"}";
 
@@ -2881,7 +2927,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://localhost:3307/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword,
 	 * 
 	 * "timetable_metadata");
@@ -2934,8 +2980,18 @@ public class LoginController extends BaseController {
 	 */
 
 	@RequestMapping(value = { "/sendTimetableNotificationForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String sendTimetableNotificationForApp() {
+	public @ResponseBody String sendTimetableNotificationForApp(@RequestHeader Map<String, String> headers) {
+		boolean auth = isUserAuthorized(headers.get("token"), headers.get("username"));
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
+			json = encryptResponseBody(json);
+			return json;
+		}
 		String jsonResponse = "";
 
 		Client clientWS = null;
@@ -2965,7 +3021,7 @@ public class LoginController extends BaseController {
 										|| dateFormat.parse(x.getStart_time())
 												.compareTo(DateUtils.addMinutes(Utils.getInIST(), 5)) == 0));
 					} catch (Exception e) {
-						e.printStackTrace();
+						// e.printStackTrace();
 						return false;
 					}
 				} else {
@@ -3024,10 +3080,21 @@ public class LoginController extends BaseController {
 	}
 
 	@RequestMapping(value = { "/insertUserPlayerIdForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String insertUserPlayerIdForApp(@RequestBody User user, HttpServletResponse resp) {
+	public @ResponseBody String insertUserPlayerIdForApp(@RequestBody User user, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 
 		try {
-
+			user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+			boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
+				json = encryptResponseBody(json);
+				return json;
+			}
 			String username = user.getUsername();
 			String playerId = user.getPlayerId();
 
@@ -3041,39 +3108,72 @@ public class LoginController extends BaseController {
 
 				userService.insertUserPlayerId(username, playerId);
 			}
+			String json = "{\"Status\":\"Success\"}";
 
-			return "{\"Status\":\"Success\"}";
+			json = encryptResponseBody(json);
+			return json;
 
 		} catch (Exception e) {
 			logger.error("Exception", e);
-			return "{\"Status\":\"Fail\"}";
+			String json = "{\"Status\":\"Fail\"}";
+
+			json = encryptResponseBody(json);
+			return json;
 
 		}
 	}
 
 	@RequestMapping(value = { "/deleteUserPlayerIdForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String deleteUserPlayerIdForApp(@RequestBody User user, HttpServletResponse resp) {
+	public @ResponseBody String deleteUserPlayerIdForApp(@RequestBody User user, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 
 		try {
+			user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+			boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
 
+				json = encryptResponseBody(json);
+				return json;
+			}
 			String username = user.getUsername();
 
 			userService.deleteUserPlayerId(username);
+			service.deleteKey(headers.get("token"));
+			String json = "{\"Status\":\"Success\"}";
 
-			return "{\"Status\":\"Success\"}";
+			json = encryptResponseBody(json);
+			return json;
 
 		} catch (Exception e) {
 			logger.error("Exception", e);
-			return "{\"Status\":\"Fail\"}";
+			String json = "{\"Status\":\"Fail\"}";
 
+			json = encryptResponseBody(json);
+			return json;
 		}
 	}
 
 	@RequestMapping(value = { "/getAnnouncementListForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String getAnnouncementListForApp(@RequestBody User user, HttpServletResponse resp) {
+	public @ResponseBody String getAnnouncementListForApp(@RequestBody User user, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 
 		try {
-
+			user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+			boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
+				json = encryptResponseBody(json);
+				return json;
+			}
 			String username = user.getUsername();
 
 			List<Announcement> announcementListForStudent = announcementService
@@ -3081,56 +3181,83 @@ public class LoginController extends BaseController {
 
 			String json = new Gson().toJson(announcementListForStudent);
 
+			json = encryptResponseBody(json);
 			return json;
-
-			// return
-			// "[{\"id\":\"1\", \"subject\":\"Final ED Exam schedule BTI Semester-II
-			// 2018-19\"}, {\"id\":\"2\", \"subject\":\"Final ED Exam schedule BTI
-			// Semester-II 2018-19\"}]";
 
 		} catch (Exception e) {
 			logger.error("Exception", e);
-			return "{\"Status\":\"Fail\"}";
+			String json = "{\"Status\":\"Fail\"}";
+			return json;
 
 		}
 	}
 
 	@RequestMapping(value = { "/getNewsListForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String getNewsListForApp(@RequestBody User user, HttpServletResponse resp) {
+	public @ResponseBody String getNewsListForApp(@RequestBody User user, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 
 		try {
+			user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+			boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
 
+				json = encryptResponseBody(json);
+				return json;
+			}
 			String username = user.getUsername();
 
 			List<NewsEvents> newsEventsList = newsEventsService.getAllActiveNews();
 
 			String json = new Gson().toJson(newsEventsList);
 
+			json = encryptResponseBody(json);
 			return json;
 
 		} catch (Exception e) {
 			logger.error("Exception", e);
-			return "{\"Status\":\"Fail\"}";
+			String json = "{\"Status\":\"Fail\"}";
+			return json;
 
 		}
 	}
 
 	@RequestMapping(value = { "/getEventsListForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String getEventsListForApp(@RequestBody User user, HttpServletResponse resp) {
+	public @ResponseBody String getEventsListForApp(@RequestBody User user, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 
 		try {
+			user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+			boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
 
+				json = encryptResponseBody(json);
+				return json;
+			}
 			String username = user.getUsername();
 
 			List<NewsEvents> newsEventsList = newsEventsService.getAllActiveEvents();
 
 			String json = new Gson().toJson(newsEventsList);
 
+			json = encryptResponseBody(json);
 			return json;
 
 		} catch (Exception e) {
 			logger.error("Exception", e);
-			return "{\"Status\":\"Fail\"}";
+			String json = "{\"Status\":\"Fail\"}";
+
+			json = encryptResponseBody(json);
+			return json;
 
 		}
 	}
@@ -3223,7 +3350,24 @@ public class LoginController extends BaseController {
 			@RequestParam(required = false, name = "saId", defaultValue = "") String saId,
 			@RequestParam(required = false, name = "libraryId", defaultValue = "") String libraryId,
 			@RequestParam(required = false, name = "filePath", defaultValue = "") String filePath,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(required = false, name = "username", defaultValue = "") String username,
+			HttpServletRequest request, HttpServletResponse response, @RequestHeader Map<String, String> headers) {
+		logger.info("HttpHeaders ==> " + headers);
+		logger.info("username ==> " + username);
+		id = decryptRequestParam(id);
+		saId = decryptRequestParam(saId);
+		libraryId = decryptRequestParam(libraryId);
+		filePath = decryptRequestParam(filePath);
+		username = decryptRequestParam(username);
+		logger.info("id===> " + id);
+		logger.info("saId===> " + saId);
+		logger.info("libraryId===> " + libraryId);
+		logger.info("username===> " + username);
+		boolean auth = isUserAuthorized(headers.get("token"), username);
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			return null;
+		}
 
 		OutputStream outStream = null;
 		FileInputStream inputStream = null;
@@ -3343,10 +3487,22 @@ public class LoginController extends BaseController {
 	}
 
 	@RequestMapping(value = { "/getAttendanceStatForApp" }, method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String getAttendanceStatForApp(@RequestBody User user, HttpServletResponse resp) {
+	public @ResponseBody String getAttendanceStatForApp(@RequestBody User user, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
 
 		try {
+			user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+			boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+			logger.info("HttpHeadersToken ==> " + headers.get("token"));
+			if (!auth) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", "failed");
+				map.put("access", "unauthorised access");
+				String json = new Gson().toJson(map);
 
+				json = encryptResponseBody(json);
+				return json;
+			}
 			String username = user.getUsername();
 			String courseId = user.getCourseId();
 			SimpleDateFormat dateFormatApp = new SimpleDateFormat("dd-MM-yyyy");
@@ -3364,11 +3520,13 @@ public class LoginController extends BaseController {
 
 			String json = new Gson().toJson(AttendanceStatisticsList);
 
+			json = encryptResponseBody(json);
 			return json;
 
 		} catch (Exception e) {
 			logger.error("Exception", e);
-			return "{\"Status\":\"Fail\"}";
+			String json = "{\"Status\":\"Fail\"}";
+			return json;
 
 		}
 	}
@@ -3635,15 +3793,22 @@ public class LoginController extends BaseController {
 	 * // return "assignment/submitAssignment"; }
 	 */
 
-	@RequestMapping(value = "/submitAssignmentForApp", method = {
-
-			RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String submitAssignmentForApp(
-
-			@RequestPart(value = "file") MultipartFile file,
-			@RequestParam(value = "assignmentSubmission") String assignmentSubmissionJson, HttpServletResponse resp) {
-
-		logger.info("Inside submitAssignmentForApp");
+	@RequestMapping(value = "/submitAssignmentForApp", method = { RequestMethod.GET, RequestMethod.POST })
+	public ResponseEntity<String> submitAssignmentForApp(@RequestPart(value = "file") MultipartFile file,
+			@RequestParam(value = "assignmentSubmission") String assignmentSubmissionJson,
+			@RequestParam(value = "username") String usernamee, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		logger.info("assignmentSubmissionJson ==> " + assignmentSubmissionJson);
+		assignmentSubmissionJson = decryptRequestParam(assignmentSubmissionJson);
+		usernamee = decryptRequestParam(usernamee);
+		boolean auth = isUserAuthorized(headers.get("token"), usernamee);
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			return ResponseEntity.ok(new Gson().toJson(map));
+		}
 
 		logger.info("file--->" + file.getOriginalFilename());
 
@@ -3688,7 +3853,7 @@ public class LoginController extends BaseController {
 			assignmentSubmission.setAssignmentStatus("Completed");
 
 			String json = new Gson().toJson(assignmentSubmission);
-			return json;
+			return ResponseEntity.ok(json);
 		} else if (null != approvalStatus && approvalStatus.contains("Reject")) {
 			assignmentSubmission.setAssignmentError("Faculty has already rejected your assignment");
 			assignmentSubmission.setAssignmentNote("You cannot resubmit assignment now.");
@@ -3697,7 +3862,7 @@ public class LoginController extends BaseController {
 			assignmentSubmission.setAssignmentStatus("Completed___Evaluated___Rejected");
 
 			String json = new Gson().toJson(assignmentSubmission);
-			return json;
+			return ResponseEntity.ok(json);
 		} else {
 			int chkStartDate = studentAssignmentService.chkStartandEndDateOfAssignment(username, assignment.getId());
 
@@ -3706,25 +3871,18 @@ public class LoginController extends BaseController {
 
 			logger.info("chkStartAndEndDate first ---> " + chkStartAndEndDate);
 
-			//logger.info("previous end date ---> " + assignment.getEndDate().replace("T", " "));
-
 			try {
 				String bufferTime = lmsVariablesService.getLmsVariableBykeyword("assignmentEndBuferTime").getValue();
-				//logger.info("bufferTime ---> " + bufferTime);
 				Date actualEndDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 						.parse(assignment.getEndDate().replace("T", " "));
 				Date bufferEndDate = DateUtils.addMinutes(actualEndDate, Integer.parseInt(bufferTime));
 				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				//logger.info("buffer end date ---> " + dateFormat.format(bufferEndDate));
 				chkStartAndEndDate = studentAssignmentService
 						.chkStartandEndDtOfAssignment(dateFormat.format(bufferEndDate), username, assignment.getId());
-				//logger.info("buffer end date ---> " + dateFormat.format(bufferEndDate));
-				//logger.info("chkStartAndEndDate last ---> " + chkStartAndEndDate);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 
-			//logger.info("chkStartAndEndDate " + chkStartAndEndDate);
+			} catch (Exception e) {
+				// e.printStackTrace();
+			}
 
 			if (chkStartAndEndDate > 0) {
 
@@ -3739,223 +3897,227 @@ public class LoginController extends BaseController {
 			assignmentSubmission.setEndDate(assignment.getEndDate());
 
 			if (chkStartDate == 0) {
-				// setNote(m,
-				// "Assignment Submission has not started yet or deadline is missed!!");
 
 			} else {
 
 				if (!file.isEmpty()) {
-					Date date = new Date();
 
-					String errorMessage = studentAssignmentController
-							.uploadAssignmentSubmissionFile(assignmentSubmission, file);
-					logger.info("ErrorMessgae " + errorMessage);
+					logger.info("file_Orig_name " + file.getOriginalFilename());
+					String fileNameCheck = file.getOriginalFilename();
+					String fileNameCheckArr[] = fileNameCheck.split("\\.");
+					logger.info("fileNameCheckArr Size " + fileNameCheckArr.length);
+					String whiteList = "png,jpg,jpeg,doc,docx,xlsx,csv,pdf,ppt,txt";
+					if (fileNameCheckArr.length == 2 && whiteList.contains(fileNameCheckArr[1].trim().toLowerCase())) {
+						Date date = new Date();
+						String errorMessage = studentAssignmentController
+								.uploadAssignmentSubmissionFile(assignmentSubmission, file);
+						logger.info("ErrorMessgae " + errorMessage);
+						Map<String, Integer> plagValueMap = new HashMap<String, Integer>();
 
-					Map<String, Integer> plagValueMap = new HashMap<String, Integer>();
+						if (errorMessage == null) {
 
-					if (errorMessage == null) {
+							CopyleaksAudit cplAudit = copyleaksAuditService.getRecordByUsername(username,
+									assignment.getId());
 
-						CopyleaksAudit cplAudit = copyleaksAuditService.getRecordByUsername(username,
-								assignment.getId());
-
-						boolean isPresent = false;
-						boolean copyleakscheck = false;
-						if (cplAudit == null) {
-							isPresent = false;
-							copyleakscheck = true;
-						} else {
-
-							isPresent = true;
-							if (cplAudit.getCount() >= 2) {
-								copyleakscheck = false;
-
-							} else {
+							boolean isPresent = false;
+							boolean copyleakscheck = false;
+							if (cplAudit == null) {
+								isPresent = false;
 								copyleakscheck = true;
+							} else {
+
+								isPresent = true;
+								if (cplAudit.getCount() >= 2) {
+									copyleakscheck = false;
+
+								} else {
+									copyleakscheck = true;
+								}
+
 							}
 
-						}
+							boolean plagGreaterthanThreshold = false;
 
-						boolean plagGreaterthanThreshold = false;
+							if (assignment.getPlagscanRequired().equals("Yes")
+									&& assignment.getRunPlagiarism().equals("Submission") && copyleakscheck == true) {
 
-						if (assignment.getPlagscanRequired().equals("Yes")
-								&& assignment.getRunPlagiarism().equals("Submission") && copyleakscheck == true) {
+								if (plagiarismCheck.equalsIgnoreCase("copyLeaks"))
 
-							if (plagiarismCheck.equalsIgnoreCase("copyLeaks"))
+								{
 
-							{ // CopyLeaks copyLeaks = new CopyLeaks();
+									try {
 
-								try {
-									// File storedFile =
-									// submit.multipartToFile(assignmentSubmission.getStudentFilePath());
-									/*
-									 * plagValueMap = copyLeaks.scan(copyleaksId, copyleaskKey, storedFile);
-									 */
+										File storedFile = submit
+												.multipartToFileForS3(assignmentSubmission.getStudentFilePath());
+										String scanId = app.replaceAll("-", "").toLowerCase() + "-" + assignment.getId()
+												+ "-" + username + "-" + RandomStringUtils.randomNumeric(2, 2);
 
-									File storedFile = submit
-											.multipartToFileForS3(assignmentSubmission.getStudentFilePath());
-									String scanId = app.replaceAll("-", "").toLowerCase() + "-" + assignment.getId()
-											+ "-" + username + "-" + RandomStringUtils.randomNumeric(2, 2);
-
-									Map<String, String> scanStatus = copyLeaks.scanFileForCopyleaks(copyleaksId,
-											copyleaskKey, storedFile, scanId);
-									if (scanStatus.containsKey("Error")) {
-										// setError(rd,scanStatus.get("Error"));
-										logger.info("Error Occurred");
-									} else {
-										StudentAssignment auditAssignmentSubmission = studentAssignmentAuditService
-												.findAssignmentSubmission(username, assignment.getId());
-										if (null == auditAssignmentSubmission) {
-											studentAssignmentAuditService.insert(assignmentSubmission);
-											auditAssignmentSubmission = studentAssignmentAuditService
+										Map<String, String> scanStatus = copyLeaks.scanFileForCopyleaks(copyleaksId,
+												copyleaskKey, storedFile, scanId);
+										if (scanStatus.containsKey("Error")) {
+											;
+											logger.info("Error Occurred");
+										} else {
+											StudentAssignment auditAssignmentSubmission = studentAssignmentAuditService
 													.findAssignmentSubmission(username, assignment.getId());
-											logger.info("Waiting...");
-											long waitingTime = 0;
-											while (null == auditAssignmentSubmission.getThreshold()) {
-												Thread.sleep(5000);
-												waitingTime = waitingTime + 5000;
-												logger.info("Waiting..." + auditAssignmentSubmission.getThreshold());
-												// wait for 4.30 mins only
-												if (waitingTime > 258000) {
-													break;
-												}
+											if (null == auditAssignmentSubmission) {
+												studentAssignmentAuditService.insert(assignmentSubmission);
 												auditAssignmentSubmission = studentAssignmentAuditService
 														.findAssignmentSubmission(username, assignment.getId());
-												logger.info("Checking..." + auditAssignmentSubmission.getThreshold());
-											}
+												logger.info("Waiting...");
+												long waitingTime = 0;
+												while (null == auditAssignmentSubmission.getThreshold()) {
+													Thread.sleep(5000);
+													waitingTime = waitingTime + 5000;
+													logger.info(
+															"Waiting..." + auditAssignmentSubmission.getThreshold());
+													// wait for 4.30 mins only
+													if (waitingTime > 258000) {
+														break;
+													}
+													auditAssignmentSubmission = studentAssignmentAuditService
+															.findAssignmentSubmission(username, assignment.getId());
+													logger.info(
+															"Checking..." + auditAssignmentSubmission.getThreshold());
+												}
 
-											if (null != auditAssignmentSubmission.getThreshold()) {
-												logger.info("Threshold--->" + auditAssignmentSubmission.getThreshold());
-												if (assignment.getThreshold() <= auditAssignmentSubmission
-														.getThreshold()) {
-//													setError(rd, "Uploaded File does not fall under plagiarism threshold " + auditAssignmentSubmission.getThreshold()
-//															+ "% copied from " + auditAssignmentSubmission.getUrl());
-													plagGreaterthanThreshold = true;
-													assignmentSubmission.setAssignmentError(
-															"Uploaded File does not fall under plag threshold "
-																	+ auditAssignmentSubmission.getThreshold()
-																	+ "% copied from "
-																	+ auditAssignmentSubmission.getUrl());
-													assignmentSubmission.setAssignmentStatus("Pending");
-												} else {
-													assignmentSubmission
-															.setThreshold(auditAssignmentSubmission.getThreshold());
-													assignmentSubmission.setUrl(auditAssignmentSubmission.getUrl());
-													studentAssignmentService.update(assignmentSubmission);
-													/*
-													 * if (chkStartAndEndDate == 0) { setNote(
-													 * rd,"YOUR ASSIGNMENT WILL GET SUBMITTED ONLY IF IT'S APPROVED BY RESPECTIVE FACULTY"
-													 * ); } else { setSuccess(rd,
-													 * "Assigment Answer file uploaded successfully"); }
-													 */
-
-													studentAssignmentService.update(assignmentSubmission);
-													// studentAssignmentAuditService.insert(assignmentSubmission); //
-													assignmentSubmission.setAssignmentSuccess(
-															"Assignment Answer file uploaded successfully. ");
-													logger.info(assignmentSubmission.getAssignmentSuccess());
-
-													String sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-
-															.format(assignmentSubmission.getSubmissionDate());
-
-													// set submissionDate
-													Date submissionDate = Utils.getInIST();
-													SimpleDateFormat simpledateformat = new SimpleDateFormat(
-															"yyyy-MM-dd HH:mm:ss");
-													String submissionDateString = simpledateformat
-															.format(submissionDate);
-													logger.info("submissionDateString----> " + submissionDateString);
-													studentAssignmentService.setSubmissionDate(submissionDateString,
-															assignment.getId(), username);
-
-													if (chkStartAndEndDate == 0) {
-														assignmentSubmission.setAssignmentSuccess(
-																"Your assignment will get submitted only if it's approved by respective faculty. ");
-														logger.info(assignmentSubmission.getAssignmentSuccess());
-														assignmentSubmission.setAssignmentStatus("Not Evaluated");
-
+												if (null != auditAssignmentSubmission.getThreshold()) {
+													logger.info(
+															"Threshold--->" + auditAssignmentSubmission.getThreshold());
+													if (assignment.getThreshold() <= auditAssignmentSubmission
+															.getThreshold()) {
+//														setError(rd, "Uploaded File does not fall under plagiarism threshold " + auditAssignmentSubmission.getThreshold()
+//																+ "% copied from " + auditAssignmentSubmission.getUrl());
+														plagGreaterthanThreshold = true;
+														assignmentSubmission.setAssignmentError(
+																"Uploaded File does not fall under plag threshold "
+																		+ auditAssignmentSubmission.getThreshold()
+																		+ "% copied from "
+																		+ auditAssignmentSubmission.getUrl());
+														assignmentSubmission.setAssignmentStatus("Pending");
 													} else {
+														assignmentSubmission
+																.setThreshold(auditAssignmentSubmission.getThreshold());
+														assignmentSubmission.setUrl(auditAssignmentSubmission.getUrl());
+														studentAssignmentService.update(assignmentSubmission);
+														/*
+														 * if (chkStartAndEndDate == 0) { setNote(
+														 * rd,"YOUR ASSIGNMENT WILL GET SUBMITTED ONLY IF IT'S APPROVED BY RESPECTIVE FACULTY"
+														 * ); } else { setSuccess(rd,
+														 * "Assigment Answer file uploaded successfully"); }
+														 */
+
+														studentAssignmentService.update(assignmentSubmission);
+														// studentAssignmentAuditService.insert(assignmentSubmission);
+														// //
 														assignmentSubmission.setAssignmentSuccess(
 																"Assignment Answer file uploaded successfully. ");
 														logger.info(assignmentSubmission.getAssignmentSuccess());
 
-													}
+														String sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
+																.format(assignmentSubmission.getSubmissionDate());
+
+														// set submissionDate
+														Date submissionDate = Utils.getInIST();
+														SimpleDateFormat simpledateformat = new SimpleDateFormat(
+																"yyyy-MM-dd HH:mm:ss");
+														String submissionDateString = simpledateformat
+																.format(submissionDate);
+														logger.info(
+																"submissionDateString----> " + submissionDateString);
+														studentAssignmentService.setSubmissionDate(submissionDateString,
+																assignment.getId(), username);
+
+														if (chkStartAndEndDate == 0) {
+															assignmentSubmission.setAssignmentSuccess(
+																	"Your assignment will get submitted only if it's approved by respective faculty. ");
+															logger.info(assignmentSubmission.getAssignmentSuccess());
+															assignmentSubmission.setAssignmentStatus("Not Evaluated");
+
+														} else {
+															assignmentSubmission.setAssignmentSuccess(
+																	"Assignment Answer file uploaded successfully. ");
+															logger.info(assignmentSubmission.getAssignmentSuccess());
+
+														}
+
+													}
+												} else {
+													assignmentSubmission.setAssignmentError(
+															"File takes too long time for plagiarism.");
+													assignmentSubmission.setAssignmentStatus("Pending");
+													logger.info("File takes too long time for plagiarism.");
 												}
-											} else {
-												assignmentSubmission
-														.setAssignmentError("File takes too long time for plagiarism.");
-												assignmentSubmission.setAssignmentStatus("Pending");
-												logger.info("File takes too long time for plagiarism.");
 											}
+
 										}
+									} catch (Exception e) {
+										logger.error("Exception", e);
+									}
+								}
+
+							} else {
+								try {
+
+									studentAssignmentService.update(assignmentSubmission);
+									studentAssignmentAuditService.insert(assignmentSubmission); //
+									assignmentSubmission
+											.setAssignmentSuccess("Assignment Answer file uploaded successfully. ");
+									logger.info("assignmentStatus--->" + assignmentSubmission.getAssignmentSuccess());
+									// set submissionDate
+									Date submissionDate = Utils.getInIST();
+									SimpleDateFormat simpledateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+									String submissionDateString = simpledateformat.format(submissionDate);
+									logger.info("submissionDateString----> " + submissionDateString);
+									studentAssignmentService.setSubmissionDate(submissionDateString, assignment.getId(),
+											username);
+
+									String sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
+											.format(assignmentSubmission.getSubmissionDate());
+
+									if (chkStartAndEndDate == 0) {
+										assignmentSubmission.setAssignmentNote(
+												"Your assignment will get submitted only if it's approved by respective faculty. ");
+										logger.info(assignmentSubmission.getAssignmentNote());
+										assignmentSubmission.setAssignmentStatus("Not Evaluated");
+
+									} else {
+										assignmentSubmission
+												.setAssignmentSuccess("Assignment Answer file uploaded successfully. ");
+										logger.info(assignmentSubmission.getAssignmentSuccess());
+										assignmentSubmission.setAssignmentStatus("Not Evaluated");
 
 									}
 								} catch (Exception e) {
 									logger.error("Exception", e);
 								}
+
 							}
 
 						} else {
-							try {
-
-								studentAssignmentService.update(assignmentSubmission);
-								studentAssignmentAuditService.insert(assignmentSubmission); //
-								assignmentSubmission
-										.setAssignmentSuccess("Assignment Answer file uploaded successfully. ");
-								logger.info("assignmentStatus--->" + assignmentSubmission.getAssignmentSuccess());
-								// set submissionDate
-								Date submissionDate = Utils.getInIST();
-								SimpleDateFormat simpledateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-								String submissionDateString = simpledateformat.format(submissionDate);
-								logger.info("submissionDateString----> " + submissionDateString);
-								studentAssignmentService.setSubmissionDate(submissionDateString, assignment.getId(),
-										username);
-
-								String sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-
-										.format(assignmentSubmission.getSubmissionDate());
-
-								if (chkStartAndEndDate == 0) {
-									assignmentSubmission.setAssignmentNote(
-											"Your assignment will get submitted only if it's approved by respective faculty. ");
-									logger.info(assignmentSubmission.getAssignmentNote());
-									assignmentSubmission.setAssignmentStatus("Not Evaluated");
-
-								} else {
-									assignmentSubmission
-											.setAssignmentSuccess("Assignment Answer file uploaded successfully. ");
-									logger.info(assignmentSubmission.getAssignmentSuccess());
-									assignmentSubmission.setAssignmentStatus("Not Evaluated");
-
-								}
-							} catch (Exception e) {
-								logger.error("Exception", e);
-							}
-
+							assignmentSubmission.setAssignmentError(errorMessage);
+							logger.info(assignmentSubmission.getAssignmentError());
+							assignmentSubmission.setAssignmentStatus("Pending");
 						}
-
 					} else {
-						assignmentSubmission.setAssignmentError(errorMessage);
+						assignmentSubmission.setAssignmentError("improper file found, please upload correct file.");
 						logger.info(assignmentSubmission.getAssignmentError());
 						assignmentSubmission.setAssignmentStatus("Pending");
-						/* setError(m, errorMessage); */
 					}
+				}
 
-				} else {
+				else {
 					assignmentSubmission.setAssignmentError("File is empty, please upload correct file.");
 					logger.info(assignmentSubmission.getAssignmentError());
 					assignmentSubmission.setAssignmentStatus("Pending");
-					/*
-					 * setError(m, "File is empty, please upload correct file.");
-					 */
 				}
 
 			}
 
 			if (assignment.getRunPlagiarism() != null) {
 				if (assignment.getRunPlagiarism().equals("Manual")) {
-					/* m.addAttribute("showCheckForPlagiarism", true); */
 				}
 			}
 
@@ -3964,8 +4126,9 @@ public class LoginController extends BaseController {
 			logger.info("getAssignmentSuccess: " + assignmentSubmission.getAssignmentSuccess());
 			String json = new Gson().toJson(assignmentSubmission);
 
+			json = encryptResponseBody(json);
 			logger.info("json----->" + json);
-			return json;
+			return ResponseEntity.ok(json);
 		}
 	}
 
@@ -3999,8 +4162,20 @@ public class LoginController extends BaseController {
 	 */
 
 	@RequestMapping(value = "/getAssignmentListForApp", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String assignmentList(@RequestBody Course course, Model m, Principal principal) {
+	public @ResponseBody String assignmentList(@RequestBody Course course, Model m, Principal principal,
+			@RequestHeader Map<String, String> headers) {
+		course = (Course) decryptRequestBody(course.getEncrypted_key(), "Course");
+		boolean auth = isUserAuthorized(headers.get("token"), course.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
+			json = encryptResponseBody(json);
+			return json;
+		}
 		String username = course.getUsername();
 		Long courseId = course.getId();
 
@@ -4072,13 +4247,18 @@ public class LoginController extends BaseController {
 			assignments.set(assignments.indexOf(a), a);
 
 		}
-
+		String json = "";
 		if (assignments.size() == 0 || assignments.isEmpty()) {
-			return "{\"Status\":\"No Assignment\"}";
-		}
+			json = "{\"Status\":\"No Assignment\"}";
+			logger.info("assignmentList ====> " + json);
 
-		String json = new Gson().toJson(assignments);
-		logger.info("json----->" + json);
+			json = encryptResponseBody(json);
+			return json;
+		}
+		json = new Gson().toJson(assignments);
+		logger.info("assignmentList ====> " + json);
+
+		json = encryptResponseBody(json);
 		return json;
 
 	}
@@ -4217,12 +4397,22 @@ public class LoginController extends BaseController {
 	 * }
 	 */
 
-	@RequestMapping(value = "/submitAssignmentByOneInGroupForApp", method = {
-
-			RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String submitAssignmentByOneInGroupForApp(@RequestPart(value = "file") MultipartFile file,
-			@RequestParam(value = "assignmentSubmission") String assignmentSubmissionJson, HttpServletResponse resp,
-			Principal principal) {
+	@RequestMapping(value = "/submitAssignmentByOneInGroupForApp", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody ResponseEntity<String> submitAssignmentByOneInGroupForApp(
+			@RequestPart(value = "file") MultipartFile file,
+			@RequestParam(value = "assignmentSubmission") String assignmentSubmissionJson,
+			@RequestParam(value = "username") String usernamee, HttpServletResponse resp, Principal principal,
+			@RequestHeader Map<String, String> headers) {
+		boolean auth = isUserAuthorized(headers.get("token"), usernamee);
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			return ResponseEntity.ok(new Gson().toJson(map));
+		}
+		assignmentSubmissionJson = decryptRequestParam(assignmentSubmissionJson);
+		usernamee = decryptRequestParam(usernamee);
 		String json = "";
 		logger.info("-------------->submitAssignmentByOneInGroupForApp");
 
@@ -4250,6 +4440,7 @@ public class LoginController extends BaseController {
 		logger.info("approvalStatus " + approvalStatus);
 
 		if (checkEvaluationStatus > 0) {
+			logger.info("yahn1----------------------------------------------------------------------------->");
 			assignmentSubmissionJ.setAssignmentError("Assignment is already evaluated by faculty.");
 			assignmentSubmissionJ.setAssignmentNote("You cannot resubmit assignment now.");
 			assignmentSubmissionJ.setEvaluationStatus("Y");
@@ -4257,8 +4448,9 @@ public class LoginController extends BaseController {
 			assignmentSubmissionJ.setAssignmentStatus("Completed");
 
 			json = new Gson().toJson(assignmentSubmissionJ);
-			return json;
+			return ResponseEntity.ok(json);
 		} else if (null != approvalStatus && approvalStatus.contains("Reject")) {
+			logger.info("yahn2----------------------------------------------------------------------------->");
 			assignmentSubmissionJ.setAssignmentError("Faculty has already rejected your assignment");
 			assignmentSubmissionJ.setAssignmentNote("You cannot resubmit assignment now.");
 			assignmentSubmissionJ.setEvaluationStatus("Y");
@@ -4266,8 +4458,9 @@ public class LoginController extends BaseController {
 			assignmentSubmissionJ.setAssignmentStatus("Completed___Evaluated___Rejected");
 
 			json = new Gson().toJson(assignmentSubmissionJ);
-			return json;
+			return ResponseEntity.ok(json);
 		} else {
+			logger.info("yahn3----------------------------------------------------------------------------->");
 			try {
 				if (extension.equals("zip")) {
 					logger.info("zip--------->submitAssignmentByOneInGroupForApp");
@@ -4287,7 +4480,7 @@ public class LoginController extends BaseController {
 
 						logger.info("json----->" + json);
 
-						return json;
+						return ResponseEntity.ok(json);
 					} else if (mapOfFiles.containsKey("ErrorInUploading")) {
 						logger.info("Error_From2----> " + mapOfFiles.get("ErrorInUploading"));
 						assignmentSubmissionJ.setAssignmentError(mapOfFiles.get("ErrorInUploading"));
@@ -4295,7 +4488,7 @@ public class LoginController extends BaseController {
 
 						logger.info("json----->" + json);
 
-						return json;
+						return ResponseEntity.ok(json);
 
 					} else {
 
@@ -4331,20 +4524,22 @@ public class LoginController extends BaseController {
 
 							logger.info("json----->" + json);
 
-							return json;
+							return ResponseEntity.ok(json);
 						}
 					}
 
 				} else {
+					logger.info("yahn5----------------------------------------------------------------------------->");
 					assignmentSubmissionJ.setAssignmentStatus("Pending");
 					assignmentSubmissionJ.setAssignmentError("Submitted File is not a zip file. ");
 					json = new Gson().toJson(assignmentSubmissionJ);
 
 					logger.info("json----->" + json);
 
-					return json;
+					return ResponseEntity.ok(json);
 				}
 			} catch (Exception ex) {
+				logger.info("yahn6----------------------------------------------------------------------------->");
 				logger.error("Exception", ex);
 			}
 
@@ -4353,11 +4548,13 @@ public class LoginController extends BaseController {
 			logger.info("getAssignmentSuccess: " + assignmentSubmissionJ.getAssignmentSuccess());
 			json = new Gson().toJson(assignmentSubmissionJ);
 
+			json = encryptResponseBody(json);
 			logger.info("json----->" + json);
 
-			return json;
+			return ResponseEntity.ok(json);
 		}
 
+		
 	}
 
 	/*
@@ -4602,9 +4799,9 @@ public class LoginController extends BaseController {
 	 * return copyLeaksMsg; }
 	 */
 
-	@RequestMapping(value = "/submitAssignmentByIdForApp", method = {
-
-			RequestMethod.GET, RequestMethod.POST })
+//	@RequestMapping(value = "/submitAssignmentByIdForApp", method = {
+//
+//			RequestMethod.GET, RequestMethod.POST })
 	public Map<String, String> submitAssignmentByIdForApp(
 
 			@RequestParam("assignmentId") Long assignmentId, @RequestParam("username") String username,
@@ -4936,7 +5133,15 @@ public class LoginController extends BaseController {
 
 	@RequestMapping(value = "/sendAnnouncementFileForApp", method = { RequestMethod.GET, RequestMethod.POST })
 	public ResponseEntity<ByteArrayResource> sendAnnouncementFileForApp(@RequestParam(name = "id") String id,
-			HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(name = "username") String username, HttpServletRequest request, HttpServletResponse response,
+			@RequestHeader Map<String, String> headers) {
+		boolean auth = isUserAuthorized(headers.get("token"), username);
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			return null;
+		}
+		id = decryptRequestParam(id);
+		username = decryptRequestParam(username);
 		logger.info("id-------->" + id);
 		String projectUrl = "";
 		OutputStream outStream = null;
@@ -5184,7 +5389,7 @@ public class LoginController extends BaseController {
 
 		DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 
-				.createConnectionByDS("jdbc:mysql://10.25.10.50:3307/", defaultUsername, defaultPassword,
+				.createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword,
 						"timetable_metadata");
 
 		timetableDAO.setDS(dataSourceTimetable);
@@ -6416,197 +6621,216 @@ public class LoginController extends BaseController {
 	}
 
 	@RequestMapping(value = "/updateProfileForApp", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String updateProfileForApp(@RequestBody User user, HttpServletResponse hresp) {
+	public @ResponseBody String updateProfileForApp(@RequestBody User user, HttpServletResponse hresp,
+			@RequestHeader Map<String, String> headers) {
+		user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+		boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
+
+			json = encryptResponseBody(json);
+			return json;
+		}
 		String successMsg = "", errorMsg = "";
-		try {/*
-				 * String username = principal.getName(); user.setUsername(username);
-				 * user.setLastModifiedBy(username); userService.updateProfile(user);
-				 * 
-				 * User currentUser = (User) SecurityContextHolder.getContext()
-				 * .getAuthentication().getPrincipal(); currentUser.setEmail(user.getEmail());
-				 * currentUser.setMobile(user.getMobile()); setSuccess(redirectAttrs,
-				 * "Profile updated successfully");
-				 */
+		try {
 
 			String username = user.getUsername();
-			User userDB = userService.findByUserName(username);
-			userDB.setUsername(username);
-			userDB.setLastModifiedBy(username);
-			userDB.setEmail(user.getEmail());
-			userDB.setMobile(user.getMobile());
-			userDB.setOperation("UPDATE");
+			String email = user.getEmail();
+			String mobile = user.getMobile();
+			userService.changeEmailMobileByApp(email, mobile, username);
+			Map<String, Object> userMap = new HashMap<String, Object>();
+			userMap.put("username", username);
+			userMap.put("email", email);
+			userMap.put("mobile", mobile);
+			String userJson = new Gson().toJson(userMap);
+			try {
 
-			User userBean = new User();
-			User userBean2 = userService.findStudentObjectId(username);
-
-			WsdlLog wsLog = new WsdlLog();
-
-			userBean = userService.findByUserName(username);
-
-			// m.addAttribute("userBean", userBean);
-			// session.setAttribute("userBean", userBean);
-
-			String studentObjId = "";
-			if (userBean2 == null) {
-
-				WebTarget webTarget12 = client.target(
-						URIUtil.encodeQuery(userMgmtCrudUrlNew + "/getStudentObjIdByUsername?username=" + username));
-				Invocation.Builder invocationBuilder12 = webTarget12.request(MediaType.APPLICATION_JSON);
-				studentObjId = invocationBuilder12.get(String.class);
-
-				User newUserForScoolMap = new User();
-
-				newUserForScoolMap.setUsername(username);
-				newUserForScoolMap.setStudentObjectId(studentObjId);
-
-				userService.insertStudentMapping(newUserForScoolMap);
-
-			} else {
-				studentObjId = userBean2.getStudentObjectId();
-			}
-
-			if (!studentObjId.equals("null")) {
-				ZCHANGESTMOBILEEMAILWSSEP ws = new ZCHANGESTMOBILEEMAILWSSEP();
-				Holder<ZmessageLogTt> lst = new Holder<ZmessageLogTt>();
-
-				try {
-
-					String resp = ws.getZCHANGESTMOBILEEMAILBINDSEP().zchangeStMobileEmail(user.getEmail(),
-							user.getMobile(), "", studentObjId, lst);
-					logger.info("ZmessageProfileMobLog----->" + lst.value);
-
-				} catch (Exception e) {
-
-					logger.error("Exception while calling a webservice", e);
-					// setError(redirectAttrs, "Error in updating Profile");
-					wsLog.setStudentObjectid(studentObjId);
-					wsLog.setUsername(username);
-					wsLog.setMobile(user.getMobile());
-					wsLog.setEmail(user.getEmail());
-					wsLog.setFailedReason(e.toString());
-					wsLog.setCreatedBy(username);
-					wsLog.setLastModifiedBy(username);
-					try {
-						wsdlLogService.insert(wsLog);
-					} catch (Exception ee) {
-						logger.error("Exception while logging error", ee);
-					}
-
+				WebTarget webTarget = client
+						.target(URIUtil.encodeQuery(userMgmtUrlApp + "changeEmailMobileForApp?userJson=" + userJson));
+				Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+				String resp = invocationBuilder.get(String.class);
+				String json = "";
+				logger.info("updateProfileForApp resp==> " + resp);
+				if (resp.contains("Success")) {
+					json = "{\"Status\":\"Success\"}";
+				} else {
+					json = "{\"Status\":\"Fail\"}";
 				}
 
-				userService.updateProfile(userDB);
+				json = encryptResponseBody(json);
+				return json;
 
-				ObjectMapper mapper = new ObjectMapper();
-				String json = mapper.writeValueAsString(userDB);
+			} catch (Exception ex) {
+				logger.error("Exception ", ex);
+				String json = "{\"Status\":\"Fail\"}";
 
-				WebTarget webTarget1 = client
-						.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/addOrUpdateUser?json=" + json));
-				Invocation.Builder invocationBuilder1 = webTarget1.request(MediaType.APPLICATION_JSON);
-				String resp1 = invocationBuilder1.get(String.class);
-
-				// setSuccess(redirectAttrs, "Profile updated successfully");
-				successMsg = "Profile updated successfully";
-			}
-			/*
-			 * User currentUser = (User) SecurityContextHolder.getContext()
-			 * .getAuthentication().getPrincipal(); currentUser.setEmail(user.getEmail());
-			 * currentUser.setMobile(user.getMobile());
-			 */
-			else {
-
-				// setError(redirectAttrs, "Entry not found in SAP");
-				errorMsg = "Entry not found in SAP";
-				return "{\"Status\":\"Fail\", \"errorMsg\":\"" + errorMsg + "\"}";
-				// return "redirect:/updateProfileForm";
+				json = encryptResponseBody(json);
+				return json;
 			}
 
 		} catch (Exception e) {
 			logger.error("Exception", e);
-			// setError(redirectAttrs, "Error in updating Profile");
+			errorMsg = "Error in updating Profile";
+			String json = "{\"Status\":\"Fail\"}";
+
+			json = encryptResponseBody(json);
+			return json;
+
+		}
+	}
+
+	@RequestMapping(value = "/changePasswordForApp", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String changePasswordForApp(@RequestBody User user, HttpServletResponse hresp,
+			@RequestHeader Map<String, String> headers) {
+		user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+		boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
+
+			json = encryptResponseBody(json);
+			return json;
+		}
+		String successMsg = "", errorMsg = "";
+		try {
+
+			String username = user.getUsername();
+			String password = user.getNewPasswordMob();
+			String oldPassword = user.getOldPasswordMob();
+
+			Map<String, Object> userMap = new HashMap<String, Object>();
+			userMap.put("username", username);
+			userMap.put("password", password);
+			userMap.put("oldPassword", oldPassword);
+
+			logger.info("oldPasswordLMS => " + oldPassword);
+			String userJson = new Gson().toJson(userMap);
+			try {
+
+				WebTarget webTarget = client
+						.target(URIUtil.encodeQuery(userMgmtUrlApp + "changePasswordForApp?userJson=" + userJson));
+				logger.info("urlToHit ==> " + userMgmtUrlApp + "changePasswordForApp?userJson=" + userJson);
+				Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+				String resp = invocationBuilder.get(String.class);
+				logger.info("resp ==> " + resp);
+				String json = "";
+				if (resp.contains("Success")) {
+					json = "{\"Status\":\"Success\"}";
+				} else if (resp.contains("Invalid Old")) {
+					json = "{\"Status\":\"Invalid Old Password\"}";
+				} else {
+					json = "{\"Status\":\"Fail\"}";
+				}
+
+				json = encryptResponseBody(json);
+				return json;
+
+			} catch (Exception ex) {
+				logger.error("Exception ", ex);
+				String json = "{\"Status\":\"Fail\"}";
+
+				json = encryptResponseBody(json);
+				return json;
+			}
+
+		} catch (Exception e) {
+			logger.error("Exception", e);
+			errorMsg = "Error in updating Profile";
+			String json = "{\"Status\":\"Fail\"}";
+
+			json = encryptResponseBody(json);
+			return json;
+
+		}
+	}
+	
+	@RequestMapping(value = "/updateProfileForAppUatDev", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String updateProfileForAppUatDev(@RequestBody User user, HttpServletResponse hresp,
+			@RequestHeader Map<String, String> headers) {
+		boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
+
+			json = encryptResponseBody(json);
+			return json;
+		}
+		String successMsg = "", errorMsg = "";
+		try {
+
+			String username = user.getUsername();
+			String email = user.getEmail();
+			String mobile = user.getMobile();
+			userService.changeEmailMobileByApp(email, mobile, username);
+			Map<String, Object> userMap = new HashMap<String, Object>();
+			userMap.put("username", username);
+			userMap.put("email", email);
+			userMap.put("mobile", mobile);
+			String userJson = new Gson().toJson(userMap);
+			try {
+
+				WebTarget webTarget = client
+						.target(URIUtil.encodeQuery(userMgmtUrlApp + "changeEmailMobileForApp?userJson=" + userJson));
+				logger.info("urlToHit ==> " + userMgmtUrlApp + "changeEmailMobileForApp?userJson=" + userJson);
+				Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+				String resp = invocationBuilder.get(String.class);
+				if (resp.contains("Success")) {
+					return "{\"Status\":\"Success\", \"successMsg\":\"" + successMsg + "\"}";
+				} else {
+					return "{\"Status\":\"Success\", \"successMsg\":\"" + successMsg + "\"}";
+				}
+
+			} catch (Exception ex) {
+				logger.error("Exception ", ex);
+				return "{\"Status\":\"Fail\", \"errorMsg\":\"" + errorMsg + "\"}";
+			}
+
+		} catch (Exception e) {
+			logger.error("Exception", e);
 			errorMsg = "Error in updating Profile";
 			return "{\"Status\":\"Fail\", \"errorMsg\":\"" + errorMsg + "\"}";
 
 		}
-		return "{\"Status\":\"Success\", \"successMsg\":\"" + successMsg + "\"}";
-		// return "redirect:/updateProfileForm";
-	}
-
-	@RequestMapping(value = "/changePasswordForApp", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String changePasswordForApp(@RequestBody User user, HttpServletResponse hresp) {
-
-		logger.info("user-------->" + user);
-		String username = user.getUsername();
-		user.setNewPassword(user.getNewPasswordMob());
-		user.setReenterPassword(user.getReenterPasswordMob());
-		User userFromUsermgmt = new User();
-		try {
-
-			WebTarget webTarget = client.target(URIUtil
-					.encodeQuery(userRoleMgmtCrudUrl + "/getUserBeanFromUsermgmtForPassword?username=" + username));
-			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-
-			String resp = invocationBuilder.get(String.class);
-			userFromUsermgmt = new Gson().fromJson(resp, User.class);
-
-		} catch (Exception ex) {
-			logger.error("Exception ", ex);
-		}
-
-		user.setUsername(username);
-		user.setLastModifiedBy(username);
-		user.setLastModifiedDate(Utils.getInIST());
-		user.setPassword(userFromUsermgmt.getPassword());
-
-		try {
-			userService.changePasswordForApp(user);
-		} catch (ValidationException ex) {
-			// setError(redirectAttrs, ex.getMessage());
-			logger.error("changePasswordForAppException", ex);
-			return "{\"Status\":\"Fail\", \"errorMsg\":\"" + ex.getMessage() + "\"}";
-			// return "redirect:/changePasswordForm";
-		}
-
-		String json = new Gson().toJson(user);
-
-		// logger.info("passed json--->" + json);
-		try {
-			WebTarget webTarget = client
-					.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/changePasswordForUser?json=" + json));
-			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-
-			String resp = invocationBuilder.get(String.class);
-
-			// setSuccess(redirectAttrs, "Password changed successfully.");
-			// return "{\"Status\":\"Success\"}";
-		} catch (Exception ex) {
-			logger.error("Exception ", ex);
-			return "{\"Status\":\"Fail\"}";
-		}
-		// setSuccess(redirectAttrs, "Password changed successfully.");
-		// return "redirect:/changePasswordForm";
-		return "{\"Status\":\"Success\"}";
 	}
 
 	@RequestMapping(value = "/showTrainingSession", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String showTrainingSession(@RequestBody User user, HttpServletResponse resp) {
+	public @ResponseBody String showTrainingSession(@RequestBody User user, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+		boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
+			json = encryptResponseBody(json);
+			return json;
+		}
 		String username = user.getUsername();
 
 		List<TrainingProgram> trainingProgramList = new ArrayList<>();
 
 		trainingProgramList = trainingProgramService.getOnGoingTraining();
-		// List<Course> facultyProgramList = courseService
-		// .findProgramsByUserForApp(username);
-
 		logger.info("trainingProgramList---->" + trainingProgramList);
-
+		String json = "";
 		TrainingProgram forYou = new TrainingProgram();
 		if (!trainingProgramList.isEmpty()) {
 			for (TrainingProgram tpl : trainingProgramList) {
 
 				TrainingProgram check = new TrainingProgram();
 				check = trainingProgramService.getMarkedTrainingAttendance(username, tpl.getId());
-				// logger.info("Marked---->" + check.getId());
 				if (null == check) {
 					if (tpl.getUserType().equals("ROLE_FACULTY") || tpl.getUserType().equals("ROLE_STUDENT")) {
 						logger.info("getProgramId---->" + tpl.getProgramId());
@@ -6639,31 +6863,67 @@ public class LoginController extends BaseController {
 						}
 					}
 				} else {
-					return "{\"Status\":\"Attendance has already been marked...\"}";
+					json = "{\"Status\":\"Attendance has already been marked...\"}";
+
+					json = encryptResponseBody(json);
+					return json;
 				}
 			}
 		} else {
-			return "{\"Status\":\"Currently, No training session is going on for you...\"}";
+			json = "{\"Status\":\"Currently, No training session is going on for you...\"}";
+
+			json = encryptResponseBody(json);
+			return json;
 		}
-		String json = new Gson().toJson(forYou);
+		String _json = new Gson().toJson(forYou);
+		json = encryptResponseBody(_json);
 		return json;
 	}
 
 	@RequestMapping(value = "/insertTrainingAttendance", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String insertTrainingAttendance(@RequestBody TrainingProgram trainingProgram,
-			HttpServletResponse resp) {
+			HttpServletResponse resp, @RequestHeader Map<String, String> headers) {
+		trainingProgram = (TrainingProgram) decryptRequestBody(trainingProgram.getEncrypted_key(), "TrainingProgram");
+		boolean auth = isUserAuthorized(headers.get("token"), trainingProgram.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
+
+			json = encryptResponseBody(json);
+			return json;
+		}
+		String json = "";
 		try {
 			trainingProgramService.insertTrainingAttendance(trainingProgram.getUsername(),
 					trainingProgram.getTrainingProgramId());
+			json = "{\"Status\":\"Success\"}";
 		} catch (Exception e) {
-			return "{\"Status\":\"Fail\"}";
+			// e.printStackTrace();
+			json = "{\"Status\":\"Failed\"}";
 		}
-		return "{\"Status\":\"Success\"}";
+
+		json = encryptResponseBody(json);
+		return json;
 	}
 
 	@RequestMapping(value = "/showInternalTotalMarksForApp", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String showInternalTotalMarksForApp(@RequestBody User user, HttpServletResponse resp) {
+	public @ResponseBody String showInternalTotalMarksForApp(@RequestBody User user, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+		boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
+			json = encryptResponseBody(json);
+			return json;
+		}
 		// Token userdetails1 = (Token) principal;
 		String username = user.getUsername();
 
@@ -6677,17 +6937,16 @@ public class LoginController extends BaseController {
 		}
 		logger.info("componentsMap------>" + componentsMap);
 		List<IcaTotalMarks> icaTotalMarksForStudent = icaTotalMarksService.getIcaTotalMarksByUser(username);
-		List<IcaTotalMarks> icaTotalMarksForStudentForNonEvent = icaTotalMarksService.getIcaTotalMarksByUserForNonEvent(username);
+		List<IcaTotalMarks> icaTotalMarksForStudentForNonEvent = icaTotalMarksService
+				.getIcaTotalMarksByUserForNonEvent(username);
 		icaTotalMarksForStudent.addAll(icaTotalMarksForStudentForNonEvent);
 		List<String> iceIds = icaTotalMarksForStudent.stream().map(map -> map.getIcaId()).collect(Collectors.toList());
 
 		Map<String, Map<String, String>> mapOfComponentsMarksByIcaId = new HashMap<>();
 		Map<String, String> dateSpanMap = new HashMap<>();
 		for (String i : iceIds) {
-
 			Map<String, String> componentsMapIca = componentMarksForStuent.stream().filter(o -> o.getIcaId().equals(i))
 					.collect(Collectors.toMap(IcaComponentMarks::getComponentId, IcaComponentMarks::getMarks));
-
 			mapOfComponentsMarksByIcaId.put(i, componentsMapIca);
 
 		}
@@ -6701,24 +6960,30 @@ public class LoginController extends BaseController {
 			dateSpanMap.put(itm.getIcaId(), raiseButton);
 		}
 
-		// m.addAttribute("dateSpanMap", dateSpanMap);
-		// m.addAttribute("mapComponent", mapOfComponentsMarksByIcaId);
-		// m.addAttribute("totalMarks", icaTotalMarksForStudent);
-		// m.addAttribute("componentsMap", componentsMap);
-		// m.addAttribute("user", userService.findByUserName(username));
-		// logger.info("dateSpanMap------>" + dateSpanMap);
-
 		logger.info("totalMarks------>" + icaTotalMarksForStudent);
 
 		logger.info("dateSpanMap------>" + userService.findByUserName(username));
 		String json = new Gson().toJson(icaTotalMarksForStudent);
 
+		json = encryptResponseBody(json);
 		return json;
 	}
 
 	@RequestMapping(value = "/showInternalComponentMarksForApp", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String showInternalComponentMarksForApp(@RequestBody User user, HttpServletResponse resp) {
+	public @ResponseBody String showInternalComponentMarksForApp(@RequestBody User user, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+		boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
+			json = encryptResponseBody(json);
+			return json;
+		}
 		String username = user.getUsername();
 		String icaId = user.getIcaId();
 		List<IcaComponentMarks> componentMarksForStuent = icaComponentMarksService
@@ -6727,16 +6992,30 @@ public class LoginController extends BaseController {
 		logger.info("componentMarksForStuent------>" + componentMarksForStuent);
 		String json = new Gson().toJson(componentMarksForStuent);
 
+		json = encryptResponseBody(json);
 		return json;
 	}
 
 	@RequestMapping(value = "/showExamTimetableForApp", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String showExamTimetableForApp(@RequestBody User user, HttpServletResponse resp) {
+	public @ResponseBody String showExamTimetableForApp(@RequestBody User user, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		user = (User) decryptRequestBody(user.getEncrypted_key(), "User");
+		boolean auth = isUserAuthorized(headers.get("token"), user.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
+			json = encryptResponseBody(json);
+			return json;
+		}
 		String username = user.getUsername();
 		List<Announcement> examTimeTableList = announcementService.getExamTimetableForApp(username);
 		String json = new Gson().toJson(examTimeTableList);
 
+		json = encryptResponseBody(json);
 		return json;
 
 	}
@@ -6760,7 +7039,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://localhost:3307/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "timetable_metadata");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable); String cid = ""; long eventId = 0;
@@ -7017,8 +7296,20 @@ public class LoginController extends BaseController {
 
 	@RequestMapping(value = { "/getTimetableByCourseForAndroidApp" }, method = { RequestMethod.GET,
 			RequestMethod.POST })
-	public @ResponseBody String getTimetableByCourseForAndroidApp(@RequestBody Course course,
-			HttpServletResponse resp) {
+	public @ResponseBody String getTimetableByCourseForAndroidApp(@RequestBody Course course, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		course = (Course) decryptRequestBody(course.getEncrypted_key(), "Course");
+		boolean auth = isUserAuthorized(headers.get("token"), course.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
+
+			json = encryptResponseBody(json);
+			return json;
+		}
 		try {
 
 			// logger.info("Course----->"+course);
@@ -7033,7 +7324,7 @@ public class LoginController extends BaseController {
 
 			DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 
-					.createConnectionByDS("jdbc:mysql://10.25.10.50:3307/", defaultUsername, defaultPassword,
+					.createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword,
 							"timetable_metadata");
 
 			timetableDAO.setDS(dataSourceTimetable);
@@ -7292,12 +7583,15 @@ public class LoginController extends BaseController {
 
 			timetableDAO.setDS(dataSourceDefaultLms);
 
+			json = encryptResponseBody(json);
 			return json;
-			// return "{\"Status\":\"Success\"}";
 
 		} catch (Exception e) {
 			logger.error("Exception", e);
-			return "{\"Status\":\"Fail\"}";
+			String json = "{\"Status\":\"Fail\"}";
+
+			json = encryptResponseBody(json);
+			return json;
 		}
 	}
 
@@ -7305,7 +7599,21 @@ public class LoginController extends BaseController {
 	@RequestMapping(value = { "/getStudentsByCourseForAndroidAppNew" }, method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String getStudentsByCourseForAndroidAppNew(
-			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp) {
+			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		studentCourseAttendance = (StudentCourseAttendance) decryptRequestBody(
+				studentCourseAttendance.getEncrypted_key(), "StudentCourseAttendance");
+		boolean auth = isUserAuthorized(headers.get("token"), studentCourseAttendance.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
+
+			json = encryptResponseBody(json);
+			return json;
+		}
 		try {
 			String coursesId = studentCourseAttendance.getCids();
 			String isAttendanceAllowed = "true";
@@ -7392,17 +7700,34 @@ public class LoginController extends BaseController {
 			}
 
 			String json = new Gson().toJson(msCourseList);
+
+			json = encryptResponseBody(json);
 			return json;
 
 		} catch (Exception e) {
 			logger.error("Exception", e);
-			return "{}";
+			String json = "{}";
+
+			json = encryptResponseBody(json);
+			return json;
 		}
 	}
 
 	@RequestMapping(value = { "/getStudentsByCourseForAndroidApp" }, method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getStudentsByCourseForAndroidApp(
-			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp) {
+			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		boolean auth = isUserAuthorized(headers.get("token"), studentCourseAttendance.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
+
+			json = encryptResponseBody(json);
+			return json;
+		}
 		try {
 			String coursesId = studentCourseAttendance.getCids();
 
@@ -7501,13 +7826,26 @@ public class LoginController extends BaseController {
 	@RequestMapping(value = { "/showStudentAttendanceForAndroidAppNew" }, method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String showStudentAttendanceForAndroidAppNew(
-			@RequestBody StudentCourseAttendance studentCourseAttd, HttpServletResponse resp) {
+			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		studentCourseAttendance = (StudentCourseAttendance) decryptRequestBody(
+				studentCourseAttendance.getEncrypted_key(), "StudentCourseAttendance");
+		boolean auth = isUserAuthorized(headers.get("token"), studentCourseAttendance.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
+			json = encryptResponseBody(json);
+			return json;
+		}
 		String isAttendanceAllowed = "true";
-		String courseIdCheck = studentCourseAttd.getCourseId();
+		String courseIdCheck = studentCourseAttendance.getCourseId();
 		logger.info("coursesId===> " + courseIdCheck);
-		logger.info("actualEndTimeD===> " + studentCourseAttd.getActualEndTime());
-		logger.info("actualStartTime===> " + studentCourseAttd.getStartTime());
+		logger.info("actualEndTimeD===> " + studentCourseAttendance.getActualEndTime());
+		logger.info("actualStartTime===> " + studentCourseAttendance.getStartTime());
 		Date date = Utils.getInIST();
 		DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
 		Date today = new Date();
@@ -7516,7 +7854,7 @@ public class LoginController extends BaseController {
 		String currentTime = sdf.format(date);
 		logger.info("currentTime===> " + currentTime);
 
-		String actualEndTime = todayDate + " " + studentCourseAttd.getActualEndTime();
+		String actualEndTime = todayDate + " " + studentCourseAttendance.getActualEndTime();
 		logger.info("actualEndTimeBefore===> " + actualEndTime);
 		Date actualEndDate = null;
 		try {
@@ -7537,7 +7875,7 @@ public class LoginController extends BaseController {
 																// again
 		logger.info("actualEndTimeAFTER===> " + actualEndTime);
 
-		String start_Time = todayDate + " " + studentCourseAttd.getStartTime();
+		String start_Time = todayDate + " " + studentCourseAttendance.getStartTime();
 
 		logger.info("TimeLimitValueStart===> " + String.valueOf(timeDifference(start_Time, currentTime)) + " Seconds");
 		logger.info("TimeLimitValueEnd===> " + String.valueOf(timeDifference(currentTime, actualEndTime)) + " Seconds");
@@ -7565,13 +7903,13 @@ public class LoginController extends BaseController {
 				logger.info("attdDate ===========>" + attdDate);
 				Date d = dateFormatApp.parse(attdDate);
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-				String startTime = dateFormat.format(d) + " " + studentCourseAttd.getStartTime();
-				String endTime = dateFormat.format(d) + " " + studentCourseAttd.getEndTime();
+				String startTime = dateFormat.format(d) + " " + studentCourseAttendance.getStartTime();
+				String endTime = dateFormat.format(d) + " " + studentCourseAttendance.getEndTime();
 
 				for (int i = 0; i < courseIdCheckStrings.length; i++) {
 					String spilittedCourseId = courseIdCheckStrings[i];
 					List<StudentCourseAttendance> SCAList = studentCourseAttendanceService.findByCourseIdAndDateTime(
-							spilittedCourseId, startTime, endTime, studentCourseAttd.getFacultyId());
+							spilittedCourseId, startTime, endTime, studentCourseAttendance.getFacultyId());
 
 					MasterSCAList.addAll(SCAList);
 				}
@@ -7580,7 +7918,7 @@ public class LoginController extends BaseController {
 
 				logger.info("courseIdType ===========>" + "SINGLE");
 				SimpleDateFormat dateFormatApp = new SimpleDateFormat("dd-MM-yyyy");
-				// Date d = new Date(studentCourseAttd.getAttdDate());]
+				// Date d = new Date(studentCourseAttendance.getAttdDate());]
 
 				String attdDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
 				logger.info("attdDate ===========>" + attdDate);
@@ -7588,11 +7926,12 @@ public class LoginController extends BaseController {
 				Date d = dateFormatApp.parse(attdDate);
 
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-				String startTime = dateFormat.format(d) + " " + studentCourseAttd.getStartTime();
-				String endTime = dateFormat.format(d) + " " + studentCourseAttd.getEndTime();
+				String startTime = dateFormat.format(d) + " " + studentCourseAttendance.getStartTime();
+				String endTime = dateFormat.format(d) + " " + studentCourseAttendance.getEndTime();
 
 				MasterSCAList = studentCourseAttendanceService.findByCourseIdAndDateTime(
-						studentCourseAttd.getCourseId(), startTime, endTime, studentCourseAttd.getFacultyId());
+						studentCourseAttendance.getCourseId(), startTime, endTime,
+						studentCourseAttendance.getFacultyId());
 
 			}
 			for (StudentCourseAttendance sca : MasterSCAList) {
@@ -7601,11 +7940,16 @@ public class LoginController extends BaseController {
 			String json = new Gson().toJson(MasterSCAList);
 
 			logger.info("MasterSCAList ===========>" + MasterSCAList);
+
+			json = encryptResponseBody(json);
 			return json;
 
 		} catch (Exception e) {
 			logger.error("Exception", e);
-			return "{\"Status\":\"Fail\"}";
+			String json = "{\"Status\":\"Fail\"}";
+
+			json = encryptResponseBody(json);
+			return json;
 		}
 
 	}
@@ -7613,12 +7957,23 @@ public class LoginController extends BaseController {
 	@RequestMapping(value = { "/showStudentAttendanceForAndroidApp" }, method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String showStudentAttendanceForAndroidApp(
-			@RequestBody StudentCourseAttendance studentCourseAttd, HttpServletResponse resp) {
+			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		boolean auth = isUserAuthorized(headers.get("token"), studentCourseAttendance.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
-		String courseIdCheck = studentCourseAttd.getCourseId();
+			json = encryptResponseBody(json);
+			return json;
+		}
+		String courseIdCheck = studentCourseAttendance.getCourseId();
 		logger.info("coursesId===> " + courseIdCheck);
-		logger.info("actualEndTimeD===> " + studentCourseAttd.getActualEndTime());
-		logger.info("actualStartTime===> " + studentCourseAttd.getStartTime());
+		logger.info("actualEndTimeD===> " + studentCourseAttendance.getActualEndTime());
+		logger.info("actualStartTime===> " + studentCourseAttendance.getStartTime());
 		Date date = Utils.getInIST();
 		DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
 		Date today = new Date();
@@ -7627,7 +7982,7 @@ public class LoginController extends BaseController {
 		String currentTime = sdf.format(date);
 		logger.info("currentTime===> " + currentTime);
 
-		String actualEndTime = todayDate + " " + studentCourseAttd.getActualEndTime();
+		String actualEndTime = todayDate + " " + studentCourseAttendance.getActualEndTime();
 		logger.info("actualEndTimeBefore===> " + actualEndTime);
 		Date actualEndDate = null;
 		try {
@@ -7648,7 +8003,7 @@ public class LoginController extends BaseController {
 																// again
 		logger.info("actualEndTimeAFTER===> " + actualEndTime);
 
-		String start_Time = todayDate + " " + studentCourseAttd.getStartTime();
+		String start_Time = todayDate + " " + studentCourseAttendance.getStartTime();
 
 		logger.info("TimeLimitValueStart===> " + String.valueOf(timeDifference(start_Time, currentTime)) + " Seconds");
 		logger.info("TimeLimitValueEnd===> " + String.valueOf(timeDifference(currentTime, actualEndTime)) + " Seconds");
@@ -7676,14 +8031,14 @@ public class LoginController extends BaseController {
 					logger.info("attdDate ===========>" + attdDate);
 					Date d = dateFormatApp.parse(attdDate);
 					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-					String startTime = dateFormat.format(d) + " " + studentCourseAttd.getStartTime();
-					String endTime = dateFormat.format(d) + " " + studentCourseAttd.getEndTime();
+					String startTime = dateFormat.format(d) + " " + studentCourseAttendance.getStartTime();
+					String endTime = dateFormat.format(d) + " " + studentCourseAttendance.getEndTime();
 
 					for (int i = 0; i < courseIdCheckStrings.length; i++) {
 						String spilittedCourseId = courseIdCheckStrings[i];
 						List<StudentCourseAttendance> SCAList = studentCourseAttendanceService
 								.findByCourseIdAndDateTime(spilittedCourseId, startTime, endTime,
-										studentCourseAttd.getFacultyId());
+										studentCourseAttendance.getFacultyId());
 						MasterSCAList.addAll(SCAList);
 					}
 
@@ -7698,7 +8053,7 @@ public class LoginController extends BaseController {
 				try {
 					logger.info("courseIdType ===========>" + "SINGLE");
 					SimpleDateFormat dateFormatApp = new SimpleDateFormat("dd-MM-yyyy");
-					// Date d = new Date(studentCourseAttd.getAttdDate());]
+					// Date d = new Date(studentCourseAttendance.getAttdDate());]
 
 					String attdDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
 					logger.info("attdDate ===========>" + attdDate);
@@ -7706,11 +8061,12 @@ public class LoginController extends BaseController {
 					Date d = dateFormatApp.parse(attdDate);
 
 					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-					String startTime = dateFormat.format(d) + " " + studentCourseAttd.getStartTime();
-					String endTime = dateFormat.format(d) + " " + studentCourseAttd.getEndTime();
+					String startTime = dateFormat.format(d) + " " + studentCourseAttendance.getStartTime();
+					String endTime = dateFormat.format(d) + " " + studentCourseAttendance.getEndTime();
 
 					List<StudentCourseAttendance> SCAList = studentCourseAttendanceService.findByCourseIdAndDateTime(
-							studentCourseAttd.getCourseId(), startTime, endTime, studentCourseAttd.getFacultyId());
+							studentCourseAttendance.getCourseId(), startTime, endTime,
+							studentCourseAttendance.getFacultyId());
 
 					String json = new Gson().toJson(SCAList);
 
@@ -7731,9 +8087,22 @@ public class LoginController extends BaseController {
 	@RequestMapping(value = { "/showStudentAttendanceStatusForAndroidApp" }, method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String showStudentAttendanceStatusForAndroidApp(
-			@RequestBody StudentCourseAttendance studentCourseAttd, HttpServletResponse resp) {
+			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		studentCourseAttendance = (StudentCourseAttendance) decryptRequestBody(
+				studentCourseAttendance.getEncrypted_key(), "StudentCourseAttendance");
+		boolean auth = isUserAuthorized(headers.get("token"), studentCourseAttendance.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
-		String courseIdCheck = studentCourseAttd.getCourseId();
+			json = encryptResponseBody(json);
+			return json;
+		}
+		String courseIdCheck = studentCourseAttendance.getCourseId();
 
 		if (courseIdCheck.contains(" , ")) {
 			try {
@@ -7747,13 +8116,13 @@ public class LoginController extends BaseController {
 
 				Date d = dateFormatApp.parse(attdDate);
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-				String startTime = dateFormat.format(d) + " " + studentCourseAttd.getStartTime();
-				String endTime = dateFormat.format(d) + " " + studentCourseAttd.getEndTime();
+				String startTime = dateFormat.format(d) + " " + studentCourseAttendance.getStartTime();
+				String endTime = dateFormat.format(d) + " " + studentCourseAttendance.getEndTime();
 
 				for (int i = 0; i < courseIdCheckStrings.length; i++) {
 					String spilittedCourseId = courseIdCheckStrings[i];
 					List<StudentCourseAttendance> SCAList = studentCourseAttendanceService.findByCourseIdAndDateTime(
-							spilittedCourseId, startTime, endTime, studentCourseAttd.getFacultyId());
+							spilittedCourseId, startTime, endTime, studentCourseAttendance.getFacultyId());
 					MasterSCAList.addAll(SCAList);
 				}
 
@@ -7768,7 +8137,7 @@ public class LoginController extends BaseController {
 			try {
 				logger.info("courseIdType ===========>" + "SINGLE");
 				SimpleDateFormat dateFormatApp = new SimpleDateFormat("dd-MM-yyyy");
-				// Date d = new Date(studentCourseAttd.getAttdDate());]
+				// Date d = new Date(studentCourseAttendance.getAttdDate());]
 
 				String attdDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
 				logger.info("attdDate ===========>" + attdDate);
@@ -7776,23 +8145,24 @@ public class LoginController extends BaseController {
 				Date d = dateFormatApp.parse(attdDate);
 
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-				String startTime = dateFormat.format(d) + " " + studentCourseAttd.getStartTime();
-				String endTime = dateFormat.format(d) + " " + studentCourseAttd.getEndTime();
+				String startTime = dateFormat.format(d) + " " + studentCourseAttendance.getStartTime();
+				String endTime = dateFormat.format(d) + " " + studentCourseAttendance.getEndTime();
 
 				List<StudentCourseAttendance> SCAList = studentCourseAttendanceService.findByCourseIdAndDateTime(
-						studentCourseAttd.getCourseId(), startTime, endTime, studentCourseAttd.getFacultyId());
+						studentCourseAttendance.getCourseId(), startTime, endTime,
+						studentCourseAttendance.getFacultyId());
 
 				String json = new Gson().toJson(SCAList);
 
-				// logger.info("Course List ------->" + json);
-
+				json = encryptResponseBody(json);
 				return json;
-				// return "{\"Status\":\"Success\"}";
 
 			} catch (Exception e) {
 				logger.error("Exception", e);
-				return "{\"Status\":\"Fail\"}";
+				String json = "{\"Status\":\"Fail\"}";
 
+				json = encryptResponseBody(json);
+				return json;
 			}
 		}
 	}
@@ -8310,7 +8680,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "sap_master_inc");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable);
@@ -8447,7 +8817,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "sap_master_inc");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable);
@@ -8608,7 +8978,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "sap_master_inc");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable);
@@ -8754,7 +9124,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "sap_master_inc");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable);
@@ -8896,12 +9266,25 @@ public class LoginController extends BaseController {
 	@RequestMapping(value = { "/insertStudentAttendanceForAndroidApp" }, method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String insertStudentAttendanceForAndroidApp(
-			@RequestBody StudentCourseAttendance studentCourseAttd, HttpServletResponse resp) {
+			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		studentCourseAttendance = (StudentCourseAttendance) decryptRequestBody(
+				studentCourseAttendance.getEncrypted_key(), "StudentCourseAttendance");
+		boolean auth = isUserAuthorized(headers.get("token"), studentCourseAttendance.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
+
+			json = encryptResponseBody(json);
+			return json;
+		}
 		String courseIdCheck = "";
-		String presentFacultyId = studentCourseAttd.getPresentFacultyId();
+		String presentFacultyId = studentCourseAttendance.getPresentFacultyId();
 		logger.info("presentFacultyId_Before----->" + presentFacultyId);
-		if(presentFacultyId.contains("(")) 
-		{
+		if (presentFacultyId.contains("(")) {
 			presentFacultyId = getSapIdOnly(presentFacultyId);
 			logger.info("presentFacultyId_After----->" + presentFacultyId);
 		}
@@ -8911,10 +9294,9 @@ public class LoginController extends BaseController {
 			multipleFacCheck = false;
 		}
 
-		String commaSeparatedFacultyId = studentCourseAttd.getAllFacultyId();
+		String commaSeparatedFacultyId = studentCourseAttendance.getAllFacultyId();
 		logger.info("commaSeparatedFacultyId_Before----->" + commaSeparatedFacultyId);
-		if(commaSeparatedFacultyId.contains("(")) 
-		{
+		if (commaSeparatedFacultyId.contains("(")) {
 			commaSeparatedFacultyId = getSapIdOnly(commaSeparatedFacultyId);
 			logger.info("commaSeparatedFacultyId_After----->" + commaSeparatedFacultyId);
 		}
@@ -8932,10 +9314,10 @@ public class LoginController extends BaseController {
 
 		logger.info("presentFacultyId----->" + presentFacultyId);
 		logger.info("allFacultyId----->" + allFacultyId);
-		courseIdCheck = studentCourseAttd.getCourseId();
+		courseIdCheck = studentCourseAttendance.getCourseId();
 		Map<String, String> courseAcadYearMap = new HashMap<String, String>();
 
-		if (studentCourseAttd.getCourseId().contains(" , ")) {
+		if (studentCourseAttendance.getCourseId().contains(" , ")) {
 			try {
 				String[] courseIdCheckStrings = courseIdCheck.split(" , ");
 				for (int i = 0; i < courseIdCheckStrings.length; i++) {
@@ -8944,7 +9326,7 @@ public class LoginController extends BaseController {
 					String spilittedCourseId = courseIdCheckStrings[i];
 					List<Course> StudentList = courseService
 							.findStudentsByCourseIdForApp(Long.parseLong(spilittedCourseId));
-					logger.info("flag--------->" + studentCourseAttd.getFlag());
+					logger.info("flag--------->" + studentCourseAttendance.getFlag());
 					String courseId = spilittedCourseId;
 					String eventId = courseId.substring(0, 8);
 					String programId = courseId.substring(8);
@@ -8966,7 +9348,7 @@ public class LoginController extends BaseController {
 
 					DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 
-							.createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername, defaultPassword,
+							.createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword,
 									"sap_master_inc");
 
 					timetableDAO.setDS(dataSourceTimetable);
@@ -8980,29 +9362,29 @@ public class LoginController extends BaseController {
 
 					String username = "", acadSession = "", acadYear = "", startTime = "", endTime = "", classDate = "";
 					List<StudentCourseAttendance> studentCourseAttdList = new ArrayList<>();
-					classDate = studentCourseAttd.getClassDate();
-					String absentStudentMapString = studentCourseAttd.getCourseStudentListMap();
+					classDate = studentCourseAttendance.getClassDate();
+					String absentStudentMapString = studentCourseAttendance.getCourseStudentListMap();
 					absentMap = splitToMap(absentStudentMapString);
 
 					String ListofAbsentStudent = absentMap.get(spilittedCourseId);
 
-					logger.info("getListofAbsStud----->" + studentCourseAttd.getListofAbsStud());
+					logger.info("getListofAbsStud----->" + studentCourseAttendance.getListofAbsStud());
 
 					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 					Date date = new Date();
 
 					if (null != classDate && !classDate.equals("")) {
 						logger.info("classDateInfo----->" + "class date Found (insert multiple courseId)");
-						startTime = classDate + " " + studentCourseAttd.getStartTime();
-						endTime = classDate + " " + studentCourseAttd.getEndTime();
+						startTime = classDate + " " + studentCourseAttendance.getStartTime();
+						endTime = classDate + " " + studentCourseAttendance.getEndTime();
 
 						logger.info("startTime----->" + startTime);
 						logger.info("endTime----->" + endTime);
 						logger.info("classDate----->" + classDate);
 					} else {
 						logger.info("classDateInfo----->" + "No class date Found (insert multiple courseId)");
-						startTime = dateFormat.format(date) + " " + studentCourseAttd.getStartTime();
-						endTime = dateFormat.format(date) + " " + studentCourseAttd.getEndTime();
+						startTime = dateFormat.format(date) + " " + studentCourseAttendance.getStartTime();
+						endTime = dateFormat.format(date) + " " + studentCourseAttendance.getEndTime();
 
 						logger.info("startTime----->" + startTime);
 						logger.info("endTime----->" + endTime);
@@ -9022,11 +9404,11 @@ public class LoginController extends BaseController {
 						username = u.getUsername();
 						sca.setUsername(u.getUsername());
 						sca.setRollNo(u.getRollNo());
-						sca.setFacultyId(studentCourseAttd.getFacultyId());
-						sca.setCreatedBy(studentCourseAttd.getFacultyId());
-						sca.setLastModifiedBy(studentCourseAttd.getFacultyId());
-						sca.setNoOfLec(studentCourseAttd.getNoOfLec());
-						sca.setFlag(studentCourseAttd.getFlag());
+						sca.setFacultyId(studentCourseAttendance.getFacultyId());
+						sca.setCreatedBy(studentCourseAttendance.getFacultyId());
+						sca.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+						sca.setNoOfLec(studentCourseAttendance.getNoOfLec());
+						sca.setFlag(studentCourseAttendance.getFlag());
 						sca.setPresentFacultyId(presentFacultyId);
 
 						acadSession = u.getAcadSession();
@@ -9077,11 +9459,11 @@ public class LoginController extends BaseController {
 						sca1.setEventId(eventId);
 						sca1.setProgramId(programId);
 
-						sca1.setFacultyId(studentCourseAttd.getFacultyId());
-						sca1.setCreatedBy(studentCourseAttd.getFacultyId());
-						sca1.setLastModifiedBy(studentCourseAttd.getFacultyId());
-						sca1.setNoOfLec(studentCourseAttd.getNoOfLec());
-						sca1.setFlag(studentCourseAttd.getFlag());
+						sca1.setFacultyId(studentCourseAttendance.getFacultyId());
+						sca1.setCreatedBy(studentCourseAttendance.getFacultyId());
+						sca1.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+						sca1.setNoOfLec(studentCourseAttendance.getNoOfLec());
+						sca1.setFlag(studentCourseAttendance.getFlag());
 						sca1.setPresentFacultyId(presentFacultyId);
 						sca1.setAcadSession(acadSession);
 						sca1.setAcadYear(acadYear);
@@ -9096,7 +9478,7 @@ public class LoginController extends BaseController {
 					}
 
 					int sca_count = studentCourseAttendanceService.getStudentDataCountSentToSap(spilittedCourseId,
-							startTime, endTime, studentCourseAttd.getFacultyId());
+							startTime, endTime, studentCourseAttendance.getFacultyId());
 					logger.info("sca_count--------->" + sca_count);
 
 					if (multipleFacCheck && allFacultyId.toString().contains(",")) {
@@ -9117,19 +9499,19 @@ public class LoginController extends BaseController {
 							StudentCourseAttendance sca_all_marked = new StudentCourseAttendance();
 							sca_all_marked.setCids(courseIdCheck);
 							sca_all_marked.setCourseId(courseIdCheck);
-							sca_all_marked.setStartTime(studentCourseAttd.getStartTime());
-							sca_all_marked.setEndTime(studentCourseAttd.getEndTime());
-							sca_all_marked.setActualEndTime(studentCourseAttd.getEndTime());
+							sca_all_marked.setStartTime(studentCourseAttendance.getStartTime());
+							sca_all_marked.setEndTime(studentCourseAttendance.getEndTime());
+							sca_all_marked.setActualEndTime(studentCourseAttendance.getEndTime());
 							sca_all_marked.setFacultyId(previousMarkedListFaculty.get(0).getAllFacultyId());
 
-							logger.info("FACULTY_ID===>" + studentCourseAttd.getFacultyId());
+							logger.info("FACULTY_ID===>" + studentCourseAttendance.getFacultyId());
 
 							previousMarkedList = showStudentAttendanceForAndroidAppFromStudentCourseAttendance(
 									sca_all_marked);
 
 							// checking if this faculty who is marking now has only marked earlier or not
 							int fac_sca_count = studentCourseAttendanceService.getDataCountByOneFacultyId(
-									spilittedCourseId, startTime, endTime, studentCourseAttd.getFacultyId());
+									spilittedCourseId, startTime, endTime, studentCourseAttendance.getFacultyId());
 							if (fac_sca_count > 0) {
 								// normal flow
 								if (sca_count == 0) {
@@ -9141,7 +9523,7 @@ public class LoginController extends BaseController {
 											+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 											+ ") has already been sent to SAP";
 									String playerid = studentCourseAttendanceService
-											.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+											.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 									logger.info("playerid--------->" + playerid);
 									if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 										String response = notifyFacultyForFailedAttendanceEntry(playerid,
@@ -9157,37 +9539,35 @@ public class LoginController extends BaseController {
 								// notify user
 
 								String courseNameToSend = studentCourseAttendanceService
-										.getCourseNameFromCourseId(studentCourseAttd.getCourseId());
+										.getCourseNameFromCourseId(studentCourseAttendance.getCourseId());
 								String insertFailedFlag = "Attendance Submission Rejected : \n\n Attendance data for the lecture (StartTime = "
 										+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 										+ ") has been rejected because some other faculty has already marked attendance";
 								String playerid = studentCourseAttendanceService
-										.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+										.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 								logger.info("playerid--------->" + playerid);
 								if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 									String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
 									logger.info("responseNotifyFaculty--------->" + response);
 								}
-								
-								//get name of Faculty Name for multiple faculty
-								for(int t = 0; t < previousMarkedList.size(); t++) 
-								{
+
+								// get name of Faculty Name for multiple faculty
+								for (int t = 0; t < previousMarkedList.size(); t++) {
 									String allFaculty_Id = previousMarkedList.get(t).getPresentFacultyId();
 									logger.info("allFaculty_Id----------> " + allFaculty_Id);
-									if(allFaculty_Id.contains(","))
-									{
+									if (allFaculty_Id.contains(",")) {
 										allFaculty_Id = allFaculty_Id.replace(",", " , ");
 										String[] multipleFacultyArr = allFaculty_Id.split(" , ");
-										List<String> multipleFacultyList =  Arrays.asList(multipleFacultyArr);
+										List<String> multipleFacultyList = Arrays.asList(multipleFacultyArr);
 										logger.info("multipleFacultyList----------> " + multipleFacultyList.toString());
-										List<User> facultyListWithName = userService.findNameOfFaculty(multipleFacultyList);
+										List<User> facultyListWithName = userService
+												.findNameOfFaculty(multipleFacultyList);
 										logger.info("facultyListWithName----------> " + facultyListWithName.toString());
 										allFaculty_Id = "";
-										for(User user : facultyListWithName) 
-										{
-											allFaculty_Id+= user.getUsername()+" , ";
+										for (User user : facultyListWithName) {
+											allFaculty_Id += user.getUsername() + " , ";
 										}
-										allFaculty_Id = allFaculty_Id.substring(0, allFaculty_Id.length()-3);
+										allFaculty_Id = allFaculty_Id.substring(0, allFaculty_Id.length() - 3);
 										logger.info("allFaculty_Id_After----------> " + allFaculty_Id);
 										previousMarkedList.get(t).setPresentFacultyId(allFaculty_Id);
 									}
@@ -9197,6 +9577,7 @@ public class LoginController extends BaseController {
 								previousMarkedList.add(sca_failed);
 								String myResp = new Gson().toJson(previousMarkedList);
 								logger.info("myResp--------->" + myResp);
+								myResp = encryptResponseBody(myResp);
 								return myResp;
 
 							}
@@ -9212,7 +9593,7 @@ public class LoginController extends BaseController {
 										+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 										+ ") has already been sent to SAP";
 								String playerid = studentCourseAttendanceService
-										.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+										.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 								logger.info("playerid--------->" + playerid);
 								if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 									String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
@@ -9236,7 +9617,7 @@ public class LoginController extends BaseController {
 									+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 									+ ") has already been sent to SAP";
 							String playerid = studentCourseAttendanceService
-									.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+									.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 							logger.info("playerid--------->" + playerid);
 							if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 								String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
@@ -9247,19 +9628,24 @@ public class LoginController extends BaseController {
 					}
 
 				}
+				String json = "{\"Status\":\"Success\"}";
 
-				return "{\"Status\":\"Success\"}";
+				json = encryptResponseBody(json);
+				return json;
 			} catch (Exception e) {
 				logger.error("Exception", e);
-				return "{\"Status\":\"Fail\"}";
+				String json = "{\"Status\":\"Fail\"}";
+
+				json = encryptResponseBody(json);
+				return json;
 			}
 		} else {
 			try {
 
 				List<Course> StudentList = courseService
-						.findStudentsByCourseIdForApp(Long.parseLong(studentCourseAttd.getCourseId()));
-				logger.info("flag--------->" + studentCourseAttd.getFlag());
-				String courseId = studentCourseAttd.getCourseId();
+						.findStudentsByCourseIdForApp(Long.parseLong(studentCourseAttendance.getCourseId()));
+				logger.info("flag--------->" + studentCourseAttendance.getFlag());
+				String courseId = studentCourseAttendance.getCourseId();
 				String eventId = courseId.substring(0, 8);
 				String programId = courseId.substring(8);
 
@@ -9277,15 +9663,13 @@ public class LoginController extends BaseController {
 
 				DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 
-						.createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername, defaultPassword,
+						.createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword,
 								"sap_master_inc");
 
 				timetableDAO.setDS(dataSourceTimetable);
 
 				String sapAcadYear = timetableDAO.getAcadYearFromSapMaster(eventId, programId);
-				// String sapAcadYear =
-				// timetableDAO.getAcadYearFromSapMaster("51709397",
-				// "50474742");
+
 				courseAcadYearMap.put(courseId, sapAcadYear);
 
 				timetableDAO.setDS(dataSourceDefaultLms);
@@ -9295,23 +9679,23 @@ public class LoginController extends BaseController {
 				String username = "", acadSession = "", acadYear = "", startTime = "", endTime = "", classDate = "";
 				List<StudentCourseAttendance> studentCourseAttdList = new ArrayList<>();
 
-				logger.info("getListofAbsStud----->" + studentCourseAttd.getListofAbsStud());
-				classDate = studentCourseAttd.getClassDate();
+				logger.info("getListofAbsStud----->" + studentCourseAttendance.getListofAbsStud());
+				classDate = studentCourseAttendance.getClassDate();
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 				Date date = new Date();
 
 				if (null != classDate && !classDate.equals("")) {
 					logger.info("classDateInfo----->" + "class date Found (insert single courseId)");
-					startTime = classDate + " " + studentCourseAttd.getStartTime();
-					endTime = classDate + " " + studentCourseAttd.getEndTime();
+					startTime = classDate + " " + studentCourseAttendance.getStartTime();
+					endTime = classDate + " " + studentCourseAttendance.getEndTime();
 
 					logger.info("startTime----->" + startTime);
 					logger.info("endTime----->" + endTime);
 					logger.info("classDate----->" + classDate);
 				} else {
 					logger.info("classDateInfo----->" + "No class date Found (insert single courseId)");
-					startTime = dateFormat.format(date) + " " + studentCourseAttd.getStartTime();
-					endTime = dateFormat.format(date) + " " + studentCourseAttd.getEndTime();
+					startTime = dateFormat.format(date) + " " + studentCourseAttendance.getStartTime();
+					endTime = dateFormat.format(date) + " " + studentCourseAttendance.getEndTime();
 
 					logger.info("startTime----->" + startTime);
 					logger.info("endTime----->" + endTime);
@@ -9323,18 +9707,18 @@ public class LoginController extends BaseController {
 
 					StudentCourseAttendance sca = new StudentCourseAttendance();
 
-					sca.setCourseId(studentCourseAttd.getCourseId());
+					sca.setCourseId(studentCourseAttendance.getCourseId());
 					sca.setEventId(eventId);
 					sca.setProgramId(programId);
 
 					username = u.getUsername();
 					sca.setUsername(u.getUsername());
 					sca.setRollNo(u.getRollNo());
-					sca.setFacultyId(studentCourseAttd.getFacultyId());
-					sca.setCreatedBy(studentCourseAttd.getFacultyId());
-					sca.setLastModifiedBy(studentCourseAttd.getFacultyId());
-					sca.setNoOfLec(studentCourseAttd.getNoOfLec());
-					sca.setFlag(studentCourseAttd.getFlag());
+					sca.setFacultyId(studentCourseAttendance.getFacultyId());
+					sca.setCreatedBy(studentCourseAttendance.getFacultyId());
+					sca.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+					sca.setNoOfLec(studentCourseAttendance.getNoOfLec());
+					sca.setFlag(studentCourseAttendance.getFlag());
 					sca.setPresentFacultyId(presentFacultyId);
 
 					acadSession = u.getAcadSession();
@@ -9350,17 +9734,18 @@ public class LoginController extends BaseController {
 					acadYear = courseAcadYearMap.get(sca.getCourseId());
 					sca.setAcadYear(acadYear);
 
-					logger.info("----->" + studentCourseAttd.getListofAbsStud());
+					logger.info("----->" + studentCourseAttendance.getListofAbsStud());
 
-					if (null != studentCourseAttd.getListofAbsStud()
-							|| !studentCourseAttd.getListofAbsStud().equals("")) {
+					if (null != studentCourseAttendance.getListofAbsStud()
+							|| !studentCourseAttendance.getListofAbsStud().equals("")) {
 						List<String> absentUsers = new ArrayList<String>();
-						if (studentCourseAttd.getListofAbsStud().startsWith("[")
-								&& studentCourseAttd.getListofAbsStud().endsWith("]")) {
-							absentUsers = Arrays.asList(studentCourseAttd.getListofAbsStud()
-									.substring(1, studentCourseAttd.getListofAbsStud().length() - 1).split(",\\s*"));
+						if (studentCourseAttendance.getListofAbsStud().startsWith("[")
+								&& studentCourseAttendance.getListofAbsStud().endsWith("]")) {
+							absentUsers = Arrays.asList(studentCourseAttendance.getListofAbsStud()
+									.substring(1, studentCourseAttendance.getListofAbsStud().length() - 1)
+									.split(",\\s*"));
 						} else {
-							absentUsers = Arrays.asList(studentCourseAttd.getListofAbsStud().split("\\s*,\\s*"));
+							absentUsers = Arrays.asList(studentCourseAttendance.getListofAbsStud().split("\\s*,\\s*"));
 						}
 
 						logger.info("absentUsers----->" + absentUsers);
@@ -9379,20 +9764,21 @@ public class LoginController extends BaseController {
 
 				}
 
-				if (studentCourseAttd.getListofAbsStud().equals(null) || studentCourseAttd.getListofAbsStud().equals("")
-						|| studentCourseAttd.getListofAbsStud().equals("[]")) {
+				if (studentCourseAttendance.getListofAbsStud().equals(null)
+						|| studentCourseAttendance.getListofAbsStud().equals("")
+						|| studentCourseAttendance.getListofAbsStud().equals("[]")) {
 					logger.info("presentAll---->");
 					StudentCourseAttendance sca1 = new StudentCourseAttendance();
 
-					sca1.setCourseId(studentCourseAttd.getCourseId());
+					sca1.setCourseId(studentCourseAttendance.getCourseId());
 					sca1.setEventId(eventId);
 					sca1.setProgramId(programId);
 
-					sca1.setFacultyId(studentCourseAttd.getFacultyId());
-					sca1.setCreatedBy(studentCourseAttd.getFacultyId());
-					sca1.setLastModifiedBy(studentCourseAttd.getFacultyId());
-					sca1.setNoOfLec(studentCourseAttd.getNoOfLec());
-					sca1.setFlag(studentCourseAttd.getFlag());
+					sca1.setFacultyId(studentCourseAttendance.getFacultyId());
+					sca1.setCreatedBy(studentCourseAttendance.getFacultyId());
+					sca1.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+					sca1.setNoOfLec(studentCourseAttendance.getNoOfLec());
+					sca1.setFlag(studentCourseAttendance.getFlag());
 					sca1.setPresentFacultyId(presentFacultyId);
 
 					sca1.setAcadSession(acadSession);
@@ -9409,14 +9795,15 @@ public class LoginController extends BaseController {
 				}
 
 				int sca_count = studentCourseAttendanceService.getStudentDataCountSentToSap(
-						studentCourseAttd.getCourseId(), startTime, endTime, studentCourseAttd.getFacultyId());
+						studentCourseAttendance.getCourseId(), startTime, endTime,
+						studentCourseAttendance.getFacultyId());
 				logger.info("sca_count--------->" + sca_count);
 
 				if (multipleFacCheck && allFacultyId.toString().contains(",")) {
 					logger.info("allFacultyId1--------->" + allFacultyId.toString());
 					// checking if any faculty(among all faculty) has marked attendance or not
 					int att_sca_count = studentCourseAttendanceService.getDataCountByAllFacultyId(
-							studentCourseAttd.getCourseId(), startTime, endTime, allFacultyId);
+							studentCourseAttendance.getCourseId(), startTime, endTime, allFacultyId);
 					List<StudentCourseAttendance> previousMarkedList = new ArrayList<StudentCourseAttendance>();
 
 					logger.info("att_sca_count--------->" + att_sca_count);
@@ -9427,9 +9814,9 @@ public class LoginController extends BaseController {
 						StudentCourseAttendance sca_all_marked = new StudentCourseAttendance();
 						sca_all_marked.setCids(courseIdCheck);
 						sca_all_marked.setCourseId(courseIdCheck);
-						sca_all_marked.setStartTime(studentCourseAttd.getStartTime());
-						sca_all_marked.setEndTime(studentCourseAttd.getEndTime());
-						sca_all_marked.setActualEndTime(studentCourseAttd.getEndTime());
+						sca_all_marked.setStartTime(studentCourseAttendance.getStartTime());
+						sca_all_marked.setEndTime(studentCourseAttendance.getEndTime());
+						sca_all_marked.setActualEndTime(studentCourseAttendance.getEndTime());
 						sca_all_marked.setFacultyId(previousMarkedListFaculty.get(0).getFacultyId());
 
 						previousMarkedList = showStudentAttendanceForAndroidAppFromStudentCourseAttendance(
@@ -9437,7 +9824,8 @@ public class LoginController extends BaseController {
 
 						// checking if this faculty who is marking now has only marked earlier or not
 						int fac_sca_count = studentCourseAttendanceService.getDataCountByOneFacultyId(
-								studentCourseAttd.getCourseId(), startTime, endTime, studentCourseAttd.getFacultyId());
+								studentCourseAttendance.getCourseId(), startTime, endTime,
+								studentCourseAttendance.getFacultyId());
 						logger.info("fac_sca_count--------->" + fac_sca_count);
 						if (fac_sca_count > 0) {
 
@@ -9446,12 +9834,12 @@ public class LoginController extends BaseController {
 								studentCourseAttendanceService.upsertBatchByApp(studentCourseAttdList);
 							} else {
 								String courseNameToSend = studentCourseAttendanceService
-										.getCourseNameFromCourseId(studentCourseAttd.getCourseId());
+										.getCourseNameFromCourseId(studentCourseAttendance.getCourseId());
 								String insertFailedFlag = "Attendance Submission Rejected : \n\n Attendance data for the lecture (StartTime = "
 										+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 										+ ") has already been sent to SAP";
 								String playerid = studentCourseAttendanceService
-										.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+										.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 								logger.info("playerid--------->" + playerid);
 								if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 									String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
@@ -9465,38 +9853,35 @@ public class LoginController extends BaseController {
 							// reject this attendance
 							// notify user
 							String courseNameToSend = studentCourseAttendanceService
-									.getCourseNameFromCourseId(studentCourseAttd.getCourseId());
+									.getCourseNameFromCourseId(studentCourseAttendance.getCourseId());
 							String insertFailedFlag = "Attendance Submission Rejected : \n\n Attendance data for the lecture (StartTime = "
 									+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 									+ ") has been rejected because some other faculty has already marked attendance";
 							String playerid = studentCourseAttendanceService
-									.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+									.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 							logger.info("playerid--------->" + playerid);
 
 							if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 								String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
 								logger.info("responseNotifyFaculty--------->" + response);
 							}
-							
-							//get name of Faculty Name for multiple faculty
-							for(int t = 0; t < previousMarkedList.size(); t++) 
-							{
+
+							// get name of Faculty Name for multiple faculty
+							for (int t = 0; t < previousMarkedList.size(); t++) {
 								String allFaculty_Id = previousMarkedList.get(t).getPresentFacultyId();
 								logger.info("allFaculty_Id----------> " + allFaculty_Id);
-								if(allFaculty_Id.contains(","))
-								{
+								if (allFaculty_Id.contains(",")) {
 									allFaculty_Id = allFaculty_Id.replace(",", " , ");
 									String[] multipleFacultyArr = allFaculty_Id.split(" , ");
-									List<String> multipleFacultyList =  Arrays.asList(multipleFacultyArr);
+									List<String> multipleFacultyList = Arrays.asList(multipleFacultyArr);
 									logger.info("multipleFacultyList----------> " + multipleFacultyList.toString());
 									List<User> facultyListWithName = userService.findNameOfFaculty(multipleFacultyList);
 									logger.info("multipleFacultyList----------> " + multipleFacultyList.toString());
 									allFaculty_Id = "";
-									for(User user : facultyListWithName) 
-									{
-										allFaculty_Id+= user.getUsername()+" , ";
+									for (User user : facultyListWithName) {
+										allFaculty_Id += user.getUsername() + " , ";
 									}
-									allFaculty_Id = allFaculty_Id.substring(0, allFaculty_Id.length()-3);
+									allFaculty_Id = allFaculty_Id.substring(0, allFaculty_Id.length() - 3);
 									logger.info("allFaculty_Id_After----------> " + allFaculty_Id);
 									previousMarkedList.get(t).setPresentFacultyId(allFaculty_Id);
 								}
@@ -9508,6 +9893,7 @@ public class LoginController extends BaseController {
 							previousMarkedList.add(sca_failed);
 							String myResp = new Gson().toJson(previousMarkedList);
 							logger.info("myResp--------->" + myResp);
+							myResp = encryptResponseBody(myResp);
 							return myResp;
 
 						}
@@ -9518,12 +9904,12 @@ public class LoginController extends BaseController {
 							studentCourseAttendanceService.upsertBatchByApp(studentCourseAttdList);
 						} else {
 							String courseNameToSend = studentCourseAttendanceService
-									.getCourseNameFromCourseId(studentCourseAttd.getCourseId());
+									.getCourseNameFromCourseId(studentCourseAttendance.getCourseId());
 							String insertFailedFlag = "Attendance Submission Rejected : \n\n Attendance data for the lecture (StartTime = "
 									+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 									+ ") has already been sent to SAP";
 							String playerid = studentCourseAttendanceService
-									.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+									.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 							logger.info("playerid--------->" + playerid);
 							if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 								String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
@@ -9543,12 +9929,12 @@ public class LoginController extends BaseController {
 						studentCourseAttendanceService.upsertBatchByApp(studentCourseAttdList);
 					} else {
 						String courseNameToSend = studentCourseAttendanceService
-								.getCourseNameFromCourseId(studentCourseAttd.getCourseId());
+								.getCourseNameFromCourseId(studentCourseAttendance.getCourseId());
 						String insertFailedFlag = "Attendance Submission Rejected : \n\n Attendance data for the lecture (StartTime = "
 								+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 								+ ") has already been sent to SAP";
 						String playerid = studentCourseAttendanceService
-								.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+								.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 						logger.info("playerid--------->" + playerid);
 						if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 							String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
@@ -9558,12 +9944,17 @@ public class LoginController extends BaseController {
 					}
 				}
 
-				return "{\"Status\":\"Success\"}";
+				String json = "{\"Status\":\"Success\"}";
+
+				json = encryptResponseBody(json);
+				return json;
 
 			} catch (Exception e) {
 				logger.error("Exception", e);
-				return "{\"Status\":\"Fail\"}";
+				String json = "{\"Status\":\"Fail\"}";
 
+				json = encryptResponseBody(json);
+				return json;
 			}
 		}
 
@@ -9866,7 +10257,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "sap_master_inc");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable);
@@ -10030,7 +10421,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "sap_master_inc");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable);
@@ -10218,7 +10609,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "sap_master_inc");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable);
@@ -10399,7 +10790,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "sap_master_inc");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable);
@@ -10566,25 +10957,37 @@ public class LoginController extends BaseController {
 	@RequestMapping(value = { "/updateStudentAttendanceForAndroidApp" }, method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String updateStudentAttendanceForAndroidApp(
-			@RequestBody StudentCourseAttendance studentCourseAttd, HttpServletResponse resp) {
-		String courseIdCheck = studentCourseAttd.getCourseId();
-		String presentFacultyId = studentCourseAttd.getPresentFacultyId();
+			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		studentCourseAttendance = (StudentCourseAttendance) decryptRequestBody(
+				studentCourseAttendance.getEncrypted_key(), "StudentCourseAttendance");
+		boolean auth = isUserAuthorized(headers.get("token"), studentCourseAttendance.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
+
+			json = encryptResponseBody(json);
+			return json;
+		}
+		String courseIdCheck = studentCourseAttendance.getCourseId();
+		String presentFacultyId = studentCourseAttendance.getPresentFacultyId();
 		logger.info("presentFacultyId_Before----->" + presentFacultyId);
-		if(presentFacultyId.contains("(")) 
-		{
+		if (presentFacultyId.contains("(")) {
 			presentFacultyId = getSapIdOnly(presentFacultyId);
 			logger.info("presentFacultyId_After----->" + presentFacultyId);
 		}
-		
+
 		boolean multipleFacCheck = true;
 		if (presentFacultyId.equalsIgnoreCase("NA")) {
 			multipleFacCheck = false;
 			presentFacultyId = null;
 		}
-		String commaSeparatedFacultyId = studentCourseAttd.getAllFacultyId();
+		String commaSeparatedFacultyId = studentCourseAttendance.getAllFacultyId();
 		logger.info("commaSeparatedFacultyId_Before----->" + commaSeparatedFacultyId);
-		if(commaSeparatedFacultyId.contains("(")) 
-		{
+		if (commaSeparatedFacultyId.contains("(")) {
 			commaSeparatedFacultyId = getSapIdOnly(commaSeparatedFacultyId);
 			logger.info("commaSeparatedFacultyId_After----->" + commaSeparatedFacultyId);
 		}
@@ -10610,7 +11013,7 @@ public class LoginController extends BaseController {
 					Map<String, String> absentMap = new HashMap<String, String>();
 					List<Course> StudentList = courseService
 							.findStudentsByCourseIdForApp(Long.parseLong(spilittedCourseId));
-					logger.info("flag--------->" + studentCourseAttd.getFlag());
+					logger.info("flag--------->" + studentCourseAttendance.getFlag());
 					String courseId = spilittedCourseId;
 					String eventId = courseId.substring(0, 8);
 					String programId = courseId.substring(8);
@@ -10627,7 +11030,7 @@ public class LoginController extends BaseController {
 
 					DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 
-							.createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername, defaultPassword,
+							.createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword,
 									"sap_master_inc");
 
 					timetableDAO.setDS(dataSourceTimetable);
@@ -10644,29 +11047,29 @@ public class LoginController extends BaseController {
 
 					String username = "", acadSession = "", acadYear = "", startTime = "", endTime = "", classDate = "";
 					List<StudentCourseAttendance> studentCourseAttdList = new ArrayList<>();
-					classDate = studentCourseAttd.getClassDate();
-					String absentStudentMapString = studentCourseAttd.getCourseStudentListMap();
+					classDate = studentCourseAttendance.getClassDate();
+					String absentStudentMapString = studentCourseAttendance.getCourseStudentListMap();
 					absentMap = splitToMap(absentStudentMapString);
 
 					String ListofAbsentStudent = absentMap.get(spilittedCourseId);
 
-					logger.info("----->" + studentCourseAttd.getListofAbsStud());
+					logger.info("----->" + studentCourseAttendance.getListofAbsStud());
 
 					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 					Date date = new Date();
 
 					if (null != classDate && !classDate.equals("")) {
 						logger.info("classDateInfo----->" + "class date Found (update multiple courseId)");
-						startTime = classDate + " " + studentCourseAttd.getStartTime();
-						endTime = classDate + " " + studentCourseAttd.getEndTime();
+						startTime = classDate + " " + studentCourseAttendance.getStartTime();
+						endTime = classDate + " " + studentCourseAttendance.getEndTime();
 
 						logger.info("startTime----->" + startTime);
 						logger.info("endTime----->" + endTime);
 						logger.info("classDate----->" + classDate);
 					} else {
 						logger.info("classDateInfo----->" + "No class date Found (update multiple courseId)");
-						startTime = dateFormat.format(date) + " " + studentCourseAttd.getStartTime();
-						endTime = dateFormat.format(date) + " " + studentCourseAttd.getEndTime();
+						startTime = dateFormat.format(date) + " " + studentCourseAttendance.getStartTime();
+						endTime = dateFormat.format(date) + " " + studentCourseAttendance.getEndTime();
 
 						logger.info("startTime----->" + startTime);
 						logger.info("endTime----->" + endTime);
@@ -10685,11 +11088,11 @@ public class LoginController extends BaseController {
 						username = u.getUsername();
 						sca.setUsername(u.getUsername());
 						sca.setRollNo(u.getRollNo());
-						sca.setFacultyId(studentCourseAttd.getFacultyId());
-						sca.setLastModifiedBy(studentCourseAttd.getFacultyId());
+						sca.setFacultyId(studentCourseAttendance.getFacultyId());
+						sca.setLastModifiedBy(studentCourseAttendance.getFacultyId());
 						sca.setPresentFacultyId(presentFacultyId);
-						sca.setNoOfLec(studentCourseAttd.getNoOfLec());
-						sca.setFlag(studentCourseAttd.getFlag());
+						sca.setNoOfLec(studentCourseAttendance.getNoOfLec());
+						sca.setFlag(studentCourseAttendance.getFlag());
 						sca.setOrganization(app);
 						sca.setActive("Y");
 						sca.setStartTime(startTime);
@@ -10701,7 +11104,7 @@ public class LoginController extends BaseController {
 						acadYear = courseAcadYearMap.get(sca.getCourseId());
 						sca.setAcadYear(acadYear);
 
-						logger.info("----->" + studentCourseAttd.getListofAbsStud());
+						logger.info("----->" + studentCourseAttendance.getListofAbsStud());
 
 						if (null != ListofAbsentStudent || !ListofAbsentStudent.equals("")) {
 
@@ -10729,7 +11132,7 @@ public class LoginController extends BaseController {
 					}
 
 					int sca_count = studentCourseAttendanceService.getStudentDataCountSentToSap(spilittedCourseId,
-							startTime, endTime, studentCourseAttd.getFacultyId());
+							startTime, endTime, studentCourseAttendance.getFacultyId());
 					logger.info("sca_count--------->" + sca_count);
 
 					if (multipleFacCheck && allFacultyId.toString().contains(",")) {
@@ -10739,7 +11142,7 @@ public class LoginController extends BaseController {
 						if (att_sca_count > 0) {
 							// checking if this faculty who is marking now has only marked earlier or not
 							int fac_sca_count = studentCourseAttendanceService.getDataCountByOneFacultyId(
-									spilittedCourseId, startTime, endTime, studentCourseAttd.getFacultyId());
+									spilittedCourseId, startTime, endTime, studentCourseAttendance.getFacultyId());
 							if (fac_sca_count > 0) {
 								// normal flow
 
@@ -10752,7 +11155,7 @@ public class LoginController extends BaseController {
 									studentCourseAttendanceService.updateBatchByApp(studentCourseAttdList);
 
 									StudentCourseAttendance stca = studentCourseAttendanceService.getAllPresentRecord(
-											courseId, startTime, endTime, studentCourseAttd.getFacultyId());
+											courseId, startTime, endTime, studentCourseAttendance.getFacultyId());
 
 									if (ListofAbsentStudent.equals(null) || ListofAbsentStudent.equals("")
 											|| ListofAbsentStudent.equals("[]") || ListofAbsentStudent.equals("[]]")) {
@@ -10774,11 +11177,11 @@ public class LoginController extends BaseController {
 											sca1.setEventId(eventId);
 											sca1.setProgramId(programId);
 
-											sca1.setFacultyId(studentCourseAttd.getFacultyId());
-											sca1.setCreatedBy(studentCourseAttd.getFacultyId());
-											sca1.setLastModifiedBy(studentCourseAttd.getFacultyId());
-											sca1.setNoOfLec(studentCourseAttd.getNoOfLec());
-											sca1.setFlag(studentCourseAttd.getFlag());
+											sca1.setFacultyId(studentCourseAttendance.getFacultyId());
+											sca1.setCreatedBy(studentCourseAttendance.getFacultyId());
+											sca1.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+											sca1.setNoOfLec(studentCourseAttendance.getNoOfLec());
+											sca1.setFlag(studentCourseAttendance.getFlag());
 											sca1.setPresentFacultyId(presentFacultyId);
 
 											sca1.setAcadSession(acadSession);
@@ -10817,18 +11220,20 @@ public class LoginController extends BaseController {
 								// notify user
 
 								String courseNameToSend = studentCourseAttendanceService
-										.getCourseNameFromCourseId(studentCourseAttd.getCourseId());
+										.getCourseNameFromCourseId(studentCourseAttendance.getCourseId());
 								String insertFailedFlag = "Attendance Submission Rejected : \n\n Attendance data for the lecture (StartTime = "
 										+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 										+ ") has been rejected because some other faculty has already marked attendance";
 								String playerid = studentCourseAttendanceService
-										.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+										.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 								logger.info("playerid--------->" + playerid);
 								if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 									String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
 									logger.info("responseNotifyFaculty--------->" + response);
 								}
-								return "{\"Status\":\"Fail_MF_AM\"}";
+								String myResp = "{\"Status\":\"Fail_MF_AM\"}";
+								myResp = encryptResponseBody(myResp);
+								return myResp;
 
 							}
 						} else {
@@ -10844,7 +11249,7 @@ public class LoginController extends BaseController {
 								studentCourseAttendanceService.updateBatchByApp(studentCourseAttdList);
 
 								StudentCourseAttendance stca = studentCourseAttendanceService.getAllPresentRecord(
-										courseId, startTime, endTime, studentCourseAttd.getFacultyId());
+										courseId, startTime, endTime, studentCourseAttendance.getFacultyId());
 
 								if (ListofAbsentStudent.equals(null) || ListofAbsentStudent.equals("")
 										|| ListofAbsentStudent.equals("[]") || ListofAbsentStudent.equals("[]]")) {
@@ -10866,11 +11271,11 @@ public class LoginController extends BaseController {
 										sca1.setEventId(eventId);
 										sca1.setProgramId(programId);
 
-										sca1.setFacultyId(studentCourseAttd.getFacultyId());
-										sca1.setCreatedBy(studentCourseAttd.getFacultyId());
-										sca1.setLastModifiedBy(studentCourseAttd.getFacultyId());
-										sca1.setNoOfLec(studentCourseAttd.getNoOfLec());
-										sca1.setFlag(studentCourseAttd.getFlag());
+										sca1.setFacultyId(studentCourseAttendance.getFacultyId());
+										sca1.setCreatedBy(studentCourseAttendance.getFacultyId());
+										sca1.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+										sca1.setNoOfLec(studentCourseAttendance.getNoOfLec());
+										sca1.setFlag(studentCourseAttendance.getFlag());
 										sca1.setPresentFacultyId(presentFacultyId);
 
 										sca1.setAcadSession(acadSession);
@@ -10917,7 +11322,7 @@ public class LoginController extends BaseController {
 							studentCourseAttendanceService.updateBatchByApp(studentCourseAttdList);
 
 							StudentCourseAttendance stca = studentCourseAttendanceService.getAllPresentRecord(courseId,
-									startTime, endTime, studentCourseAttd.getFacultyId());
+									startTime, endTime, studentCourseAttendance.getFacultyId());
 
 							if (ListofAbsentStudent.equals(null) || ListofAbsentStudent.equals("")
 									|| ListofAbsentStudent.equals("[]") || ListofAbsentStudent.equals("[]]")) {
@@ -10939,11 +11344,11 @@ public class LoginController extends BaseController {
 									sca1.setEventId(eventId);
 									sca1.setProgramId(programId);
 
-									sca1.setFacultyId(studentCourseAttd.getFacultyId());
-									sca1.setCreatedBy(studentCourseAttd.getFacultyId());
-									sca1.setLastModifiedBy(studentCourseAttd.getFacultyId());
-									sca1.setNoOfLec(studentCourseAttd.getNoOfLec());
-									sca1.setFlag(studentCourseAttd.getFlag());
+									sca1.setFacultyId(studentCourseAttendance.getFacultyId());
+									sca1.setCreatedBy(studentCourseAttendance.getFacultyId());
+									sca1.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+									sca1.setNoOfLec(studentCourseAttendance.getNoOfLec());
+									sca1.setFlag(studentCourseAttendance.getFlag());
 									sca1.setPresentFacultyId(presentFacultyId);
 
 									sca1.setAcadSession(acadSession);
@@ -10978,10 +11383,16 @@ public class LoginController extends BaseController {
 
 				}
 
-				return "{\"Status\":\"Success\"}";
+				String json = "{\"Status\":\"Success\"}";
+
+				json = encryptResponseBody(json);
+				return json;
 			} catch (Exception e) {
 				logger.error("Exception", e);
-				return "{\"Status\":\"Fail\"}";
+				String json = "{\"Status\":\"Fail\"}";
+
+				json = encryptResponseBody(json);
+				return json;
 
 			}
 
@@ -10989,9 +11400,9 @@ public class LoginController extends BaseController {
 			try {
 
 				List<Course> StudentList = courseService
-						.findStudentsByCourseIdForApp(Long.parseLong(studentCourseAttd.getCourseId()));
-				logger.info("flag--------->" + studentCourseAttd.getFlag());
-				String courseId = studentCourseAttd.getCourseId();
+						.findStudentsByCourseIdForApp(Long.parseLong(studentCourseAttendance.getCourseId()));
+				logger.info("flag--------->" + studentCourseAttendance.getFlag());
+				String courseId = studentCourseAttendance.getCourseId();
 				String eventId = courseId.substring(0, 8);
 				String programId = courseId.substring(8);
 
@@ -11007,7 +11418,7 @@ public class LoginController extends BaseController {
 
 				DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 
-						.createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername, defaultPassword,
+						.createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword,
 								"sap_master_inc");
 
 				timetableDAO.setDS(dataSourceTimetable);
@@ -11022,24 +11433,24 @@ public class LoginController extends BaseController {
 
 				String username = "", acadSession = "", acadYear = "", startTime = "", endTime = "", classDate = "";
 				List<StudentCourseAttendance> studentCourseAttdList = new ArrayList<>();
-				classDate = studentCourseAttd.getClassDate();
-				logger.info("----->" + studentCourseAttd.getListofAbsStud());
+				classDate = studentCourseAttendance.getClassDate();
+				logger.info("----->" + studentCourseAttendance.getListofAbsStud());
 				boolean insertFlag = false;
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 				Date date = new Date();
 
 				if (null != classDate && !classDate.equals("")) {
 					logger.info("classDateInfo----->" + "class date Found (update single courseId)");
-					startTime = classDate + " " + studentCourseAttd.getStartTime();
-					endTime = classDate + " " + studentCourseAttd.getEndTime();
+					startTime = classDate + " " + studentCourseAttendance.getStartTime();
+					endTime = classDate + " " + studentCourseAttendance.getEndTime();
 
 					logger.info("startTime----->" + startTime);
 					logger.info("endTime----->" + endTime);
 					logger.info("classDate----->" + classDate);
 				} else {
 					logger.info("classDateInfo----->" + "No class date Found (update single courseId)");
-					startTime = dateFormat.format(date) + " " + studentCourseAttd.getStartTime();
-					endTime = dateFormat.format(date) + " " + studentCourseAttd.getEndTime();
+					startTime = dateFormat.format(date) + " " + studentCourseAttendance.getStartTime();
+					endTime = dateFormat.format(date) + " " + studentCourseAttendance.getEndTime();
 
 					logger.info("startTime----->" + startTime);
 					logger.info("endTime----->" + endTime);
@@ -11051,18 +11462,18 @@ public class LoginController extends BaseController {
 
 					StudentCourseAttendance sca = new StudentCourseAttendance();
 
-					sca.setCourseId(studentCourseAttd.getCourseId());
+					sca.setCourseId(studentCourseAttendance.getCourseId());
 					sca.setEventId(eventId);
 					sca.setProgramId(programId);
 
 					username = u.getUsername();
 					sca.setUsername(u.getUsername());
 					sca.setRollNo(u.getRollNo());
-					sca.setFacultyId(studentCourseAttd.getFacultyId());
-					sca.setCreatedBy(studentCourseAttd.getFacultyId());
-					sca.setLastModifiedBy(studentCourseAttd.getFacultyId());
-					sca.setNoOfLec(studentCourseAttd.getNoOfLec());
-					sca.setFlag(studentCourseAttd.getFlag());
+					sca.setFacultyId(studentCourseAttendance.getFacultyId());
+					sca.setCreatedBy(studentCourseAttendance.getFacultyId());
+					sca.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+					sca.setNoOfLec(studentCourseAttendance.getNoOfLec());
+					sca.setFlag(studentCourseAttendance.getFlag());
 					sca.setPresentFacultyId(presentFacultyId);
 					sca.setOrganization(app);
 					sca.setPresentFacultyId(presentFacultyId);
@@ -11077,18 +11488,19 @@ public class LoginController extends BaseController {
 					acadYear = courseAcadYearMap.get(sca.getCourseId());
 					sca.setAcadYear(acadYear);
 
-					logger.info("----->" + studentCourseAttd.getListofAbsStud());
+					logger.info("----->" + studentCourseAttendance.getListofAbsStud());
 
-					if (null != studentCourseAttd.getListofAbsStud()
-							|| !studentCourseAttd.getListofAbsStud().equals("")) {
+					if (null != studentCourseAttendance.getListofAbsStud()
+							|| !studentCourseAttendance.getListofAbsStud().equals("")) {
 
 						List<String> absentUsers = new ArrayList<String>();
-						if (studentCourseAttd.getListofAbsStud().startsWith("[")
-								&& studentCourseAttd.getListofAbsStud().endsWith("]")) {
-							absentUsers = Arrays.asList(studentCourseAttd.getListofAbsStud()
-									.substring(1, studentCourseAttd.getListofAbsStud().length() - 1).split(",\\s*"));
+						if (studentCourseAttendance.getListofAbsStud().startsWith("[")
+								&& studentCourseAttendance.getListofAbsStud().endsWith("]")) {
+							absentUsers = Arrays.asList(studentCourseAttendance.getListofAbsStud()
+									.substring(1, studentCourseAttendance.getListofAbsStud().length() - 1)
+									.split(",\\s*"));
 						} else {
-							absentUsers = Arrays.asList(studentCourseAttd.getListofAbsStud().split("\\s*,\\s*"));
+							absentUsers = Arrays.asList(studentCourseAttendance.getListofAbsStud().split("\\s*,\\s*"));
 						}
 						logger.info("----->" + absentUsers);
 
@@ -11106,20 +11518,22 @@ public class LoginController extends BaseController {
 
 				}
 				int sca_count = studentCourseAttendanceService.getStudentDataCountSentToSap(
-						studentCourseAttd.getCourseId(), startTime, endTime, studentCourseAttd.getFacultyId());
+						studentCourseAttendance.getCourseId(), startTime, endTime,
+						studentCourseAttendance.getFacultyId());
 				logger.info("sca_count--------->" + sca_count);
 
 				if (multipleFacCheck && allFacultyId.toString().contains(",")) {
 					logger.info("allFacultyId1--------->" + allFacultyId.toString());
 					// checking if any faculty(among all faculty) has marked attendance or not
 					int att_sca_count = studentCourseAttendanceService.getDataCountByAllFacultyId(
-							studentCourseAttd.getCourseId(), startTime, endTime, allFacultyId);
+							studentCourseAttendance.getCourseId(), startTime, endTime, allFacultyId);
 					logger.info("att_sca_count--------->" + att_sca_count);
 					if (att_sca_count > 0) {
 
 						// checking if this faculty who is marking now has only marked earlier or not
 						int fac_sca_count = studentCourseAttendanceService.getDataCountByOneFacultyId(
-								studentCourseAttd.getCourseId(), startTime, endTime, studentCourseAttd.getFacultyId());
+								studentCourseAttendance.getCourseId(), startTime, endTime,
+								studentCourseAttendance.getFacultyId());
 						logger.info("fac_sca_count--------->" + fac_sca_count);
 						if (fac_sca_count > 0) {
 
@@ -11133,11 +11547,11 @@ public class LoginController extends BaseController {
 								studentCourseAttendanceService.updateBatchByApp(studentCourseAttdList);
 
 								StudentCourseAttendance stca = studentCourseAttendanceService.getAllPresentRecord(
-										courseId, startTime, endTime, studentCourseAttd.getFacultyId());
+										courseId, startTime, endTime, studentCourseAttendance.getFacultyId());
 
-								if (studentCourseAttd.getListofAbsStud().equals(null)
-										|| studentCourseAttd.getListofAbsStud().equals("")
-										|| studentCourseAttd.getListofAbsStud().equals("[]")) {
+								if (studentCourseAttendance.getListofAbsStud().equals(null)
+										|| studentCourseAttendance.getListofAbsStud().equals("")
+										|| studentCourseAttendance.getListofAbsStud().equals("[]")) {
 
 									if (stca != null) {
 
@@ -11152,15 +11566,15 @@ public class LoginController extends BaseController {
 
 										StudentCourseAttendance sca1 = new StudentCourseAttendance();
 
-										sca1.setCourseId(studentCourseAttd.getCourseId());
+										sca1.setCourseId(studentCourseAttendance.getCourseId());
 										sca1.setEventId(eventId);
 										sca1.setProgramId(programId);
 
-										sca1.setFacultyId(studentCourseAttd.getFacultyId());
-										sca1.setCreatedBy(studentCourseAttd.getFacultyId());
-										sca1.setLastModifiedBy(studentCourseAttd.getFacultyId());
-										sca1.setNoOfLec(studentCourseAttd.getNoOfLec());
-										sca1.setFlag(studentCourseAttd.getFlag());
+										sca1.setFacultyId(studentCourseAttendance.getFacultyId());
+										sca1.setCreatedBy(studentCourseAttendance.getFacultyId());
+										sca1.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+										sca1.setNoOfLec(studentCourseAttendance.getNoOfLec());
+										sca1.setFlag(studentCourseAttendance.getFlag());
 										sca1.setPresentFacultyId(presentFacultyId);
 
 										sca1.setAcadSession(acadSession);
@@ -11194,12 +11608,12 @@ public class LoginController extends BaseController {
 							} else {
 								insertFlag = true;
 								String courseNameToSend = studentCourseAttendanceService
-										.getCourseNameFromCourseId(studentCourseAttd.getCourseId());
+										.getCourseNameFromCourseId(studentCourseAttendance.getCourseId());
 								String insertFailedFlag = "Attendance Submission Rejected : \n\n Attendance data for the lecture (StartTime = "
 										+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 										+ ") has already been sent to SAP";
 								String playerid = studentCourseAttendanceService
-										.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+										.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 								logger.info("playerid--------->" + playerid);
 								if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 									String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
@@ -11214,18 +11628,20 @@ public class LoginController extends BaseController {
 							// reject this attendance
 							// notify user
 							String courseNameToSend = studentCourseAttendanceService
-									.getCourseNameFromCourseId(studentCourseAttd.getCourseId());
+									.getCourseNameFromCourseId(studentCourseAttendance.getCourseId());
 							String insertFailedFlag = "Attendance Submission Rejected : \n\n Attendance data for the lecture (StartTime = "
 									+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 									+ ") has been rejected because some other faculty has already marked attendance";
 							String playerid = studentCourseAttendanceService
-									.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+									.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 							logger.info("playerid--------->" + playerid);
 							if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 								String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
 								logger.info("responseNotifyFaculty--------->" + response);
 							}
-							return "{\"Status\":\"Fail_MF_AM\"}";
+							String myResp = "{\"Status\":\"Fail_MF_AM\"}";
+							myResp = encryptResponseBody(myResp);
+							return myResp;
 
 						}
 					} else {
@@ -11239,11 +11655,11 @@ public class LoginController extends BaseController {
 							studentCourseAttendanceService.updateBatchByApp(studentCourseAttdList);
 
 							StudentCourseAttendance stca = studentCourseAttendanceService.getAllPresentRecord(courseId,
-									startTime, endTime, studentCourseAttd.getFacultyId());
+									startTime, endTime, studentCourseAttendance.getFacultyId());
 
-							if (studentCourseAttd.getListofAbsStud().equals(null)
-									|| studentCourseAttd.getListofAbsStud().equals("")
-									|| studentCourseAttd.getListofAbsStud().equals("[]")) {
+							if (studentCourseAttendance.getListofAbsStud().equals(null)
+									|| studentCourseAttendance.getListofAbsStud().equals("")
+									|| studentCourseAttendance.getListofAbsStud().equals("[]")) {
 
 								if (stca != null) {
 
@@ -11258,15 +11674,15 @@ public class LoginController extends BaseController {
 
 									StudentCourseAttendance sca1 = new StudentCourseAttendance();
 
-									sca1.setCourseId(studentCourseAttd.getCourseId());
+									sca1.setCourseId(studentCourseAttendance.getCourseId());
 									sca1.setEventId(eventId);
 									sca1.setProgramId(programId);
 
-									sca1.setFacultyId(studentCourseAttd.getFacultyId());
-									sca1.setCreatedBy(studentCourseAttd.getFacultyId());
-									sca1.setLastModifiedBy(studentCourseAttd.getFacultyId());
-									sca1.setNoOfLec(studentCourseAttd.getNoOfLec());
-									sca1.setFlag(studentCourseAttd.getFlag());
+									sca1.setFacultyId(studentCourseAttendance.getFacultyId());
+									sca1.setCreatedBy(studentCourseAttendance.getFacultyId());
+									sca1.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+									sca1.setNoOfLec(studentCourseAttendance.getNoOfLec());
+									sca1.setFlag(studentCourseAttendance.getFlag());
 									sca1.setPresentFacultyId(presentFacultyId);
 
 									sca1.setAcadSession(acadSession);
@@ -11300,12 +11716,12 @@ public class LoginController extends BaseController {
 						} else {
 							insertFlag = true;
 							String courseNameToSend = studentCourseAttendanceService
-									.getCourseNameFromCourseId(studentCourseAttd.getCourseId());
+									.getCourseNameFromCourseId(studentCourseAttendance.getCourseId());
 							String insertFailedFlag = "Attendance Submission Rejected : \n\n Attendance data for the lecture (StartTime = "
 									+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 									+ ") has already been sent to SAP";
 							String playerid = studentCourseAttendanceService
-									.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+									.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 							logger.info("playerid--------->" + playerid);
 							if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 								String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
@@ -11329,11 +11745,11 @@ public class LoginController extends BaseController {
 						studentCourseAttendanceService.updateBatchByApp(studentCourseAttdList);
 
 						StudentCourseAttendance stca = studentCourseAttendanceService.getAllPresentRecord(courseId,
-								startTime, endTime, studentCourseAttd.getFacultyId());
+								startTime, endTime, studentCourseAttendance.getFacultyId());
 
-						if (studentCourseAttd.getListofAbsStud().equals(null)
-								|| studentCourseAttd.getListofAbsStud().equals("")
-								|| studentCourseAttd.getListofAbsStud().equals("[]")) {
+						if (studentCourseAttendance.getListofAbsStud().equals(null)
+								|| studentCourseAttendance.getListofAbsStud().equals("")
+								|| studentCourseAttendance.getListofAbsStud().equals("[]")) {
 
 							if (stca != null) {
 
@@ -11348,15 +11764,15 @@ public class LoginController extends BaseController {
 
 								StudentCourseAttendance sca1 = new StudentCourseAttendance();
 
-								sca1.setCourseId(studentCourseAttd.getCourseId());
+								sca1.setCourseId(studentCourseAttendance.getCourseId());
 								sca1.setEventId(eventId);
 								sca1.setProgramId(programId);
 
-								sca1.setFacultyId(studentCourseAttd.getFacultyId());
-								sca1.setCreatedBy(studentCourseAttd.getFacultyId());
-								sca1.setLastModifiedBy(studentCourseAttd.getFacultyId());
-								sca1.setNoOfLec(studentCourseAttd.getNoOfLec());
-								sca1.setFlag(studentCourseAttd.getFlag());
+								sca1.setFacultyId(studentCourseAttendance.getFacultyId());
+								sca1.setCreatedBy(studentCourseAttendance.getFacultyId());
+								sca1.setLastModifiedBy(studentCourseAttendance.getFacultyId());
+								sca1.setNoOfLec(studentCourseAttendance.getNoOfLec());
+								sca1.setFlag(studentCourseAttendance.getFlag());
 								sca1.setPresentFacultyId(presentFacultyId);
 
 								sca1.setAcadSession(acadSession);
@@ -11390,12 +11806,12 @@ public class LoginController extends BaseController {
 					} else {
 						insertFlag = true;
 						String courseNameToSend = studentCourseAttendanceService
-								.getCourseNameFromCourseId(studentCourseAttd.getCourseId());
+								.getCourseNameFromCourseId(studentCourseAttendance.getCourseId());
 						String insertFailedFlag = "Attendance Submission Rejected : \n\n Attendance data for the lecture (StartTime = "
 								+ startTime + ", Endtime =" + endTime + ", CourseName =" + courseNameToSend
 								+ ") has already been sent to SAP";
 						String playerid = studentCourseAttendanceService
-								.getPlayerIdForFaculty(studentCourseAttd.getFacultyId());
+								.getPlayerIdForFaculty(studentCourseAttendance.getFacultyId());
 						logger.info("playerid--------->" + playerid);
 						if (playerid.length() > 1 && !playerid.isEmpty() && null != playerid) {
 							String response = notifyFacultyForFailedAttendanceEntry(playerid, insertFailedFlag);
@@ -11408,11 +11824,17 @@ public class LoginController extends BaseController {
 
 				logger.info("Status_Reason---------> success");
 
-				return "{\"Status\":\"Success\"}";
+				String json = "{\"Status\":\"Success\"}";
+
+				json = encryptResponseBody(json);
+				return json;
 
 			} catch (Exception e) {
 				logger.error("Exception", e);
-				return "{\"Status\":\"Fail\"}";
+				String json = "{\"Status\":\"Fail\"}";
+
+				json = encryptResponseBody(json);
+				return json;
 
 			}
 		}
@@ -11465,8 +11887,19 @@ public class LoginController extends BaseController {
 
 	@RequestMapping(value = { "/sendNotificationForAttendanceSync" }, method = { RequestMethod.GET,
 			RequestMethod.POST })
-	public @ResponseBody String sendNotificationForAttendanceSync(@RequestBody String playerId) {
+	public @ResponseBody String sendNotificationForAttendanceSync(@RequestBody String playerId,
+			@RequestHeader Map<String, String> headers) {
+		boolean auth = isUserAuthorized(headers.get("token"), headers.get("username"));
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
+			json = encryptResponseBody(json);
+			return json;
+		}
 		String jsonResponse = "";
 		String playerID = "";
 		JSONObject jsonObj = null;
@@ -11517,7 +11950,7 @@ public class LoginController extends BaseController {
 				return jsonResponse;
 
 			} catch (JSONException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 				return "{\"jsonResponse\":\"Failed with Exception\"}";
 			}
 		} else {
@@ -11527,8 +11960,18 @@ public class LoginController extends BaseController {
 
 	@RequestMapping(value = { "/sendNotificationForAttendanceSyncService" }, method = { RequestMethod.GET,
 			RequestMethod.POST })
-	public @ResponseBody void sendNotificationForAttendanceSyncService() {
+	public @ResponseBody String sendNotificationForAttendanceSyncService(@RequestHeader Map<String, String> headers) {
+		boolean auth = isUserAuthorized(headers.get("token"), headers.get("username"));
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
+			json = encryptResponseBody(json);
+			return json;
+		}
 		List<String> facultyPlayerIdList = new ArrayList<>();
 
 		// ////////Fetch facultyPlayerIdList /////////////
@@ -11571,7 +12014,7 @@ public class LoginController extends BaseController {
 
 					logger.info("responseCode: " + responseCode);
 				} catch (Exception e) {
-					e.printStackTrace();
+					// e.printStackTrace();
 					logger.info(
 							"Attendance_Service_Status_FacultyWise_cause =============>" + facultyPlayerIdList.get(i));
 					logger.info("Attendance_Service_Status_FacultyWise_Date =============>" + Utils.getInIST());
@@ -11581,6 +12024,7 @@ public class LoginController extends BaseController {
 			logger.info("Attendance_Service_Status_cause =============>" + "No faculty found in list");
 			logger.info("Attendance_Service_Status_Date =============>" + Utils.getInIST());
 		}
+		return null;
 
 	}
 
@@ -11769,7 +12213,21 @@ public class LoginController extends BaseController {
 	 */
 	@RequestMapping(value = "/getAttendanceDataSentToSapForApp", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getAttendanceDataSentToSapForApp(
-			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp) {
+			@RequestBody StudentCourseAttendance studentCourseAttendance, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		studentCourseAttendance = (StudentCourseAttendance) decryptRequestBody(
+				studentCourseAttendance.getEncrypted_key(), "StudentCourseAttendance");
+		boolean auth = isUserAuthorized(headers.get("token"), studentCourseAttendance.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
+
+			json = encryptResponseBody(json);
+			return json;
+		}
 		List<StudentCourseAttendance> studentCourseAttendanceList = new ArrayList<>();
 		String json = "";
 		try {
@@ -11783,34 +12241,63 @@ public class LoginController extends BaseController {
 
 			logger.info("studentCourseAttendanceList==========> " + studentCourseAttendanceList);
 			json = new Gson().toJson(studentCourseAttendanceList);
+
+			json = encryptResponseBody(json);
 			return json;
 		} catch (Exception e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 			logger.info("studentCourseAttendanceList==========> Null");
 			logger.info("getAttendance_Exception=============> " + e.getMessage());
 			json = new Gson().toJson(studentCourseAttendanceList);
+
+			json = encryptResponseBody(json);
 			return json;
 		}
 	}
 
 	@RequestMapping(value = "/sendAttendanceDataToSapDemo", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String sendAttendanceDataToSapDemo(@RequestBody Attendance attendance,
-			HttpServletResponse resp) {
+			@RequestHeader Map<String, String> headers) {
 		String json = "", response = "", result = "";
 		try {
-			String startDate = attendance.getStartDate().replace("T", " ");
-			logger.info("startDate==========> " + startDate);
-			response = studentCourseAttendanceService.sendAttendanceToSAPByDateForApp(startDate);
-			logger.info("ResponseFromSAP========>" + response);
-			if (response.endsWith("_ErrorOccurred400")) {
-				return "{\"Status\":\"Failed\"}";
+			String token = headers.get("token");
+			if (token != null && service.getValue(token) != null) {
+				String value = service.getValue(token).toString();
+				logger.info("value==========> " + value);
+				if (null != value && value.length() > 0) {
+					value = StringEscapeUtils.unescapeJava(value);
+					String startDate = attendance.getStartDate().replace("T", " ");
+					logger.info("startDate==========> " + startDate);
+					List<StudentCourseAttendance> absentList = studentCourseAttendanceService
+							.getAbsentRecordsByDate(startDate);
+					List<StudentCourseAttendance> presentList = studentCourseAttendanceService
+							.getPresentRecordsByDate(startDate);
+					if (absentList.size() > 0 || presentList.size() > 0) {
+						response = studentCourseAttendanceService.sendAttendanceToSAPByDateForApp(startDate);
+						logger.info("ResponseFromSAP========>" + response);
+						if (response.endsWith("_ErrorOccurred400")) {
+							json = "{\"Status\":\"Failed\"}";
+						} else {
+							json = "{\"Status\":\"Success\"}";
+						}
+					} else {
+						json = "{\"Status\":\"Failed. Data has been already sent or no data available to send\"}";
+					}
+					return json;
+				} else {
+					return "{\"Status\":\"Failed. Invalid Access Token\"}";
+				}
+
 			} else {
-				return "{\"Status\":\"Success\"}";
+				return "{\"Status\":\"Failed. Unauthorised Access\"}";
 			}
+
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.info("sendAttendanceDataToSapDemoException=============> " + e.getMessage());
-			return "{\"Status\":\"Exception Occurred\"}";
+//			e.printStackTrace();
+			logger.info("sendAttendanceDataToSapDemoException=============> " + e.getLocalizedMessage());
+			json = "{\"Status\":\"Exception Occurred\"}";
+//			json = encryptResponseBody(json);
+			return json;
 		}
 	}
 
@@ -11838,8 +12325,20 @@ public class LoginController extends BaseController {
 	}
 
 	@RequestMapping(value = "/getTestDetailsForAndroidApp", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String getTestDetailsForAndroidApp(@RequestBody Test test, HttpServletResponse resp) {
+	public @ResponseBody String getTestDetailsForAndroidApp(@RequestBody Test test, HttpServletResponse resp,
+			@RequestHeader Map<String, String> headers) {
+		test = (Test) decryptRequestBody(test.getEncrypted_key(), "Test");
+		boolean auth = isUserAuthorized(headers.get("token"), test.getUsername());
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
 
+			json = encryptResponseBody(json);
+			return json;
+		}
 		String todayDate = "", idForTest = "";
 		List<Test> testDetailsList = new ArrayList<>();
 
@@ -11939,7 +12438,7 @@ public class LoginController extends BaseController {
 	 * 
 	 * DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 	 * 
-	 * .createConnectionByDS("jdbc:mysql://10.25.10.50:3307/", defaultUsername,
+	 * .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
 	 * defaultPassword, "timetable_metadata");
 	 * 
 	 * timetableDAO.setDS(dataSourceTimetable); String cid = ""; long eventId = 0;
@@ -12223,7 +12722,21 @@ public class LoginController extends BaseController {
 	@RequestMapping(value = "/getCompleteLectureAndStudentListCourseWise", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String getCompleteLectureAndStudentListCourseWise(@RequestBody Course course,
-			HttpServletResponse resp) {
+			HttpServletResponse resp, @RequestHeader Map<String, String> headers) {
+		course = (Course) decryptRequestBody(course.getEncrypted_key(), "Course");
+		logger.info("HttpHeadersToken ==> " + headers.get("token"));
+		boolean auth = isUserAuthorized(headers.get("token"), course.getUsername());
+
+		if (!auth) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", "failed");
+			map.put("access", "unauthorised access");
+			String json = new Gson().toJson(map);
+
+			json = encryptResponseBody(json);
+			return json;
+		}
+
 		List<Timetable> masterLectureStudentList = new ArrayList<>();
 		try {
 			/////////////////////////////////
@@ -12238,7 +12751,7 @@ public class LoginController extends BaseController {
 
 			DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 
-					.createConnectionByDS("jdbc:mysql://10.25.10.50:3307/", defaultUsername, defaultPassword,
+					.createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword,
 							"timetable_metadata");
 
 			timetableDAO.setDS(dataSourceTimetable);
@@ -12425,8 +12938,6 @@ public class LoginController extends BaseController {
 				while (i < ttFinal.size()) {
 
 					if (key.equals(ttFinal.get(i).getCourseId())) {
-						// logger.info("key--------->"+key);
-						// logger.info("ttFinal.get(i).getCourseId()--------->"+ttFinal.get(i).getCourseId());
 						courseTimetable.add(ttFinal.get(i));
 					}
 					i++;
@@ -12572,25 +13083,22 @@ public class LoginController extends BaseController {
 			}
 
 			// ////////////////////////////////
-			
-			//get name of Faculty Name for multiple faculty
-			for(int t = 0; t < masterLectureStudentList.size(); t++) 
-			{
+
+			// get name of Faculty Name for multiple faculty
+			for (int t = 0; t < masterLectureStudentList.size(); t++) {
 				String allFacultyId = masterLectureStudentList.get(t).getFacultyId();
 				logger.info("allFacultyId----------> " + allFacultyId);
-				if(allFacultyId.contains(","))
-				{
+				if (allFacultyId.contains(",")) {
 					String[] multipleFacultyArr = allFacultyId.split(" , ");
-					List<String> multipleFacultyList =  Arrays.asList(multipleFacultyArr);
+					List<String> multipleFacultyList = Arrays.asList(multipleFacultyArr);
 					logger.info("multipleFacultyList----------> " + multipleFacultyList.toString());
 					List<User> facultyListWithName = userService.findNameOfFaculty(multipleFacultyList);
 					logger.info("multipleFacultyList----------> " + multipleFacultyList.toString());
 					allFacultyId = "";
-					for(User user : facultyListWithName) 
-					{
-						allFacultyId+= user.getUsername()+" , ";
+					for (User user : facultyListWithName) {
+						allFacultyId += user.getUsername() + " , ";
 					}
-					allFacultyId = allFacultyId.substring(0, allFacultyId.length()-3);
+					allFacultyId = allFacultyId.substring(0, allFacultyId.length() - 3);
 					logger.info("allFacultyId_After----------> " + allFacultyId);
 					masterLectureStudentList.get(t).setFacultyId(allFacultyId);
 				}
@@ -12598,12 +13106,14 @@ public class LoginController extends BaseController {
 
 			String json = new Gson().toJson(masterLectureStudentList);
 			logger.info("masterLectureStudentList----------> " + masterLectureStudentList);
+			json = encryptResponseBody(json);
 			return json;
 		} catch (Exception e) {
 			logger.error("getCompleteLectureAndStudentListCourseWise_Exception------------->" + e);
 			logger.error("getCompleteLectureAndStudentListCourseWise_Cause------------->" + e.getMessage());
-
-			return "{\"Status\":\"Exception Occurred\"}";
+			String json = "{\"Status\":\"Exception Occurred\"}";
+			json = encryptResponseBody(json);
+			return json;
 		}
 	}
 
@@ -12966,5 +13476,82 @@ public class LoginController extends BaseController {
         modifiedFacultyId = modifiedFacultyId.replaceAll(" ", "");
         return modifiedFacultyId;
     }
+	
+	private boolean isUserAuthorized(String key, String username) {
+		try {
+			logger.info("isUserAuthorized key==> " + key);
+			logger.info("isUserAuthorized username==> " + username);
+			String value = service.getValue(key).toString();
+			value = StringEscapeUtils.unescapeJava(value);
+			value = value.substring(1, value.length() - 1);
+			if (null != value && value.length() > 0) {
+				JSONObject json = new JSONObject(value);
+				boolean check = username.trim().equals(json.getString("username").trim());
+				logger.info("isUserAuthorized_check ==> " + check);
+				return check;
+			} else {
+				return false;
+			}
+		} catch (Exception e) {
+			// e.printStackTrace();
+			return false;
+		}
+	}
+
+	private Object decryptRequestBody(String encryptedStr, String cast) {
+		Object object = null;
+		AESEncryption aes = new AESEncryption(secretKey, salt);
+		logger.info("encryptedStr ==> " + encryptedStr);
+		encryptedStr = encryptedStr.replace("\n", "").replace("\\", "");
+		String decryptedStr = aes.decrypt(encryptedStr);
+		logger.info("decryptRequestBody_decryptedStr ==> " + decryptedStr);
+		ObjectMapper objMap = new ObjectMapper();
+		Reader reader = new StringReader(decryptedStr);
+		try {
+			if (cast.trim().toLowerCase().equals("studentcourseattendance")) {
+				object = objMap.readValue(reader, StudentCourseAttendance.class);
+			}
+			if (cast.trim().toLowerCase().equals("course")) {
+				object = objMap.readValue(reader, Course.class);
+			}
+			if (cast.trim().toLowerCase().equals("user")) {
+				object = objMap.readValue(reader, User.class);
+			}
+			if (cast.trim().toLowerCase().equals("trainingprogram")) {
+				object = objMap.readValue(reader, TrainingProgram.class);
+			}
+			if (cast.trim().toLowerCase().equals("attendance")) {
+				object = objMap.readValue(reader, Attendance.class);
+			}
+			if (cast.trim().toLowerCase().equals("test")) {
+				object = objMap.readValue(reader, Test.class);
+			}
+		} catch (Exception e) {
+			// e.printStackTrace();
+			return null;
+		} finally {
+			logger.info("decryptRequestBody_object ==> " + object);
+		}
+		return object;
+	}
+
+	private String decryptRequestParam(String encryptedStr) {
+		AESEncryption aes = new AESEncryption(secretKey, salt);
+		encryptedStr = encryptedStr.replace("\n", "").replace("\\", "");
+		String decryptedStr = aes.decrypt(encryptedStr);
+		logger.info("decryptRequestBody_decryptedStr ==> " + decryptedStr);
+		return decryptedStr;
+	}
+
+	private String encryptResponseBody(String json) {
+		String encryptedStr = "";
+		try {
+			AESEncryption aes = new AESEncryption(secretKey, salt);
+			encryptedStr = aes.encrypt(json);
+		} catch (Exception e) {
+			// e.printStackTrace();
+		}
+		return encryptedStr;
+	}
 
 }

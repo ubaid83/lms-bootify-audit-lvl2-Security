@@ -96,5 +96,9 @@ public class RedisService {
         // set a expire for a message
         template.expire(key, timeout, unit);
     }
+    
+    public void deleteKey(final String key) {
+    	template.delete(key);
+    }
 
 }

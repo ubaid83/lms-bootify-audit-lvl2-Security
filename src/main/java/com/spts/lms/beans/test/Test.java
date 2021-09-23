@@ -29,70 +29,87 @@ public class Test extends BaseBean {
 	private Long campusId;
 	private String sendSmsAlertToParents;
 	private String sendEmailAlertToParents;
-	
+
 	private String isPasswordForTest;
 	private String passwordForTest;
 	private String autoAllocateToStudents;
-	
+
 	private String maxDesQueToShow;
 	private String maxMcqQueToShow;
 	private String maxRngQueToShow;
 	private String maxImgQueToShow;
-	
+
 	private String sameMarksQue;
 	private double marksPerQue;
 	private String specifyMaxQues;
-	 private String programId;
-	 private String studentFilePath;
-	 private String courseIdToExport;
-	 private String idForTest;
-	 
-		private String dbName;
-		private String url;
-		private String dbUsername;
-		private String password;
-		
-		private String noOfQuestion;
-		
-		private String dbPort;
-		private String schoolName;
-		
-		public String getModuleId() {
-			return moduleId;
-		}
+	private String programId;
+	private String studentFilePath;
+	private String courseIdToExport;
+	private String idForTest;
 
-		public void setModuleId(String moduleId) {
-			this.moduleId = moduleId;
-		}
+	private String dbName;
+	private String url;
+	private String dbUsername;
+	private String password;
 
-		public String getIsCreatedByAdmin() {
-			return isCreatedByAdmin;
-		}
+	private String noOfQuestion;
 
-		public void setIsCreatedByAdmin(String isCreatedByAdmin) {
-			this.isCreatedByAdmin = isCreatedByAdmin;
-		}
+	private String dbPort;
+	private String schoolName;
 
-		public String getAssignedFaculty() {
-			return assignedFaculty;
-		}
+	public String getModuleId() {
+		return moduleId;
+	}
 
-		public void setAssignedFaculty(String assignedFaculty) {
-			this.assignedFaculty = assignedFaculty;
-		}
+	public void setModuleId(String moduleId) {
+		this.moduleId = moduleId;
+	}
 
-		private String moduleId;
-		private String isCreatedByAdmin;
-		private String assignedFaculty;
-		
-	 private String studentCount;
-	 
-	 private String isPeerFacultyForDemo;
-	 private String peerFacultiesForDemo;
-	 private String showReportsToStudents;
-		
-		
-		
+	public String getIsCreatedByAdmin() {
+		return isCreatedByAdmin;
+	}
+
+	public void setIsCreatedByAdmin(String isCreatedByAdmin) {
+		this.isCreatedByAdmin = isCreatedByAdmin;
+	}
+
+	public String getAssignedFaculty() {
+		return assignedFaculty;
+	}
+
+	public void setAssignedFaculty(String assignedFaculty) {
+		this.assignedFaculty = assignedFaculty;
+	}
+
+	private String moduleId;
+	private String isCreatedByAdmin;
+	private String assignedFaculty;
+
+	private String studentCount;
+
+	private String isPeerFacultyForDemo;
+	private String peerFacultiesForDemo;
+	private String showReportsToStudents;
+
+	private String encrypted_key;
+	private String username;
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getEncrypted_key() {
+		return encrypted_key;
+	}
+
+	public void setEncrypted_key(String encrypted_key) {
+		this.encrypted_key = encrypted_key;
+	}
+
 	public String getShowReportsToStudents() {
 		return showReportsToStudents;
 	}
@@ -100,14 +117,13 @@ public class Test extends BaseBean {
 	public void setShowReportsToStudents(String showReportsToStudents) {
 		this.showReportsToStudents = checkYElseSetN(showReportsToStudents);
 	}
-	 
 
 	public String getIsPeerFacultyForDemo() {
 		return isPeerFacultyForDemo;
 	}
 
 	public void setIsPeerFacultyForDemo(String isPeerFacultyForDemo) {
-		this.isPeerFacultyForDemo = isPeerFacultyForDemo  != null ? isPeerFacultyForDemo : "N";
+		this.isPeerFacultyForDemo = isPeerFacultyForDemo != null ? isPeerFacultyForDemo : "N";
 	}
 
 	public String getPeerFacultiesForDemo() {
@@ -127,60 +143,60 @@ public class Test extends BaseBean {
 	}
 
 	public String getSchoolName() {
-			return schoolName;
-		}
+		return schoolName;
+	}
 
-		public void setSchoolName(String schoolName) {
-			this.schoolName = schoolName;
-		}
+	public void setSchoolName(String schoolName) {
+		this.schoolName = schoolName;
+	}
 
 	public String getDbName() {
-			return dbName;
-		}
+		return dbName;
+	}
 
-		public void setDbName(String dbName) {
-			this.dbName = dbName;
-		}
+	public void setDbName(String dbName) {
+		this.dbName = dbName;
+	}
 
-		public String getUrl() {
-			return url;
-		}
+	public String getUrl() {
+		return url;
+	}
 
-		public void setUrl(String url) {
-			this.url = url;
-		}
+	public void setUrl(String url) {
+		this.url = url;
+	}
 
-		public String getDbUsername() {
-			return dbUsername;
-		}
+	public String getDbUsername() {
+		return dbUsername;
+	}
 
-		public void setDbUsername(String dbUsername) {
-			this.dbUsername = dbUsername;
-		}
+	public void setDbUsername(String dbUsername) {
+		this.dbUsername = dbUsername;
+	}
 
-		public String getPassword() {
-			return password;
-		}
+	public String getPassword() {
+		return password;
+	}
 
-		public void setPassword(String password) {
-			this.password = password;
-		}
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-		public String getNoOfQuestion() {
-			return noOfQuestion;
-		}
+	public String getNoOfQuestion() {
+		return noOfQuestion;
+	}
 
-		public void setNoOfQuestion(String noOfQuestion) {
-			this.noOfQuestion = noOfQuestion;
-		}
+	public void setNoOfQuestion(String noOfQuestion) {
+		this.noOfQuestion = noOfQuestion;
+	}
 
-		public String getDbPort() {
-			return dbPort;
-		}
+	public String getDbPort() {
+		return dbPort;
+	}
 
-		public void setDbPort(String dbPort) {
-			this.dbPort = dbPort;
-		}
+	public void setDbPort(String dbPort) {
+		this.dbPort = dbPort;
+	}
 
 	public String getIdForTest() {
 		return idForTest;
@@ -219,7 +235,7 @@ public class Test extends BaseBean {
 	}
 
 	public void setSameMarksQue(String sameMarksQue) {
-		//this.sameMarksQue = sameMarksQue;
+		// this.sameMarksQue = sameMarksQue;
 		this.sameMarksQue = sameMarksQue != null ? sameMarksQue : "N";
 	}
 
@@ -276,7 +292,7 @@ public class Test extends BaseBean {
 	}
 
 	public void setSendSmsAlertToParents(String sendSmsAlertToParents) {
-		this.sendSmsAlertToParents =  sendSmsAlertToParents != null ? sendSmsAlertToParents : "N";
+		this.sendSmsAlertToParents = sendSmsAlertToParents != null ? sendSmsAlertToParents : "N";
 	}
 
 	public String getSendEmailAlertToParents() {
@@ -284,7 +300,7 @@ public class Test extends BaseBean {
 	}
 
 	public void setSendEmailAlertToParents(String sendEmailAlertToParents) {
-		//this.sendEmailAlertToParents = sendEmailAlertToParents;
+		// this.sendEmailAlertToParents = sendEmailAlertToParents;
 		this.sendEmailAlertToParents = sendEmailAlertToParents != null ? sendEmailAlertToParents : "N";
 	}
 
@@ -308,15 +324,14 @@ public class Test extends BaseBean {
 		return randomQuestion;
 	}
 
-/*	public void setRandomQuestion(String randomQuestion) {
-		this.randomQuestion = randomQuestion;
-	}*/
-	
-	public void setRandomQuestion(String randomQuestion) {
-        this.randomQuestion = randomQuestion != null ? randomQuestion
-                    : "N";
-  }
+	/*
+	 * public void setRandomQuestion(String randomQuestion) { this.randomQuestion =
+	 * randomQuestion; }
+	 */
 
+	public void setRandomQuestion(String randomQuestion) {
+		this.randomQuestion = randomQuestion != null ? randomQuestion : "N";
+	}
 
 	public String getRollNo() {
 		return rollNo;
@@ -370,11 +385,11 @@ public class Test extends BaseBean {
 
 	private Integer attempt;
 
-	//Changes By Akshay From Integer To Double
-	
+	// Changes By Akshay From Integer To Double
+
 	private double maxScore;
-	
-	//End
+
+	// End
 
 	private Integer duration;
 
@@ -430,8 +445,7 @@ public class Test extends BaseBean {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(d);
 			cal.add(Calendar.MINUTE, duration);
-			newTime = date.format(completionTime) + " "
-					+ df.format(cal.getTime());
+			newTime = date.format(completionTime) + " " + df.format(cal.getTime());
 
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
@@ -503,8 +517,7 @@ public class Test extends BaseBean {
 	 */
 	private Course course = new Course();
 
-	private List<TestQuestion> testQuestions = new AutoPopulatingList<TestQuestion>(
-			TestQuestion.class);
+	private List<TestQuestion> testQuestions = new AutoPopulatingList<TestQuestion>(TestQuestion.class);
 
 	private StudentTest studentTest = new StudentTest();
 
@@ -517,10 +530,10 @@ public class Test extends BaseBean {
 	 */
 
 	private List<String> deallocatedStudents = new ArrayList<String>();
-	
+
 	public Test() {
 	}
-	
+
 	public List<String> getDeallocatedStudents() {
 		return deallocatedStudents;
 	}
@@ -565,7 +578,7 @@ public class Test extends BaseBean {
 
 	public void setAllowAfterEndDate(String allowAfterEndDate) {
 		this.allowAfterEndDate = checkYElseSetN(allowAfterEndDate);
-		//this.allowAfterEndDate = allowAfterEndDate != null ? allowAfterEndDate : "N";
+		// this.allowAfterEndDate = allowAfterEndDate != null ? allowAfterEndDate : "N";
 	}
 
 	/*
@@ -588,6 +601,7 @@ public class Test extends BaseBean {
 	public void setMaxAttempt(Integer maxAttempt) {
 		this.maxAttempt = maxAttempt;
 	}
+
 	public double getMaxScore() {
 		return maxScore;
 	}
@@ -626,7 +640,7 @@ public class Test extends BaseBean {
 
 	public void setSendEmailAlert(String sendEmailAlert) {
 		this.sendEmailAlert = checkYElseSetN(sendEmailAlert);
-		//this.sendEmailAlert = sendEmailAlert != null ? sendEmailAlert : "N";
+		// this.sendEmailAlert = sendEmailAlert != null ? sendEmailAlert : "N";
 	}
 
 	public String getSendSmsAlert() {
@@ -635,8 +649,8 @@ public class Test extends BaseBean {
 
 	public void setSendSmsAlert(String sendSmsAlert) {
 		this.sendSmsAlert = checkYElseSetN(sendSmsAlert);
-		//this.sendSmsAlert = sendSmsAlert != null ? sendSmsAlert : "N";
-		
+		// this.sendSmsAlert = sendSmsAlert != null ? sendSmsAlert : "N";
+
 	}
 
 	public String getShowResultsToStudents() {
@@ -645,7 +659,8 @@ public class Test extends BaseBean {
 
 	public void setShowResultsToStudents(String showResultsToStudents) {
 		this.showResultsToStudents = checkYElseSetN(showResultsToStudents);
-		//this.showResultsToStudents = showResultsToStudents != null ? showResultsToStudents : "N";
+		// this.showResultsToStudents = showResultsToStudents != null ?
+		// showResultsToStudents : "N";
 	}
 
 	public String getStartDate() {
@@ -719,7 +734,6 @@ public class Test extends BaseBean {
 	public List<String> getStudents() {
 		return students;
 	}
-	
 
 	public String getIsPasswordForTest() {
 		return isPasswordForTest;
@@ -736,16 +750,19 @@ public class Test extends BaseBean {
 	public void setPasswordForTest(String passwordForTest) {
 		this.passwordForTest = passwordForTest;
 	}
+
 	public String getAutoAllocateToStudents() {
 		return autoAllocateToStudents;
 	}
 
 	public void setAutoAllocateToStudents(String autoAllocateToStudents) {
-		//this.autoAllocateToStudents = autoAllocateToStudents;
-		
+		// this.autoAllocateToStudents = autoAllocateToStudents;
+
 		this.autoAllocateToStudents = checkYElseSetN(autoAllocateToStudents);
-		//this.autoAllocateToStudents = autoAllocateToStudents != null ? autoAllocateToStudents : "N"; 
+		// this.autoAllocateToStudents = autoAllocateToStudents != null ?
+		// autoAllocateToStudents : "N";
 	}
+
 	public void setStudents(List<String> students) {
 		this.students = students;
 		for (String username : students) {
@@ -765,10 +782,10 @@ public class Test extends BaseBean {
 			logger.info("whent test is not ended and the time reset to 59 minutes--------------------->>>>");
 			return duration * 60;
 		} else {
-			Integer durationLeft = (int) (duration * 60 - (System
-					.currentTimeMillis() - studentTest.getTestStartTime()
-					.getTime()) / 1000);
-			logger.info("whent test is not ended and the time reset to 59 minutes-----------second----12313123------>>>>");
+			Integer durationLeft = (int) (duration * 60
+					- (System.currentTimeMillis() - studentTest.getTestStartTime().getTime()) / 1000);
+			logger.info(
+					"whent test is not ended and the time reset to 59 minutes-----------second----12313123------>>>>");
 			return durationLeft > 0 ? durationLeft : 2;
 		}
 	}
@@ -788,17 +805,18 @@ public class Test extends BaseBean {
 				+ noOfQuestion + ", dbPort=" + dbPort + ", schoolName=" + schoolName + ", moduleId=" + moduleId
 				+ ", isCreatedByAdmin=" + isCreatedByAdmin + ", assignedFaculty=" + assignedFaculty + ", studentCount="
 				+ studentCount + ", isPeerFacultyForDemo=" + isPeerFacultyForDemo + ", peerFacultiesForDemo="
-				+ peerFacultiesForDemo + ", showReportsToStudents=" + showReportsToStudents + ", acadMonth=" + acadMonth
-				+ ", acadYear=" + acadYear + ", active=" + active + ", allowAfterEndDate=" + allowAfterEndDate
-				+ ", endDate=" + endDate + ", maxAttempt=" + maxAttempt + ", attempt=" + attempt + ", maxScore="
-				+ maxScore + ", duration=" + duration + ", passScore=" + passScore + ", testName=" + testName
-				+ ", sendEmailAlert=" + sendEmailAlert + ", sendSmsAlert=" + sendSmsAlert + ", showResultsToStudents="
-				+ showResultsToStudents + ", startDate=" + startDate + ", courseId=" + courseId + ", facultyId="
-				+ facultyId + ", maxQuestnToShow=" + maxQuestnToShow + ", idOfCourse=" + idOfCourse + ", groupId="
-				+ groupId + ", testCompleted=" + testCompleted + ", completionTime=" + completionTime + ", testType="
-				+ testType + ", testDescription=" + testDescription + ", course=" + course + ", testQuestions="
-				+ testQuestions + ", studentTest=" + studentTest + ", studentTests=" + studentTests + ", students="
-				+ students + ", deallocatedStudents=" + deallocatedStudents + "]";
+				+ peerFacultiesForDemo + ", showReportsToStudents=" + showReportsToStudents + ", encrypted_key="
+				+ encrypted_key + ", username=" + username + ", acadMonth=" + acadMonth + ", acadYear=" + acadYear
+				+ ", active=" + active + ", allowAfterEndDate=" + allowAfterEndDate + ", endDate=" + endDate
+				+ ", maxAttempt=" + maxAttempt + ", attempt=" + attempt + ", maxScore=" + maxScore + ", duration="
+				+ duration + ", passScore=" + passScore + ", testName=" + testName + ", sendEmailAlert="
+				+ sendEmailAlert + ", sendSmsAlert=" + sendSmsAlert + ", showResultsToStudents=" + showResultsToStudents
+				+ ", startDate=" + startDate + ", courseId=" + courseId + ", facultyId=" + facultyId
+				+ ", maxQuestnToShow=" + maxQuestnToShow + ", idOfCourse=" + idOfCourse + ", groupId=" + groupId
+				+ ", testCompleted=" + testCompleted + ", completionTime=" + completionTime + ", testType=" + testType
+				+ ", testDescription=" + testDescription + ", course=" + course + ", testQuestions=" + testQuestions
+				+ ", studentTest=" + studentTest + ", studentTests=" + studentTests + ", students=" + students
+				+ ", deallocatedStudents=" + deallocatedStudents + "]";
 	}
-	
+
 }

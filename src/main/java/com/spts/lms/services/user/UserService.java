@@ -742,4 +742,8 @@ public class UserService extends BaseService<User> {
 		return userDAO.getFacultyByCourse(courseId);
 	}
 	
+	public void changeEmailMobileByApp(String email,String mobile,String username) {
+		userDAO.changeEmailMobileByApp(email, mobile, username);
+	}
+	
 }
