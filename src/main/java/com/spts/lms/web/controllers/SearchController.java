@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -61,6 +62,7 @@ public class SearchController extends BaseController {
 	@Autowired
 	UserService userService;
 
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT"})
 	@RequestMapping(value = "/addSearchForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addSearchForm(@ModelAttribute Search search, Model m,
@@ -109,7 +111,7 @@ public class SearchController extends BaseController {
 		return "search/genericSearch";
 		}
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT"})
 	@RequestMapping(value = "/searchItem", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String searchItem(

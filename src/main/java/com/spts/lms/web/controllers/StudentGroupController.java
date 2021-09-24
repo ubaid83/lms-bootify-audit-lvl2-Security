@@ -59,7 +59,7 @@ public class StudentGroupController extends BaseController {
 	public List<Program> getPrograms() {
 		return programService.findAllActive();
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/groupList", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String groupList(@RequestParam(required = false) Long courseId,

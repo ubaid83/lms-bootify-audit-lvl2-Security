@@ -32,6 +32,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -135,7 +136,7 @@ public class ReportUtilsController extends BaseController {
 
 	private static final Logger logger = Logger
 			.getLogger(ReportController.class);
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/create3DPieChartForCourseTest", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DPieChartForCourseTest(Principal principal,
@@ -211,7 +212,7 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY"})	
 	@RequestMapping(value = "/createSimpleBarChart", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public void createSimpleBarChart(@RequestParam Long courseId,
@@ -244,7 +245,7 @@ public class ReportUtilsController extends BaseController {
 		}
 
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY"})
 	@RequestMapping(value = "/createSimpleLineChartForAssignment", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView createSimpleLineChartForAssignment(
@@ -291,7 +292,7 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY"})
 	@RequestMapping(value = "/createLineChartForStdDeviationAssignment", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView createLineChartForStdDeviationAssignment(
@@ -366,7 +367,7 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY"})
 	@RequestMapping(value = "/createLineChartForStdDeviationTest", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView createLineChartForStdDeviationTest(
@@ -437,7 +438,7 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY"})
 	@RequestMapping(value = "/createSimpleLineChartForTest", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView createSimpleLineChartForTest(
@@ -482,7 +483,7 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY"})
 	@RequestMapping(value = "/create3DBarChartForAssignment", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DBarChartForAssignment(
@@ -532,7 +533,7 @@ public class ReportUtilsController extends BaseController {
 		return new ModelAndView("redirect:" + projectUrl);
 
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY"})
 	@RequestMapping(value = "/create3DBarChartForTest", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DBarChartForTest(@RequestParam Long courseId,
@@ -578,7 +579,7 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT"})
 	@RequestMapping(value = "/create3DStackedBarChartForStudentAssignment", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DStackedBarChartForStudentAssignment(
@@ -632,7 +633,7 @@ public class ReportUtilsController extends BaseController {
 		return new ModelAndView("redirect:" + projectUrl);
 
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/create3DStackedBarChartForStudentAssignmentForFaculty", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public void create3DStackedBarChartForStudentAssignmentForFaculty(
@@ -723,7 +724,7 @@ public class ReportUtilsController extends BaseController {
 		}
 
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/create3DStackedBarChartForStudentTestForFaculty", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public void create3DStackedBarChartForStudentTestForFaculty(
@@ -857,7 +858,7 @@ public class ReportUtilsController extends BaseController {
 							});
 		}
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/create3DStackedBarChartForStudentTest", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DStackedBarChartForStudentTest(
@@ -921,7 +922,7 @@ public class ReportUtilsController extends BaseController {
 		return new ModelAndView("redirect:" + projectUrl);
 
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/create3DPieChartForSemesterYearForProgram", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DPieChartForSemesterYearForProgram(
@@ -1079,7 +1080,7 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/create3DPieChartForProgram", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DPieChartForProgram(Principal principal,
@@ -1228,7 +1229,8 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/create3DPieChartForCourse", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DPieChartForCourse(Principal principal,
@@ -1382,7 +1384,7 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/create3DPieChartForSemesterYearForCollege", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DPieChartForSemesterYearForCollege(
@@ -1514,7 +1516,7 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/create3DPieChartForSemesterYearForCollegeAll", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DPieChartForSemesterYearForCollegeAll(
@@ -1648,7 +1650,7 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/create3DPieChartForSemesterYearForUser", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DPieChartForSemesterYearForUser(
@@ -1882,7 +1884,7 @@ public class ReportUtilsController extends BaseController {
 		}
 		return new ModelAndView("redirect:" + projectUrl);
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/create3DPieChartForUser", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView create3DPieChartForUser(Principal principal,

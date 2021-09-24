@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -60,7 +61,8 @@ public class QueryController extends BaseController {
 
 	@Autowired
 	UserService userService;
-
+	
+	@Secured({ "ROLE_STUDENT"})
 	@RequestMapping(value = "/createQueryForm", method = { RequestMethod.GET })
 	public String createMessageForm(@RequestParam(required = false) Long id,
 			Model m, @ModelAttribute Query queryBean, Principal principal,
@@ -124,6 +126,7 @@ public class QueryController extends BaseController {
 		return "query/createQuery";
 	}
 
+	@Secured({ "ROLE_USER","ROLE_ADMIN" })
 	@RequestMapping(value = "/viewQuery", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewQuery(@RequestParam(required = false) Long id,
@@ -168,7 +171,7 @@ public class QueryController extends BaseController {
 		return "query/query";
 		}
 	}
-
+	@Secured({ "ROLE_USER","ROLE_ADMIN" })
 	@RequestMapping(value = "/giveResponseToQuery", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String giveResponseToQuery(Model m, Principal principal,
@@ -221,7 +224,7 @@ public class QueryController extends BaseController {
 
 	}
 	
-
+	@Secured({ "ROLE_USER","ROLE_ADMIN" })
 	@RequestMapping(value = "/saveQueryReply", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String saveQueryReply(Model m,
@@ -242,7 +245,7 @@ public class QueryController extends BaseController {
 		return viewQuery(id, principal, m);
 
 	}
-
+	@Secured({ "ROLE_USER","ROLE_ADMIN" })
 	@RequestMapping(value = "/viewQueryResponse", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewQueryResponse(Model m, Principal principal) {

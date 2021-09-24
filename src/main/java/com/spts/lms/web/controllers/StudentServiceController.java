@@ -40,6 +40,7 @@ import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -122,7 +123,7 @@ public class StudentServiceController extends BaseController {
 	private String app;
 
 	Client client = ClientBuilder.newClient();
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
 	@RequestMapping(value = "/createBFServiceForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createBFServiceForm(Model m, Principal principal,
@@ -143,7 +144,7 @@ public class StudentServiceController extends BaseController {
 		return "studentService/createBFService";
 
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
 	@RequestMapping(value = "/createBFService", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String createBFService(Model m, Principal principal,
@@ -208,7 +209,7 @@ public class StudentServiceController extends BaseController {
 	 * 
 	 * return "studentService/createBFService"; }
 	 */
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
 	@RequestMapping(value = "/updateBFService", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String updateBFService(Model m, Principal principal,
@@ -393,7 +394,7 @@ public class StudentServiceController extends BaseController {
 		return "redirect:/createBFServiceForm?serviceId="
 				+ studentServiceBean.getId();
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
 	@RequestMapping(value = "/viewBFServices", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewBFServices(Model m, Principal principal) {
@@ -436,7 +437,7 @@ public class StudentServiceController extends BaseController {
 		return "studentService/viewBFServices";
 
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
 	@RequestMapping(value = "/viewServices", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewServices(Model m, Principal principal) {
@@ -471,7 +472,7 @@ public class StudentServiceController extends BaseController {
 		return "studentService/viewServices";
 
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
 	@RequestMapping(value = "/viewRCServices", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewRCServices(Model m, Principal principal) {
@@ -515,7 +516,7 @@ public class StudentServiceController extends BaseController {
 		return "studentService/viewRCServices";
 
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
 	@RequestMapping(value = "/viewCreateServiceForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewCreateServiceForm(Model m, Principal principal) {
@@ -678,7 +679,7 @@ public class StudentServiceController extends BaseController {
 				+ bonafide.getServiceId();
 
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
 	@RequestMapping(value = "/downloadStudentsBonafideForms", method = RequestMethod.GET)
 	public void downloadStudentsBonafideForms(HttpServletResponse response,
 			Principal principal, @RequestParam Long serviceId,
@@ -926,7 +927,7 @@ public class StudentServiceController extends BaseController {
 	 * m.addAttribute("serviceList", serviceList); return
 	 * "studentService/viewServices"; }
 	 */
-
+	@Secured({ "ROLE_STUDENT" })
 	@RequestMapping(value = "/applyForBonafide", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String applyForBonafide(Model m, Principal principal,
