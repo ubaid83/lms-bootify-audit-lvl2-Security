@@ -7387,7 +7387,7 @@ public class LoginController extends BaseController {
 
 				logger.info("eventIdWL=======>" + String.valueOf(tmtl.getEventId()));
 				logger.info("FacultyIdWL=======>" + username);
-				String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),username);
+				/* String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),username); */  String workLoadResponse = null;
 				if (null != workLoadResponse) {
 					String workload[] = fetchWorkload(workLoadResponse);
 					tmtl.setAllottedLecture(workload[0]);
@@ -12806,8 +12806,7 @@ public class LoginController extends BaseController {
 				tmtl.setEnd_time(tmtl.getEnd_time().split(" ")[1].replace(".", ":"));
 				tmtl.setMaxEndTimeForCourse(tmtl.getEnd_time());
 
-				String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),
-						username);
+				/* String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),username); */  String workLoadResponse = null;
 
 				if (null != workLoadResponse) {
 					String workload[] = fetchWorkload(workLoadResponse);
