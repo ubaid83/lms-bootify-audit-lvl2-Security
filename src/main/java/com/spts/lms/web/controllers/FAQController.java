@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -41,7 +43,6 @@ import com.spts.lms.services.faq.FaqService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
-import org.springframework.beans.factory.annotation.Value;
 @Controller
 public class FAQController extends BaseController {
 
@@ -57,6 +58,7 @@ public class FAQController extends BaseController {
 
 	private static final Logger logger = Logger.getLogger(FAQController.class);
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addFAQForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addFAQForm(Model m, Principal p) {
@@ -88,6 +90,7 @@ public class FAQController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addFAQ", method = { RequestMethod.POST })
 	public String addFAQ(@ModelAttribute Faq faq,
 			@RequestParam("file") MultipartFile file, Model m,
@@ -163,6 +166,7 @@ public class FAQController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/viewFAQ", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewFAQ(Model m, Principal principal, @ModelAttribute Faq faq) {
@@ -189,6 +193,7 @@ public class FAQController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/classParticipation", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String classParticipation(Model m, @RequestParam Long courseId,
@@ -243,7 +248,7 @@ public class FAQController extends BaseController {
 	}
 
 	
-
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadStudents", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String  DownloadStudents(
@@ -349,6 +354,7 @@ public class FAQController extends BaseController {
 
 	}
 	
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/uploadStudentsMarks", method = { RequestMethod.POST })
 	public String uploadStudentsMarks(@ModelAttribute ClassParticipation classParticipation,
 			@RequestParam("file") MultipartFile file, Model m,

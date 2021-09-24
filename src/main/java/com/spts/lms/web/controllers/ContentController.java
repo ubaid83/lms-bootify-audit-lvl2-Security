@@ -89,7 +89,7 @@ import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.UnzipUtil;
 import com.spts.lms.web.utils.Utils;
 
-@Secured("ROLE_USER")
+
 @Controller
 @SessionAttributes("userId")
 public class ContentController extends BaseController {
@@ -158,7 +158,8 @@ public class ContentController extends BaseController {
 	ObjectMapper mapper = new ObjectMapper();
 	private static final String serverURL = "http://3.7.84.108:8081/"; // "http://localhost:8085/" "http://192.168.2.116:8443/"
 	private static final String serverCrudURL = "http://3.7.84.108:8081/usermgmtcrud/";
-
+	
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addContentForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addContentForm(@ModelAttribute Content content, Model m,
@@ -371,7 +372,7 @@ public class ContentController extends BaseController {
 
 	}
 
-
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addMultipleFile", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addMultipleFile(
@@ -485,6 +486,7 @@ public class ContentController extends BaseController {
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addMultipleFileForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String addMultipleFileForModule(
@@ -680,6 +682,7 @@ public class ContentController extends BaseController {
 		
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addFolder", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addFolder(
@@ -773,6 +776,7 @@ public class ContentController extends BaseController {
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addFolderForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String addFolderForModule(
@@ -925,6 +929,7 @@ public class ContentController extends BaseController {
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/viewContentForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewContentForModule(@ModelAttribute Content content,
@@ -1054,6 +1059,7 @@ public class ContentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/updateFolder", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String updateFolder(
@@ -1194,6 +1200,7 @@ public class ContentController extends BaseController {
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/updateFolderForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String updateFolderForModule(
@@ -1327,6 +1334,7 @@ public class ContentController extends BaseController {
 		
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addFile", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addFile(
@@ -1431,6 +1439,7 @@ public class ContentController extends BaseController {
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addFileForModule", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addFileForModule(
@@ -1589,6 +1598,7 @@ public class ContentController extends BaseController {
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/updateFile", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String updateFile(
@@ -1699,6 +1709,7 @@ public class ContentController extends BaseController {
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/updateFileForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String updateFileForModule(
@@ -1820,6 +1831,7 @@ public class ContentController extends BaseController {
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addLink", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addLink(
@@ -1885,6 +1897,7 @@ public class ContentController extends BaseController {
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addLinkForModule", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addLinkForModule(
@@ -1988,6 +2001,7 @@ public class ContentController extends BaseController {
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/updateLink", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String updateLink(
@@ -2043,6 +2057,7 @@ public class ContentController extends BaseController {
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/updateLinkForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String updateLinkForModule(
@@ -2213,6 +2228,7 @@ public class ContentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/getContentUnderAPath", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String getContentUnderAPath(@ModelAttribute Content content,
@@ -2288,6 +2304,7 @@ public class ContentController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "/getContentUnderAPathForFaculty", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String getContentUnderAPathForFaculty(Principal principal,
@@ -2340,6 +2357,7 @@ public class ContentController extends BaseController {
 		return "content/facultyContentList";
 	}
 
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "/getContentUnderAPathForFacultyForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String getContentUnderAPathForFacultyForModule(Principal principal,
@@ -2476,6 +2494,7 @@ public class ContentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/viewContent", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewContent(@ModelAttribute Content content, Model m,
@@ -2570,6 +2589,7 @@ public class ContentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/saveStudentContentAllocationForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentContentAllocationForModule(
@@ -2731,6 +2751,7 @@ public class ContentController extends BaseController {
 				String.valueOf(content.getAcadYear()));
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/saveStudentContentAllocation", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentContentAllocation(@ModelAttribute Content content,
@@ -2856,7 +2877,7 @@ public class ContentController extends BaseController {
 		return viewContent(content, m, null, p);
 	}
 
-
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "/deleteContent", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String deleteContent(@ModelAttribute Content content, Principal p,
@@ -3030,7 +3051,7 @@ public class ContentController extends BaseController {
 
 	}
 
-	
+	@Secured({ "ROLE_STUDENT" })
 	@RequestMapping(value = "/studentContentList", method = {
             RequestMethod.GET, RequestMethod.POST })
 public String studentContentList(@ModelAttribute Content content, Model m,
@@ -3141,6 +3162,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 }
 
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/contentFormForStudents", method = RequestMethod.GET)
 	public String contentFormForStudents(Model m, Principal p) {
 		String username = p.getName();
@@ -3160,6 +3182,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		return "content/studentContentList";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/getContentUnderAPathForStudent", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String getContentUnderAPathForStudent(
@@ -3232,6 +3255,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		return "content/studentContentList";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/getContentUnderAPathForStudentForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String getContentUnderAPathForStudentForModule(
@@ -3307,6 +3331,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		return "content/studentContentListForModule";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/addQFolderFile", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addQFolderFile(
@@ -3459,6 +3484,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		return "redirect:/getContentUnderAPath";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/addQBank", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addQBank(@ModelAttribute Content content, Model m, Principal p) {
@@ -3532,7 +3558,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		}
 	}
 
-
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/saveStudentContentAllocationForAllStudentsForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentContentAllocationForAllStudentsForModule(
@@ -3618,6 +3644,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		}
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/saveStudentContentAllocationForAllStudents", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentContentAllocationForAllStudents(
@@ -3764,6 +3791,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		}
 	}
 	
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/downloadFolder", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public ModelAndView downloadFolder(Principal principal,
@@ -3813,7 +3841,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 	
 	
 	//02-06-2020
-	
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY", "ROLE_STUDENT" })
 	@RequestMapping(value = "/downloadAllContent", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView downloadAllContent(Principal principal,
@@ -4266,6 +4294,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		return message;
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/exportContentForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String exportContentForm(@ModelAttribute Content content, Model m,
@@ -4299,6 +4328,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/exportContent", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String exportContent(@ModelAttribute Content content, Model m,
@@ -4391,6 +4421,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		return "redirect:/exportContentForm?id=" + content.getId();
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/exportContentForModule", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String exportContentForModule(@ModelAttribute Content content,@RequestParam(name = "acadYearToExport", required = false, defaultValue = "") String acadYearToExport, Model m,
@@ -4836,6 +4867,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 
 }
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/exportContentToOtherSchoolForm", method = {
             RequestMethod.GET, RequestMethod.POST })
 	public String exportContentToOtherSchoolForm(
@@ -4875,6 +4907,8 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		return "content/exportContentForSchool";
 		
 	}
+	
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/exportContentToOtherSchool", method = {
             RequestMethod.GET, RequestMethod.POST })
 	public String exportContentToOtherSchool(
@@ -5004,6 +5038,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		return programCampusService.getCampusList();
 	}
 	
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadContentReportForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadContentReportForm(Model m, Principal principal) {
 
@@ -5014,6 +5049,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		return "report/contentReport";
 	}
 	
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadContentReport", method = { RequestMethod.GET })
 	public String downloadContentReport(@RequestParam String acadYear, @RequestParam(required = false) String campusId,
 			HttpServletResponse response, Model m, Principal p) throws URIException {

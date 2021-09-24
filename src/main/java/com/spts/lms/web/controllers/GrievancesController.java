@@ -51,7 +51,6 @@ import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured("ROLE_USER")
 @Controller
 @SessionAttributes("userId")
 public class GrievancesController extends BaseController {
@@ -90,6 +89,7 @@ public class GrievancesController extends BaseController {
 	private static final Logger logger = Logger
 			.getLogger(GrievancesController.class);
 
+	@Secured({ "ROLE_ADMIN","ROLE_FACULTY" })
 	@RequestMapping(value = "/grievanceForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String grievanceForm(@ModelAttribute Grievances grievances,
@@ -111,6 +111,7 @@ public class GrievancesController extends BaseController {
 		return "grievances/grievanceForm";
 	}
 
+	@Secured({ "ROLE_ADMIN","ROLE_FACULTY" })
 	@RequestMapping(value = "/saveGrievanceForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String saveGrievanceForm(@ModelAttribute Grievances grievances,
@@ -169,6 +170,7 @@ public class GrievancesController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "/viewAllGrievances", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewAllGrievances(Model m) {
@@ -181,6 +183,7 @@ public class GrievancesController extends BaseController {
 		return "grievances/grievanceList";
 	}
 
+	@Secured({ "ROLE_ADMIN","ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/giveResponseToGrievance", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String giveResponseToGrievance(Model m,
@@ -196,6 +199,7 @@ public class GrievancesController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "/saveGrievanceResponse", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveGrievanceResponse(Model m,
@@ -213,6 +217,7 @@ public class GrievancesController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/viewGrievanceResponse", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewGrievanceResponse(Model m, Principal principal) {
@@ -227,6 +232,7 @@ public class GrievancesController extends BaseController {
 		return "grievances/viewGrievanceResponse";
 	}
 
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/overview", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String overview(Model m, Principal principal, Overview overview,
@@ -312,6 +318,7 @@ public class GrievancesController extends BaseController {
 	 * ModelAndView("redirect:" + projectUrl); }
 	 */
 	
+	@Secured({"ROLE_USER"})
 	@RequestMapping(value = "/sendSrbFile", method = { RequestMethod.GET,
             RequestMethod.POST })
 public ResponseEntity<ByteArrayResource>  sendSrbFile(
@@ -385,6 +392,7 @@ public ResponseEntity<ByteArrayResource>  sendSrbFile(
 		return json;
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_LIBRARIAN"})
 	@RequestMapping(value = "/uploadGrievanceConfigItemsForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String uploadGrievanceConfigItemsForm(Model m, Principal principal,
@@ -397,6 +405,7 @@ public ResponseEntity<ByteArrayResource>  sendSrbFile(
 		return "grievances/uploadGrievanceItems";
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_LIBRARIAN"})
 	@RequestMapping(value = "/uploadGrievanceItems", method = {
 			RequestMethod.POST, RequestMethod.GET })
 	public String uploadGrievanceItems(

@@ -52,7 +52,6 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured("ROLE_FACULTY")
 @Controller
 public class GradeCenterController extends BaseController {
 
@@ -119,6 +118,7 @@ public class GradeCenterController extends BaseController {
 	 * return "grade/gradeList"; }
 	 */
 
+	@Secured({"ROLE_FACULTY","ROLE_STUDENT"})
 	@RequestMapping(value = "/gradeCenterForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String gradeCenterForm(Model m, Principal p) {
@@ -231,6 +231,7 @@ public class GradeCenterController extends BaseController {
 		return "grade/gradeListForParents";
 	}*/
 	
+	@Secured({"ROLE_PARENT"})
 	@RequestMapping(value = "/gradeCenterFormForParents", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String gradeCenterFormForParents(Model m, Principal p) {
@@ -283,6 +284,7 @@ public class GradeCenterController extends BaseController {
 		return "grade/gradeListForParents";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_STUDENT","ROLE_PARENT"})
 	@RequestMapping(value = "/gradeCenter", method = RequestMethod.GET)
 	public String gradeCenter(@RequestParam Long courseId, Model m, Principal p) throws InterruptedException, ExecutionException {
 
@@ -589,6 +591,7 @@ public class GradeCenterController extends BaseController {
 		return "grade/gradeListForParents";
 	}*/
 	
+	@Secured({"ROLE_PARENT"})
 	@RequestMapping(value = "/gradeCenterForParents", method = RequestMethod.GET)
 	public String gradeCenterForParents(@RequestParam Long courseId,
 			@RequestParam String acadSessionParent, Model m, Principal p) {
@@ -650,6 +653,7 @@ public class GradeCenterController extends BaseController {
 		return "grade/gradeListForParents";
 	}
 
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/gradeCenterForStudent", method = RequestMethod.GET)
 	public String gradeCenterForStudent(@RequestParam Long courseId, Model m,
 			Principal p) {
@@ -772,6 +776,7 @@ public class GradeCenterController extends BaseController {
 		return "grade/gradeListForParents";
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY", "ROLE_STUDENT"})
 	@RequestMapping(value = "/getAllAssignments", method = RequestMethod.GET)
 	public String getAllAssignments(
 			@RequestParam(required = false) Long courseId, Model m, Principal p) {
@@ -809,6 +814,7 @@ public class GradeCenterController extends BaseController {
 		return "grade/gradeWieghtage";
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/gradeWieghtage", method = RequestMethod.GET)
 	public String gradeWieghtage(@ModelAttribute Grade grade, Principal p,
 			Model m) {
@@ -830,6 +836,7 @@ public class GradeCenterController extends BaseController {
 		return "grade/gradeWieghtage";
 	}
 
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/supportAdminGradeCenterForStudent", method = RequestMethod.GET)
 	public String supportAdminGradeCenterForStudent(
 			@RequestParam(required = false) Long courseId,
@@ -951,6 +958,7 @@ public class GradeCenterController extends BaseController {
 		return "grade/supportAdminGradeListForParents";
 	}
 
+	@Secured({"ROLE_SUPPORT_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/supportAdminGradeCenterForFaculty", method = RequestMethod.GET)
 	public String supportAdminGradeCenterForFaculty(
 			@RequestParam(required = false) Long courseId,
@@ -1066,6 +1074,7 @@ public class GradeCenterController extends BaseController {
 		return "grade/supportAdminGradeList";
 	}
 
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/gradeCenterFormForStudent", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String gradeCenterFormForStudent(Model m, Principal p) {
@@ -1105,6 +1114,7 @@ public class GradeCenterController extends BaseController {
 		return "grade/gradeListForStudent";
 	}
 
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/gradeCenterForStudents", method = RequestMethod.GET)
 	public String gradeCenterForStudents(@RequestParam Long courseId,
 			@RequestParam String acadSessionStudent, Model m, Principal p) {
@@ -1167,7 +1177,7 @@ public class GradeCenterController extends BaseController {
 	}
 	
 	
-	
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/gradeCenterFormForAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String gradeCenterFormForAdmin(Model m, Principal p) {
@@ -1192,7 +1202,7 @@ public class GradeCenterController extends BaseController {
 	}
 
 	
-	
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/gradeCenterAdmin", method = RequestMethod.GET)
 	public String gradeCenterAdmin(@RequestParam Long courseId, Model m, Principal p) throws InterruptedException, ExecutionException {
 

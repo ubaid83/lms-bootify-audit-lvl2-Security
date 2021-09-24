@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -75,6 +76,7 @@ public class ForumController extends BaseController {
 	private static final Logger logger = Logger
 			.getLogger(ForumController.class);
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/createForumForm", method = { RequestMethod.POST,
 			RequestMethod.GET })
 	public String createForumForm(Principal principal, Model m,
@@ -142,6 +144,7 @@ public class ForumController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/createForum", method = { RequestMethod.POST })
 	public String createForum(@ModelAttribute Forum forum, Model m,
 			@RequestParam(required = false, name = "id") Long id,
@@ -199,6 +202,7 @@ public class ForumController extends BaseController {
 		return "redirect:/replyToQuestionForm";
 	}
 
+	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/replyToQuestionForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String replyToQuestionForm(@ModelAttribute ForumReply forumReply,
@@ -341,6 +345,7 @@ public class ForumController extends BaseController {
 		return "forum/reply";
 	}
 
+	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/replyToQuestion", method = { RequestMethod.POST })
 	public String replyToQuestion(@ModelAttribute ForumReply forumreply,
 			RedirectAttributes redirectAttributes, Model m,
@@ -544,6 +549,7 @@ public class ForumController extends BaseController {
 	 * "redirect:/replyToQuestionForm"; }
 	 */
 
+	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/repliedToQuestion", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String repliedToQuestion(@ModelAttribute ForumReply forumReply,
@@ -568,6 +574,7 @@ public class ForumController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/reportAbuseForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String reportAbuseForm(@ModelAttribute Message message, Model m,
@@ -641,6 +648,7 @@ public class ForumController extends BaseController {
 	 * }
 	 */
 
+	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/reportAbuse", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String reportAbuse(Model m, Principal principal,
@@ -679,6 +687,7 @@ public class ForumController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/viewForum", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewForum(Principal principal, Model m,
@@ -872,6 +881,7 @@ public class ForumController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/replyToReply", method = { RequestMethod.POST })
 	public String replyToReply(@ModelAttribute ForumReply forumreply,
 			RedirectAttributes redirectAttributes, Model m,
@@ -932,6 +942,7 @@ public class ForumController extends BaseController {
 		return "redirect:/replyToQuestionForm";
 	}
 
+	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/updateForumForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String updateForumForm(@RequestParam("id") Long id, Model m,
@@ -977,6 +988,7 @@ public class ForumController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/updateForum", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String updateForum(@ModelAttribute Forum forum, Model m,
@@ -1013,6 +1025,7 @@ public class ForumController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/deleteForum", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String deleteForum(@RequestParam Long id, Model m,

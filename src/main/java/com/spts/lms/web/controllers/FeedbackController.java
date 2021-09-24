@@ -75,7 +75,7 @@ import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured("ROLE_ADMIN")
+
 @Controller
 public class FeedbackController extends BaseController {
 
@@ -129,6 +129,7 @@ public class FeedbackController extends BaseController {
 
 	private static final Logger logger = Logger.getLogger(FeedbackController.class);
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/addFeedbackForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addFeedbackForm(@ModelAttribute Feedback feedback, Model m, Principal principal) {
 
@@ -170,6 +171,7 @@ public class FeedbackController extends BaseController {
 		return "feedback/addFeedback";
 	}
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/addFeedback", method = RequestMethod.POST)
 	public String addFeedback(@ModelAttribute Feedback feedback, RedirectAttributes redirectAttrs, Principal principal,
 			Model m) {
@@ -229,6 +231,7 @@ public class FeedbackController extends BaseController {
 		return "redirect:/viewFeedbackDetails";
 	}
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/uploadFinalFeedbackQuestion", method = { RequestMethod.POST })
 	public String uploadFinalFeedbackQuestion(@ModelAttribute Feedback feedback, @RequestParam("file") File file,
 			Model m, RedirectAttributes redirectAttributes, Principal principal) {
@@ -323,6 +326,7 @@ public class FeedbackController extends BaseController {
 		return "redirect:/viewFeedbackDetails";
 	}
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/updateFeedback", method = RequestMethod.POST)
 	public String updateFeedback(@ModelAttribute Feedback feedback, RedirectAttributes redirectAttrs,
 			Principal principal, Model m) {
@@ -551,6 +555,7 @@ public class FeedbackController extends BaseController {
 	 * }
 	 */
 
+	@Secured({"ROLE_ADMIN","ROLE_LIBRARIAN"})
 	@RequestMapping(value = "/searchStudentFeedbackResponseForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchStudentFeedbackResponseForm(Model m, Principal p) {
 
@@ -585,6 +590,7 @@ public class FeedbackController extends BaseController {
 		return "feedback/feedbackRates";
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_LIBRARIAN"})
 	@RequestMapping(value = "/searchStudentFeedbackResponse", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchStudentFeedbackResponse(@RequestParam String facultyId,
 			@RequestParam(required = false) Long feedbackId, Principal p, Model m,
@@ -795,6 +801,7 @@ public class FeedbackController extends BaseController {
 	 * "feedback/feedbackDetails"; }
 	 */
 
+	@Secured({ "ROLE_STUDENT", "ROLE_ADMIN" })
 	@RequestMapping(value = "/viewFeedbackDetails", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewFeedbackDetails(@RequestParam(required = false) Long feedbackId,
 			@ModelAttribute StudentFeedback feedback, Model m, Principal principal,
@@ -1002,6 +1009,7 @@ public class FeedbackController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/downloadPendingStudentFeedbackList", method = { RequestMethod.GET, RequestMethod.POST })
 	public void downloadPendingStudentFeedbackList(Model m, Principal p,
 			@RequestParam(required = false) Long feedbackId, HttpServletResponse response) {
@@ -1085,6 +1093,7 @@ public class FeedbackController extends BaseController {
 		// return "report/downLoadReportLink";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/UploadFeedbackQuestionForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String UploadFeedbackQuestionForm(Model m, Principal principal, @ModelAttribute Feedback feedback,
 			RedirectAttributes redirectAttributes) {
@@ -1115,7 +1124,7 @@ public class FeedbackController extends BaseController {
 	}
 
 	// new mapping 03-02-2021
-
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/uploadItFeedbackQuestions", method = { RequestMethod.POST })
 	public String uploadItFeedbackQuestions(@ModelAttribute Feedback feedback, @RequestParam("file") MultipartFile file,
 			Model m, RedirectAttributes redirectAttributes, Principal principal) {
@@ -1220,6 +1229,7 @@ public class FeedbackController extends BaseController {
 		return "redirect:/UploadFeedbackQuestionForm";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/uploadFeedbackQuestion", method = { RequestMethod.POST })
 	public String uploadFeedbackQuestion(@ModelAttribute Feedback feedback, @RequestParam("file") MultipartFile file,
 			Model m, RedirectAttributes redirectAttributes, Principal principal) {
@@ -1312,6 +1322,7 @@ public class FeedbackController extends BaseController {
 		return "feedback/uploadFeedbackQuestions";
 	}
 
+	@Secured({ "ROLE_STUDENT" })
 	@RequestMapping(value = "/giveStudentFeedback", method = { RequestMethod.GET, RequestMethod.POST })
 	public String giveStudentFeedback(Model m, Principal principal, RedirectAttributes redirectAttrs,
 			@RequestParam String feedbackId, @ModelAttribute Feedback feedback) {
@@ -1420,6 +1431,7 @@ public class FeedbackController extends BaseController {
 		return "redirect:/viewFeedbackDetails";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/searchFeedback", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchFeedback(@RequestParam(required = false, defaultValue = "1") int pageNo, Model m,
 			@ModelAttribute Feedback feedback, Principal p) {
@@ -1491,6 +1503,7 @@ public class FeedbackController extends BaseController {
 		return "feedback/feedbackList";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/viewStudentFeedbackResponse", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewStudentFeedbackResponse(@RequestParam(required = false) Long feedbackId, Model m,
 			Principal principal) {
@@ -1525,6 +1538,7 @@ public class FeedbackController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/searchStudentFeedback", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchStudentFeedback(@RequestParam(required = false, defaultValue = "1") int pageNo, Model m,
 			@ModelAttribute Feedback feedback, Principal p, @RequestParam(required = false) Long courseId) {
@@ -1581,6 +1595,7 @@ public class FeedbackController extends BaseController {
 	/**
 	 * Questions setup
 	 */
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/addFeedbackQuestionForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addFeedbackQuestionForm(@RequestParam Long feedbackId, Model m, Principal p) {
 
@@ -1614,6 +1629,7 @@ public class FeedbackController extends BaseController {
 		return "feedback/addFeedbackQuestion";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/addFeedbackQuestion", method = RequestMethod.POST)
 	public String addFeedbackQuestion(@ModelAttribute FeedbackQuestion feedbackQuestion,
 			RedirectAttributes redirectAttrs, Principal principal, Model m) {
@@ -1653,6 +1669,7 @@ public class FeedbackController extends BaseController {
 		return "redirect:/addFeedbackQuestionForm";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/updateFeedbackQuestion", method = RequestMethod.POST)
 	public String updateFeedbackQuestion(@ModelAttribute Feedback feedback, RedirectAttributes redirectAttrs,
 			Principal principal, Model m) {
@@ -1732,6 +1749,7 @@ public class FeedbackController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/deleteFeedback", method = { RequestMethod.GET, RequestMethod.POST })
 	public String deleteCourse(@RequestParam Integer programId, RedirectAttributes redirectAttrs) {
 		try {
@@ -1746,6 +1764,7 @@ public class FeedbackController extends BaseController {
 		return "redirect:/searchFeedback";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/publishFeedbackReport", method = { RequestMethod.GET, RequestMethod.POST })
 	public String publishFeedbackReport(@RequestParam Long id, Model m, RedirectAttributes redirectAttrs,
 			Principal principal) {
@@ -1771,6 +1790,7 @@ public class FeedbackController extends BaseController {
 		return "redirect:/searchFeedback";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/searchAllFacultiesForFeedback", method = RequestMethod.GET)
 	public String searchAllFacultiesForFeedback(@RequestParam(required = false) String feedbackId, Model m,
 			Principal principal) {
@@ -1788,6 +1808,7 @@ public class FeedbackController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/UploadStudentsToDeallocateForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String UploadStudentsToDeallocateForm(Model m, Principal principal, @ModelAttribute Feedback feedback,
 			RedirectAttributes redirectAttributes) {
@@ -1809,6 +1830,7 @@ public class FeedbackController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/uploadStudentsToDeallocate", method = { RequestMethod.POST })
 	public String uploadStudentsToDeallocate(@ModelAttribute Feedback feedback,
 			@RequestParam("file") MultipartFile file, Model m, RedirectAttributes redirectAttributes,
@@ -1867,6 +1889,7 @@ public class FeedbackController extends BaseController {
 		return "feedback/uploadStudentsToDeallocate";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/downloadDeallocateFeedbackTemplate", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadDeallocateFeedbackTemplate(
 
@@ -1985,6 +2008,7 @@ public class FeedbackController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/removeFacultyFeedbackForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String removeFacultyFeedbackForm(Model m, Principal principal, @ModelAttribute Feedback feedback,
 			@RequestParam(required = false) String feedbackId, RedirectAttributes redirectAttributes) {
@@ -2050,7 +2074,7 @@ public class FeedbackController extends BaseController {
 	}
 
 	// Feedback update for supportAdmin
-
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/gotoupdateFeedbackQuestion", method = { RequestMethod.GET, RequestMethod.POST })
 	public String gotoupdateFeedbackQuestion(Model m, Principal principal, HttpServletRequest request,
 			@ModelAttribute("FeedbackQuestion") FeedbackQuestion feedbackquestion,
@@ -2087,6 +2111,7 @@ public class FeedbackController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/checkFeedbackSupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String checkFeedbackSupportAdmin(@RequestParam(required = false, defaultValue = "1") int pageNo,
 			Principal principal, Model m, @Valid @ModelAttribute("FeedbackQuestion") FeedbackQuestion fdQuestion,
@@ -2159,6 +2184,7 @@ public class FeedbackController extends BaseController {
 		return "feedback/supportfeedbackist";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/updateFeedBackQuestion", method = { RequestMethod.GET, RequestMethod.POST })
 	public String updateFeedBackQuestion(Model m, Principal principal,
 			@Valid @ModelAttribute("FeedbackQuestion") FeedbackQuestion fdQuestion, RedirectAttributes redirectAttrs) {
@@ -2213,6 +2239,7 @@ public class FeedbackController extends BaseController {
 		// return "feedback/supportfeedbackist";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/viewupdateFeedBackQuestionSpAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewupdateFeedBackQuestionSpAdmin(Model m, Principal principal,
 			@ModelAttribute("FeedbackQuestion") FeedbackQuestion fdQuestion, @RequestParam(name = "id") String id,
