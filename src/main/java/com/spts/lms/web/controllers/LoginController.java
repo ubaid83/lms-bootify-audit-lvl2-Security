@@ -893,6 +893,7 @@ public class LoginController extends BaseController {
 		return "course/myCourse";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping("/resetPasswordForm")
 	public String resetPasswordForm(Model m) {
 		m.addAttribute("webPage", new WebPage("forgot", "Forgot", true, true, true, true, false));
@@ -1914,6 +1915,7 @@ public class LoginController extends BaseController {
 	}
 
 	/* FOR USER PROFILE DATA */
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/profileDetails", method = { RequestMethod.GET, RequestMethod.POST })
 	public String profileDetails(Model m, @ModelAttribute User user, Principal principal) {
 		m.addAttribute("webPage", new WebPage("user", "View Profile Details", true, true, true, true, false));
@@ -5372,6 +5374,7 @@ public class LoginController extends BaseController {
 
 	}
 
+	
 	@RequestMapping(value = "/downloadAttendanceReport", method = RequestMethod.GET)
 	public String downloadAttendanceReport(@RequestParam String ofDate, Model m, Principal p,
 			HttpServletResponse response, HttpServletRequest request) {
@@ -5681,7 +5684,6 @@ public class LoginController extends BaseController {
 
 	// ------------------------------TCS----------------------------------//
 	@RequestMapping(value = { "/samlRequestTCS" }, method = {
-
 			RequestMethod.GET, RequestMethod.POST })
 	public String samlRequestTCS(@RequestParam(name = "SAMLRequest") String SAMLRequest, HttpServletResponse resp,
 			Principal p, RedirectAttributes r, Model m) {
@@ -12079,13 +12081,14 @@ public class LoginController extends BaseController {
 	}
 
 	// SupportAdmin
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/changePasswordBySupportAdminForm", method = RequestMethod.GET)
 	public String changePasswordBySupportAdminForm(@ModelAttribute("user") User user, Model m) {
 		m.addAttribute("webPage", new WebPage("changePassword", "Change Password", true, false));
 		return "user/changePasswordBySupportAdmin";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/changePasswordBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String changePasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
 			RedirectAttributes redirectAttrs, Model m, Principal p) {
@@ -12115,6 +12118,7 @@ public class LoginController extends BaseController {
 		return "redirect:/changePasswordBySupportAdminForm";
 	}
 	  /* New Audit changes start */
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/searchUserBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchUserBySupportAdmin(Principal principal, @ModelAttribute("user") User user, Model m,
 			RedirectAttributes redirectAttrs, @RequestParam(required = false) String username) {
@@ -13320,7 +13324,7 @@ public class LoginController extends BaseController {
 
 	}
 	// Change Password by Support Admin
-
+	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/changeTemporaryPasswordBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String changeTemporaryPasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
@@ -13356,6 +13360,7 @@ public class LoginController extends BaseController {
 		return "redirect:/changePasswordBySupportAdminForm";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/deleteTemporaryPasswordBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String deleteTemporaryPasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
@@ -13395,6 +13400,7 @@ public class LoginController extends BaseController {
 		return "user/hostleStudentDetailsBySupportAdmin";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/searchHostelStudentDetailBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String searchHostelStudentDetailBySupportAdmin(Principal principal,
@@ -13432,6 +13438,7 @@ public class LoginController extends BaseController {
 		return "user/hostleStudentDetailsBySupportAdmin";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/updateHostelStudentDetailBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String updateHostelStudentDetailBySupportAdmin(Principal principal,

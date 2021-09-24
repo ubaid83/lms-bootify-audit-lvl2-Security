@@ -26,7 +26,6 @@ import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 
 
-@Secured("ROLE_ADMIN")
 @Controller
 public class ProgramController extends BaseController {
 
@@ -39,6 +38,7 @@ public class ProgramController extends BaseController {
 	
 	private static final Logger logger = Logger.getLogger(ProgramController.class);
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/addProgramForm", method = RequestMethod.GET)
 	public String addProgramForm(@RequestParam(required = false) String programId, Model m) {
 		
@@ -54,6 +54,7 @@ public class ProgramController extends BaseController {
 		return "program/addProgram";
 	}
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/addProgram", method = RequestMethod.POST)
 	public String addProgram(@ModelAttribute Program program, RedirectAttributes redirectAttrs, Principal principal){
 		String username=principal.getName();
@@ -73,6 +74,7 @@ public class ProgramController extends BaseController {
 		return "redirect:/searchProgram";
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/updateProgram", method = RequestMethod.POST)
 	public String updateProgram(@ModelAttribute String userId, @ModelAttribute Program program, RedirectAttributes redirectAttrs , Principal principal){
 		String username=principal.getName();
@@ -97,7 +99,7 @@ public class ProgramController extends BaseController {
 		return "redirect:/searchProgram";
 	}
 	
-	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/searchProgram", method = {RequestMethod.GET, RequestMethod.POST})
 	public String searchProgram(@RequestParam(required=false, defaultValue="1") int pageNo, Model m, @ModelAttribute Program program){
 		
@@ -124,6 +126,7 @@ public class ProgramController extends BaseController {
 		return "program/searchProgram";
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/deleteProgram", method = {RequestMethod.GET, RequestMethod.POST})
 	public String deleteProgram(@RequestParam Integer programId, RedirectAttributes redirectAttrs){
 		try{
@@ -138,6 +141,7 @@ public class ProgramController extends BaseController {
 		return "redirect:/searchProgram";
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/uploadProgramForm", method = {RequestMethod.GET, RequestMethod.POST})
 	public String uploadProgramForm(Model m) {
 		m.addAttribute("webPage",new WebPage("uploadProgram", "Upload Prorams available in Institute", false, false, true, true, false));
@@ -145,6 +149,7 @@ public class ProgramController extends BaseController {
 		return "program/uploadProgram";
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/uploadProgram", method = RequestMethod.POST)
 	public String uploadProgram(@ModelAttribute Program program, Principal principal , @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs){
 		String username=principal.getName();
