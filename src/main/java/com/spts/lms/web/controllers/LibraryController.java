@@ -166,9 +166,9 @@ public class LibraryController extends BaseController {
 	private static final Logger logger = Logger.getLogger(LibraryController.class);
 	private static final String FILE_SEPARATOR = "/";
 
-	private static final String serverURL = "http://3.7.84.108:8081/"; // "http://localhost:8085/"
+	private static final String serverURL = "http://192.168.2.139:8443/"; // "http://localhost:8085/"
 																		// "http://192.168.2.116:8443/"
-	private static final String serverCrudURL = "http://3.7.84.108:8081/usermgmtcrud/"; // "http://localhost:8082/"
+	private static final String serverCrudURL = "http://192.168.2.139:8443/usermgmtcrud/"; // "http://localhost:8082/"
 																						// "http://192.168.2.116:8443/usermgmtcrud/"
 
 	@Secured({ "ROLE_FACULTY" })
