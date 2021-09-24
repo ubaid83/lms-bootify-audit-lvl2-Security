@@ -87,7 +87,7 @@ import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured("ROLE_USER")
+
 @Controller
 public class AnnouncementController extends BaseController {
 

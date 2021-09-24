@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -69,6 +70,7 @@ public class AttendanceController extends BaseController {
 	@Value("${app}")
 	private String app;
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/addAttendanceForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addAttendanceForm(Model m, Principal principal) {
@@ -95,6 +97,7 @@ public class AttendanceController extends BaseController {
 		return "attendance/addAttendance";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/searchStudentForAttendance", method = { RequestMethod.POST })
 	public String searchStudentForAttendance(
 			@ModelAttribute("attendance") Attendance attendance, Model m,
@@ -127,6 +130,7 @@ public class AttendanceController extends BaseController {
 
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/saveStudentAttendance", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentAttendance(@ModelAttribute Attendance attendance,
@@ -173,6 +177,7 @@ public class AttendanceController extends BaseController {
 		return "attendance/markAttendance";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/viewDailyAttendance", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewDailyAttendance(Model m, Principal principal,
@@ -226,6 +231,7 @@ public class AttendanceController extends BaseController {
 		return "attendance/dailyBasisAttendance";
 	}
 
+	@Secured({"ROLE_STUDENT","ROLE_PARENT"})
 	@RequestMapping(value = "/viewDailyAttendanceByStudent", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView viewDailyAttendanceByStudent(Model m,
@@ -292,6 +298,7 @@ public class AttendanceController extends BaseController {
 		return new ModelAndView("/");
 	}
 
+	@Secured("ROLE_STUDENT")
 	@RequestMapping(value = "/viewRtasAttendance", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewRtasAttendance(Model m, Principal principal,
@@ -336,6 +343,7 @@ public class AttendanceController extends BaseController {
 		return "attendance/rtasAttendance";
 	}
 
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/getFacultyByCourseForAttendance", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getFacultyByCourseForAttendance(

@@ -66,7 +66,7 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured("ROLE_USER")
+
 @Controller
 @SessionAttributes("userId")
 public class CalenderController extends BaseController {
@@ -185,6 +185,7 @@ public class CalenderController extends BaseController {
 		return courseService.findAllActive();
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/addCalenderEventForm", method = RequestMethod.GET)
 	public String addCourseForm(
 			@RequestParam(required = false) String courseId,
@@ -229,6 +230,7 @@ public class CalenderController extends BaseController {
 
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/addCalenderEvent", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addFeedback(@ModelAttribute Calender calender,
@@ -263,6 +265,7 @@ public class CalenderController extends BaseController {
 		return "redirect:/viewEvents";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/addCalenderEvent1", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String addFeedback1(@ModelAttribute Calender calender,
@@ -289,6 +292,7 @@ public class CalenderController extends BaseController {
 		return "redirect:/viewEvents";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/updateCalenderEvent", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String updateCalenderEvent(@ModelAttribute Calender calender,
@@ -338,6 +342,7 @@ public class CalenderController extends BaseController {
 		return "redirect:/viewEvents";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/viewEvents", method = RequestMethod.GET)
 	public String viewEvents(@RequestParam(required = false) String courseId,
 			Model m, Principal principal, @ModelAttribute Calender calender) {
@@ -414,6 +419,7 @@ public class CalenderController extends BaseController {
 		return "calender/viewCalenderForm";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/viewCalenderEventDetails", method = RequestMethod.GET)
 	public String viewCalenderEventDetails(@ModelAttribute Calender calender,
 			@RequestParam(required = false) String eventId, Principal p, Model m) {
@@ -449,6 +455,7 @@ public class CalenderController extends BaseController {
 		return "calender/eventDetails";
 	}
 
+	@Secured({"ROLE_FACULTY"})
 	@RequestMapping(value = "/saveStudentEvents", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String saveStudentEvents(@ModelAttribute Calender calender,
@@ -635,6 +642,7 @@ public class CalenderController extends BaseController {
 		return "redirect:/viewEvents";
 	}*/
 	
+	@Secured({"ROLE_FACULTY"})
 	@RequestMapping(value = "/deleteCalenderEvent", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String deleteCalenderEvent(@ModelAttribute Calender calender,
