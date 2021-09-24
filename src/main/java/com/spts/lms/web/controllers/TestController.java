@@ -107,7 +107,7 @@ import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured({ "ROLE_FACULTY", "ROLE_CORD", "ROLE_AR" })
+//@Secured({ "ROLE_FACULTY", "ROLE_CORD", "ROLE_AR" })
 @Controller
 public class TestController extends BaseController {
 
@@ -233,6 +233,7 @@ public class TestController extends BaseController {
 		return courseService.findByUserActive(username, userDetails.getProgramName());
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addTestForm(@ModelAttribute Test test, Model m, Principal principal,
 			@RequestParam(required = false) String courseId, RedirectAttributes redirectAttrs) {
@@ -329,6 +330,7 @@ public class TestController extends BaseController {
 		return "test/addTest";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestFromMenu", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addTestFromMenu(@ModelAttribute Test test, Model m, Principal principal, HttpServletRequest request) {
 		String username = principal.getName();
@@ -378,6 +380,7 @@ public class TestController extends BaseController {
 		return "test/addTest";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTest", method = RequestMethod.POST)
 	public String addTest(@ModelAttribute Test test, RedirectAttributes redirectAttrs, Principal principal,
 			@RequestParam(required = false) Long courseId, Model m) {
@@ -597,6 +600,7 @@ public class TestController extends BaseController {
 		return "redirect:/viewTestDetails";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestConfiguration", method = RequestMethod.POST)
 	public @ResponseBody String addTestConfiguration(@RequestParam(required = false) Long testId,
 			@RequestBody(required = false) Map<String, String> hash, RedirectAttributes redirectAttrs,
@@ -741,6 +745,7 @@ public class TestController extends BaseController {
 		return st;
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/updateTest", method = RequestMethod.POST)
 	public String updateTest(@ModelAttribute Test test, RedirectAttributes redirectAttrs, Principal principal,
 			Model m) {
@@ -959,6 +964,7 @@ public class TestController extends BaseController {
 		return "SUCCESS";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/uploadTestQuestionForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String uploadTestQuestionForm(Model m, Principal principal, @ModelAttribute Test test,
 			RedirectAttributes redirectAttributes, @RequestParam(required = false) String courseId,
@@ -1022,6 +1028,7 @@ public class TestController extends BaseController {
 		return "test/uploadTestQuestion";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/uploadTestQuestion", method = { RequestMethod.POST })
 	public String uploadTestQuestion(@ModelAttribute Test test, @RequestParam("file") MultipartFile file, Model m,
 			RedirectAttributes redirectAttributes, Principal principal) {
@@ -1441,6 +1448,7 @@ public class TestController extends BaseController {
 		return "test/uploadTestQuestion";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/viewTestDetails", method = RequestMethod.GET)
 	public String viewTestDetails(@RequestParam(required = false) Long testId, Model m,
 			@RequestParam(required = false) String groupId, @RequestParam(required = false) Long campusId,
@@ -1611,6 +1619,7 @@ public class TestController extends BaseController {
 		return "test/testDetails";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/viewTestDetailsToEvaluate", method = RequestMethod.GET)
 	public String viewTestDetailsToEvaluate(@RequestParam(required = false) Long testId, Model m,
 			@RequestParam(required = false) String groupId, @RequestParam(required = false) String courseId,
@@ -1664,6 +1673,7 @@ public class TestController extends BaseController {
 		return "test/studentTestlistToEvaluate";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/saveStudentTest", method = { RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentTest(@ModelAttribute Test test, Model m, RedirectAttributes redirectAttr,
 			Principal principal) {
@@ -1849,6 +1859,7 @@ public class TestController extends BaseController {
 		return "redirect:/viewTestDetails";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/saveStudentTestAllStudents", method = { RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentTestAllStudents(@ModelAttribute Test test, Model m, RedirectAttributes redirectAttr,
 			Principal principal) {
@@ -2045,7 +2056,7 @@ public class TestController extends BaseController {
 		return "redirect:/viewTestDetails";
 	}
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/getPasswordForTest", method = RequestMethod.POST)
 	public @ResponseBody String getPasswordForTest(Principal p, @RequestParam String testId,
 			@RequestParam String password, Model m) {
@@ -2071,6 +2082,7 @@ public class TestController extends BaseController {
 		}
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/getFacultyByCourse", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getFacultyByCourse(@RequestParam(name = "courseId") String courseId,
 			Principal principal) {
@@ -2098,6 +2110,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_HOD"})
 	@RequestMapping(value = "/searchTest", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchTest(@RequestParam(required = false, defaultValue = "1") int pageNo, Model m,
 			@ModelAttribute Test test, Principal principal,
@@ -2182,6 +2195,8 @@ public class TestController extends BaseController {
 	/**
 	 * Questions setup
 	 */
+	
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestQuestionForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addTestQuestionForm(@RequestParam Long id, Model m, Principal principal,
 			RedirectAttributes redirectAttributes) {
@@ -2376,6 +2391,7 @@ public class TestController extends BaseController {
 		return "test/addTestQuestion";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/evaluateTestForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String evaluateTestForm(@RequestParam Long id, @RequestParam String studusername, Model m,
 			Principal principal, RedirectAttributes redirectAttributes) {
@@ -2430,6 +2446,7 @@ public class TestController extends BaseController {
 		return "test/evaluateStudentTest";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_DEAN","ROLE_CORD","ROLE_AREA_INCHARGE","ROLE_AR"})
 	@RequestMapping(value = "/viewTestGroupForm", method = { RequestMethod.POST, RequestMethod.GET })
 	public String viewTestGroupForm(Principal principal, Model m) {
 
@@ -2457,6 +2474,7 @@ public class TestController extends BaseController {
 		return "test/viewTestGroup";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/viewTestGroup", method = RequestMethod.POST)
 	public String viewTestGroupForm(@ModelAttribute Test test, Principal principal, Model m) {
 		List<Test> groupTestList = testService.getAllStudentsAssociatedWithGroup(test.getGroupId());
@@ -2465,6 +2483,7 @@ public class TestController extends BaseController {
 		return viewTestGroupForm(principal, m);
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/updateTestDetails", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String updateTestDetails(@RequestParam String value, @RequestParam Long pk,
 			Principal principal, @RequestParam("attr") String attribute) {
@@ -2480,6 +2499,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestQuestion", method = RequestMethod.POST)
 	public String addTestQuestion(@ModelAttribute TestQuestion testQuestion, Model m, RedirectAttributes redirectAttrs,
 			Principal principal) {
@@ -2577,6 +2597,7 @@ public class TestController extends BaseController {
 		return "redirect:/addTestQuestionForm";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addSubjectiveTestQuestion", method = RequestMethod.POST)
 	public String addSubjectiveTestQuestion(@ModelAttribute TestQuestion testQuestion, RedirectAttributes redirectAttrs,
 			Principal principal, Model m) {
@@ -2647,6 +2668,7 @@ public class TestController extends BaseController {
 		return "redirect:/addTestQuestionForm";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/showResultsToStudents", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String showResultsToStudents(@RequestParam("id") Long id, Model m, Principal principal) {
 
@@ -2670,6 +2692,7 @@ public class TestController extends BaseController {
 		return testService.findAllValidTest();
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/allocateStudentTestForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String allocateStudentTestForm(@ModelAttribute Test test, Model m, Principal principal,
 			@RequestParam(required = false, defaultValue = "1") int pageNo) {
@@ -2702,6 +2725,7 @@ public class TestController extends BaseController {
 		return "test/allocateStudentTest";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/updateTestQuestion", method = RequestMethod.POST)
 	public String updateTestQuestion(@ModelAttribute Test test, RedirectAttributes redirectAttrs, Principal principal) {
 		String username = principal.getName();
@@ -2941,6 +2965,7 @@ public class TestController extends BaseController {
 		}
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/deleteTest", method = { RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView deleteTestForm(HttpServletRequest request, @ModelAttribute Test test, Model m,
 			Principal principal, RedirectAttributes redirectAttrs) {
@@ -2973,6 +2998,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/searchFacultyTestAllocationForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchFacultyTestAllocationForm(RedirectAttributes redirectAttributes, Model m, Long id,
 			@ModelAttribute Test testObj, Principal principal,
@@ -3008,6 +3034,7 @@ public class TestController extends BaseController {
 		return "test/facultyTestAllocation";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/searchFacultyTestAllocation", method = { RequestMethod.POST })
 	public String searchFacultyTestAllocation(Model m, Principal principal,
 			@RequestParam(required = false) Long courseId,
@@ -3040,6 +3067,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/getTestsByCourse", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getTestsByCourse(@RequestParam(name = "courseId") String courseId,
 
@@ -3077,6 +3105,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/saveFacultyTestAllocation", method = { RequestMethod.GET, RequestMethod.POST })
 	public String saveFacultyTestAllocation(@ModelAttribute Test testObj, Model m, Principal principal,
 			@RequestParam(required = false) String facultyId, RedirectAttributes redirectAttributes) {
@@ -3097,6 +3126,7 @@ public class TestController extends BaseController {
 		return "redirect:/searchFacultyTestAllocationForm";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/downloadTestQuestionByTestId", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadTestQuestionByTestId(Model m, Principal p, HttpServletResponse response,
 			@RequestParam(required = false) String testId) throws URIException {
@@ -3168,6 +3198,7 @@ public class TestController extends BaseController {
 		return null;
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/downloadTestReportByTestId", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadTestReportByTestId(Model m, Principal p, HttpServletResponse response,
 			@RequestParam(required = false) String testId) throws URIException {
@@ -3260,6 +3291,7 @@ public class TestController extends BaseController {
 		return null;
 	}
 
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/downloadTestReportByTestIdAndUsername", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String downloadTestReportByTestIdAndUsername(Model m, Principal p, HttpServletResponse response,
@@ -3346,6 +3378,7 @@ public class TestController extends BaseController {
 		return null;
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestPoolForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addTestPoolForm(@ModelAttribute TestPool testPool, Model m, Principal principal,
 			@RequestParam(required = false) String courseId, RedirectAttributes redirectAttrs) {
@@ -3390,6 +3423,7 @@ public class TestController extends BaseController {
 		return "test/addTestPool";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestPool", method = RequestMethod.POST)
 	public String addTestPool(@ModelAttribute TestPool testPool, RedirectAttributes redirectAttrs, Principal principal,
 			Model m) {
@@ -3420,6 +3454,7 @@ public class TestController extends BaseController {
 		return "redirect:/uploadTestQuestionPoolForm";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/uploadTestQuestionPoolForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String uploadTestQuestionPoolForm(Model m, Principal principal, @ModelAttribute TestPool testPool,
 			RedirectAttributes redirectAttributes) {
@@ -3441,6 +3476,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/uploadTestQuestionPool", method = { RequestMethod.POST })
 	public String uploadTestQuestionPool(@ModelAttribute TestPool testPool, @RequestParam("file") MultipartFile file,
 			Model m, RedirectAttributes redirectAttributes, Principal principal) {
@@ -3614,6 +3650,7 @@ public class TestController extends BaseController {
 		return "test/uploadTestQuestionPool";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/configureImageTestQuestionPoolForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String configureImageTestQuestionPoolForm(@RequestParam Long testPoolId, Model m, Principal principal,
 			RedirectAttributes redirectAttributes) {
@@ -3646,6 +3683,7 @@ public class TestController extends BaseController {
 		return "test/configureImageTestQuestionPool";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/updateTestImageQuestionPool", method = RequestMethod.POST)
 	public String updateTestImageQuestionPool(@ModelAttribute TestPool test, RedirectAttributes redirectAttrs,
 			Principal principal) {
@@ -3691,6 +3729,7 @@ public class TestController extends BaseController {
 		return "redirect:/configureImageTestQuestionPoolForm";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestQuestionPool", method = RequestMethod.POST)
 	public String addTestQuestionPool(@ModelAttribute TestQuestionPools testQuestionPools, Model m,
 			RedirectAttributes redirectAttrs, Principal principal, @RequestParam String testType,
@@ -3739,7 +3778,7 @@ public class TestController extends BaseController {
 		return "redirect:/configureImageTestQuestionPoolForm";
 	}
 
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/viewTestPools", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewTestPools(
 
@@ -3803,6 +3842,7 @@ public class TestController extends BaseController {
 		return "test/testPoolList";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/deleteTestPool", method = { RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView deleteTestPool(HttpServletRequest request, @ModelAttribute Test testPool, Model m,
 			Principal principal, RedirectAttributes redirectAttrs) {
@@ -3824,7 +3864,7 @@ public class TestController extends BaseController {
 
 	}
 
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/viewTestQuestionsByTestPool", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewTestQuestionsByTestPool(
 
@@ -4223,7 +4263,7 @@ public class TestController extends BaseController {
 		return testQuestions;
 	}
 
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/viewTestQuestionsByTestPoolForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewTestQuestionsByTestPoolForm(
 
@@ -4344,7 +4384,7 @@ public class TestController extends BaseController {
 
 	}
 
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/saveAllTestQuestionsByTestPool", method = { RequestMethod.GET, RequestMethod.POST })
 	public String saveAllTestQuestionsByTestPool(
 
@@ -4495,7 +4535,7 @@ public class TestController extends BaseController {
 
 	}
 
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/saveTestQuestionsByTestPool", method = { RequestMethod.GET, RequestMethod.POST })
 	public String saveTestQuestionsByTestPool(
 
@@ -4607,6 +4647,7 @@ public class TestController extends BaseController {
 		return testQuestionList;
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/downloadTestReportByTestIdAttemptWise", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String downloadTestReportByTestIdAttemptWise(Model m, Principal p, HttpServletResponse response,
@@ -4701,6 +4742,7 @@ public class TestController extends BaseController {
 		return null;
 	}
 
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/downloadTestReportByTestIdAndUsernameAttemptWise", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String downloadTestReportByTestIdAndUsernameAttemptWise(Model m, Principal p, HttpServletResponse response,
@@ -4789,6 +4831,7 @@ public class TestController extends BaseController {
 		return null;
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/updateTestQuestionPool", method = RequestMethod.POST)
 	public String updateTestQuestionPool(@ModelAttribute TestPool test, RedirectAttributes redirectAttrs,
 			Principal principal) {
@@ -4840,7 +4883,8 @@ public class TestController extends BaseController {
 		}
 		return "redirect:/viewTestQuestionsByTestPool";
 	}
-
+	
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/removeStudentTest", method = { RequestMethod.GET, RequestMethod.POST })
 	public String removeStudentTest(Model m, RedirectAttributes redirectAttrs, Principal p, @ModelAttribute Test test,
 			@RequestParam(required = false) String name[], @RequestParam(required = false) String id,
@@ -4870,6 +4914,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/hideResultsToStudents", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String hideResultsToStudents(@RequestParam("id") Long id, Model m, Principal principal) {
 
@@ -4888,6 +4933,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/updateTestPool", method = RequestMethod.POST)
 	public String updateTestPool(@ModelAttribute TestPool testPool, RedirectAttributes redirectAttrs,
 			Principal principal, Model m) {
@@ -5085,6 +5131,7 @@ public class TestController extends BaseController {
 		}
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/exportTestForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String exportTestForm(@ModelAttribute Test test, Model m, @RequestParam(required = false) Long campusId,
 			Principal p) {
@@ -5124,6 +5171,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/exportTest", method = { RequestMethod.GET, RequestMethod.POST })
 	public String exportTest(@ModelAttribute Test test, Model m, @RequestParam(name = "programId") String programId,
 			@RequestParam(name = "testId") String testId, @RequestParam(name = "abbr") String abbr,
@@ -5348,6 +5396,7 @@ public class TestController extends BaseController {
 		return "redirect:/exportTestForm";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/downloadTestQuestionPoolByTestPoolId", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadTestQuestionPoolByTestPoolId(Model m, Principal p, HttpServletResponse response,
 			@RequestParam(required = false) String testPoolId, RedirectAttributes redirectAttrs) throws URIException {
@@ -5422,6 +5471,7 @@ public class TestController extends BaseController {
 		return null;
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/deleteTestQuestionPool", method = { RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView deleteTestQuestionPool(HttpServletRequest request,
 			@RequestParam(required = false) String testQuestionPoolId,
@@ -5440,6 +5490,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/exportTestPoolForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String exportTestPoolForm(@ModelAttribute TestPool testPool, Model m,
 			@RequestParam(required = false) Long campusId, Principal p) {
@@ -5479,6 +5530,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/exportTestPool", method = { RequestMethod.GET, RequestMethod.POST })
 	public String exportTestPool(@ModelAttribute TestPool testPool, Model m,
 			@RequestParam(name = "programId") String programId, @RequestParam(name = "testPoolId") String testPoolId,
@@ -5591,6 +5643,7 @@ public class TestController extends BaseController {
 
 	// Code For Offline Test Creation & Uploading Marks In Excel
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addOfflineTestForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addOfflineTestForm(@ModelAttribute OfflineTest offlineTest, Model m, Principal principal,
 			@RequestParam(required = false) String courseId, RedirectAttributes redirectAttrs) {
@@ -5638,6 +5691,7 @@ public class TestController extends BaseController {
 		return "test/addOfflineTest";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/uploadStudentOfflineTestScoreForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String uploadStudentOfflineTestScoreForm(Model m, Principal principal,
 			@ModelAttribute OfflineTest offlineTest, RedirectAttributes redirectAttributes) {
@@ -5661,6 +5715,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/deleteOfflineTest", method = { RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView deleteOfflineTest(HttpServletRequest request, @ModelAttribute OfflineTest offlineTest, Model m,
 			Principal principal, RedirectAttributes redirectAttrs) {
@@ -5682,6 +5737,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/updateOfflineTest", method = RequestMethod.POST)
 	public String updateOfflineTest(@ModelAttribute OfflineTest offlineTest, RedirectAttributes redirectAttrs,
 			Principal principal, Model m) {
@@ -5719,6 +5775,7 @@ public class TestController extends BaseController {
 		return "redirect:/addOfflineTestForm";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/uploadStudentOfflineTest", method = { RequestMethod.POST })
 	public String uploadStudentOfflineTest(@ModelAttribute OfflineTest offlineTest,
 			@RequestParam("file") MultipartFile file, Model m, RedirectAttributes redirectAttributes,
@@ -5797,6 +5854,7 @@ public class TestController extends BaseController {
 		return "test/uploadStudentOfflineTest";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addOfflineTest", method = RequestMethod.POST)
 	public String addOfflineTest(@ModelAttribute OfflineTest offlineTest, RedirectAttributes redirectAttrs,
 			Principal principal, Model m) {
@@ -5829,7 +5887,7 @@ public class TestController extends BaseController {
 		return "redirect:/uploadStudentOfflineTestScoreForm";
 	}
 
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/viewOfflineTests", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewOfflineTests(
 
@@ -5878,6 +5936,7 @@ public class TestController extends BaseController {
 
 	/* Added on 23rd May */
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/createTestForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String createTestForm(@RequestParam(required = false) String courseId,
 			@RequestParam(required = false) String acadSessionParam, @RequestParam(required = false) String acadYear,
@@ -6007,6 +6066,7 @@ public class TestController extends BaseController {
 		return "test/createTestForm";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/viewTestFinal", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewTestFinal(@RequestParam(required = false) Long courseId,
 			@RequestParam(required = false, defaultValue = "1") int pageNo, Model m, Principal principal) {
@@ -6126,7 +6186,8 @@ public class TestController extends BaseController {
 
 		return "test/viewTestFinal";
 	}
-
+	
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/viewTestFinalAjax", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String viewTestFinalAjax(@RequestParam Long courseId,
 			@RequestParam(required = false, defaultValue = "1") int pageNo, Model m, Principal principal) {
@@ -6210,6 +6271,7 @@ public class TestController extends BaseController {
 		}
 	}
 
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/searchTestListBySupportAdminForm", method = RequestMethod.GET)
 	public String searchTestListBySupportAdmin(@ModelAttribute("test") Test test, Model m) {
 		m.addAttribute("webPage", new WebPage("test", "Search Test", true, false));
@@ -6226,6 +6288,7 @@ public class TestController extends BaseController {
 	}
 
 	// new
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/searchTestListBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchTestListBySupportAdmin(Model m, Principal principal, RedirectAttributes redirectAttributes,
 			@ModelAttribute("test") Test test, HttpServletRequest request) {
@@ -6318,6 +6381,7 @@ public class TestController extends BaseController {
 		return "test/searchTestListBySupportAdminForm";
 	}
 
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/studetTestListBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String studetTestListBySupportAdmin(Model m, Principal principal, RedirectAttributes redirectAttributes,
 			@RequestParam(name = "id") String id, @RequestParam(name = "dbName") String dbName,
@@ -6357,6 +6421,7 @@ public class TestController extends BaseController {
 	}
 
 	// 27-07-2020
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/showReportsToStudents", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String showReportsToStudents(@RequestParam("id") Long id, Model m, Principal principal) {
 
@@ -6372,6 +6437,7 @@ public class TestController extends BaseController {
 		}
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/hideReportsToStudents", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String hideReportsToStudents(@RequestParam("id") Long id, Model m, Principal principal) {
 
@@ -6391,7 +6457,7 @@ public class TestController extends BaseController {
 	// Added Admin Test New Mapping on 29-07-2020
 
 	// Test Creation Admin End On 18-07-2020
-
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestFormByAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addTestFormByAdmin(@ModelAttribute Test test, Model m, Principal principal,
 
@@ -6476,6 +6542,7 @@ public class TestController extends BaseController {
 		return "test/createTestFormForAdmin";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/getModuleByParamForTest", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getModuleByParamForTest(@RequestParam(name = "acadYear") String acadYear,
 			@RequestParam(name = "campusId", required = false) String campusId,
@@ -6512,6 +6579,7 @@ public class TestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestByAdmin", method = RequestMethod.POST)
 	public String addTestByAdmin(@ModelAttribute Test test, RedirectAttributes redirectAttrs, Principal principal,
 			@RequestParam(required = false) Long courseId, Model m) {
@@ -6660,6 +6728,7 @@ public class TestController extends BaseController {
 		return "redirect:/viewTestDetailsByAdmin";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/viewTestDetailsByAdmin", method = RequestMethod.GET)
 	public String viewTestDetailsByAdmin(@RequestParam(required = false) Long testId, Model m,
 			@RequestParam(required = false) String groupId, @RequestParam(required = false) Long campusId,
@@ -6807,6 +6876,7 @@ public class TestController extends BaseController {
 		return "test/testDetailsForAdmin";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestPoolFormByAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addTestPoolFormByAdmin(@ModelAttribute TestPool testPool, Model m, Principal principal,
 			@RequestParam(required = false) String courseId, RedirectAttributes redirectAttrs) {
@@ -6856,6 +6926,7 @@ public class TestController extends BaseController {
 		return "test/addTestPoolByAdmin";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestPoolByAdmin", method = RequestMethod.POST)
 	public String addTestPoolByAdmin(@ModelAttribute TestPool testPool, RedirectAttributes redirectAttrs,
 			Principal principal, Model m) {
@@ -6889,6 +6960,7 @@ public class TestController extends BaseController {
 		return "redirect:/uploadTestQuestionPoolForm";
 	}
 	//change method name by hiren 02-02-2021
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/getFacultyByModuleTest", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getFacultyByModuleTest(@RequestParam(name = "moduleId") String moduleId,
 			@RequestParam(name = "acadYear") String acadYear, @RequestParam(name = "campusId",required = false, defaultValue = "null") String campusId,
@@ -6919,7 +6991,8 @@ public class TestController extends BaseController {
 		return json;
 
 	}
-
+	
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/updateTestByAdmin", method = RequestMethod.POST)
 	public String updateTestByAdmin(@ModelAttribute Test test, RedirectAttributes redirectAttrs, Principal principal,
 			Model m) {
@@ -7119,6 +7192,7 @@ public class TestController extends BaseController {
 	}
 
 	// New Pool Changes
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestConfigurationForm", method = RequestMethod.POST)
 	public String addTestConfigurationForm(@RequestParam(required = false) Long testId,
 			RedirectAttributes redirectAttrs, Principal principal, Model m) {
@@ -7171,6 +7245,7 @@ public class TestController extends BaseController {
 		return "test/configureQuestionMarksForTest";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addPoolTestConfiguration", method = RequestMethod.POST)
 	public @ResponseBody String addPoolTestConfiguration(@RequestParam(required = false) Long testId,
 			@RequestParam(required = false) String testPoolConfiguration, RedirectAttributes redirectAttrs,
@@ -7267,6 +7342,8 @@ public class TestController extends BaseController {
 		}
 
 	}
+	
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/saveStudentTestForAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentTestForAdmin(@ModelAttribute Test test, Model m, RedirectAttributes redirectAttr,
 			Principal principal) {

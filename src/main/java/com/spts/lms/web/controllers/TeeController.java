@@ -174,6 +174,7 @@ public class TeeController extends BaseController {
 
 	private static final Logger logger = Logger.getLogger(TeeController.class);
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addTeeForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addTeeForm(Model m, Principal principal, @RequestParam(required = false) String id,
 			RedirectAttributes redirectAttrs) {
@@ -246,7 +247,7 @@ public class TeeController extends BaseController {
 
 	}
 
-	@Secured("ROLE_ADMIN")
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addTee", method = RequestMethod.POST)
 	public String addTee(Model m, Principal principal, @ModelAttribute TeeBean teeBean,
 			RedirectAttributes redirectAttrs) {
@@ -352,6 +353,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/searchTeeList", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchTeeList(Model m, Principal principal, @RequestParam(required = false) String teeId) {
 
@@ -466,7 +468,7 @@ public class TeeController extends BaseController {
 		}
 	}
 
-	@Secured("ROLE_ADMIN")
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/updateTee", method = RequestMethod.POST)
 	public String updateTee(Model m, Principal principal, @ModelAttribute TeeBean teeBean,
 			RedirectAttributes redirectAttrs) {
@@ -588,6 +590,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/publishTeeForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String publishTeeForm(Model m, Principal principal) {
 		Token userdetails1 = (Token) principal;
@@ -625,6 +628,7 @@ public class TeeController extends BaseController {
 		return "tee/publishTee";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/publishOneTee", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String publishOneTee(Model m, Principal principal, @RequestParam String id) {
 		Token userdetails1 = (Token) principal;
@@ -708,6 +712,7 @@ public class TeeController extends BaseController {
 		}
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/publishAllTee", method = { RequestMethod.GET, RequestMethod.POST })
 	public String publishAllTee(Model m, Principal principal, RedirectAttributes redirectAttrs) {
 
@@ -796,7 +801,7 @@ public class TeeController extends BaseController {
 		return "redirect:/publishTeeForm";
 	}
 
-	@Secured("ROLE_ADMIN")
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/deleteTee", method = RequestMethod.GET)
 	public String deleteTee(Model m, Principal principal, @ModelAttribute TeeBean teeBean,
 			RedirectAttributes redirectAttrs) {
@@ -926,6 +931,7 @@ public class TeeController extends BaseController {
 		}
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/evaluateTee", method = { RequestMethod.GET, RequestMethod.POST })
 	public String evaluateTee(Model m, Principal principal, @RequestParam Long teeId, @ModelAttribute TeeBean teeBean,
 			RedirectAttributes redirectAttrs) {
@@ -1045,6 +1051,7 @@ public class TeeController extends BaseController {
 		return "tee/evaluateTee";
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/downloadTeeMarksUploadTemplate", method = { RequestMethod.GET, RequestMethod.POST })
 	public ResponseEntity<ByteArrayResource> downloadTeeMarksUploadTemplate(
 
@@ -1126,6 +1133,7 @@ public class TeeController extends BaseController {
 		return bd.doubleValue();
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/showEvaluatedTeeMarks", method = { RequestMethod.GET, RequestMethod.POST })
 	public String showEvaluatedTeeMarks(Model m, Principal principal, @RequestParam String teeId) {
 
@@ -1155,6 +1163,7 @@ public class TeeController extends BaseController {
 		return "tee/showEvaluatedTeeMarks";
 	}
 
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/showExternalMarks", method = { RequestMethod.GET, RequestMethod.POST })
 	public String showExternalMarks(Model m, Principal principal) {
 		String username = principal.getName();
@@ -1184,7 +1193,7 @@ public class TeeController extends BaseController {
 		return "tee/showExternalMarks";
 	}
 
-	@Secured("ROLE_ADMIN")
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/createStudentGroupFormForTee", method = RequestMethod.GET)
 	public String createStudentGroupFormForTee(Model m, Principal principal, @RequestParam(required = false) Long id,
 			@ModelAttribute TeeBean teeBean, RedirectAttributes redirectAttrs) {
@@ -1233,7 +1242,7 @@ public class TeeController extends BaseController {
 
 	}
 
-	@Secured("ROLE_ADMIN")
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/saveStudentsBatchWiseForTee", method = RequestMethod.POST)
 	public @ResponseBody String saveStudentsBatchWiseForTee(@RequestParam String json, HttpServletResponse resp) {
 		TeeBean teeBean = new TeeBean();
@@ -1268,6 +1277,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/raiseQueryTeeForStudent", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String raiseQueryTeeForStudent(Model m, Principal principal, @RequestParam String id,
 			@RequestParam String query) {
@@ -1317,6 +1327,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/downloadTeeFile", method = { RequestMethod.GET, RequestMethod.POST })
 	public ResponseEntity<ByteArrayResource> downloadTeeFile(
 			@RequestParam(required = false, name = "id", defaultValue = "") String id, HttpServletRequest request,
@@ -1407,6 +1418,7 @@ public class TeeController extends BaseController {
 		}
 	}
 
+	@Secured({"ROLE_FACULTY"})
 	@RequestMapping(value = "/downloadTeeReportFacultyForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadTeeReportFacultyForm(Model m, Principal principal) {
 
@@ -1420,6 +1432,7 @@ public class TeeController extends BaseController {
 		return "tee/teeReportFaculty";
 	}
 
+	@Secured({"ROLE_FACULTY"})
 	@RequestMapping(value = "/downloadTeeFacultyReport", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadTeeFacultyReport(Model m, HttpServletResponse response, Principal principal,
 			@RequestParam String acadYear, @RequestParam String reportType, RedirectAttributes redirectAttributes) {
@@ -1694,6 +1707,7 @@ public class TeeController extends BaseController {
 
 	// 10-04-2020 Merged Code
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addTeeFormForDivision", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addTeeFormForDivision(Model m, Principal principal, @RequestParam(required = false) String id,
 			RedirectAttributes redirectAttrs) {
@@ -1742,7 +1756,7 @@ public class TeeController extends BaseController {
 
 	}
 
-	@Secured("ROLE_ADMIN")
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addTeeForDivision", method = RequestMethod.POST)
 	public String addTeeForDivision(Model m, Principal principal, @ModelAttribute TeeBean teeBean,
 			RedirectAttributes redirectAttrs) {
@@ -1862,6 +1876,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/showTeeQueries", method = { RequestMethod.GET, RequestMethod.POST })
 	public String showTeeQueries(Model m, Principal principal) {
 
@@ -1899,6 +1914,7 @@ public class TeeController extends BaseController {
 		return "tee/teeQueries";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/approveTeeForReeval", method = { RequestMethod.POST, RequestMethod.GET })
 	public String approveTeeForReeval(@RequestParam(name = "file", required = true) List<MultipartFile> input,
 			@RequestParam(name = "teeId") String teeId, Principal p, RedirectAttributes redirectAttributes) {
@@ -2012,6 +2028,7 @@ public class TeeController extends BaseController {
 		return "redirect:/showTeeQueries";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/approveAllTeeForReeval", method = { RequestMethod.POST, RequestMethod.GET })
 	public String approveAllTeeForReeval(@RequestParam(name = "file", required = true) List<MultipartFile> input,
 			Principal p, RedirectAttributes redirectAttributes) {
@@ -2179,6 +2196,7 @@ public class TeeController extends BaseController {
 		return filePath;
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/submitTee", method = { RequestMethod.POST, RequestMethod.GET })
 	public String submitTee(@RequestParam Map<String, String> allRequestParams, Principal p,
 			RedirectAttributes redirectAttributes) {
@@ -2312,6 +2330,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/saveTeeAsDraft", method = { RequestMethod.POST, RequestMethod.GET })
 	public @ResponseBody String saveTeeAsDraft(@RequestParam Map<String, String> allRequestParams, Principal p) {
 
@@ -2362,6 +2381,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/uploadStudentMarksExcelTee", method = { RequestMethod.POST })
 	public String uploadStudentMarksExcelTee(@ModelAttribute Test test, @RequestParam("file") MultipartFile file,
 			@RequestParam String saveAs, @RequestParam String teeId, Model m, RedirectAttributes redirectAttributes,
@@ -2555,6 +2575,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/downloadTeeReportForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadTeeReportForm(Model m, Principal principal) {
 
@@ -2571,6 +2592,7 @@ public class TeeController extends BaseController {
 		return "tee/teeReport";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/getSessionByParamForTeeReport", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getSessionByParamForTeeReport(@RequestParam(name = "acadYear") String acadYear,
 			@RequestParam(name = "campusId") String campusId,
@@ -2598,6 +2620,7 @@ public class TeeController extends BaseController {
 		return json;
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/downloadTeeReport", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadTeeReport(Model m, HttpServletResponse response, Principal principal,
 			@RequestParam String acadYear, @RequestParam String acadSession, @RequestParam String programId,
@@ -3315,6 +3338,7 @@ public class TeeController extends BaseController {
 		return filePath;
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/downloadTeeRaiseQueryReport", method = { RequestMethod.GET, RequestMethod.POST })
 	public ResponseEntity<ByteArrayResource> downloadTeeRaiseQueryReport(Model m, Principal p,
 			HttpServletResponse response, @RequestParam(required = false) String acadYear) throws URIException {
@@ -3386,6 +3410,7 @@ public class TeeController extends BaseController {
 	}
 
 	// Tee Support Admin Mappings
+	@Secured({"ROLE_SUPPORT_ADMIN","ROLE_ADMIN","ROLE_EXAM"})
 	@RequestMapping(value = "/teeListBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String teeListBySupportAdmin(Model m, Principal principal, @RequestParam(required = false) String teeId) {
 
@@ -3422,6 +3447,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_SUPPORT_ADMIN","ROLE_ADMIN","ROLE_EXAM"})
 	@RequestMapping(value = "/updateTeeDateBySupportAdminForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String updateIcaDateBySupportAdminForm(Model m, Principal principal, @ModelAttribute TeeBean teeBean,
 			RedirectAttributes redirectAttrs, @RequestParam String teeId) {
@@ -3436,6 +3462,7 @@ public class TeeController extends BaseController {
 		return "tee/updateDateBySupportAdmin";
 	}
 
+	@Secured({"ROLE_SUPPORT_ADMIN","ROLE_ADMIN","ROLE_EXAM"})
 	@RequestMapping(value = "/updateTeeDateBySupportAdmin", method = RequestMethod.POST)
 	public String updateTeeDateBySupportAdmin(Model m, Principal principal, @ModelAttribute TeeBean teeBean,
 			RedirectAttributes redirectAttrs) {
@@ -3490,6 +3517,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_SUPPORT_ADMIN","ROLE_ADMIN","ROLE_EXAM"})
 	@RequestMapping(value = "/updateTeeDateBySupportAdminWithoutSubmit", method = RequestMethod.POST)
 	public String updateTeeDateBySupportAdminWithoutSubmit(Model m, Principal principal,
 			@ModelAttribute("teeBeanS") TeeBean teeBeanS, RedirectAttributes redirectAttrs) {
@@ -3540,6 +3568,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/uploadTeeMarksChangeForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String uploadTeeMarksChangeForm(Model m, Principal principal, RedirectAttributes redirectAttributes) {
 		// m.addAttribute("webPage", new WebPage("UploadStudentsToDeallocate","Upload",
@@ -3558,6 +3587,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/downloadTeeMarksChangeTemplate", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadTeeMarksChangeTemplate(RedirectAttributes redirectAttrs, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -3635,6 +3665,7 @@ public class TeeController extends BaseController {
 		return null;
 	}
 
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/uploadTeeMarksChangeTemplate", method = { RequestMethod.POST })
 	public String uploadTeeMarksChangeTemplate(@ModelAttribute TeeBean teeBean,
 			@RequestParam("file") MultipartFile file, Model m, RedirectAttributes redirectAttributes,
@@ -3719,6 +3750,7 @@ public class TeeController extends BaseController {
 
 	/// new tee changes for assignment marks to auto assign in tee
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/assignAssignmentMarksToTeeForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String assignAssignmentMarksToTeeForm(@RequestParam Long teeId,
 			@RequestParam(required = false) String courseId, Principal p,
@@ -3865,6 +3897,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/saveAssignmentMarksToTee", method = { RequestMethod.GET, RequestMethod.POST })
 	public String saveAssignmentMarksToTee(@ModelAttribute TeeBean tee, Model m, RedirectAttributes redirectAttrs,
 			Principal p) {
@@ -4136,6 +4169,7 @@ public class TeeController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = { "/clearTeeAsignmentMarks" }, method = { RequestMethod.GET })
 	public String clearTeeAsignmentMarks(Model m, @RequestParam String teeId, @RequestParam String courseId,
 			HttpServletResponse resp, Principal p, RedirectAttributes redirectAttrs, HttpServletRequest request) {
