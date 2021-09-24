@@ -104,7 +104,6 @@ import com.spts.lms.web.helper.CopyCaseHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured("ROLE_USER")
 @Controller
 @SessionAttributes("userId")
 public class StudentAssignmentController extends BaseController {
