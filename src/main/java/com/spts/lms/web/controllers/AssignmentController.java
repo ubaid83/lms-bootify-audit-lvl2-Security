@@ -112,7 +112,7 @@ import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured("ROLE_USER")
+
 @Controller
 @SessionAttributes("userId")
 public class AssignmentController extends BaseController {
@@ -209,6 +209,7 @@ public class AssignmentController extends BaseController {
 	private static final Logger logger = Logger
 			.getLogger(AssignmentController.class);
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/createAssignmentForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createAssignmentForm(
@@ -251,6 +252,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/createAssignment";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/createAssignmentFromMenu", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createAssignmentFromMenu(
@@ -324,6 +326,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/createAssignment";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/createAssignment", method = { RequestMethod.POST })
 	public String createAssignment(@ModelAttribute Assignment assignment,
 			@RequestParam(required = false) Long myId,
@@ -439,6 +442,7 @@ public class AssignmentController extends BaseController {
 	
 	// added with notification service
 	//updated by Amey on 10 Apr 2020
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/updateAssignment", method = { RequestMethod.GET,
 
 			RequestMethod.POST })
@@ -697,6 +701,7 @@ public class AssignmentController extends BaseController {
 	
 	
 	//updated by Amey on 10 Apr 2020
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/saveStudentAssignmentAllocationForAllStudents", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentAssignmentAllocationForAllStudents(
@@ -887,6 +892,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/createAssignment";
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/saveStudentAssignmentAllocation", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentAssignmentAllocation(
@@ -1049,6 +1055,7 @@ public class AssignmentController extends BaseController {
 		return "redirect:/viewAssignment?id=" + assignment.getId();
 	}
 
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "/saveGroupAssignment", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveGroupAssignment(@ModelAttribute Assignment assignment,
@@ -1251,6 +1258,7 @@ public class AssignmentController extends BaseController {
 	}
 
 	//Updated by Amey on 10 Apr 2020
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/viewAssignment", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewAssignment(@RequestParam Long id, Model m,
@@ -1387,6 +1395,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/assignment";
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_STUDENT" })
 	@RequestMapping(value = "/viewAssignmentFinal", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewAssignmentFinal(
@@ -1505,6 +1514,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/viewAssignmentFinal";
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_STUDENT" })
 	@RequestMapping(value = "/viewAssignmentFinalAjax", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String viewAssignmentFinalAjax(
@@ -1560,6 +1570,7 @@ public class AssignmentController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "/viewByGroupAssignment", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewByGroupAssignment(@RequestParam Long id, Model m,
@@ -1651,6 +1662,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/viewByGroup";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/updateSubmitter", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String updateSubmitter(@RequestParam String value,
@@ -1676,6 +1688,7 @@ public class AssignmentController extends BaseController {
 
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/saveGroupAssignmentAllocationSelectAll", method = { RequestMethod.POST })
 	public String saveGroupAssignmentAllocationSelectAll(
 			@ModelAttribute Assignment assignment, Model m, Principal principal) {
@@ -1785,6 +1798,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/viewByGroup";
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/getAssignmentDetails", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getAssignmentDetails(@RequestParam Long id,
@@ -1800,6 +1814,7 @@ public class AssignmentController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/getLateAssignmentDetails", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getLateAssignmentDetails(@RequestParam Long id,
@@ -1878,6 +1893,7 @@ public class AssignmentController extends BaseController {
 		return errorMessage;
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/searchAssignmentForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchAssignmentForm(Model m, Principal principal,
@@ -1902,6 +1918,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/searchAssignment";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/searchAssignment", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String searchAssignment(
@@ -1941,6 +1958,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/searchAssignment";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/searchFacultyAssignment", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchFacultyAssignment(
@@ -2062,7 +2080,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/facultyAssignmentList";
 	}
 	
-	
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/downloadFile", method = { RequestMethod.GET,
 		RequestMethod.POST })
 		public ResponseEntity<ByteArrayResource> downloadFile(
@@ -2231,6 +2249,7 @@ public class AssignmentController extends BaseController {
 			return null;
 	}
 	
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/downloadFileForCourseUpload", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public ModelAndView downloadFileForCourseUpload(
@@ -2320,7 +2339,7 @@ public class AssignmentController extends BaseController {
 		return null;
 	}
 
-
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/createAssignmentFromGroup", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createAssignmentFromGroup(
@@ -2379,6 +2398,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/createAssignmentFromGroupFinal";
 	}
 
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "/saveGroupAssignmentAllocation", method = { RequestMethod.POST })
 	public String saveGroupAssignmentAllocation(
 			@ModelAttribute Assignment assignment, Model m, Principal principal) {
@@ -2478,6 +2498,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/viewByGroup";
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/facultyAllocation", method = {
 			RequestMethod.POST, RequestMethod.GET })
 	public String facultyAllocation(@ModelAttribute Assignment assignment,
@@ -2500,6 +2521,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/facultyLeave";
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/getAssignmentBasedOnCourse", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getAssignmentBasedOnCourse(
@@ -2530,6 +2552,7 @@ public class AssignmentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/searchFacultyAllocationForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchFacultyAllocationForm(
@@ -2575,6 +2598,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/facultyAllocation";
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/searchFacultyAllocation", method = { RequestMethod.POST })
 	public String searchFacultyAllocationForm(Model m, Principal principal,
 			@RequestParam(required = false) Long courseId,
@@ -2609,6 +2633,7 @@ public class AssignmentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/saveFacultyAllocation", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveFacultyAllocation(@ModelAttribute Assignment assignment,
@@ -2643,6 +2668,7 @@ public class AssignmentController extends BaseController {
 		return "redirect:/searchFacultyAllocationForm";
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/getAssigmentByCourseOnly", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getAssigmentByCourseOnly(
@@ -2672,6 +2698,7 @@ public class AssignmentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/searchFacultyForAssignment", method = { RequestMethod.POST })
 	public String searchFacultyForAssignment(Model m, Principal principal,
 			@RequestParam(required = false) Long courseId,
@@ -2703,6 +2730,7 @@ public class AssignmentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_STUDENT", "ROLE_ADMIN" })
 	@RequestMapping(value = "/downloadAllFile", method = { RequestMethod.GET,
 		RequestMethod.POST })
 		public void downloadAllFile(HttpServletRequest request,
@@ -2774,6 +2802,7 @@ public class AssignmentController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/searchAssignmentTestForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchAssignmentTestForm(Model m, Principal principal,
@@ -2812,6 +2841,7 @@ public class AssignmentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN", "ROLE_STUDENT" })
 	@RequestMapping(value = "/searchAssignmentTest", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchAssignmentTest(Model m, Principal principal,
@@ -3024,6 +3054,7 @@ public class AssignmentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN", "ROLE_STUDENT" })
 	@RequestMapping(value = "/viewThisAssignment", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewThisAssignment(Model m,
@@ -3067,6 +3098,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/viewAssignment";
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/makeAssignmentInactive", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView makeAssignmentInactive(HttpServletRequest request,
@@ -3091,6 +3123,7 @@ public class AssignmentController extends BaseController {
 		return new ModelAndView("redirect:/searchAssignment");
 	}
 
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "/createGroupAssignmentsForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createGroupAssignmentsForm(Model m,
@@ -3132,6 +3165,7 @@ public class AssignmentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "/createGroupAssignments", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createGroupAssignments(
@@ -3254,7 +3288,7 @@ public class AssignmentController extends BaseController {
 	}
 
 
-
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "/viewGroupStudentsForAssignment", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewGroupStudentsForAssignment(@ModelAttribute Groups groups,
@@ -3293,7 +3327,7 @@ public class AssignmentController extends BaseController {
 	
 	
 	
-	
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/createAssignmentModuleForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createAssignmentModuleForm(
@@ -3336,7 +3370,8 @@ public class AssignmentController extends BaseController {
 		return "assignment/createAssignmentForModule";
 	}
 
-@RequestMapping(value = "/createAssignmentForModule", method = { RequestMethod.POST })
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
+	@RequestMapping(value = "/createAssignmentForModule", method = { RequestMethod.POST })
 	public String createAssignmentForModule(@ModelAttribute Assignment assignment,
 			@RequestParam(required = false) Long myId,
 			@RequestParam("file") List<MultipartFile> files, Model m,
@@ -3633,7 +3668,8 @@ public class AssignmentController extends BaseController {
 		return "Success";
 	}
 	
-@RequestMapping(value = "/viewAssignmentForModule", method = {
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
+	@RequestMapping(value = "/viewAssignmentForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewAssignmentForModule(@RequestParam(required = false) Long id, Model m,
 			@RequestParam(required = false) Long campusId, Principal principal) {
@@ -3695,7 +3731,8 @@ public class AssignmentController extends BaseController {
 		return "assignment/viewAssignmentForModule";
 	}
 	
-@RequestMapping(value = "/createAssignmentFromMenuForModule", method = {
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
+	@RequestMapping(value = "/createAssignmentFromMenuForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createAssignmentFromMenuForModule(
 			@ModelAttribute Assignment assignment,
@@ -3788,6 +3825,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/createAssignmentForModule";
 	}
 	
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN", "ROLE_STUDENT" })
 	@RequestMapping(value = "/getAcadYearByModuleId", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getAcadYearByModuleId(
@@ -3820,6 +3858,7 @@ public class AssignmentController extends BaseController {
 
 	}
 	
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/deleteAssignment", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public ModelAndView deleteAssignmentForm(HttpServletRequest request,
@@ -3841,6 +3880,7 @@ public class AssignmentController extends BaseController {
 		return new ModelAndView("redirect:/searchFacultyAssignment");
 	}
 	
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/showResultsToStudentsAssignment", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String showResultsToStudentsAssignment(
@@ -3873,8 +3913,8 @@ public class AssignmentController extends BaseController {
 
 	}
 	
-	
-@RequestMapping(value = "/saveStudentAssignmentAllocationForModule", method = {
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
+	@RequestMapping(value = "/saveStudentAssignmentAllocationForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentAssignmentAllocationForModule(
 			@ModelAttribute Assignment assignment, Model m, Principal principal) {
@@ -4025,7 +4065,7 @@ public class AssignmentController extends BaseController {
 		return "redirect:/viewAssignmentForModule?id=" + assignment.getId();
 	}
 	
-	
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 	@RequestMapping(value = "/updateAssignmentForModule", method = {
 			RequestMethod.GET,
 
@@ -4306,6 +4346,7 @@ public class AssignmentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN", "ROLE_STUDENT" })
 	@RequestMapping(value = "/downloadAllFileForModule", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public void downloadAllFileForModule(HttpServletRequest request,
@@ -4363,6 +4404,7 @@ public class AssignmentController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_ADMIN", "ROLE_STUDENT" })
 	@RequestMapping(value = "/viewThisAssignmentForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewThisAssignmentForModule(Model m,
@@ -4407,7 +4449,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/viewAssignment";
 	}
 	
-
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/searchFacultyAssignmentForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchFacultyAssignmentForModule(
@@ -4525,6 +4567,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/facultyAssignmentListForModule";
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/createAssignmentByAdmin", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createAssignmentByAdmin(
@@ -4613,6 +4656,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/createAssignmentForAdmin";
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/addAssignmentByAdmin", method = { RequestMethod.POST })
 	public String addAssignmentByAdmin(@ModelAttribute Assignment assignment,
 			@RequestParam(required = false) Long myId,
@@ -4729,6 +4773,7 @@ public class AssignmentController extends BaseController {
 		return "redirect:/viewAssignment";
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/searchAdminAssignment", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchAdminAssignment(
@@ -4823,6 +4868,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/adminAssignmentList";
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/exportAssignmentFormForAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String exportAssignmentFormForAdmin(@RequestParam Long id, Model m,
@@ -4858,6 +4904,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/assignmentForAdmin";
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/exportAssignmentForAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String exportAssignmentForAdmin(@ModelAttribute Assignment assignment, Model m,
@@ -5034,7 +5081,7 @@ public class AssignmentController extends BaseController {
 	
 	
 	//Hiren 11-04-2020
-	
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/downloadAllFileForLateSubmitted", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public void downloadAllFileForLateSubmitted(HttpServletRequest request,
@@ -5117,7 +5164,7 @@ public class AssignmentController extends BaseController {
 		return errorMessage;
 	}
 	
-	
+	@Secured({ "ROLE_FACULTY", "ROLE_STUDENT", "ROLE_ADMIN" })
 	@RequestMapping(value = "/getCourseByCourseId", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getCourseByCourseId(
@@ -5162,6 +5209,7 @@ public class AssignmentController extends BaseController {
 	}
 	
 	//Hiren 29-08-2020
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/addQuestionConfigurationForm", method = {RequestMethod.POST,RequestMethod.GET})
 	public String addTestConfigurationForm(
 			@RequestParam Long assignmentId,
@@ -5193,6 +5241,7 @@ public class AssignmentController extends BaseController {
 		return "assignment/configureQuestionMarksForAssignment";
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/addAssignmentConfiguration", method = RequestMethod.POST)
 	public @ResponseBody String addAssignmentConfiguration(
 			@RequestParam(required = false) Long assignmentId,
@@ -5238,6 +5287,7 @@ public class AssignmentController extends BaseController {
 
 	}
 	
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/downloadStudentAssignmentHashKeys", method = { RequestMethod.GET})
 	public String downloadStudentAssignmentHashKeys(
 			@RequestParam(required = false) Long assignmentId,HttpServletResponse response) throws URIException {
@@ -5301,7 +5351,8 @@ public class AssignmentController extends BaseController {
 		return null;
 	}
 	
-	// For Assignment Pool Start
+		// For Assignment Pool Start
+		@Secured("ROLE_ADMIN")
 		@RequestMapping(value = "/addAssignmentQuestionPoolConfigurationForm", method = { RequestMethod.POST,
 				RequestMethod.GET })
 		public String addAssignmentQuestionPoolConfigurationForm(@RequestParam Long assignmentId,
@@ -5340,6 +5391,7 @@ public class AssignmentController extends BaseController {
 			return "assignment/questionPoolConfiguration";
 		}
 
+		@Secured("ROLE_ADMIN")
 		@RequestMapping(value = "/addAssignmentQuestionPoolConfiguration", method = RequestMethod.POST)
 		public @ResponseBody String addAssignmentQuestionPoolConfiguration(
 				@RequestParam(required = false) Long assignmentId,
@@ -5500,7 +5552,7 @@ public class AssignmentController extends BaseController {
 			return studAssgnQuestnList;
 		}
 		
-		@Secured("ROLE_USER")
+		@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 		@RequestMapping(value = "/viewAssignmentQuestionsByTestPoolForm", method = { RequestMethod.GET, RequestMethod.POST })
 		public String viewAssignmentQuestionsByTestPoolForm(
 
@@ -5556,7 +5608,7 @@ public class AssignmentController extends BaseController {
 			return "assignment/assignmentQuestionPoolList";
 		}
 		
-		@Secured("ROLE_USER")
+		@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 		@RequestMapping(value = "/viewAssignmentQuestionsByTestPool", method = { RequestMethod.GET, RequestMethod.POST })
 		public String viewAssignmentQuestionsByTestPool(
 
@@ -5766,7 +5818,7 @@ public class AssignmentController extends BaseController {
 			return testQuestions;
 		}
 		
-		@Secured("ROLE_USER")
+		@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 		@RequestMapping(value = "/saveAssignmentQuestionsByTestPool", method = { RequestMethod.GET, RequestMethod.POST })
 		public String saveAssignmentQuestionsByTestPool(
 
@@ -5872,7 +5924,7 @@ public class AssignmentController extends BaseController {
 		}
 		
 		
-		@Secured("ROLE_USER")
+		@Secured({ "ROLE_FACULTY", "ROLE_ADMIN" })
 		@RequestMapping(value = "/saveAllAssignmentQuestionsByTestPool", method = { RequestMethod.GET, RequestMethod.POST })
 		public String saveAllAssignmentQuestionsByTestPool(
 
@@ -5951,7 +6003,9 @@ public class AssignmentController extends BaseController {
 			return "redirect:/viewAssignmentQuestionsByTestPool";
 
 		}
+		
 		@SuppressWarnings("unused")
+		@Secured("ROLE_SUPPORT_ADMIN")
 		@RequestMapping(value="/editAssignment" , method = { RequestMethod.GET,RequestMethod.POST})
 		public String editAssignment(@ModelAttribute Assignment assignment, Model m,RedirectAttributes redirect) 
 		{
@@ -5985,6 +6039,8 @@ public class AssignmentController extends BaseController {
 		m.addAttribute("assignment", assignmenta);
 			return "assignment/editAssignmentBySupportAdmin";
 		}
+		
+		@Secured("ROLE_SUPPORT_ADMIN")
 		@RequestMapping(value="updateAssignmentBySupportAdmin",method= {RequestMethod.GET,RequestMethod.POST})
 		public String updateAssignmentBySupportAdmin (@ModelAttribute Assignment assignment, Model m,RedirectAttributes redirect)
 		{

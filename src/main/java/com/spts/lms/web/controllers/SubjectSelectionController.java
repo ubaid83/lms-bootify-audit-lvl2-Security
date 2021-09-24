@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -45,6 +46,7 @@ public class SubjectSelectionController extends BaseController {
 	@Autowired
 	SelectiveCoursesService selectiveCoursesService;
 
+	@Secured({"ROLE_STUDENT","ROLE_ADMIN"})
 	@RequestMapping(value = "/viewSelectiveEvents", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewSelectiveEvents(Principal principal, Model m) {
 		try {
@@ -68,6 +70,7 @@ public class SubjectSelectionController extends BaseController {
 		return "selectives/viewSelectiveEvents";
 	}
 
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/studentRegisterForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String studentRegisterForm(@RequestParam String eventId, Principal principal, Model m) {
 
@@ -112,6 +115,7 @@ public class SubjectSelectionController extends BaseController {
 		return "selectives/studentRegisterForm";
 	}
 
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/submitStudentRegistration", method = { RequestMethod.POST })
 	public String submitStudentRegistration(Principal principal, Model m,
 			@ModelAttribute SelectiveUserCourse selectiveUserCourse, RedirectAttributes redirectAttrrs) {

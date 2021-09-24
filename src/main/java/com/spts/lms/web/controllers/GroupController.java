@@ -46,7 +46,6 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 
-@Secured("ROLE_USER")
 @Controller
 @SessionAttributes("userId")
 public class GroupController extends BaseController {
@@ -79,6 +78,7 @@ public class GroupController extends BaseController {
 	private static final Logger logger = Logger
 			.getLogger(GroupController.class);
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/createGroupForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String createGroupForm(
@@ -190,6 +190,8 @@ public class GroupController extends BaseController {
 	 * 
 	 * return "redirect:/searchFacultyGroups?courseId=" + courseId; }
 	 */
+	
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/deleteGroup", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String deleteGroup(@RequestParam Integer id,
@@ -218,6 +220,7 @@ public class GroupController extends BaseController {
 		return "redirect:/searchFacultyGroups?courseId=" + courseId;
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/createGroup", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String createGroup(@ModelAttribute Groups groups, Long courseId,
@@ -316,6 +319,8 @@ public class GroupController extends BaseController {
 	 * "Error in updating group"); return "redirect:/createGroupForm"; } return
 	 * "group/group"; }
 	 */
+	
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/updateGroup", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String updateGroup(@ModelAttribute Groups groups,
@@ -383,6 +388,7 @@ public class GroupController extends BaseController {
 		return "group/group";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/saveStudentGroupAllocationSelectAll", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentGroupAllocationSelectAll(
@@ -443,6 +449,7 @@ public class GroupController extends BaseController {
 		return "group/createGroup";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/saveStudentGroupAllocation", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentGroupAllocation(@ModelAttribute Groups groups,
@@ -557,6 +564,7 @@ public class GroupController extends BaseController {
 	 * } m.addAttribute("groups", groups); return "group/group"; }
 	 */
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/viewGroup", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewGroup(@RequestParam(required = false) Long id, Model m,
@@ -611,6 +619,7 @@ public class GroupController extends BaseController {
 		return "group/group";
 	}
 
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/searchGroupForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String searchGroupForm(Model m, @ModelAttribute Groups groups,
@@ -631,6 +640,7 @@ public class GroupController extends BaseController {
 		return "group/searchGroup";
 	}
 
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/searchGroup", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String searchGroup(
@@ -715,6 +725,8 @@ public class GroupController extends BaseController {
 	 * logger.error(e.getMessage(), e); setError(m,
 	 * "Error in getting Group List"); } return "group/facultyGroupList"; }
 	 */
+	
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/searchFacultyGroups", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchFacultyGroups(Principal principal, Model m,
@@ -804,6 +816,7 @@ public class GroupController extends BaseController {
 		}
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/searchFacultyGroupAllocationForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchFacultyGroupAllocationForm(
@@ -850,6 +863,7 @@ public class GroupController extends BaseController {
 		return "group/facultyGroupAllocation";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/searchFacultyGroupAllocation", method = { RequestMethod.POST })
 	public String searchFacultyGroupAllocation(Model m, Principal principal,
 			@RequestParam(required = false) Long courseId,
@@ -886,6 +900,7 @@ public class GroupController extends BaseController {
 
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/saveFacultyGroupAllocation", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveFacultyAllocation(@ModelAttribute Groups groups, Model m,
@@ -953,6 +968,7 @@ public class GroupController extends BaseController {
 
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/createRandomGroupsForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createRandomGroupsForm(@ModelAttribute Groups groups,
@@ -997,6 +1013,7 @@ public class GroupController extends BaseController {
 		return "group/createRandomGroups";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/createRandomGroups", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createRandomGroups(@ModelAttribute Groups groups, Model m,
@@ -1106,6 +1123,7 @@ public class GroupController extends BaseController {
 		return "redirect:/searchFacultyGroups";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/viewGroupStudents", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewGroupStudents(@ModelAttribute Groups groups,
@@ -1259,6 +1277,7 @@ public class GroupController extends BaseController {
 
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/saveStudentGroupRandomly", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public List<Groups> saveStudentGroupRandomly(@ModelAttribute Groups groups,
@@ -1311,6 +1330,7 @@ public class GroupController extends BaseController {
 		return createdGroups;
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/removeStudentsFromGroupForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String removeStudentsFromGroupForm(
@@ -1363,6 +1383,7 @@ public class GroupController extends BaseController {
 		return "group/removeStudentsFromGroup";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/removeStudentsFromGroup", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String removeStudentsFromGroup(@ModelAttribute Groups groups,
@@ -1407,6 +1428,7 @@ public class GroupController extends BaseController {
 		return "group/removeStudentsFromGroup";
 	}
 
+	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/removeStudents", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String removeStudents(@RequestParam("id") Long id,

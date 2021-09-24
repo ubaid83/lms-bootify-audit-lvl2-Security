@@ -68,7 +68,7 @@ import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;
 
-@Secured("ROLE_ADMIN")
+
 @Controller
 public class CourseController extends BaseController {
 
@@ -152,6 +152,7 @@ public class CourseController extends BaseController {
 		return courseService.findByProgramIdSessionId(programId, sessionId);
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/addCourseForm", method = RequestMethod.GET)
 	public String addCourseForm(@RequestParam(required = false) String courseId, Model m, Principal p) {
 
@@ -193,6 +194,7 @@ public class CourseController extends BaseController {
 	 * "redirect:/addCourseForm"; } return "redirect:/searchCourse"; }
 	 */
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/addCourse", method = RequestMethod.POST)
 	public String addCourse(@ModelAttribute Course course, RedirectAttributes redirectAttrs, Principal principal,
 			Model m) {
@@ -247,6 +249,7 @@ public class CourseController extends BaseController {
 		return "redirect:/searchCourse";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/updateCourse", method = RequestMethod.POST)
 	public String updateCourse(@ModelAttribute Course course, RedirectAttributes redirectAttrs, Principal principal,
 			Model m) {
@@ -327,6 +330,7 @@ public class CourseController extends BaseController {
 	 * "Error in getting Course List"); } return "courseList"; }
 	 */
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/searchCourse", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchCourse(@RequestParam(required = false) Integer pageNo,
 			@RequestParam(required = false, defaultValue = " ") String courseName, Model m,
@@ -413,6 +417,7 @@ public class CourseController extends BaseController {
 	 * return "redirect:/searchCourse"; }
 	 */
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/deleteCourse", method = { RequestMethod.GET, RequestMethod.POST })
 	public String deleteCourse(@RequestParam Integer courseId, RedirectAttributes redirectAttrs, Model m, Principal p) {
 		try {
@@ -491,6 +496,7 @@ public class CourseController extends BaseController {
 		return (CourseExcelHelper) act.getBean("courseExcelHelper");
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/uploadCourseForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String uploadCourseForm(Model m, Principal p) {
 
@@ -535,6 +541,7 @@ public class CourseController extends BaseController {
 	 * }
 	 */
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/uploadCourse", method = RequestMethod.POST)
 	public String uploadCourse(@ModelAttribute Course course, Principal principal,
 			@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs, Model m) {
@@ -760,6 +767,7 @@ public class CourseController extends BaseController {
 		return subStr;
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_LIBRARIAN" })
 	@RequestMapping(value = "/addCourseOverviewForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addCourseOverviewForm(CourseOverview courseOverview, Model m, Principal principal) {
 		m.addAttribute("webPage", new WebPage("addCourseOverview", "Add Course Overview", false, false));
@@ -781,6 +789,7 @@ public class CourseController extends BaseController {
 		return "course/addCourseOverview";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_LIBRARIAN" })
 	@RequestMapping(value = "/addCourseOverview", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addCourseOverview(@ModelAttribute CourseOverview courseOverview, Model m, Principal p) {
 		try {
@@ -796,6 +805,7 @@ public class CourseController extends BaseController {
 		return addCourseOverviewForm(courseOverview, m, p);
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/addSyllabusForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addSyllabusForm(@RequestParam(required = false) Long courseId, Model m, Principal principal) {
 		String username = principal.getName();
@@ -818,6 +828,7 @@ public class CourseController extends BaseController {
 		return "course/addSyllabus";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/addSyllabus", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addSyllabus(@ModelAttribute CourseSyllabus courseSyllabus,
 			@RequestParam(required = false) Long courseId, Model m, Principal principal) {
@@ -836,6 +847,7 @@ public class CourseController extends BaseController {
 		return "course/addSyllabus";
 	}
 
+	
 	@RequestMapping(value = "/addDetails", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String addDetails(@RequestParam(required = false) Long id, Model m, Principal principal) {
 		m.addAttribute("webPage", new WebPage("addCourseOverview", "Add Course syllabus", false, false));
@@ -858,6 +870,7 @@ public class CourseController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/makeCourseInactive", method = { RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView makeCourseInactive(HttpServletRequest request, @ModelAttribute Course course, Model m,
 			Principal principal, RedirectAttributes redirectAttrs) {
@@ -905,6 +918,7 @@ public class CourseController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_LIBRARIAN" })
 	@RequestMapping(value = "/enterCourseList", method = { RequestMethod.GET, RequestMethod.POST })
 	public String enterCourseList(HttpServletRequest request, Model m, Principal principal) {
 		String username = principal.getName();
@@ -934,6 +948,7 @@ public class CourseController extends BaseController {
 		return "course/checkCourseVisibility";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_LIBRARIAN" })
 	@RequestMapping(value = "/checkUserCourse", method = { RequestMethod.GET, RequestMethod.POST })
 	public String checkUserCourse(@RequestParam(required = false, defaultValue = "1") int pageNo, Principal principal,
 			Model m, @ModelAttribute UserCourse userCourse) {
@@ -1017,6 +1032,7 @@ public class CourseController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/deleteCourseAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String deleteCourseAdmin(@RequestParam String courseId, RedirectAttributes redirectAttrs, Model m,
 			Principal p) {

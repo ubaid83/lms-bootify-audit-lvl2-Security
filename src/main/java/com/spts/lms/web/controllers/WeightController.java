@@ -22,6 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -139,6 +140,7 @@ public class WeightController extends BaseController {
 	private static final Logger logger = Logger
 			.getLogger(WeightController.class);
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addWeightForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addWeightForm(Model m, Principal principal) {
@@ -162,6 +164,7 @@ public class WeightController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addWeight", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addWeight(Model m, Principal principal,
@@ -285,6 +288,7 @@ public class WeightController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/uploadWeight", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String uploadWeight(Model m, @ModelAttribute Weight weight,
@@ -382,6 +386,7 @@ public class WeightController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/viewWieghtDetails", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewWieghtDetails(Model m, Principal principal,
@@ -437,6 +442,7 @@ public class WeightController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/generateGrades", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String generateGrades(Model m, Principal principal,
@@ -467,6 +473,7 @@ public class WeightController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_STUDENT","ROLE_ADMIN"})
 	@RequestMapping(value = "/viewGradeWeight", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewGradeWeight(Model m, Principal principal,
@@ -776,6 +783,7 @@ public class WeightController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/viewGradeWeightForStudent", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewGradeWeightForStudent(Model m, Principal principal,
@@ -1033,6 +1041,7 @@ public class WeightController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_DEAN","ROLE_HOD","ROLE_STUDENT"})
 	@RequestMapping(value = "/viewComponents", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewComponents(Principal principal, Model m,

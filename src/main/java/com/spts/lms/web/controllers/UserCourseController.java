@@ -208,6 +208,7 @@ public class UserCourseController extends BaseController {
 	 * }
 	 */
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/showMyProgramStudentsForAdmin", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String showMyProgramStudentsForAdmin(@ModelAttribute User user,
@@ -257,6 +258,7 @@ public class UserCourseController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/showMyCourseStudents", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String showMyCourseStudents(@ModelAttribute UserCourse userCourse,
@@ -410,6 +412,7 @@ public class UserCourseController extends BaseController {
 		return "redirect:/addFacultyCourseForm";
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/uploadUserCourseForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String uploadUserCourseForm(Model m) {
@@ -420,6 +423,7 @@ public class UserCourseController extends BaseController {
 		return "course/uploadUserCourse";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/uploadUserCourseEnrolForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String uploadUserCourseEnrolForm(Model m, Principal principal) {
@@ -447,6 +451,7 @@ public class UserCourseController extends BaseController {
 		return "course/uploadUserCourseEnrol";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/generateUserCourseEnrolTemplate", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String generateUserCourseEnrolTemplate(Model m,
@@ -615,6 +620,7 @@ public class UserCourseController extends BaseController {
 	 * "redirect:/uploadUserCourseForm"; }
 	 */
 
+	@Secured({"ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/uploadUserCourse", method = RequestMethod.POST)
 	public String uploadUserCourse(@ModelAttribute UserCourse userCourse,
 			@RequestParam("file") MultipartFile file,
@@ -660,6 +666,7 @@ public class UserCourseController extends BaseController {
 		return "redirect:/uploadUserCourseForm";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/uploadUserCourseEnrol", method = RequestMethod.POST)
 	public String uploadUserCourseEnrol(@ModelAttribute UserCourse userCourse,
 			@RequestParam("file") MultipartFile file,
@@ -825,7 +832,7 @@ public class UserCourseController extends BaseController {
 		return "redirect:/uploadUserCourseEnrolForm";
 	}
 
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_USER"})
 	@RequestMapping(value = "/viewCourse", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewCourse(@ModelAttribute Course course, Model m,
@@ -1170,6 +1177,7 @@ public class UserCourseController extends BaseController {
 		return "course/myCourse/viewStudentCourseMain";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/searchUserCourse", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String searchUserCourse(
@@ -1417,7 +1425,7 @@ public class UserCourseController extends BaseController {
 		return "course/addKTStudents";
 	}
 
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_PARENT" })
 	@RequestMapping(value = "/knowChildFacultyForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String knowChildFacultyForm(
@@ -1466,7 +1474,7 @@ public class UserCourseController extends BaseController {
 		return "user/knowChildFaculty";
 	}
 
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_PARENT" })
 	@RequestMapping(value = "/knowChildFaculty", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String knowChildFaculty(
@@ -1535,6 +1543,7 @@ public class UserCourseController extends BaseController {
 		return "user/knowChildFaculty";
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/makeInactive", method = { RequestMethod.POST,
 			RequestMethod.GET })
 	String searchToMakeInactive(@ModelAttribute Test test,
@@ -1611,6 +1620,7 @@ public class UserCourseController extends BaseController {
 
 	}
 	
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/viewUserLoginDetails", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewUserLoginDetails(HttpServletRequest request, Model m, Principal principal) {
@@ -1619,6 +1629,7 @@ public class UserCourseController extends BaseController {
 		return "user/viewUserLoginDetails";
 	}
 	
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/viewUserDetails", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewUserDetails(
@@ -1694,6 +1705,7 @@ public class UserCourseController extends BaseController {
 	}
 	
 	//29-05-2020
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/getCourseByAcadYearAndProgram", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getCourseByAcadYearAndProgram(Principal principal,@RequestParam String acadYear) {
@@ -1723,7 +1735,7 @@ public class UserCourseController extends BaseController {
 	}
 	
 	
-	
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/SerchdeleteUserCourseEnrollmentSupport", method = {RequestMethod.GET, RequestMethod.POST })
 	public String SerchdeleteUserCourseEnrollmentSupport(
 			@RequestParam(required = false) Integer pageNo, Model m,
@@ -1762,7 +1774,7 @@ public class UserCourseController extends BaseController {
 		  return "homepage/deleteUserCourseEnrollmentSupport";
 	}
 	
-	
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/deleteUserCourseEnrollmentSupport", method = {RequestMethod.GET, RequestMethod.POST })
 	public String deleteUserCourseEnrollmentSupport(
 			@RequestParam(required = false) Integer pageNo, Model m,
@@ -1813,7 +1825,7 @@ public class UserCourseController extends BaseController {
 	
 	
 	
-
+	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/deleteuserEnrolmentSupportAdmin", method = { RequestMethod.POST })
 	public @ResponseBody Object deleteuserEnrolmentSupport(Model m, 
 			@RequestParam(name="username")String username, 

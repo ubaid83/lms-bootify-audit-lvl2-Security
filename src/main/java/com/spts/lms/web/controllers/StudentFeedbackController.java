@@ -124,7 +124,7 @@ public class StudentFeedbackController extends BaseController {
 	public List<Feedback> getFeedbackList() {
 		return feedbackService.findAllValidFeedback();
 	}
-
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addStudentFeedbackForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String addStudentFeedbackForm(@ModelAttribute Feedback feedback,
@@ -185,7 +185,7 @@ public class StudentFeedbackController extends BaseController {
 		// ---------------
 		return "feedback/addStudentFeedback";
 	}
-
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/viewEachStudentFeedbackForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewEachStudentFeedbackForm(
@@ -224,7 +224,7 @@ public class StudentFeedbackController extends BaseController {
 		// ---------------
 		return "feedback/viewEachStudentFeedback";
 	}
-
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/StudentFeedbackAllocationCount", method = { RequestMethod.GET })
 	public @ResponseBody int StudentFeedbackAllocationCount(
 			@RequestParam(required = false, defaultValue = "1") String feedbackId) {
@@ -235,7 +235,7 @@ public class StudentFeedbackController extends BaseController {
 
 		return count.size();
 	}
-
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/saveStudentFeedback", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentFeedback(@ModelAttribute Feedback feedback,
@@ -273,7 +273,7 @@ public class StudentFeedbackController extends BaseController {
 		}
 		return "redirect:/addStudentFeedbackForm";
 	}
-
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/saveStudentFeedbackForProgram", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentFeedbackForProgram(
@@ -386,7 +386,7 @@ public class StudentFeedbackController extends BaseController {
 		redirectAttr.addAttribute("feedbackId", feedback.getId());
 		return "redirect:/searchAllFacultiesForFeedback";
 	}
-
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/saveStudentFeedbackForAcadSession", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentFeedbackForAcadSession(
@@ -476,7 +476,7 @@ public class StudentFeedbackController extends BaseController {
 		redirectAttr.addAttribute("feedbackId", feedback.getId());
 		return "redirect:/searchAllFacultiesForFeedback";
 	}
-
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/updateStudentFeedback", method = RequestMethod.POST)
 	public String updateStudentFeedback(
 			@ModelAttribute StudentFeedback studentFeedback, Model m,
@@ -638,6 +638,7 @@ public class StudentFeedbackController extends BaseController {
 	/**
 	 * Supports JSON
 	 */
+	@Secured({"ROLE_USER"})
 	@RequestMapping(value = "/getStudentsForFeedback", method = RequestMethod.GET)
 	public @ResponseBody List<StudentFeedback> getStudentsForFeedback(
 			@ModelAttribute StudentFeedback studentFeedback) {
@@ -647,7 +648,7 @@ public class StudentFeedbackController extends BaseController {
 				studentFeedback.getFacultyId(), studentFeedback.getCourseId(),
 				studentFeedback.getAcadMonth(), studentFeedback.getAcadYear());
 	}
-
+	@Secured({"ROLE_USER"})
 	@RequestMapping(value = "/getFacultyByCourseForFeedback", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getFacultyByCourse(
@@ -679,7 +680,7 @@ public class StudentFeedbackController extends BaseController {
 		return json;
 
 	}
-
+	@Secured({"ROLE_USER"})
 	@RequestMapping(value = "/getSemesterByAcadYearForFeedback", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getSemesterByAcadYearForFeedback(
@@ -746,7 +747,7 @@ public class StudentFeedbackController extends BaseController {
 		studentFeedbackService.upsert(studentFeedbackDB);
 		return studentFeedbackDB;
 	}
-
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addStudentFeedbackFormForCourses", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String addStudentFeedbackFormForCourses(
@@ -817,7 +818,7 @@ public class StudentFeedbackController extends BaseController {
 		// ---------------
 		return "feedback/addStudentFeedbackByCourses";
 	}
-
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/searchCoursesByInputParams", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchCoursesByInputParams(@ModelAttribute Feedback feedback,
@@ -865,7 +866,7 @@ public class StudentFeedbackController extends BaseController {
 		// ---------------
 		return "redirect:/addStudentFeedbackFormForCourses";
 	}
-
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/saveStudentFeedbackByCourse", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentFeedbackByCourse(

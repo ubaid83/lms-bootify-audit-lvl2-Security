@@ -63,7 +63,7 @@ import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured({ "ROLE_FACULTY", "ROLE_CORD", "ROLE_AREA_INCHARGE", "ROLE_AR" })
+//@Secured({ "ROLE_FACULTY", "ROLE_CORD", "ROLE_AREA_INCHARGE", "ROLE_AR" })
 @Controller
 public class StudentTestController extends BaseController {
 
@@ -194,6 +194,7 @@ public class StudentTestController extends BaseController {
 		return sqra;
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addStudentMarks", method = RequestMethod.POST)
 	public String addStudentMarks(@ModelAttribute Test test, @RequestParam String testQuestionId,
 			@RequestParam String studusername, Principal p, Model m, RedirectAttributes redirectAttributes) {
@@ -271,6 +272,7 @@ public class StudentTestController extends BaseController {
 
 	}
 
+	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/updateStudentTest", method = RequestMethod.POST)
 	public String updateStudentTest(@ModelAttribute StudentTest studentTest, Model m, Principal p) {
 		m.addAttribute("webPage", new WebPage("test", "Update Test", false, false));
@@ -357,6 +359,7 @@ public class StudentTestController extends BaseController {
 	 * "test/studentTest"; }
 	 */
 
+	@Secured({"ROLE_USER"})
 	@RequestMapping(value = "/viewStudentTestResponse", method = RequestMethod.GET)
 	public String viewStudentTestResponse(Principal p, RedirectAttributes redirectAttrs, @ModelAttribute Test test,
 			Model m, @RequestParam("id") String testId) throws ParseException {
@@ -418,7 +421,7 @@ public class StudentTestController extends BaseController {
 		}
 	}
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_STUDENT","ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/startStudentTest", method = RequestMethod.GET)
 	public String startStudentTest(Principal p, RedirectAttributes redirectAttrs, @ModelAttribute Test test, Model m,
 			@RequestParam("id") String testId) throws ParseException {
@@ -674,7 +677,7 @@ public class StudentTestController extends BaseController {
 		return "test/studentTest";
 	}
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_STUDENT","ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/startStudentTestForSubjective", method = RequestMethod.GET)
 	public String startStudentTestForSubjective(Principal p, RedirectAttributes redirectAttrs,
 			@ModelAttribute Test test, Model m, @RequestParam("id") String testId) throws ParseException {
@@ -920,7 +923,7 @@ public class StudentTestController extends BaseController {
 		return "test/studentTestForSubjective";
 	}
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_STUDENT","ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/startStudentTestForMix", method = RequestMethod.GET)
 	public String startStudentTestForMix(Principal p, RedirectAttributes redirectAttrs, @ModelAttribute Test test,
 			Model m, @RequestParam("id") String testId) throws ParseException {
@@ -1205,7 +1208,7 @@ public class StudentTestController extends BaseController {
 		return "test/studentTestForMix";
 	}
 
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_USER"})
 	@RequestMapping(value = "/testList", method = { RequestMethod.GET, RequestMethod.POST })
 	public String testList(@RequestParam(required = false, defaultValue = "1") int pageNo, Model m,
 			@ModelAttribute Test test, @RequestParam(required = false) Long courseId, Principal principal,
@@ -1516,7 +1519,7 @@ public class StudentTestController extends BaseController {
 	/**
 	 * Questions response
 	 */
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_STUDENT"})
 	@RequestMapping(value = "/addStudentQuestionResponseForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addStudentQuestionResponseForm(@RequestParam Long studentTestId, Model m, Principal p) {
 
@@ -1655,7 +1658,7 @@ public class StudentTestController extends BaseController {
 
 	// New mapping added on 11-10-2019
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_STUDENT","ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addStudentQuestionResponse", method = RequestMethod.POST)
 	public @ResponseBody StudentQuestionResponse addStudentQuestionResponse(Principal p, @ModelAttribute Test test,
 			Model m) {
@@ -1830,7 +1833,7 @@ public class StudentTestController extends BaseController {
 		return sqra;
 	}
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_STUDENT","ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/addStudentQuestionResponseForSubjective", method = RequestMethod.POST)
 	public @ResponseBody StudentQuestionResponse addStudentQuestionResponseForSubjective(Principal p,
 			@ModelAttribute Test test, Model m) {
@@ -1913,7 +1916,7 @@ public class StudentTestController extends BaseController {
 	 * }
 	 */
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_STUDENT","ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/completeStudentTest", method = { RequestMethod.POST, RequestMethod.GET })
 	public String completeStudentTest(Principal p, @RequestParam String studentTestId, Model m) {
 		String username = p.getName();
@@ -2063,7 +2066,7 @@ public class StudentTestController extends BaseController {
 
 	// Added on 11-10-2019
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/completeStudentTestAjax", method = { RequestMethod.POST, RequestMethod.GET })
 	public @ResponseBody String completeStudentTestAjax(Principal p, @RequestParam String studentTestId,
 			@RequestParam String studentFilePath, Model m) {
@@ -2138,7 +2141,7 @@ public class StudentTestController extends BaseController {
 	 * }
 	 */
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/completeStudentTestAjaxForSubjective", method = { RequestMethod.POST, RequestMethod.GET })
 	public @ResponseBody String completeStudentTestAjaxForSubjective(Principal p, @RequestParam String studentTestId,
 			@RequestParam String studentFilePath, Model m) {
@@ -2211,7 +2214,7 @@ public class StudentTestController extends BaseController {
 	 * }
 	 */
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/completeStudentTestForMixAjax", method = { RequestMethod.POST, RequestMethod.GET })
 	public @ResponseBody String completeStudentTestForMixAjax(Principal p, @RequestParam String studentTestId,
 			@RequestParam String studentFilePath, Model m) {
@@ -2303,7 +2306,7 @@ public class StudentTestController extends BaseController {
 
 	// New Mapping added on 11-10-2019
 
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/getTestSummeryAjax", method = { RequestMethod.POST, RequestMethod.GET })
 	public @ResponseBody String getTestSummeryAjax(Principal p, @RequestParam String studentTestId,
 			@RequestParam String testId, @RequestParam String studentFilePath, Model m) {
@@ -2486,7 +2489,7 @@ public class StudentTestController extends BaseController {
 	 * }
 	 */
 
-	@Secured("ROLE_FACULTY")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/configureQuestions", method = { RequestMethod.GET, RequestMethod.POST })
 	public String configureQuestions(@RequestParam(required = false, defaultValue = "1") int pageNo,
 			@RequestParam(required = false) Long courseId, Model m, @ModelAttribute Test test, Principal p) {
@@ -2528,6 +2531,7 @@ public class StudentTestController extends BaseController {
 		return "test/configureQuestions";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/viewThisTest", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewThisTest(Model m, @ModelAttribute StudentTest test, Long testId, Principal principal) {
 		m.addAttribute("webPage", new WebPage("testList", "View Tests", true, false));
@@ -2718,7 +2722,7 @@ public class StudentTestController extends BaseController {
 		return testQuestions;
 	}
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/updateStudentsAttemptedDuration", method = { RequestMethod.POST, RequestMethod.GET })
 	public String updateStudentsAttemptedDuration(Principal p, @RequestParam String durationInMinute,
 			@RequestParam String studentTestId, Model m) {
@@ -4369,7 +4373,7 @@ public class StudentTestController extends BaseController {
 	 * "test/studentTestUpdatedForMix"; }
 	 */
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/startStudentTestNew", method = RequestMethod.GET)
 	public String startStudentTestNew(Principal p, RedirectAttributes redirectAttrs, @ModelAttribute Test test, Model m,
 			@RequestParam("id") String testId) throws ParseException {
@@ -4964,7 +4968,7 @@ public class StudentTestController extends BaseController {
 		return "test/studentTestUpdated";
 	}
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/startStudentTestUpdatedForSubjective", method = RequestMethod.GET)
 	public String startStudentTestUpdatedForSubjective(Principal p, RedirectAttributes redirectAttrs,
 			@ModelAttribute Test test, Model m, @RequestParam("id") String testId) throws ParseException {
@@ -5574,7 +5578,7 @@ public class StudentTestController extends BaseController {
 		return "test/studentTestUpdatedForSubjective";
 	}
 
-	@Secured("ROLE_STUDENT")
+	@Secured({"ROLE_FACULTY","ROLE_ADMIN","ROLE_STUDENT"})
 	@RequestMapping(value = "/startStudentTestUpdatedForMix", method = RequestMethod.GET)
 	public String startStudentTestUpdatedForMix(Principal p, RedirectAttributes redirectAttrs,
 			@ModelAttribute Test test, Model m, @RequestParam("id") String testId) throws ParseException {
