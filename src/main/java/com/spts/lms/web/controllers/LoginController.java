@@ -1054,28 +1054,21 @@ public class LoginController extends BaseController {
 		user.setLastModifiedDate(Utils.getInIST());
 		user.setPassword(userFromUsermgmt.getPassword());
 
-		try {
-			String regex = "^(?=.*[0-9])"
-                    + "(?=.*[a-z])(?=.*[A-Z])"
-                    + "(?=.*[@#$%^&+=])"
-                    + "(?=\\S+$).{8,20}$";
-					   
-			Pattern p = Pattern.compile(regex);
-			Matcher m = p.matcher(user.getNewPassword());
-			boolean isPassPerfect = m.matches();
-			//boolean isPassPerfect=true;
-			if(isPassPerfect == true) {
-				userService.changePassword(user);
-			} else {
-				throw new ValidationException(
-						"Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
-			}
-			
-		} catch (ValidationException ex) {
-			setError(redirectAttrs, ex.getMessage());
-			return "redirect:/changePasswordForm";
-		}
-
+		/*
+		 * try { String regex = "^(?=.*[0-9])" + "(?=.*[a-z])(?=.*[A-Z])" +
+		 * "(?=.*[@#$%^&+=])" + "(?=\\S+$).{8,20}$";
+		 * 
+		 * Pattern p = Pattern.compile(regex); Matcher m =
+		 * p.matcher(user.getNewPassword()); boolean isPassPerfect = m.matches();
+		 * //boolean isPassPerfect=true; if(isPassPerfect == true) {
+		 * userService.changePassword(user); } else { throw new ValidationException(
+		 * "Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!"
+		 * ); }
+		 * 
+		 * } catch (ValidationException ex) { setError(redirectAttrs, ex.getMessage());
+		 * return "redirect:/changePasswordForm"; }
+		 */
+		userService.changePassword(user); 
 		String json = new Gson().toJson(user);
 
 		// logger.info("passed json--->" + json);

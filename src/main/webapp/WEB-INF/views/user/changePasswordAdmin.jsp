@@ -95,8 +95,8 @@
 
 											</div>
 
-
-
+											<br>
+											<span id="errMessage" style="color: red"></span>
 											<br>
 											<button id="submit" class="btn btn-danger"
 												formaction="changePassword" formnovalidate="formnovalidate"
@@ -125,6 +125,10 @@
 
 
   <script>
+  
+  $('#reenterPassword').on('change',function (evt) {
+	   console.log(Hi)
+	});
  
  function generateHashKey(){
 		//var salt = $('#salt').val();
@@ -133,13 +137,37 @@
 		var oldPasswd = $('#oldPassword').val();
 		var reenterPasswd = $('#reenterPassword').val();
 		
-		var encPasswd = SHA256(passwd);
-		var encOp = SHA256(oldPasswd);
-		var encRp = SHA256(reenterPasswd);
+		var reg = new RegExp("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$");
+		if(oldPasswd.localeCompare(reenterPasswd) === 0){
 		
-		document.getElementById("password").value=encPasswd;
-		document.getElementById("oldPassword").value=encOp;
-		document.getElementById("reenterPassword").value=encRp;
+		if (reg.test(passwd)) {
+		    console.log("Valid");
+		    var encPasswd = SHA256(passwd);
+			var encOp = SHA256(oldPasswd);
+			var encRp = SHA256(reenterPasswd);
+			
+			document.getElementById("password").value=encPasswd;
+			document.getElementById("oldPassword").value=encOp;
+			document.getElementById("reenterPassword").value=encRp;
+			$('span[id="errMessage"]').text("");
+		} else {
+		    console.log("Invalid");
+		    $('#password').val('');
+		    $('#oldPassword').val('');
+			$('#reenterPassword').val('');
+			$('span[id="errMessage"]').text("Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
+			evt.preventDefault();
+			
+		}
+		} else {
+			console.log("Invalid Pass");
+		    $('#password').val('');
+		    $('#oldPassword').val('');
+			$('#reenterPassword').val('');
+			$('span[id="errMessage"]').text("Password didn't Match!");
+			evt.preventDefault();
+			
+		}
 		
 		
 	}
