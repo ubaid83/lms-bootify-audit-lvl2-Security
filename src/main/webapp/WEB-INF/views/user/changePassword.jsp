@@ -271,11 +271,12 @@
 											</div>
 
 
-
+											<br>
+											<span id="errMessage" style="color: red"></span>
 											<br>
 											<button id="submit" class="btn btn-danger"
 												formaction="changePassword" formnovalidate="formnovalidate"
-												onclick="generateHashKey()">Change
+												onclick="generateHashKey()" disabled="true">Change
 												Password Details</button>
 
 											<button id="cancel" class="btn btn-danger"
@@ -318,7 +319,79 @@
 	
 	
 	<script>
-	
+	 $('#password').on('change',function () {
+		 var passwd = $('#password').val();
+		 var oldPasswd = $('#oldPassword').val();
+		 var reg = new RegExp("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$");
+		 if (oldPasswd && reg.test(passwd)) {
+		    console.log("Valid");
+			$('span[id="errMessage"]').text("");
+		 } else {
+		    console.log("Invalid");
+			$('span[id="errMessage"]').text("Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
+		 }
+	 })
+	 $('#password').on('keyup',function () {
+		 var passwd = $('#password').val();
+		 var oldPasswd = $('#oldPassword').val();
+		 var reg = new RegExp("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$");
+		 if (oldPasswd && reg.test(passwd)) {
+		    console.log("Valid");
+			$('span[id="errMessage"]').text("");
+		 } else {
+		    console.log("Invalid");
+			$('span[id="errMessage"]').text("Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
+		 }
+	 })
+	  $('#reenterPassword').on('change',function () {
+		  var passwd = $('#password').val();
+			var oldPasswd = $('#oldPassword').val();
+			var reenterPasswd = $('#reenterPassword').val();
+		   var reg = new RegExp("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$");
+		   /* if(oldPasswd){
+			   $('span[id="errMessage"]').text("Fill all fields!");
+		   }else  */if(oldPasswd &&passwd.localeCompare(reenterPasswd) === 0){
+			
+			if (reg.test(reenterPasswd)) {
+			    console.log("Valid");
+			    $('#submit').attr('disabled',false);
+				$('span[id="errMessage"]').text("");
+			} else {
+			    console.log("Invalid");
+				$('span[id="errMessage"]').text("Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
+				
+			}
+			} else {
+				console.log("Invalid Pass");
+				$('span[id="errMessage"]').text("Password didn't Match!");
+				
+			}
+		});
+	  $('#reenterPassword').on('keyup',function () {
+		   var passwd = $('#password').val();
+			var oldPasswd = $('#oldPassword').val();
+			var reenterPasswd = $('#reenterPassword').val();
+		   var reg = new RegExp("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$");
+		   /* if(oldPasswd){
+			   $('span[id="errMessage"]').text("Fill all fields!");
+		   }else  */
+		   if(oldPasswd && passwd.localeCompare(reenterPasswd) === 0){
+			
+			if (reg.test(passwd)) {
+			    console.log("Valid");
+			    $('#submit').attr('disabled',false);
+				$('span[id="errMessage"]').text("");
+			} else {
+			    console.log("Invalid");
+				$('span[id="errMessage"]').text("Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
+				
+			}
+			} else {
+				console.log("Invalid Pass");
+				$('span[id="errMessage"]').text("Password didn't Match!");
+				
+			}
+		});
 	function generateHashKey(){
 		//var salt = $('#salt').val();
 		
