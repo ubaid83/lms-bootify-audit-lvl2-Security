@@ -46,7 +46,7 @@ import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured("ROLE_ADMIN")
+//@Secured("ROLE_ADMIN")
 @Controller
 public class StudentFeedbackController extends BaseController {
 

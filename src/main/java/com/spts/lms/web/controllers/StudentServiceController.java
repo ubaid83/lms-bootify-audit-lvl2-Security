@@ -337,7 +337,7 @@ public class StudentServiceController extends BaseController {
 									user.convert(userTo);
 
 								}
-								user.setPassword("$2a$11$PSt4aIR0G2VQhHKqqLwFTeETkXAtS8fXs/2CfNnWykl6KbxNe.l1q");
+								user.setPassword("d97086919b6522e13ba9b46c04902c38372102218a4b3ef2f45ac2a80e9fd240");
 								user.setCreatedBy("CA");
 								user.setLastModifiedBy("CA");
 								user.setEnabled(true);
