@@ -46,7 +46,7 @@ import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured("ROLE_ADMIN")
+//@Secured("ROLE_ADMIN")
 @Controller
 public class StudentFeedbackController extends BaseController {
 
@@ -648,7 +648,8 @@ public class StudentFeedbackController extends BaseController {
 				studentFeedback.getFacultyId(), studentFeedback.getCourseId(),
 				studentFeedback.getAcadMonth(), studentFeedback.getAcadYear());
 	}
-	@Secured({"ROLE_USER"})
+	
+//	@Secured({"ROLE_USER"})
 	@RequestMapping(value = "/getFacultyByCourseForFeedback", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getFacultyByCourse(

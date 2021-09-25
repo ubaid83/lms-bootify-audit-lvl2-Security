@@ -13323,34 +13323,76 @@ public class LoginController extends BaseController {
 
 	}
 	// Change Password by Support Admin
-	@Secured({ "ROLE_SUPPORT_ADMIN"})
+//	@Secured({ "ROLE_SUPPORT_ADMIN"})
+//	@RequestMapping(value = "/changeTemporaryPasswordBySupportAdmin", method = { RequestMethod.GET,
+//			RequestMethod.POST })
+//	public String changeTemporaryPasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
+//			RedirectAttributes redirectAttrs, Model m, Principal p) {
+//		System.out.println("changeTemporaryPasswordBySupportAdminForm");
+//		try {
+//			User userDB = userService.findByUserName(user.getUsername());
+//			logger.info("changeTemporaryPasswordBySupportAdmin userDB : " + userDB);
+//			WebTarget webTarget = client.target(URIUtil
+//					.encodeQuery(userRoleMgmtCrudUrl + "/changeTemporaryPasswordBySupportAdmin?username=" + username));
+//			logger.info("Return from UserRoleMamtCrud");
+//			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+//			logger.info("invocationBuilder " + invocationBuilder);
+//			String resp = invocationBuilder.get(String.class);
+//
+//			logger.info("checking response " + resp);
+//			if (resp.equals("Success")) {
+//				logger.info("Notification of Success");
+//				setSuccess(redirectAttrs, "Password Changed Successfully, New Password is pass@123");
+//			} else if (resp.equals("userExisted")) {
+//				setNote(redirectAttrs, "User Already Existed");
+//			} else if (resp.equals("defaultPassword")) {
+//				setNote(redirectAttrs, "Password is already pass@123");
+//			} else {
+//				setError(redirectAttrs, "Error");
+//			}
+//
+//		} catch (Exception e) {
+//			logger.error(e.getMessage(), e);
+//			setError(redirectAttrs, "Error in Updating");
+//		}
+//		// return null;
+//		return "redirect:/changePasswordBySupportAdminForm";
+//	}
+	/* New Audit changes start */
 	@RequestMapping(value = "/changeTemporaryPasswordBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String changeTemporaryPasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
 			RedirectAttributes redirectAttrs, Model m, Principal p) {
 		System.out.println("changeTemporaryPasswordBySupportAdminForm");
 		try {
+			WebTarget webTarget;
+			Invocation.Builder invocationBuilder;
+			String resp;
 			User userDB = userService.findByUserName(user.getUsername());
-			logger.info("changeTemporaryPasswordBySupportAdmin userDB : " + userDB);
-			WebTarget webTarget = client.target(URIUtil
-					.encodeQuery(userRoleMgmtCrudUrl + "/changeTemporaryPasswordBySupportAdmin?username=" + username));
-			logger.info("Return from UserRoleMamtCrud");
-			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-			logger.info("invocationBuilder " + invocationBuilder);
-			String resp = invocationBuilder.get(String.class);
+			if(null != user.getIsUserBlocked()) {
+				webTarget = client.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/unlockUserBySupportAdmin?username=" + username));
+				invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+				resp = invocationBuilder.get(String.class);
+				if (resp.equals("Success")) {
+					setSuccess(redirectAttrs, "User Unlock");
+				} else {
+					setError(redirectAttrs, "Error while unlock user.");
+				}
+			}else {
+				webTarget = client.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/changeTemporaryPasswordBySupportAdmin?username=" + username));
+				invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+				resp = invocationBuilder.get(String.class);
 
-			logger.info("checking response " + resp);
-			if (resp.equals("Success")) {
-				logger.info("Notification of Success");
-				setSuccess(redirectAttrs, "Password Changed Successfully, New Password is pass@123");
-			} else if (resp.equals("userExisted")) {
-				setNote(redirectAttrs, "User Already Existed");
-			} else if (resp.equals("defaultPassword")) {
-				setNote(redirectAttrs, "Password is already pass@123");
-			} else {
-				setError(redirectAttrs, "Error");
+				if (resp.equals("Success")) {
+					setSuccess(redirectAttrs, "Password Changed Successfully, New Password is pass@123");
+				} else if (resp.equals("userExisted")) {
+					setNote(redirectAttrs, "User Already Existed");
+				} else if (resp.equals("defaultPassword")) {
+					setNote(redirectAttrs, "Password is already pass@123");
+				} else {
+					setError(redirectAttrs, "Error");
+				}
 			}
-
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in Updating");
@@ -13358,6 +13400,7 @@ public class LoginController extends BaseController {
 		// return null;
 		return "redirect:/changePasswordBySupportAdminForm";
 	}
+	/* New Audit changes end */
 
 	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/deleteTemporaryPasswordBySupportAdmin", method = { RequestMethod.GET,
