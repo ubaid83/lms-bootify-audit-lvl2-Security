@@ -648,7 +648,8 @@ public class StudentFeedbackController extends BaseController {
 				studentFeedback.getFacultyId(), studentFeedback.getCourseId(),
 				studentFeedback.getAcadMonth(), studentFeedback.getAcadYear());
 	}
-	@Secured({"ROLE_USER"})
+	
+//	@Secured({"ROLE_USER"})
 	@RequestMapping(value = "/getFacultyByCourseForFeedback", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getFacultyByCourse(

@@ -108,12 +108,19 @@
 															formnovalidate="formnovalidate">Cancel</button>
 															
 															<c:choose>
-																<c:when test="${fn:length(userList) > 0}"> 
+																<c:when test="${not empty userList}"> 
 																	<div class="" >																  	 
 																     <a href="changeTemporaryPasswordBySupportAdmin?username=${user.username}" class="btn btn-large btn-primary">
 																     Temporary Password</a>	
 																     <a href="deleteTemporaryPasswordBySupportAdmin?username=${user.username}" class="btn btn-large btn-primary">
-																     Reset</a>										
+																     Reset</a>	
+																     <c:url  value="/changeTemporaryPasswordBySupportAdmin" var="unlockUser">
+																	     <c:param name="username" value="${user.username}"/>
+																	     <c:param name="isUserBlocked" value="${userList.isUserBlocked}"/>
+																     </c:url>	
+																     <c:if test="${not empty userList.isUserBlocked && userList.isUserBlocked eq 10 }">
+																     <a href="${unlockUser}" class="btn btn-large btn-primary">Unlock User</a>	
+																     </c:if>									
 																     </div> 																     
 																</c:when>
 														  		<c:otherwise> 
@@ -157,8 +164,8 @@
 															</tr>
 														</thead>
 														<tbody>
-															<c:forEach var="userList" items="${userList}"
-																varStatus="status">
+															<%-- <c:forEach var="userList" items="${userList}"
+																varStatus="status"> --%>
 																<tr>
 																	
 																	<td>${userList.username}</td>
@@ -180,7 +187,7 @@
 
 																</tr>
 
-															</c:forEach>
+																<%-- </c:forEach> --%>
 														</tbody>
 													</table>
 												</div>

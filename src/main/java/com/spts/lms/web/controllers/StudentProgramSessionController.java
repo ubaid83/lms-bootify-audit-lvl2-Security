@@ -20,7 +20,7 @@ import com.spts.lms.beans.student.StudentProgramSession;
 import com.spts.lms.helpers.excel.StudentProgramSessionExcelHelper;
 import com.spts.lms.web.helper.WebPage;
 
-@Secured("ROLE_ADMIN")
+//@Secured("ROLE_ADMIN")
 @Controller
 public class StudentProgramSessionController extends BaseController {
 	

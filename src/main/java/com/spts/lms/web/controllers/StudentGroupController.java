@@ -30,7 +30,7 @@ import com.spts.lms.services.program.ProgramService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 
-@Secured("ROLE_USER")
+//@Secured("ROLE_USER")
 @Controller
 @SessionAttributes("userId")
 public class StudentGroupController extends BaseController {
