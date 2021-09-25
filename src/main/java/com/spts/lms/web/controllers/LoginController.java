@@ -963,6 +963,7 @@ public class LoginController extends BaseController {
 			Pattern p = Pattern.compile(regex);
 			Matcher m = p.matcher(user.getNewPassword());
 			boolean isPassPerfect = m.matches();
+			//boolean isPassPerfect = true;
 			if(isPassPerfect == true) {
 				userService.changePasswordForStudentByAdmin(user);
 			} else {
@@ -1062,6 +1063,7 @@ public class LoginController extends BaseController {
 			Pattern p = Pattern.compile(regex);
 			Matcher m = p.matcher(user.getNewPassword());
 			boolean isPassPerfect = m.matches();
+			//boolean isPassPerfect=true;
 			if(isPassPerfect == true) {
 				userService.changePassword(user);
 			} else {
