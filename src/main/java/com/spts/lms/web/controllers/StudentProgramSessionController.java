@@ -20,7 +20,7 @@ import com.spts.lms.beans.student.StudentProgramSession;
 import com.spts.lms.helpers.excel.StudentProgramSessionExcelHelper;
 import com.spts.lms.web.helper.WebPage;
 
-@Secured("ROLE_ADMIN")
+//@Secured("ROLE_ADMIN")
 @Controller
 public class StudentProgramSessionController extends BaseController {
 	
@@ -33,7 +33,7 @@ public class StudentProgramSessionController extends BaseController {
 	
 	private static final Logger logger = Logger.getLogger(StudentProgramSessionController.class);
 	
-	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/uploadStudentProgramSessionForm", method = {RequestMethod.GET, RequestMethod.POST})
 	public String uploadStudentProgramSessionForm(Model m) {
 		m.addAttribute("webPage",new WebPage("uploadStudentProgramSession", "Upload Student Program Sessions", false, false));
@@ -41,7 +41,7 @@ public class StudentProgramSessionController extends BaseController {
 		return "program/uploadStudentProgramSession";
 	}
 	
-	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/uploadStudentProgramSession", method = RequestMethod.POST)
 	public String uploadStudentProgramSession(@ModelAttribute StudentProgramSession studentProgramSession,Principal principal, @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs){
 		StudentProgramSessionExcelHelper studentProgramSessionExcelHelper = getStudentProgramSessionExcelHelper();

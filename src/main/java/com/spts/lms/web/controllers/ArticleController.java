@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -89,6 +90,7 @@ public class ArticleController extends BaseController {
 			.getLogger(ArticleController.class);
 	Client client = ClientBuilder.newClient();
 
+	@Secured({"ROLE_FACULTY","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/createArticleForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String createArticleForm(Model m, Principal principal,
@@ -158,6 +160,7 @@ public class ArticleController extends BaseController {
 		return "webpages/createArticle";
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_COUNSELOR"})
 	@RequestMapping(value = "createArticle", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String createArticle(Model m,
@@ -345,6 +348,7 @@ public class ArticleController extends BaseController {
 		return status;
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_COUNSELOR"})
 	@RequestMapping(value = "deleteArticle", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String deleteArticle(Model m, Principal principal,
@@ -502,6 +506,7 @@ public class ArticleController extends BaseController {
 		return errorMessage;
 	}
 
+	@Secured({"ROLE_FACULTY","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/viewArticles", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewArticles(

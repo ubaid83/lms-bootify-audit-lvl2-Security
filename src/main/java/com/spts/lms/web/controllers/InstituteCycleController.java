@@ -20,7 +20,7 @@ import com.spts.lms.services.instituteCycle.InstituteCycleService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 
-@Secured("ROLE_USER")
+
 @Controller
 public class InstituteCycleController extends BaseController {
 
@@ -33,6 +33,7 @@ public class InstituteCycleController extends BaseController {
 	private static final Logger logger = Logger
 			.getLogger(InstituteCycleController.class);
 
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/addInstituteCycleForm", method = RequestMethod.GET)
 	public String addInstituteCycleForm(
 			@ModelAttribute InstituteCycle instituteCycle, Model m) {
@@ -68,6 +69,7 @@ public class InstituteCycleController extends BaseController {
 
 	}
 
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/addInstituteCycle", method = RequestMethod.POST)
 	public String addInstituteCycle(
 			@ModelAttribute InstituteCycle instituteCycle,
@@ -101,6 +103,7 @@ public class InstituteCycleController extends BaseController {
 		return "redirect:/addInstituteCycleForm";
 	}
 
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/updateInstituteCycle", method = RequestMethod.POST)
 	public String updateInstituteCycle(@ModelAttribute String userId,
 			@ModelAttribute InstituteCycle instituteCycle,

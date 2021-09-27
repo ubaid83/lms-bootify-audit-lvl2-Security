@@ -893,6 +893,7 @@ public class LoginController extends BaseController {
 		return "course/myCourse";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping("/resetPasswordForm")
 	public String resetPasswordForm(Model m) {
 		m.addAttribute("webPage", new WebPage("forgot", "Forgot", true, true, true, true, false));
@@ -962,6 +963,7 @@ public class LoginController extends BaseController {
 			Pattern p = Pattern.compile(regex);
 			Matcher m = p.matcher(user.getNewPassword());
 			boolean isPassPerfect = m.matches();
+			//boolean isPassPerfect = true;
 			if(isPassPerfect == true) {
 				userService.changePasswordForStudentByAdmin(user);
 			} else {
@@ -1052,27 +1054,21 @@ public class LoginController extends BaseController {
 		user.setLastModifiedDate(Utils.getInIST());
 		user.setPassword(userFromUsermgmt.getPassword());
 
-		try {
-			String regex = "^(?=.*[0-9])"
-                    + "(?=.*[a-z])(?=.*[A-Z])"
-                    + "(?=.*[@#$%^&+=])"
-                    + "(?=\\S+$).{8,20}$";
-					   
-			Pattern p = Pattern.compile(regex);
-			Matcher m = p.matcher(user.getNewPassword());
-			boolean isPassPerfect = m.matches();
-			if(isPassPerfect == true) {
-				userService.changePassword(user);
-			} else {
-				throw new ValidationException(
-						"Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
-			}
-			
-		} catch (ValidationException ex) {
-			setError(redirectAttrs, ex.getMessage());
-			return "redirect:/changePasswordForm";
-		}
-
+		/*
+		 * try { String regex = "^(?=.*[0-9])" + "(?=.*[a-z])(?=.*[A-Z])" +
+		 * "(?=.*[@#$%^&+=])" + "(?=\\S+$).{8,20}$";
+		 * 
+		 * Pattern p = Pattern.compile(regex); Matcher m =
+		 * p.matcher(user.getNewPassword()); boolean isPassPerfect = m.matches();
+		 * //boolean isPassPerfect=true; if(isPassPerfect == true) {
+		 * userService.changePassword(user); } else { throw new ValidationException(
+		 * "Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!"
+		 * ); }
+		 * 
+		 * } catch (ValidationException ex) { setError(redirectAttrs, ex.getMessage());
+		 * return "redirect:/changePasswordForm"; }
+		 */
+		userService.changePassword(user); 
 		String json = new Gson().toJson(user);
 
 		// logger.info("passed json--->" + json);
@@ -1914,6 +1910,7 @@ public class LoginController extends BaseController {
 	}
 
 	/* FOR USER PROFILE DATA */
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/profileDetails", method = { RequestMethod.GET, RequestMethod.POST })
 	public String profileDetails(Model m, @ModelAttribute User user, Principal principal) {
 		m.addAttribute("webPage", new WebPage("user", "View Profile Details", true, true, true, true, false));
@@ -5372,6 +5369,7 @@ public class LoginController extends BaseController {
 
 	}
 
+	
 	@RequestMapping(value = "/downloadAttendanceReport", method = RequestMethod.GET)
 	public String downloadAttendanceReport(@RequestParam String ofDate, Model m, Principal p,
 			HttpServletResponse response, HttpServletRequest request) {
@@ -5681,7 +5679,6 @@ public class LoginController extends BaseController {
 
 	// ------------------------------TCS----------------------------------//
 	@RequestMapping(value = { "/samlRequestTCS" }, method = {
-
 			RequestMethod.GET, RequestMethod.POST })
 	public String samlRequestTCS(@RequestParam(name = "SAMLRequest") String SAMLRequest, HttpServletResponse resp,
 			Principal p, RedirectAttributes r, Model m) {
@@ -7385,7 +7382,7 @@ public class LoginController extends BaseController {
 
 				logger.info("eventIdWL=======>" + String.valueOf(tmtl.getEventId()));
 				logger.info("FacultyIdWL=======>" + username);
-				String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),username);
+				/* String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),username); */  String workLoadResponse = null;
 				if (null != workLoadResponse) {
 					String workload[] = fetchWorkload(workLoadResponse);
 					tmtl.setAllottedLecture(workload[0]);
@@ -12079,13 +12076,14 @@ public class LoginController extends BaseController {
 	}
 
 	// SupportAdmin
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/changePasswordBySupportAdminForm", method = RequestMethod.GET)
 	public String changePasswordBySupportAdminForm(@ModelAttribute("user") User user, Model m) {
 		m.addAttribute("webPage", new WebPage("changePassword", "Change Password", true, false));
 		return "user/changePasswordBySupportAdmin";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/changePasswordBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String changePasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
 			RedirectAttributes redirectAttrs, Model m, Principal p) {
@@ -12115,6 +12113,7 @@ public class LoginController extends BaseController {
 		return "redirect:/changePasswordBySupportAdminForm";
 	}
 	  /* New Audit changes start */
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/searchUserBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchUserBySupportAdmin(Principal principal, @ModelAttribute("user") User user, Model m,
 			RedirectAttributes redirectAttrs, @RequestParam(required = false) String username) {
@@ -12802,8 +12801,7 @@ public class LoginController extends BaseController {
 				tmtl.setEnd_time(tmtl.getEnd_time().split(" ")[1].replace(".", ":"));
 				tmtl.setMaxEndTimeForCourse(tmtl.getEnd_time());
 
-				String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),
-						username);
+				/* String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),username); */  String workLoadResponse = null;
 
 				if (null != workLoadResponse) {
 					String workload[] = fetchWorkload(workLoadResponse);
@@ -13320,34 +13318,76 @@ public class LoginController extends BaseController {
 
 	}
 	// Change Password by Support Admin
-
+//	@Secured({ "ROLE_SUPPORT_ADMIN"})
+//	@RequestMapping(value = "/changeTemporaryPasswordBySupportAdmin", method = { RequestMethod.GET,
+//			RequestMethod.POST })
+//	public String changeTemporaryPasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
+//			RedirectAttributes redirectAttrs, Model m, Principal p) {
+//		System.out.println("changeTemporaryPasswordBySupportAdminForm");
+//		try {
+//			User userDB = userService.findByUserName(user.getUsername());
+//			logger.info("changeTemporaryPasswordBySupportAdmin userDB : " + userDB);
+//			WebTarget webTarget = client.target(URIUtil
+//					.encodeQuery(userRoleMgmtCrudUrl + "/changeTemporaryPasswordBySupportAdmin?username=" + username));
+//			logger.info("Return from UserRoleMamtCrud");
+//			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+//			logger.info("invocationBuilder " + invocationBuilder);
+//			String resp = invocationBuilder.get(String.class);
+//
+//			logger.info("checking response " + resp);
+//			if (resp.equals("Success")) {
+//				logger.info("Notification of Success");
+//				setSuccess(redirectAttrs, "Password Changed Successfully, New Password is pass@123");
+//			} else if (resp.equals("userExisted")) {
+//				setNote(redirectAttrs, "User Already Existed");
+//			} else if (resp.equals("defaultPassword")) {
+//				setNote(redirectAttrs, "Password is already pass@123");
+//			} else {
+//				setError(redirectAttrs, "Error");
+//			}
+//
+//		} catch (Exception e) {
+//			logger.error(e.getMessage(), e);
+//			setError(redirectAttrs, "Error in Updating");
+//		}
+//		// return null;
+//		return "redirect:/changePasswordBySupportAdminForm";
+//	}
+	/* New Audit changes start */
 	@RequestMapping(value = "/changeTemporaryPasswordBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String changeTemporaryPasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
 			RedirectAttributes redirectAttrs, Model m, Principal p) {
 		System.out.println("changeTemporaryPasswordBySupportAdminForm");
 		try {
+			WebTarget webTarget;
+			Invocation.Builder invocationBuilder;
+			String resp;
 			User userDB = userService.findByUserName(user.getUsername());
-			logger.info("changeTemporaryPasswordBySupportAdmin userDB : " + userDB);
-			WebTarget webTarget = client.target(URIUtil
-					.encodeQuery(userRoleMgmtCrudUrl + "/changeTemporaryPasswordBySupportAdmin?username=" + username));
-			logger.info("Return from UserRoleMamtCrud");
-			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-			logger.info("invocationBuilder " + invocationBuilder);
-			String resp = invocationBuilder.get(String.class);
+			if(null != user.getIsUserBlocked()) {
+				webTarget = client.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/unlockUserBySupportAdmin?username=" + username));
+				invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+				resp = invocationBuilder.get(String.class);
+				if (resp.equals("Success")) {
+					setSuccess(redirectAttrs, "User Unlock");
+				} else {
+					setError(redirectAttrs, "Error while unlock user.");
+				}
+			}else {
+				webTarget = client.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/changeTemporaryPasswordBySupportAdmin?username=" + username));
+				invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+				resp = invocationBuilder.get(String.class);
 
-			logger.info("checking response " + resp);
-			if (resp.equals("Success")) {
-				logger.info("Notification of Success");
-				setSuccess(redirectAttrs, "Password Changed Successfully, New Password is pass@123");
-			} else if (resp.equals("userExisted")) {
-				setNote(redirectAttrs, "User Already Existed");
-			} else if (resp.equals("defaultPassword")) {
-				setNote(redirectAttrs, "Password is already pass@123");
-			} else {
-				setError(redirectAttrs, "Error");
+				if (resp.equals("Success")) {
+					setSuccess(redirectAttrs, "Password Changed Successfully, New Password is pass@123");
+				} else if (resp.equals("userExisted")) {
+					setNote(redirectAttrs, "User Already Existed");
+				} else if (resp.equals("defaultPassword")) {
+					setNote(redirectAttrs, "Password is already pass@123");
+				} else {
+					setError(redirectAttrs, "Error");
+				}
 			}
-
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in Updating");
@@ -13355,7 +13395,9 @@ public class LoginController extends BaseController {
 		// return null;
 		return "redirect:/changePasswordBySupportAdminForm";
 	}
+	/* New Audit changes end */
 
+	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/deleteTemporaryPasswordBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String deleteTemporaryPasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
@@ -13395,6 +13437,7 @@ public class LoginController extends BaseController {
 		return "user/hostleStudentDetailsBySupportAdmin";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/searchHostelStudentDetailBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String searchHostelStudentDetailBySupportAdmin(Principal principal,
@@ -13432,6 +13475,7 @@ public class LoginController extends BaseController {
 		return "user/hostleStudentDetailsBySupportAdmin";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/updateHostelStudentDetailBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String updateHostelStudentDetailBySupportAdmin(Principal principal,

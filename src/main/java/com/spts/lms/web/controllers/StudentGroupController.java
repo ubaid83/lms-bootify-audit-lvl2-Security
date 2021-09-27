@@ -30,7 +30,7 @@ import com.spts.lms.services.program.ProgramService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 
-@Secured("ROLE_USER")
+//@Secured("ROLE_USER")
 @Controller
 @SessionAttributes("userId")
 public class StudentGroupController extends BaseController {
@@ -59,7 +59,7 @@ public class StudentGroupController extends BaseController {
 	public List<Program> getPrograms() {
 		return programService.findAllActive();
 	}
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/groupList", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String groupList(@RequestParam(required = false) Long courseId,

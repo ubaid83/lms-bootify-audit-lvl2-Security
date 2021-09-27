@@ -898,7 +898,7 @@ public class UserDAO extends BaseDAO<User> {
 
 	public int changePasswordBySupportAdmin(final User user) {
 		String sql = "Update " + getTableName()
-				+ " set password ='$2a$10$vcjDwKHiqGTMxiS8LgwKeOOrsyeCHreuUcLATtnVzNFgGbjWn323u', lastModifiedDate = :lastModifiedDate, lastModifiedBy = :lastModifiedBy "
+				+ " set password ='d97086919b6522e13ba9b46c04902c38372102218a4b3ef2f45ac2a80e9fd240', lastModifiedDate = :lastModifiedDate, lastModifiedBy = :lastModifiedBy "
 				+ " where username = :username ";
 		return updateSQL(user, sql);
 	}

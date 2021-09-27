@@ -1501,7 +1501,7 @@ public class LorController extends BaseController {
 
 										}
 										user.setPassword(
-												"$2a$10$vcjDwKHiqGTMxiS8LgwKeOOrsyeCHreuUcLATtnVzNFgGbjWn323u");
+												"d97086919b6522e13ba9b46c04902c38372102218a4b3ef2f45ac2a80e9fd240");
 										user.setCreatedBy("CA");
 										user.setLastModifiedBy("CA");
 										user.setEnabled(true);
@@ -1609,7 +1609,7 @@ public class LorController extends BaseController {
 										user.convert(userTo);
 
 									}
-									user.setPassword("$2a$10$vcjDwKHiqGTMxiS8LgwKeOOrsyeCHreuUcLATtnVzNFgGbjWn323u");
+									user.setPassword("d97086919b6522e13ba9b46c04902c38372102218a4b3ef2f45ac2a80e9fd240");
 									user.setCreatedBy("CA");
 									user.setLastModifiedBy("CA");
 									user.setEnabled(true);

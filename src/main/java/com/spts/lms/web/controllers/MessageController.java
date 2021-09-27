@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -59,6 +60,7 @@ public class MessageController extends BaseController {
 	@Autowired
 	UserService userService;
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/createMessageForm", method = { RequestMethod.GET })
 	public String createMessageForm(
 			@RequestParam(required = false) Long courseId,
@@ -124,6 +126,7 @@ public class MessageController extends BaseController {
 		return "message/createMessage";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/createMessage", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String createMessage(@ModelAttribute Message message, Long courseId,
@@ -176,6 +179,7 @@ public class MessageController extends BaseController {
 		return "message/message";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/updateMessage", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String updateMessage(@ModelAttribute Message message,
@@ -203,6 +207,7 @@ public class MessageController extends BaseController {
 		return "message/message";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/saveStudentMessageAllocation", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentMessageAllocation(@ModelAttribute Message message,
@@ -251,6 +256,7 @@ public class MessageController extends BaseController {
 		return "message/createMessage";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/saveAllStudentMessage", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveAllStudentMessage(@ModelAttribute Message message,
@@ -295,6 +301,7 @@ public class MessageController extends BaseController {
 		return "message/createMessage";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/viewMessage", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewMessage(@RequestParam(required = false) Long id,
@@ -345,6 +352,8 @@ public class MessageController extends BaseController {
 	 * 
 	 * }
 	 */
+	
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/viewMyMessage", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewMyMessage(Model m, Principal principal) {
@@ -396,6 +405,7 @@ public class MessageController extends BaseController {
 		return "message/viewMyMessage";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/giveResponseToMessage", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String giveResponseToMessage(Model m,
@@ -420,6 +430,7 @@ public class MessageController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/viewOutboxMessage", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewOutboxMessage(Model m, @RequestParam("id") Long messageId) {
@@ -448,6 +459,7 @@ public class MessageController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/saveMessageReply", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String saveMessageReply(Model m,

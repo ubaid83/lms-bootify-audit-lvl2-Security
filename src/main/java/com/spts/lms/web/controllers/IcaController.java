@@ -231,6 +231,7 @@ public class IcaController extends BaseController {
 	@Value("${app}")
 	private String app;
 
+	@Secured({ "ROLE_ADMIN"})
 	@RequestMapping(value = "/addIcaForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addIcaForm(Model m, Principal principal, @RequestParam(required = false) String id,
 			RedirectAttributes redirectAttrs) {
@@ -886,6 +887,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/getModuleByParam", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getModuleByParam(@RequestParam(name = "acadYear") String acadYear,
 			@RequestParam(name = "campusId") String campusId, @RequestParam(name = "acadSession") String acadSession,
@@ -918,6 +920,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/getSessionByParam", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getSessionByParam(@RequestParam(name = "acadYear") String acadYear,
 			@RequestParam(name = "campusId") String campusId,
@@ -950,6 +953,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/getSessionByParamForIcaReport", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getSessionByParamForIcaReport(@RequestParam(name = "acadYear") String acadYear,
 			@RequestParam(name = "campusId") String campusId,
@@ -982,6 +986,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/getFacultyByModuleICA", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getFacultyByModuleICA(@RequestParam(name = "moduleId") String moduleId,
 			@RequestParam(name = "acadYear") String acadYear, Principal principal) {
@@ -1011,6 +1016,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/saveComponentsForIca", method = RequestMethod.POST)
 	public String saveComponentsForIca(
 
@@ -1201,6 +1207,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/searchIcaList", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchIcaList(Model m, Principal principal, @RequestParam(required = false) String icaId) {
 
@@ -1343,6 +1350,7 @@ public class IcaController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/evaluateIca", method = { RequestMethod.GET, RequestMethod.POST })
 	public String evaluateIca(Model m, Principal principal, @RequestParam Long icaId, @ModelAttribute IcaBean icaBean,
 			RedirectAttributes redirectAttrs) {
@@ -1735,6 +1743,7 @@ public class IcaController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/saveIcaAsDraft", method = { RequestMethod.POST, RequestMethod.GET })
 	public @ResponseBody String saveIcaAsDraft(@RequestParam Map<String, String> allRequestParams, Principal p) {
 		logger.info("allRequestParams----------------" + allRequestParams);
@@ -1883,6 +1892,7 @@ public class IcaController extends BaseController {
 		return icaTotalMarks;
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/submitIca", method = { RequestMethod.POST, RequestMethod.GET })
 	public String submitIca(@RequestParam Map<String, String> allRequestParams, Principal p,
 			RedirectAttributes redirectAttributes) {
@@ -2105,6 +2115,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/publishIca", method = { RequestMethod.GET, RequestMethod.POST })
 	public String publishIca(Model m, Principal principal) {
 
@@ -2154,6 +2165,7 @@ public class IcaController extends BaseController {
 		return "ica/publishIca";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/publishAllIca", method = { RequestMethod.GET, RequestMethod.POST })
 	public String publishAllIca(Model m, Principal principal, RedirectAttributes redirectAttrs) {
 
@@ -2263,6 +2275,7 @@ public class IcaController extends BaseController {
 		return "redirect:/publishIca";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/publishOneIca", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String publishOneIca(Model m, Principal principal, @RequestParam String id) {
 
@@ -2363,6 +2376,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_STUDENT" })
 	@RequestMapping(value = "/showInternalMarks", method = { RequestMethod.GET, RequestMethod.POST })
 	public String showInternalMarks(Model m, Principal principal) {
 
@@ -2578,6 +2592,7 @@ public class IcaController extends BaseController {
 		return "ica/showInternalMarks";
 	}
 
+	@Secured({ "ROLE_ADMIN"})
 	@RequestMapping(value = "/showIcaQueries", method = { RequestMethod.GET, RequestMethod.POST })
 	public String showIcaQueries(Model m, Principal principal) {
 
@@ -2636,6 +2651,7 @@ public class IcaController extends BaseController {
 		return "ica/icaQueries";
 	}
 
+	@Secured({ "ROLE_ADMIN"})
 	@RequestMapping(value = "/approveIcaForReeval", method = { RequestMethod.POST, RequestMethod.GET })
 	public String approveIcaForReeval(@RequestParam(name = "file", required = true) List<MultipartFile> input,
 			@RequestParam(name = "icaId") String icaId, @RequestParam(name = "compId", required = false) String compId,
@@ -2777,6 +2793,7 @@ public class IcaController extends BaseController {
 		return "redirect:/showIcaQueries";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/approveAllIcaForReeval", method = { RequestMethod.POST, RequestMethod.GET })
 	public String approveAllIcaForReeval(@RequestParam(name = "file", required = true) List<MultipartFile> input,
 			Principal p, RedirectAttributes redirectAttributes) {
@@ -2987,6 +3004,7 @@ public class IcaController extends BaseController {
 		return filePath;
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadIcaFile", method = { RequestMethod.GET, RequestMethod.POST })
 	public ResponseEntity<ByteArrayResource> downloadIcaFile(
 			@RequestParam(required = false, name = "id", defaultValue = "") String id, HttpServletRequest request,
@@ -3105,6 +3123,7 @@ public class IcaController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadIcaMarksUploadTemplate", method = { RequestMethod.GET, RequestMethod.POST })
 	public ResponseEntity<ByteArrayResource> downloadIcaMarksUploadTemplate(
 
@@ -3176,6 +3195,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/uploadStudentMarksExcel", method = { RequestMethod.POST })
 	public String uploadStudentMarksExcel(@ModelAttribute Test test, @RequestParam("file") MultipartFile file,
 			@RequestParam String saveAs, @RequestParam String icaId, Model m, RedirectAttributes redirectAttributes,
@@ -3678,6 +3698,7 @@ public class IcaController extends BaseController {
 		return bd.doubleValue();
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadIcaReportForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadIcaReportForm(Model m, Principal principal) {
 
@@ -3695,6 +3716,7 @@ public class IcaController extends BaseController {
 		return "ica/icaReport";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadIcaReport", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadIcaReport(Model m, HttpServletResponse response, Principal principal,
 			@RequestParam String acadYear, @RequestParam String acadSession, @RequestParam String programId,
@@ -4368,6 +4390,7 @@ public class IcaController extends BaseController {
 		return filePath;
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/showEvaluatedInternalMarks", method = { RequestMethod.GET, RequestMethod.POST })
 	public String showEvaluatedInternalMarks(Model m, Principal principal, @RequestParam String icaId) {
 
@@ -4514,6 +4537,7 @@ public class IcaController extends BaseController {
 		return "ica/showEvaluatedMarks";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/GetProgramsFromAcadSessionYearModule", method = { RequestMethod.GET })
 	public @ResponseBody String GetProgramsFromAcadSessionYearModule(@RequestParam String acadSession,
 			@RequestParam String moduleId, @RequestParam String year, Principal principal) {
@@ -4540,6 +4564,7 @@ public class IcaController extends BaseController {
 		return jsonarray.toString();
 	}
 
+	@Secured({ "ROLE_ADMIN"})
 	@RequestMapping(value = "/addIcaFormForDivision", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addIcaFormForDivision(Model m, Principal principal, @RequestParam(required = false) String id,
 			RedirectAttributes redirectAttrs) {
@@ -5011,6 +5036,7 @@ public class IcaController extends BaseController {
 		return filePath;
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadIcaRaiseQueryReport", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadIcaRaiseQueryReport(Model m, Principal p, HttpServletResponse response,
 			@RequestParam(required = false) String acadYear) throws URIException {
@@ -5106,6 +5132,7 @@ public class IcaController extends BaseController {
 		return null;
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadIcaStatus", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadIcaStatus(Model m, Principal p, HttpServletResponse response,
 			@RequestParam(required = false) String acadYear, @RequestParam(required = false) String forAll)
@@ -5249,6 +5276,7 @@ public class IcaController extends BaseController {
 
 	// Start Non-Event Module ICA
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addIcaFormForNonEventModules", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addIcaFormForNonEventModules(Model m, Principal principal, @RequestParam(required = false) String id,
 			RedirectAttributes redirectAttrs) {
@@ -5328,6 +5356,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/getSessionByParamForModule", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getSessionByParamForModule(@RequestParam(name = "acadYear") String acadYear,
 			@RequestParam(name = "campusId") String campusId,
@@ -5360,6 +5389,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/getModuleByParamForModule", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getModuleByParamForModule(@RequestParam(name = "acadYear") String acadYear,
 			@RequestParam(name = "campusId") String campusId, @RequestParam(name = "acadSession") String acadSession,
@@ -5392,6 +5422,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/GetProgramsFromAcadSessionYearModuleForModule", method = { RequestMethod.GET })
 	public @ResponseBody String GetProgramsFromAcadSessionYearModuleForModule(@RequestParam String acadSession,
 			@RequestParam String moduleId, @RequestParam String year, Principal principal) {
@@ -5537,6 +5568,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/evaluateIcaForNonEventModule", method = { RequestMethod.GET, RequestMethod.POST })
 	public String evaluateIcaForNonEventModule(Model m, Principal principal, @RequestParam Long icaId,
 			@ModelAttribute IcaBean icaBean, RedirectAttributes redirectAttrs) {
@@ -5777,6 +5809,7 @@ public class IcaController extends BaseController {
 	// NS changes
 	// ----------------NonCreditIca----------------//
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/addNonCreditIcaForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addNonCreditIcaForm(Model m, Principal principal, @RequestParam(required = false) String id,
 			RedirectAttributes redirectAttrs) {
@@ -5906,6 +5939,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/getModuleIdByProgramId", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getAcadYearByModuleId(@RequestParam(name = "acadYear") String acadYear,
 			@RequestParam(name = "programId") String programId) {
@@ -5935,6 +5969,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadNSTemplate", method = RequestMethod.GET)
 	public void downloadNSTemplate(HttpServletResponse response, @ModelAttribute NsBean nsBean, Principal principal) {
 
@@ -6070,6 +6105,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/uploadStudentNS", method = { RequestMethod.POST })
 	public String uploadStudentNS(@ModelAttribute StudentNcIca studentNcIca, @RequestParam("file") MultipartFile file,
 			@RequestParam String saveAs, @RequestParam String icaId, Model m, RedirectAttributes redirectAttributes,
@@ -6179,6 +6215,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/searchNsList", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchNsList(Model m, Principal principal) {
 
@@ -6201,6 +6238,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/publishOneNCIca", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String publishOneNCIca(Model m, Principal principal, @RequestParam String id) {
 
@@ -6235,6 +6273,7 @@ public class IcaController extends BaseController {
 		return "redirect:/searchNsList";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/showNCMarks", method = { RequestMethod.GET, RequestMethod.POST })
 	public String showNCMarks(Model m, Principal principal) {
 
@@ -6252,6 +6291,7 @@ public class IcaController extends BaseController {
 		return "ica/showNCMarks";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadUpdatedGrade", method = RequestMethod.GET)
 	public void downloadUpdatedGrade(@ModelAttribute StudentNcIca sni, HttpServletResponse response,
 			Principal principal, @RequestParam("icaId") String icaId) {
@@ -6810,6 +6850,7 @@ public class IcaController extends BaseController {
 		return filePath;
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/AddIcaComponentNew", method = { RequestMethod.GET, RequestMethod.POST })
 	public String AddIcaComponent(Principal principal, Model m) {
 		m.addAttribute("webPage",
@@ -6818,6 +6859,7 @@ public class IcaController extends BaseController {
 		return "homepage/AddIcaComponentNew";
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/createComponentForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String createTraingProgramForm(Principal principal, Model m,
 			@RequestParam(value = "componentName") String ComponentName, RedirectAttributes redirectAttrs)
@@ -6875,6 +6917,7 @@ public class IcaController extends BaseController {
 		return "redirect:/AddIcaComponentNew";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/icaListBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String icaListBySupportAdmin(Model m, Principal principal, @RequestParam(required = false) String icaId) {
 
@@ -6942,6 +6985,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/updateIcaDateBySupportAdminForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String updateIcaDateBySupportAdminForm(Model m, Principal principal, @ModelAttribute IcaBean icaBean,
 			RedirectAttributes redirectAttrs, @RequestParam String icaId) {
@@ -6954,6 +6998,7 @@ public class IcaController extends BaseController {
 		return "ica/updateDateBySupportAdmin";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/updateIcaDateBySupportAdmin", method = RequestMethod.POST)
 	public String updateIcaDateBySupportAdmin(Model m, Principal principal, @ModelAttribute IcaBean icaBean,
 			RedirectAttributes redirectAttrs) {
@@ -7019,6 +7064,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/updateIcaDateBySupportAdminWithoutSubmit", method = RequestMethod.POST)
 	public String updateIcaDateBySupportAdminWithoutSubmit(Model m, Principal principal,
 			@ModelAttribute("icaBeanS") IcaBean icaBeanS, RedirectAttributes redirectAttrs) {
@@ -7072,6 +7118,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadIcaReportFacultyForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String downloadIcaReportFacultyForm(Model m, Principal principal) {
 
@@ -8029,6 +8076,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/GetProgramsFromAcadSessionYearModuleCE", method = { RequestMethod.GET })
 	public @ResponseBody String GetProgramsFromAcadSessionYearModuleCE(@RequestParam String acadYear,
 			@RequestParam String moduleId, Principal principal) {
@@ -8057,6 +8105,7 @@ public class IcaController extends BaseController {
 
 	// add Ica For Coursera
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/getSessionByParamCE", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getSessionByParamCE(@RequestParam(name = "acadYear") String acadYear,
 			@RequestParam(name = "campusId") String campusId, @RequestParam(name = "moduleId") String moduleId,
@@ -8087,6 +8136,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/addIcaFormForCoursera", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addIcaFormForCoursera(Model m, Principal principal, @RequestParam(required = false) String id,
 			RedirectAttributes redirectAttrs) {
@@ -8177,6 +8227,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/getModuleByParamCE", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getModuleByParamCE(@RequestParam(name = "acadYear") String acadYear,
 			@RequestParam(name = "campusId") String campusId,
@@ -8209,6 +8260,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/updateIcaInternalPassMarkBySupportAdminForm", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String updateIcaInternalPassMarkBySupportAdminForm(Model m, Principal principal,
@@ -8223,6 +8275,7 @@ public class IcaController extends BaseController {
 		return "ica/updateInternalPassMarkBySupportAdmin";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/updateIcaInternalPassMarkBySupportAdmin", method = RequestMethod.POST)
 	public String updateIcaInternalPassMarkBySupportAdmin(Model m, Principal principal, @ModelAttribute IcaBean icaBean,
 			RedirectAttributes redirectAttrs) {
@@ -8254,6 +8307,7 @@ public class IcaController extends BaseController {
 
 	// New Mapping
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/assignTestMarksToIcaForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String assignTestMarksToIcaForm(@RequestParam Long icaId, @RequestParam(required = false) String courseId,
 			Principal p, @RequestParam(required = false) String showEvalBtn, Model m,
@@ -8398,6 +8452,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/saveTestsMarksForIca", method = { RequestMethod.GET, RequestMethod.POST })
 	public String saveTestsMarksForIca(@ModelAttribute IcaBean ica, Model m, RedirectAttributes redirectAttrs,
 			Principal p) {
@@ -8660,6 +8715,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = { "/clearIcaTestMarks" }, method = { RequestMethod.GET })
 	public String deleteMeeting(Model m, @RequestParam String icaId, @RequestParam String courseId,
 			HttpServletResponse resp, Principal p, RedirectAttributes redirectAttrs, HttpServletRequest request) {
@@ -8761,6 +8817,7 @@ public class IcaController extends BaseController {
 
 	// new mappings
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/saveIcaCompMarksAsDraft", method = { RequestMethod.POST, RequestMethod.GET })
 	public @ResponseBody String saveIcaCompMarksAsDraft(@RequestParam Map<String, String> allRequestParams,
 			Principal p) {
@@ -8832,7 +8889,7 @@ public class IcaController extends BaseController {
 		}
 
 	}
-
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/submitIcaCompWise", method = { RequestMethod.POST, RequestMethod.GET })
 	public String submitIcaCompWise(@RequestParam Map<String, String> allRequestParams, Principal p,
 			RedirectAttributes redirectAttributes) {
@@ -9063,6 +9120,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/uploadStudentCompMarksExcel", method = { RequestMethod.POST })
 	public String uploadStudentCompMarksExcel(@ModelAttribute Test test, @RequestParam("file") MultipartFile file,
 			@RequestParam String saveAs, @RequestParam String icaId, @RequestParam String compId, Model m,
@@ -9471,6 +9529,7 @@ public class IcaController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/publishIcaComponents", method = { RequestMethod.GET, RequestMethod.POST })
 	public String publishIcaComponents(Model m, Principal principal) {
 
@@ -9555,6 +9614,7 @@ public class IcaController extends BaseController {
 		return "ica/publishIcaComps";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/publishAllIcaComponents", method = { RequestMethod.GET, RequestMethod.POST })
 	public String publishAllIcaComponents(Model m, Principal principal, RedirectAttributes redirectAttrs) {
 
@@ -9719,6 +9779,7 @@ public class IcaController extends BaseController {
 		return "redirect:/publishIcaComponents";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/publishOneIcaComponents", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String publishOneIcaComponents(Model m, Principal principal, @RequestParam String id,
 			@RequestParam String compId) {
@@ -9834,7 +9895,8 @@ public class IcaController extends BaseController {
 		}
 
 	}
-
+	
+	@Secured({ "ROLE_STUDENT" })
 	@RequestMapping(value = "/raiseQueryForStudent", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String raiseQueryForStudent(Model m, Principal principal, @RequestParam String id,
 			@RequestParam(required = false) String compId, @RequestParam String query) {
