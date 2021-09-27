@@ -210,11 +210,13 @@ public class CopyCaseHelper {
 						// double dff = (dd/(double)max)*100;
 
 						// if(dff<70){
-
+						
 						if (!linesMatchedInSecondFile.contains(secondFileLine)
 								&& firstFileLine.contains(secondFileLine)) {
 							matched = true;
 							noOfMatches++;
+							logger.info("firstFileLine1-->"+firstFileLine);
+							logger.info("secondFileLine1-->"+secondFileLine);
 							linesMatchedInSecondFile.add(secondFileLine);// This
 																			// line
 																			// should
@@ -230,6 +232,8 @@ public class CopyCaseHelper {
 								&& secondFileLine.contains(firstFileLine)) {
 							matched = true;
 							noOfMatches++;
+							logger.info("firstFileLine2-->"+firstFileLine);
+							logger.info("secondFileLine2-->"+secondFileLine);
 							linesMatchedInFirstFile.add(firstFileLine);// This
 																		// line
 																		// should

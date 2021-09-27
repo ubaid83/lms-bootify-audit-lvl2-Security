@@ -90,7 +90,7 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 
-@Secured("ROLE_ADMIN")
+//@Secured("ROLE_ADMIN")
 @Controller
 public class UserCourseController extends BaseController {
 
