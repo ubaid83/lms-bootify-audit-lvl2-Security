@@ -265,6 +265,12 @@ public class TeeController extends BaseController {
 				teeBean.setScaledMarks(null);
 			}
 
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(teeBean.getStartDate(), teeBean.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addTeeForm";
+			}
+			/* New Audit changes end */
 			List<TeeBean> teeDBList = teeBeanService.checkAlreadyExistICAList(teeBean.getModuleId(),
 					teeBean.getAcadYear(), teeBean.getCampusId(), teeBean.getAcadSession());
 
@@ -1774,7 +1780,12 @@ public class TeeController extends BaseController {
 				teeBean.setScaledReq("N");
 				teeBean.setScaledMarks(null);
 			}
-
+			/* New Audit changes start */
+			if(!Utils.validateStartAndEndDates(teeBean.getStartDate(), teeBean.getEndDate())) {
+				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addTeeForm";
+			}
+			/* New Audit changes end */
 			teeBean.setAssignedFaculty(null);
 			List<TeeBean> teeDBList = teeBeanService.checkAlreadyExistTEEAList(teeBean.getModuleId(),
 					teeBean.getAcadYear(), teeBean.getCampusId(), teeBean.getAcadSession());

@@ -108,10 +108,11 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 	public LmsInterceptor lmsInterceptor() {
 		return new LmsInterceptor();
 	}
+	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		// TODO Auto-generated method stub
-		registry.addInterceptor(lmsInterceptor()).excludePathPatterns("/handShake","/login").addPathPatterns("/*");
+		registry.addInterceptor(lmsInterceptor()).excludePathPatterns("/handShake","/login","/error").addPathPatterns("/*");
 		super.addInterceptors(registry);
 	}
 }
