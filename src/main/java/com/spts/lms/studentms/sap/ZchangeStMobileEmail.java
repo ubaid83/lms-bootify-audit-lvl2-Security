@@ -21,7 +21,8 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="EmailId" type="{urn:sap-com:document:sap:rfc:functions}char241" minOccurs="0"/>
  *         &lt;element name="MobileNo" type="{urn:sap-com:document:sap:rfc:functions}char30" minOccurs="0"/>
  *         &lt;element name="Photo" type="{urn:sap-com:document:sap:soap:functions:mc-style}string" minOccurs="0"/>
- *         &lt;element name="Stobjid" type="{urn:sap-com:document:sap:rfc:functions}numeric8"/>
+ *         &lt;element name="Stnum" type="{urn:sap-com:document:sap:soap:functions:mc-style}char12"/>
+ *         &lt;element name="Stobjid" type="{urn:sap-com:document:sap:soap:functions:mc-style}char100"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -35,6 +36,7 @@ import javax.xml.bind.annotation.XmlType;
     "emailId",
     "mobileNo",
     "photo",
+    "stnum",
     "stobjid"
 })
 @XmlRootElement(name = "ZchangeStMobileEmail")
@@ -46,6 +48,8 @@ public class ZchangeStMobileEmail {
     protected String mobileNo;
     @XmlElement(name = "Photo")
     protected String photo;
+    @XmlElement(name = "Stnum", required = true)
+    protected String stnum;
     @XmlElement(name = "Stobjid", required = true)
     protected String stobjid;
 
@@ -119,6 +123,30 @@ public class ZchangeStMobileEmail {
      */
     public void setPhoto(String value) {
         this.photo = value;
+    }
+
+    /**
+     * Gets the value of the stnum property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getStnum() {
+        return stnum;
+    }
+
+    /**
+     * Sets the value of the stnum property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setStnum(String value) {
+        this.stnum = value;
     }
 
     /**

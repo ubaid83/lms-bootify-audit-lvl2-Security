@@ -201,7 +201,6 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.services.user.WsdlLogService;
 import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.services.webpages.WebpagesService;
-import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSSEP;
 import com.spts.lms.studentms.sap.ZmessageLogTt;
 import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;

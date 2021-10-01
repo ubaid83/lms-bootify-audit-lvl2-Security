@@ -22,8 +22,10 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FilenameUtils;
@@ -46,8 +48,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
-
-import sun.misc.BASE64Decoder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -80,7 +80,8 @@ import com.spts.lms.services.user.TrainingProgramService;
 import com.spts.lms.services.user.UserRoleService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.services.user.WsdlLogService;
-import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSSEP;
+import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSD;
+import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSDFEQ;
 import com.spts.lms.studentms.sap.ZmessageLogTt;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.controllers.BaseController;
@@ -1233,16 +1234,28 @@ public class RegistrationController extends BaseController {
 			if (!studentObjId.equals("null")) {
 				String wsdlresponse = "";
 
-				ZCHANGESTMOBILEEMAILWSSEP ws = new ZCHANGESTMOBILEEMAILWSSEP();
+				ZCHANGESTMOBILEEMAILWSDFEQ ws = new ZCHANGESTMOBILEEMAILWSDFEQ();
 				Holder<ZmessageLogTt> lst = new Holder<ZmessageLogTt>();
-
+				
+				ZCHANGESTMOBILEEMAILWSD ws1 = ws.getZCHANGESTMOBILEEMAILBINDFEQ();
+				logger.info("ws.getZCHANGESTMOBILEEMAILBIND()--->"+ws.getZCHANGESTMOBILEEMAILBINDFEQ());
+				BindingProvider prov = (BindingProvider)ws1;
+				
+				prov.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "basissp");
+				prov.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "india@123");
+				logger.info("ws2--->"+prov.getRequestContext());
+				
+				logger.info("ref--->"+prov.getEndpointReference());
 				try {
+					logger.info("studentObjId--->"+studentObjId);
+					String sha256hex = DigestUtils.sha256Hex(studentObjId);
+					logger.info("sha256hex--->"+sha256hex);
 					if (!file.isEmpty()) {
-						wsdlresponse = ws.getZCHANGESTMOBILEEMAILBINDSEP().zchangeStMobileEmail(user.getEmail(),
-								user.getMobile(), encodedString, studentObjId, lst);
+						wsdlresponse = ws1.zchangeStMobileEmail(user.getEmail(), 
+								user.getMobile(), encodedString, username, sha256hex, lst);
 					} else {
-						wsdlresponse = ws.getZCHANGESTMOBILEEMAILBINDSEP().zchangeStMobileEmail(user.getEmail(),
-								user.getMobile(), "", studentObjId, lst);
+						wsdlresponse = ws1.zchangeStMobileEmail(user.getEmail(), 
+								user.getMobile(), "", username, sha256hex, lst);
 					}
 
 					logger.info("resp----------<><>< " + wsdlresponse);
