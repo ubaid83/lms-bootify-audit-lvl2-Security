@@ -21,7 +21,9 @@ public class LmsInterceptor extends HandlerInterceptorAdapter{
 	
 	@Autowired
 	private MongoDAO mongoDao;
-
+	
+	@Autowired
+    private HttpServletRequest httpRequest;
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -48,7 +50,7 @@ public class LmsInterceptor extends HandlerInterceptorAdapter{
 			String currDate = Utils.formatDate("dd-MM-yyyy HH:mm:ss", Utils.getInIST());
 			try {
 				String username = request.getUserPrincipal().getName();
-				String ipAddr = InetAddress.getLocalHost().getHostAddress();
+				String ipAddr = getClientIP();
 				userLog.setUsername(username);
 				userLog.setIpAddr(ipAddr);
 				userLog.setAction(request.getRequestURL().toString());
@@ -56,7 +58,7 @@ public class LmsInterceptor extends HandlerInterceptorAdapter{
 				userLog.setDateTime(currDate);
 				mongoDao.save(userLog);
 			}catch(Exception e) {
-				String ipAddr = InetAddress.getLocalHost().getHostAddress();
+				String ipAddr = getClientIP();
 				userLog.setIpAddr(ipAddr);
 				userLog.setAction(request.getRequestURL().toString());
 				userLog.setStatus(String.valueOf(response.getStatus()));
@@ -81,6 +83,13 @@ public class LmsInterceptor extends HandlerInterceptorAdapter{
 		super.afterConcurrentHandlingStarted(request, response, handler);
 	}
 	
+	private String getClientIP() {
+	    String xfHeader = httpRequest.getHeader("X-Forwarded-For");
+	    if (xfHeader == null){
+	        return httpRequest.getRemoteAddr();
+	    }
+	    return xfHeader.split(",")[0];
+	}
 	
 
 }
