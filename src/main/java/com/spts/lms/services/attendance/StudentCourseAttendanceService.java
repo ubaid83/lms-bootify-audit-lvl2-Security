@@ -16,6 +16,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.ws.BindingProvider;
 
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.log4j.Logger;
@@ -160,6 +161,9 @@ public class StudentCourseAttendanceService extends
         logger.info("absentList---->" + absentList);
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         ZATTSTPORTALUPDATEWS ws = new ZATTSTPORTALUPDATEWS();
+        BindingProvider prov = (BindingProvider)ws;
+        prov.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "basissp");
+        prov.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "india@123");
         ZattStPortalTt lstLT = new ZattStPortalTt();
         try {
               if (absentList.size() > 0) {
@@ -1342,7 +1346,9 @@ public class StudentCourseAttendanceService extends
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
         ZATTSTPORTALUPDATEWS ws = new ZATTSTPORTALUPDATEWS();
-
+        BindingProvider prov = (BindingProvider)ws;
+        prov.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "basissp");
+        prov.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "india@123");
         ZattStPortalTt lstLT = new ZattStPortalTt();
 
         try {

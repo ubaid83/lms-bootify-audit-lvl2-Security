@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "ZATT_ST_PORTAL_UPDATE_WS", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/data/wsdl/zatt_st_portal_update_bin_sep.wsdl")
+@WebServiceClient(name = "ZATT_ST_PORTAL_UPDATE_WS", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/data/wsdl/zatt_st_portal_update_bin.WSDL")
 public class ZATTSTPORTALUPDATEWS
     extends Service
 {
@@ -30,7 +30,9 @@ public class ZATTSTPORTALUPDATEWS
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/data/wsdl/zatt_st_portal_update_bin_sep.wsdl");
+//            url = new URL("file:/C:/Users/ASUS/Downloads/Student%20Attendance%20WSDL/zatt_st_portal_update_bin.WSDL");
+        	 url = new URL("file:/data/wsdl/zatt_st_portal_update_bin.WSDL");
+            
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
