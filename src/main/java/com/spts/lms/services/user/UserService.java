@@ -194,6 +194,9 @@ public class UserService extends BaseService<User> {
 		} else if (!user.getNewPassword().equals(user.getReenterPassword())) {
 			throw new ValidationException(
 					"Unable to change the password. Kindly verify the the new password and reentered password");
+		} else if (user.getPassword().equals(user.getNewPassword())) {
+			throw new ValidationException(
+					"Unable to change the password. The Password is previously used!");
 		} else {
 			System.out.println("password matched");
 		}

@@ -1146,7 +1146,7 @@ public class RegistrationController extends BaseController {
 					} else {
 						String extension = FilenameUtils.getExtension(originalfileName);
 						logger.info("extension--->" + extension);
-						if (extension.equalsIgnoreCase("exe")) {
+						if (extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/updateProfileForm";
 						} else {

@@ -374,7 +374,7 @@ public class StudentAssignmentController extends BaseController {
 				}else {
 					String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe")) {
+					if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
 						setError(rd, "File uploaded is invalid!");
 						return "redirect:/viewAssignmentFinal";
 					}
@@ -3151,7 +3151,7 @@ public class StudentAssignmentController extends BaseController {
 					return "redirect:/submitAssignmentForm";
 				}else {
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe")) {
+					if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
 						setError(redirectAttrs, "File uploaded is invalid!");
 						return "redirect:/submitAssignmentForm";
 					}
@@ -4761,7 +4761,7 @@ return  "redirect:/evaluateByStudentForModule?id="+assignmentId;
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
 							setError(rd, "File uploaded is invalid!");
 							return "redirect:/viewAssignmentFinal";
 						}

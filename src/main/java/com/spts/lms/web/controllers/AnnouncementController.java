@@ -708,7 +708,7 @@ public class AnnouncementController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
 								setError(redirectAttrs, "File uploaded is invalid!");
 								if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY")) {
 									return "redirect:/addAnnouncementFormLibrary";
@@ -1329,7 +1329,7 @@ public class AnnouncementController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
 								setError(redirectAttrs, "File uploaded is invalid!");
 								if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY") || userdetails1.getAuthorities().contains(
 										Role.ROLE_LIBRARIAN)) {
@@ -2637,7 +2637,7 @@ public class AnnouncementController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
 								setError(redirectAttrs, "File Uploaded is not valid");
 								if (typeOfAnn != null) {
 									if ("PROGRAM".equals(typeOfAnn)) {
@@ -3005,7 +3005,7 @@ public class AnnouncementController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
 								setError(redirectAttrs, "File Uploaded is not valid");
 								if (typeOfAnn != null) {
 									if ("PROGRAM".equals(typeOfAnn)) {
@@ -3481,7 +3481,7 @@ public class AnnouncementController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
 								setError(redirectAttrs, "File uploaded is invalid!");
 								if(typeOfAnn!=null){
 									if("PROGRAM".equals(typeOfAnn)){

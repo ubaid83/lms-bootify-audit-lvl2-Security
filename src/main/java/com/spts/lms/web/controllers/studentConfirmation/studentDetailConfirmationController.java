@@ -133,7 +133,7 @@ public class studentDetailConfirmationController extends BaseController {
 			}else {
 				String extension = FilenameUtils.getExtension(originalfileName);
 				logger.info("extension--->"+extension);
-				if(extension.equalsIgnoreCase("exe")) {
+				if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
 					m.addAttribute("fileuploaderror", "File uploaded is invalid!");
 					setError(r, "File uploaded is invalid!");
 					return "redirect:/homepage";
