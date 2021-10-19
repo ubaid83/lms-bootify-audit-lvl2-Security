@@ -182,7 +182,7 @@ public class LorController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(ra, "File uploaded is invalid!");
 							return "redirect:/viewAppliedApplicationStudentsForStaff";
 						}else {
@@ -313,7 +313,7 @@ public class LorController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(ra, "File uploaded is invalid!");
 								if(userdetails.getAuthorities().contains(Role.ROLE_STAFF)) {
 									return "redirect:/viewAppliedApplicationStudentsForDepartment";
@@ -666,7 +666,7 @@ public class LorController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(redirect, "File uploaded is invalid!");
 								return"redirect:/viewLor";
 							}else {

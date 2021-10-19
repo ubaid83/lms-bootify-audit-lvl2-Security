@@ -375,7 +375,7 @@ public class AssignmentController extends BaseController {
 							}else {
 								String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 								logger.info("extension--->"+extension);
-								if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+								if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 									setError(redirectAttributes, "File uploaded is invalid!");
 									redirectAttributes.addAttribute("courseId", assignment.getCourseId());
 									return "redirect:/createAssignmentFromMenu";
@@ -530,7 +530,7 @@ public class AssignmentController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(m, "File uploaded is invalid!");
 								if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
 									return "assignment/createAssignmentForAdmin";
@@ -1126,7 +1126,7 @@ public class AssignmentController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(m, "File uploaded is invalid!");
 							//redirectAttrs.addAttribute("courseId", assignment.getCourseId());
 							return "assignment/createAssignmentFromGroupFinal";
@@ -3289,7 +3289,7 @@ public class AssignmentController extends BaseController {
 										}else {
 											String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 											logger.info("extension--->"+extension);
-											if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+											if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 												setError(redirectAttrs, "File uploaded is invalid!");
 												redirectAttrs.addAttribute("courseId", assignment.getCourseId());
 												return "redirect:/createGroupAssignmentsForm";
@@ -3451,7 +3451,7 @@ public class AssignmentController extends BaseController {
 							}else {
 								String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 								logger.info("extension--->"+extension);
-								if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+								if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 									setError(redirectAttributes, "File uploaded is invalid!");
 									return "redirect:/createAssignmentModuleForm";
 								}else {
@@ -4173,7 +4173,7 @@ public class AssignmentController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(m, "File uploaded is invalid!");
 								return "assignment/createAssignmentForModule";
 							}else {
@@ -4750,7 +4750,7 @@ public class AssignmentController extends BaseController {
 							}else {
 								String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 								logger.info("extension--->"+extension);
-								if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+								if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 									setError(redirectAttributes, "File uploaded is invalid!");
 									return "redirect:/createAssignmentByAdmin";
 								}else {
