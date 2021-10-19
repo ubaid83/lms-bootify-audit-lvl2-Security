@@ -41,6 +41,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -156,8 +157,10 @@ public class ContentController extends BaseController {
 	
 	Client client = ClientBuilder.newClient();
 	ObjectMapper mapper = new ObjectMapper();
+
 	private static final String serverURL = "http://localhost:8085/"; // "http://localhost:8085/" "http://192.168.2.116:8443/" "http://192.168.2.139:8443/"
 	private static final String serverCrudURL = "http://localhost:8082/"; // "http://192.168.2.139:8443/usermgmtcrud/"
+
 	
 	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addContentForm", method = { RequestMethod.GET,
@@ -414,6 +417,8 @@ public class ContentController extends BaseController {
 				}
 				//Audit change start
 				String errorMessage = "";
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(o -> o == ('.')).count();
 					logger.info("length--->"+count);
@@ -423,7 +428,7 @@ public class ContentController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/addContentForm";
 						}else {
@@ -578,6 +583,8 @@ public class ContentController extends BaseController {
 				boolean created = false;
 				//Audit change start
 				String errorMessage = "";
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -587,7 +594,7 @@ public class ContentController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/addContentForm";
 						}else {
@@ -1365,6 +1372,8 @@ public class ContentController extends BaseController {
 			}
 			//Audit change start
 			String errorMessage = "";
+			Tika tika = new Tika();
+			  String detectedType = tika.detect(file.getBytes());
 			if (file.getOriginalFilename().contains(".")) {
 				Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 				logger.info("length--->"+count);
@@ -1374,7 +1383,7 @@ public class ContentController extends BaseController {
 				}else {
 					String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe")) {
+					if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 						setError(redirectAttrs, "File uploaded is invalid!");
 						return "redirect:/addContentForm";
 					}else {
@@ -1518,6 +1527,8 @@ public class ContentController extends BaseController {
 			}
 			//Audit change start
 			String errorMessage = "";
+			Tika tika = new Tika();
+			  String detectedType = tika.detect(file.getBytes());
 			if (file.getOriginalFilename().contains(".")) {
 				Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 				logger.info("length--->"+count);
@@ -1527,7 +1538,7 @@ public class ContentController extends BaseController {
 				}else {
 					String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe")) {
+					if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 						setError(redirectAttrs, "File uploaded is invalid!");
 						return "redirect:/addContentForm";
 					}else {
@@ -1616,6 +1627,8 @@ public class ContentController extends BaseController {
 				String oldFilePath = c.getFilePath();
 				//Audit change start
 				String errorMessage = "";
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(o -> o == ('.')).count();
 					logger.info("length--->"+count);
@@ -1626,7 +1639,7 @@ public class ContentController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							redirectAttrs.addFlashAttribute("edit", "true");
 							return "redirect:/addContentForm";
@@ -1727,6 +1740,8 @@ public class ContentController extends BaseController {
 				String oldFilePath = contentDB.getFilePath();
 				//Audit change start
 				String errorMessage = "";
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -1737,7 +1752,7 @@ public class ContentController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							redirectAttrs.addFlashAttribute("edit", "true");
 							return "redirect:/addContentForm";

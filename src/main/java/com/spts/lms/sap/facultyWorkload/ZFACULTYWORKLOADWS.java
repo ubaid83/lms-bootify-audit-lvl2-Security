@@ -17,10 +17,11 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "ZFACULTY_WORKLOAD_WS", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/data/wsdl/zfaculty_workload_bin_feq_02122019.wsdl")
+@WebServiceClient(name = "ZFACULTY_WORKLOAD_WS", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/data/wsdl/zfaculty_workload_bin.WSDL")
 public class ZFACULTYWORKLOADWS
     extends Service
 {
+
     private final static URL ZFACULTYWORKLOADWS_WSDL_LOCATION;
     private final static WebServiceException ZFACULTYWORKLOADWS_EXCEPTION;
     private final static QName ZFACULTYWORKLOADWS_QNAME = new QName("urn:sap-com:document:sap:soap:functions:mc-style", "ZFACULTY_WORKLOAD_WS");
@@ -29,8 +30,8 @@ public class ZFACULTYWORKLOADWS
         URL url = null;
         WebServiceException e = null;
         try {
-        	url = new URL("file:/data/wsdl/zfaculty_workload_bin_feq_02122019.wsdl"); 
-//        	url = new URL("file:D:/wsdl/zfaculty_workload_bin_feq_02122019.wsdl"); 
+//            url = new URL("file:/C:/Users/ASUS/Downloads/Faculty%20Workload%20WSDL/zfaculty_workload_bin.WSDL");
+        	url = new URL("file:/data/wsdl/zfaculty_workload_bin.WSDL"); 
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }

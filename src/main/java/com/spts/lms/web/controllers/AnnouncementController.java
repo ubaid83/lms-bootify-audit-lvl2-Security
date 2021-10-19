@@ -41,6 +41,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.tika.Tika;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -661,6 +662,9 @@ public class AnnouncementController extends BaseController {
 
 		String acadSession = u1.getAcadSession();
 
+//		announcement.setSubject(announcement.getSubject().replaceAll("\\<.*?\\>", ""));
+//		announcement.setDescription(announcement.getDescription().replaceAll("\\<.*?\\>", ""));
+		
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		UsernamePasswordAuthenticationToken userDetails = (UsernamePasswordAuthenticationToken) principal;
@@ -690,6 +694,9 @@ public class AnnouncementController extends BaseController {
 			/* New Audit changes end */
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
+					logger.info("ContentType--->"+file.getContentType());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -708,7 +715,7 @@ public class AnnouncementController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 								setError(redirectAttrs, "File uploaded is invalid!");
 								if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY")) {
 									return "redirect:/addAnnouncementFormLibrary";
@@ -1290,6 +1297,9 @@ public class AnnouncementController extends BaseController {
 
 		String acadSession = u1.getAcadSession();
 
+//		announcement.setSubject(announcement.getSubject().replaceAll("\\<.*?\\>", ""));
+//		announcement.setDescription(announcement.getDescription().replaceAll("\\<.*?\\>", ""));
+		
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		UsernamePasswordAuthenticationToken userDetails = (UsernamePasswordAuthenticationToken) principal;
@@ -1310,6 +1320,8 @@ public class AnnouncementController extends BaseController {
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					//Audit change start
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -1329,7 +1341,7 @@ public class AnnouncementController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 								setError(redirectAttrs, "File uploaded is invalid!");
 								if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY") || userdetails1.getAuthorities().contains(
 										Role.ROLE_LIBRARIAN)) {
@@ -1781,7 +1793,7 @@ public class AnnouncementController extends BaseController {
 		return "announcement/announcementList";
 	}
 
-	@Secured("ROLE_LIBRARIAN")
+	@Secured({"ROLE_LIBRARIAN","ROLE_EXAM"})
 	@RequestMapping(value = "/searchAnnouncementForLibrarian", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String searchAnnouncementForLibrarian(
@@ -2592,7 +2604,14 @@ public class AnnouncementController extends BaseController {
 		User u1 = userService.findByUserName(username);
 
 		String acadSession = u1.getAcadSession();
-
+		
+//		logger.info("title before--->"+announcement.getSubject());
+//		announcement.setSubject(announcement.getSubject().replaceAll("\\<.*?\\>", ""));
+//		logger.info("title after--->"+announcement.getSubject());
+//		logger.info("desc before--->"+announcement.getDescription());
+//		announcement.setDescription(announcement.getDescription().replaceAll("\\<.*?\\>", ""));
+//		logger.info("desc after--->"+announcement.getDescription());
+		  
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		UsernamePasswordAuthenticationToken userDetails = (UsernamePasswordAuthenticationToken) principal;
@@ -2623,6 +2642,9 @@ public class AnnouncementController extends BaseController {
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					//Audit change start
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
+					logger.info("ContentType--->"+detectedType);
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -2637,7 +2659,7 @@ public class AnnouncementController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 								setError(redirectAttrs, "File Uploaded is not valid");
 								if (typeOfAnn != null) {
 									if ("PROGRAM".equals(typeOfAnn)) {
@@ -2977,7 +2999,14 @@ public class AnnouncementController extends BaseController {
 			String errorMessage = null;
 
 			String acadSession = u.getAcadSession();
-
+			
+//			logger.info("title edit before--->"+announcement.getSubject());
+//			announcement.setSubject(announcement.getSubject().replaceAll("\\<.*?\\>", ""));
+//			logger.info("title edit after--->"+announcement.getSubject());
+//			logger.info("desc edit before--->"+announcement.getDescription());
+//			announcement.setDescription(announcement.getDescription().replaceAll("\\<.*?\\>", ""));
+//			logger.info("desc edit after--->"+announcement.getDescription());
+			
 			m.addAttribute("Program_Name", ProgramName);
 			m.addAttribute("AcadSession", acadSession);
 
@@ -2991,6 +3020,8 @@ public class AnnouncementController extends BaseController {
 			for (MultipartFile file : files) {
 				if (file != null && !file.isEmpty()) {
 					//Audit change start
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -3005,7 +3036,7 @@ public class AnnouncementController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 								setError(redirectAttrs, "File Uploaded is not valid");
 								if (typeOfAnn != null) {
 									if ("PROGRAM".equals(typeOfAnn)) {
@@ -3451,6 +3482,9 @@ public class AnnouncementController extends BaseController {
 
 		String acadSession = u1.getAcadSession();
 		
+//		announcement.setSubject(announcement.getSubject().replaceAll("\\<.*?\\>", ""));
+//		announcement.setDescription(announcement.getDescription().replaceAll("\\<.*?\\>", ""));
+		
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		UsernamePasswordAuthenticationToken userDetails = (UsernamePasswordAuthenticationToken) principal;
@@ -3467,6 +3501,8 @@ public class AnnouncementController extends BaseController {
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					//Audit change start
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -3481,7 +3517,7 @@ public class AnnouncementController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 								setError(redirectAttrs, "File uploaded is invalid!");
 								if(typeOfAnn!=null){
 									if("PROGRAM".equals(typeOfAnn)){
@@ -3741,6 +3777,9 @@ public class AnnouncementController extends BaseController {
 
 			String acadSession = u.getAcadSession();
 
+//			announcement.setSubject(announcement.getSubject().replaceAll("\\<.*?\\>", ""));
+//			announcement.setDescription(announcement.getDescription().replaceAll("\\<.*?\\>", ""));
+			
 			m.addAttribute("Program_Name", ProgramName);
 			m.addAttribute("AcadSession", acadSession);
 

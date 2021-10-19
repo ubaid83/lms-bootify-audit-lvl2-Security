@@ -22,13 +22,16 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -43,9 +46,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.spts.lms.auth.Token;
-import com.spts.lms.beans.program.Program;
 import com.spts.lms.beans.studentConfirmation.studentDetailConfirmation;
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
@@ -55,7 +56,8 @@ import com.spts.lms.services.program.ProgramService;
 import com.spts.lms.services.studentConfirmation.studentDetailConfirmationPeriodService;
 import com.spts.lms.services.studentConfirmation.studentDetailConfirmationService;
 import com.spts.lms.services.user.UserService;
-import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSSEP;
+import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSD;
+import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSDFEQ;
 import com.spts.lms.studentms.sap.ZmessageLogTt;
 import com.spts.lms.web.controllers.BaseController;
 import com.spts.lms.web.utils.Utils;
@@ -122,6 +124,8 @@ public class studentDetailConfirmationController extends BaseController {
 		logger.info("file1----------------->" + file.getName());
 		String originalfileName = file.getOriginalFilename();
 		//Audit change start
+		Tika tika = new Tika();
+		  String detectedType = tika.detect(file.getBytes());
 		if (originalfileName.contains(".")) {
 			Long count = originalfileName.chars().filter(c -> c == ('.')).count();
 			logger.info("length--->"+count);
@@ -132,7 +136,7 @@ public class studentDetailConfirmationController extends BaseController {
 			}else {
 				String extension = FilenameUtils.getExtension(originalfileName);
 				logger.info("extension--->"+extension);
-				if(extension.equalsIgnoreCase("exe")) {
+				if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 					m.addAttribute("fileuploaderror", "File uploaded is invalid!");
 					setError(r, "File uploaded is invalid!");
 					return "redirect:/homepage";
@@ -235,12 +239,23 @@ public class studentDetailConfirmationController extends BaseController {
 		String wsdlresponse = "";
 
 		User userBean2 = userService.findStudentObjectId(username);
-		ZCHANGESTMOBILEEMAILWSSEP ws = new ZCHANGESTMOBILEEMAILWSSEP();
+		ZCHANGESTMOBILEEMAILWSDFEQ ws = new ZCHANGESTMOBILEEMAILWSDFEQ();
 
 		Holder<ZmessageLogTt> lst = new Holder<ZmessageLogTt>();
 
+		ZCHANGESTMOBILEEMAILWSD ws1 = ws.getZCHANGESTMOBILEEMAILBINDFEQ();
+		logger.info("ws.getZCHANGESTMOBILEEMAILBIND()--->"+ws.getZCHANGESTMOBILEEMAILBINDFEQ());
+		BindingProvider prov = (BindingProvider)ws1;
+		
+		prov.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "basissp");
+		prov.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "india@123");
+		logger.info("ws2--->"+prov.getRequestContext());
+		
+		logger.info("ref--->"+prov.getEndpointReference());
 		try {
-
+			logger.info("studentObjId--->"+studentObjId);
+			String sha256hex = DigestUtils.sha256Hex(studentObjId);
+			logger.info("sha256hex--->"+sha256hex);
 			if (userBean2 == null) {
 				WebTarget webTarget12 = client.target(URIUtil
 						.encodeQuery(userRoleMgmtCrudUrl
@@ -265,10 +280,8 @@ public class studentDetailConfirmationController extends BaseController {
 
 			if (!studentObjId.equals("null")) {
 
-				wsdlresponse = ws.getZCHANGESTMOBILEEMAILBINDSEP()
-						.zchangeStMobileEmail(user.getEmail(),
-								user.getMobile(), encodedString, studentObjId,
-								lst);
+				wsdlresponse = ws1.zchangeStMobileEmail(user.getEmail(), 
+						user.getMobile(), encodedString, username, sha256hex, lst);
 				logger.info("resp----------<><>< " + wsdlresponse);
 
 				logger.info("ZmessageProfileStudMSLog----->" + lst.value);
