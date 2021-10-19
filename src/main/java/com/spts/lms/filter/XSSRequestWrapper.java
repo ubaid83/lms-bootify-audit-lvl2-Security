@@ -13,12 +13,11 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
  
     @Override
     public String[] getParameterValues(String parameter) {
+    	System.out.println("parameter Filter ---->"+parameter);
         String[] values = super.getParameterValues(parameter);
- 
         if (values == null) {
             return null;
         }
- 
         int count = values.length;
         String[] encodedValues = new String[count];
         for (int i = 0; i < count; i++) {
@@ -29,18 +28,19 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
         return encodedValues;
     }
  
-    @Override
-    public String getParameter(String parameter) {
-        String value = super.getParameter(parameter);
+//    @Override
+//    public String getParameter(String parameter) {
+//        String value = super.getParameter(parameter);
+//        System.out.println("parameter direct Filter ---->"+parameter);
+//        System.out.println("parameter direct value ---->"+value);
+//        return stripXSS(value);
+//    }
  
-        return stripXSS(value);
-    }
- 
-    @Override
-    public String getHeader(String name) {
-        String value = super.getHeader(name);
-        return stripXSS(value);
-    }
+//    @Override
+//    public String getHeader(String name) {
+//        String value = super.getHeader(name);
+//        return stripXSS(value);
+//    }
  
     private String stripXSS(String value) {
         if (value != null) {
@@ -93,6 +93,19 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
             // Avoid onload= expressions
             scriptPattern = Pattern.compile("onload(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
             value = scriptPattern.matcher(value).replaceAll("");
+            
+            // Avoid onmouseover= expressions
+            scriptPattern = Pattern.compile("onmouseover(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+            value = scriptPattern.matcher(value).replaceAll("");
+            
+            // Avoid onclick= expressions
+            scriptPattern = Pattern.compile("onclick(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+            value = scriptPattern.matcher(value).replaceAll("");
+            
+            // Avoid onerror= expressions
+            scriptPattern = Pattern.compile("onerror(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+            value = scriptPattern.matcher(value).replaceAll("");
+            
         }
         return value;
     }
