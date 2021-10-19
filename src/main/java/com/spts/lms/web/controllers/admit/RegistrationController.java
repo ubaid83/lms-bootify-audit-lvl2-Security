@@ -30,6 +30,7 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
+import org.apache.tika.Tika;
 import org.glassfish.jersey.client.ClientConfig;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1137,6 +1138,8 @@ public class RegistrationController extends BaseController {
 			if (!file.isEmpty()) {
 				String originalfileName = file.getOriginalFilename();
 				//Audit change start
+				Tika tika = new Tika();
+				String detectedType = tika.detect(file.getBytes());
 				if (originalfileName.contains(".")) {
 					Long count = originalfileName.chars().filter(c -> c == ('.')).count();
 					logger.info("length--->" + count);
@@ -1146,7 +1149,7 @@ public class RegistrationController extends BaseController {
 					} else {
 						String extension = FilenameUtils.getExtension(originalfileName);
 						logger.info("extension--->" + extension);
-						if (extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
+						if (extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/updateProfileForm";
 						} else {

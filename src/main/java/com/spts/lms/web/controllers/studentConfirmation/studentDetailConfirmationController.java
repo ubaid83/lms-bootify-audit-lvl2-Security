@@ -31,6 +31,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -123,6 +124,8 @@ public class studentDetailConfirmationController extends BaseController {
 		logger.info("file1----------------->" + file.getName());
 		String originalfileName = file.getOriginalFilename();
 		//Audit change start
+		Tika tika = new Tika();
+		  String detectedType = tika.detect(file.getBytes());
 		if (originalfileName.contains(".")) {
 			Long count = originalfileName.chars().filter(c -> c == ('.')).count();
 			logger.info("length--->"+count);
@@ -133,7 +136,7 @@ public class studentDetailConfirmationController extends BaseController {
 			}else {
 				String extension = FilenameUtils.getExtension(originalfileName);
 				logger.info("extension--->"+extension);
-				if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
+				if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 					m.addAttribute("fileuploaderror", "File uploaded is invalid!");
 					setError(r, "File uploaded is invalid!");
 					return "redirect:/homepage";

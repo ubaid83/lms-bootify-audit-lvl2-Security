@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 import com.spts.lms.auth.CustomAuthenticationProvider;
 import com.spts.lms.filter.XSSFilter;
@@ -60,6 +61,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/resetPasswordForm", "/resetPassword")
 				.permitAll().antMatchers("/profileDetails").permitAll()
 				.antMatchers("/loggedout").permitAll();
+		
+		http
+		  .headers()
+		    .contentTypeOptions().and()
+		    .xssProtection().and()
+		    .cacheControl().and()
+		    .httpStrictTransportSecurity().and()
+		    .frameOptions().and()
+		    .addHeaderWriter(new StaticHeadersWriter("X-Content-Security-Policy","script-src 'self'"));
+		
+//		http
+//        .headers()
+//        .xssProtection()
+//        .and()
+//        .contentSecurityPolicy("script-src 'self'");
 
 		http.authorizeRequests()
 				.antMatchers("/resources/**", "/registration","/api/**", "/getCourseByUsernameForApp", "/getProgramsByUsernameForApp", "/getCourseByUsernameAndProgramForApp", "/getStudentsByCourseForApp","/insertStudentAttendanceForApp","/showStudentAttendanceForApp","/sendTimetableNotificationForApp","/insertUserPlayerIdForApp","/samlRequestTCS","/redirect","/getTimetableByCourseForApp","/deleteUserPlayerIdForApp","/getAnnouncementListForApp", "/getNewsListForApp", "/getEventsListForApp", "/getAttendanceStatForApp","/downloadFileForApp","/submitAssignmentForApp","/getAssignmentListForApp","/updateStudentAttendanceForApp","/submitAssignmentByOneInGroupForApp","/submitAssignmentByIdForApp","/sendAnnouncementFileForApp","/downloadAttendanceReport","/featureWiseSummaryUtilityReport","/sendAttendanceDataBySAP","/updateProfileForApp","/changePasswordForApp","/showTrainingSession","/insertTrainigAttendance","/showInternalTotalMarksForApp","/showInternalComponentMarksForApp","/showExamTimetableForApp","/getTimetableByCourseForAndroidApp","/getStudentsByCourseForAndroidApp","/showStudentAttendanceForAndroidApp","/showStudentAttendanceStatusForAndroidApp","/insertStudentAttendanceForAndroidApp","/updateStudentAttendanceForAndroidApp","/getAttendanceDataSentToSapForApp","/sendAttendanceDataToSapDemo","/getTestDetailsForAndroidApp","/sendNotificationForAttendanceSync","/sendNotificationForAttendanceSyncService","/getStudentsByCourseForAndroidAppNew","/showStudentAttendanceForAndroidAppNew","/getCompleteLectureAndStudentListCourseWise","/sendAttendanceDataToSapByApp","/updateProfileForAppUatDev")

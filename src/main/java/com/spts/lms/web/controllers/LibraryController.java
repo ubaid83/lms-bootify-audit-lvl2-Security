@@ -30,14 +30,13 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.util.IOUtils;
+import org.apache.tika.Tika;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -51,31 +50,21 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.base.JsonParseExceptionMapper;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.spts.lms.auth.Token;
 import com.spts.lms.beans.amazon.AmazonS3ClientService;
 import com.spts.lms.beans.announcement.Announcement;
 import com.spts.lms.beans.announcement.Announcement.AnnouncementType;
-import com.spts.lms.beans.assignment.StudentAssignment;
-import com.spts.lms.beans.content.Content;
-import com.spts.lms.beans.course.Course;
 import com.spts.lms.beans.library.Library;
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
@@ -535,6 +524,8 @@ public class LibraryController extends BaseController {
 		String type = "LIBRARY";
 		try {
 			if (!file.isEmpty()) {
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -544,7 +535,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 							setError(redirectAttributes, "File uploaded is invalid!");
 							return "redirect:/viewLibraryAnnouncements";
 						}else {
@@ -629,6 +620,8 @@ public class LibraryController extends BaseController {
 			logger.info("filePathupdate-------------->"+filePathupdate.getFilePath());
 			
 			if (!file.isEmpty() && file != null) {
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -638,7 +631,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 							setError(redirectAttributes, "File uploaded is invalid!");
 							return "redirect:/viewLibraryAnnouncements";
 						}else {
@@ -1097,6 +1090,8 @@ public class LibraryController extends BaseController {
 			// for (MultipartFile file : files) {
 
 			if (!file.isEmpty()) {
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -1106,7 +1101,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/addLibraryItemForm";
 						}
@@ -2207,6 +2202,8 @@ public class LibraryController extends BaseController {
 				if (!file.isEmpty()) {
 					//Audit change start
 					String errorMessage = "";
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -2216,7 +2213,7 @@ public class LibraryController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 								setError(redirectAttrs, "File uploaded is invalid!");
 								return "redirect:/addLibraryItemForm";
 							}else {
@@ -2385,6 +2382,8 @@ public class LibraryController extends BaseController {
 			if (file != null && !file.isEmpty()) {
 				//Audit change start
 				String errorMessage = "";
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -2397,7 +2396,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							redirectAttrs.addAttribute("id", library.getId());
 							redirectAttrs.addAttribute("contentType", library.getContentType());
