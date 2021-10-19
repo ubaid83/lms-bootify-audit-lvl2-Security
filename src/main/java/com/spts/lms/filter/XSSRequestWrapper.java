@@ -23,6 +23,7 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
         String[] encodedValues = new String[count];
         for (int i = 0; i < count; i++) {
             encodedValues[i] = stripXSS(values[i]);
+            System.out.println("values after ---->"+encodedValues[i]);
         }
  
         return encodedValues;
@@ -67,6 +68,10 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
  
             // Remove any lonesome <script ...> tag
             scriptPattern = Pattern.compile("<script(.*?)>", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+            value = scriptPattern.matcher(value).replaceAll("");
+            
+         // Remove any lonesome <svg ...> tag
+            scriptPattern = Pattern.compile("<svg(.*?)>", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
             value = scriptPattern.matcher(value).replaceAll("");
  
             // Avoid eval(...) expressions
