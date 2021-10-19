@@ -13,7 +13,7 @@
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-
+<link href="${pageContext.request.contextPath}/resources/logCss/select2.min.css" rel="stylesheet">
 <jsp:include page="../common/newDashboardHeader.jsp" />
 
 <div class="d-flex dataTableBottom" id="facultyAssignmentPage">
@@ -23,7 +23,7 @@
 
 	<!-- DASHBOARD BODY STARTS HERE -->
 	<%
-		boolean isEdit = "true".equals((String) request.getAttribute("edit"));
+	boolean isEdit = "true".equals((String) request.getAttribute("edit"));
 	%>
 	<div class="container-fluid m-0 p-0 dashboardWraper">
 
@@ -106,9 +106,8 @@
 														<form:input path="id" type="hidden" />
 														<form:input path="contentType" type="hidden" />
 
-														<div class="col-md-6 col-sm-12">
+														<div class="col-md-12 col-sm-12">
 															<div class="form-group">
-																<div class="form-group">
 																	<form:label path="schoolToExport" for="schoolToExport">
 														School Name <span style="color: red">*</span>
 																	</form:label>
@@ -123,11 +122,9 @@
 																		</c:forEach>
 																	</form:select>
 																</div>
-															</div>
 														</div>
-														<div class="col-md-6 col-sm-12">
+														<div class="col-md-12 col-sm-12">
 															<div class="form-group">
-																<div class="form-group">
 																	<form:label path="acadYearToExport"
 																		for="acadYearToExport">
 														Academic year <span style="color: red">*</span>
@@ -143,9 +140,8 @@
 																		</c:forEach>
 																	</form:select>
 																</div>
-															</div>
 														</div>
-														<div class="col-md-6 col-sm-12">
+														<div class="col-md-12 col-sm-12">
 															<div class="form-group">
 																<form:label path="programId" for="programId">Select Program<span
 																		style="color: red">*</span>
@@ -160,7 +156,7 @@
 																</form:select>
 															</div>
 														</div>
-														<div class="col-md-6 col-sm-12">
+														<div class="col-md-12 col-sm-12">
 															<div class="form-group">
 																<div class="form-group">
 																	<form:label path="campusId" for="campusId">
@@ -189,7 +185,7 @@
 																		style="color: red">*</span>
 																</form:label>
 																<form:select id="courses" path="courseIdToExport"
-																	class="form-control" required="required">
+																	class="form-control" required="required" data-live-search="true">
 																	<form:option value="">Select Course</form:option>
 
 																	<c:forEach var="courseItem" items="${courseList}"
@@ -280,227 +276,144 @@
 				<!-- SIDEBAR END -->
 				<jsp:include page="../common/footer.jsp" />
 				<script>
-					$(document)
-							.ready(
-									function() {
+					$(document).ready(function() {
+						// Initialize select2
+						$('#schoolToExport').select2();
+						$("#courses").select2();
+						$('#programId').select2();
+						
+						$('#reset').on('click', function() {
+							$('#assid').empty();
+							var optionsAsString = "";
+							optionsAsString = "<option value=''>Select Course</option>";
+							$('#assid').append(optionsAsString);
+							$("#programId").each(function() {
+								this.selectedIndex = 0
+							});
 
-										$('#reset')
-												.on(
-														'click',
-														function() {
-															$('#assid').empty();
-															var optionsAsString = "";
+						});
 
-															optionsAsString = "<option value=''>"
-																	+ "Select Course"
-																	+ "</option>";
-															$('#assid')
-																	.append(
-																			optionsAsString);
+						$("#programId").on('change', function() {
+							var acadYear = $('#acadYearToExport').val();
+							var campusId = $('#campusId').val();
+							var programid = $(this).val();
+							var schoolName = $('#schoolToExport').val();
+							if (programid) {
+								$.ajax({
+									type : 'GET',
+									url : '${pageContext.request.contextPath}/getCourseByProgramIdOfSchool?' + 'programId=' + programid
+											+ '&acadYear=' + acadYear + '&schoolName=' + schoolName
+											+ '&campusId=' + campusId,
+									success : function(data) {
+											var json = JSON.parse(data);
+											var optionsAsString = "";
+											$('#courses').find('option').remove();
+											optionsAsString = "<option selected='selected'>Select course</option>";
+											for (var i = 0; i < json.length; i++) {
+												var idjson = json[i];
+												for ( var key in idjson) {
+													optionsAsString += "<option value='" +key + "'>" + idjson[key] + "</option>";
+												}
+											}
+											$('#courses').append(optionsAsString);
+									}
+								});
+							}
+						});
+						$('#programId').trigger('change');
+						
+					});
 
-															$("#programId")
-																	.each(
-																			function() {
-																				this.selectedIndex = 0
-																			});
+					$("#schoolToExport").on('change', function() {
 
-														});
+						var schoolName = $('#schoolToExport').val();
+						var campusId = $('#campusId').val();
+						$.ajax({
+							type : 'POST',
+							url : '${pageContext.request.contextPath}/getProgramsOfSchool?schoolName=' + schoolName,
+							success : function(data) {
+									var json = JSON.parse(data);
+									var optionsAsString = "";
+									optionsAsString = "<option selected='selected'>Select Program</option>";
+									$('#programId').find('option').remove();
+									for (var i = 0; i < json.length; i++) {
+										var idjson = json[i];
+										for ( var key in idjson) {
+											optionsAsString += "<option value='" +key + "'>" + idjson[key] + "</option>";
+										}
+									}
+									$('#programId').append(optionsAsString);
+							}
+						});
+						$.ajax({
+							type : 'POST',
+							url : '${pageContext.request.contextPath}/getProgramCampusOfSchool?schoolName=' + schoolName,
+							success : function(data) {
+									var json = JSON.parse(data);
+									var optionsAsString = "";
+									optionsAsString = "<option selected='selected'>Select Campus</option>";
+									$('#campusId').find('option').remove();
+									for (var i = 0; i < json.length; i++) {
+										var idjson = json[i];
+										for ( var key in idjson) {
+											optionsAsString += "<option value='" +key + "'>" + idjson[key] + "</option>";
+										}
+									}
+									$('#campusId').append(optionsAsString);
+							}
+						});
 
-										$("#programId")
-												.on(
-														'change',
-														function() {
-															var acadYear = $(
-																	'#acadYearToExport')
-																	.val();
-															//console.log(acadYear);
-															var campusId = $(
-																	'#campusId')
-																	.val();
-															var programid = $(
-																	this).val();
-															//console.log(programid);
-															var schoolName = $(
-																	'#schoolToExport')
-																	.val();
-															//console.log(schoolName);
-															//alert(programid)
-															if (programid) {
-																$
-																		.ajax({
-																			type : 'GET',
-																			url : '${pageContext.request.contextPath}/getCourseByProgramIdOfSchool?'
-																					+ 'programId='
-																					+ programid
-																					+ '&acadYear='
-																					+ acadYear
-																					+ '&schoolName='
-																					+ schoolName,
-																			success : function(
-																					data) {
-																				var json = JSON
-																						.parse(data);
-																				var optionsAsString = "";
-																				//console.log(json);
-																				$(
-																						'#courses')
-																						.find(
-																								'option')
-																						.remove();
-																				console.log(json);
-																				optionsAsString = "<option selected='selected'>Select course</option>";
-																				for (var i = 0; i < json.length; i++) {
-																					var idjson = json[i];
-																					//console.log(idjson);
-																					
-																					for ( var key in idjson) {
-																						//console.log(key+ ""+ idjson[key]);
-																						optionsAsString += "<option value='" +key + "'>"
-																								+ idjson[key]
-																								+ "</option>";
-																					}
-																				}
-																				//console.log("optionsAsString"+ optionsAsString);
+					});
 
-																				$(
-																						'#courses')
-																						.append(
-																								optionsAsString);
-
-																			}
-																		});
-															} else {
-																//alert('Error no course');
-															}
-														});
-										$('#programId').trigger('change');
-
-									});
-
-					$("#schoolToExport")
-							.on(
-									'change',
-									function() {
-
-										//console.log('Year Selected');
-										var schoolName = $('#schoolToExport')
-												.val();
-										var campusId = $('#campusId').val();
-										//console.log(schoolName);
-										//var acadYear = $('#acadYearToExport').val();
-										//console.log(acadYear);
-
-										$
-												.ajax({
-													type : 'POST',
-													url : '${pageContext.request.contextPath}/getProgramsOfSchool?schoolName='
-															+ schoolName,
-
-													success : function(data) {
-														var json = JSON
-																.parse(data);
-														//console.log(json);
-														var optionsAsString = "";
-														optionsAsString = "<option selected='selected'>Select Program</option>";
-														$('#programId').find(
-																'option')
-																.remove();
-														//console.log(json);
-														for (var i = 0; i < json.length; i++) {
-															var idjson = json[i];
-															//console.log(idjson);
-
-															for ( var key in idjson) {
-																//console.log(key+ ""+ idjson[key]);
-																optionsAsString += "<option value='" +key + "'>"
-																		+ idjson[key]
-																		+ "</option>";
-
-					}
-														}
-														//console.log("optionsAsString"+ optionsAsString);
-
-														$('#programId')
-																.append(
-																		optionsAsString);
-
-													}
-												});
-
-									});
-
-		$("#campusId").on('change',function() {
-
-			var acadYear = $('#acadYearToExport')
-					.val();
-			var campusId = $('#campusId').val();
-			var programid = $('#programId').val();
-			var schoolName = $('#schoolToExport')
-					.val();
-			var campusId = $('#campusId').val();
-
-			$.ajax({
-				type : 'POST',
-				url : '${pageContext.request.contextPath}/getCourseByProgramIdOfSchool?'
-						+ 'programId='
-						+ programid
-						+ '&acadYear='
-						+ acadYear
-						+ '&schoolName='
-						+ schoolName
-						+ '&campusId='
-						+ campusId,
-
-				success : function(data) {
-					var json = JSON
-							.parse(data);
-					var optionsAsString = "";
-					optionsAsString = "<option selected='selected'>Select course</option>";
-					$('#courses').find('option').remove();
-											
-					for (var i = 0; i < json.length; i++) {
-						var idjson = json[i];
-						for ( var key in idjson) {
-							optionsAsString += "<option value='" +key + "'>"
-									+ idjson[key]
-									+ "</option>";
-						}
-					}
-					$('#courses').append(optionsAsString);
-
-				}
-			});
-
-		});
-		$("#courses").on('change',function() {
-
-			var acadYear = $('#acadYearToExport').val();
-			var campusId = $('#campusId').val();
-			var programid = $('#programId').val();
-			var schoolName = $('#schoolToExport').val();
-			var campusId = $('#campusId').val();
-			var courseId = $('#courses').val();
-			$.ajax({
-				type : 'POST',
-				url : '${pageContext.request.contextPath}/getFacultyOfCourseFromOtherSchool?'
-						+ 'programId=' + programid
-						+ '&acadYear=' + acadYear
-						+ '&schoolName=' + schoolName
-						+ '&campusId=' + campusId
-						+ '&courseId=' + courseId,
-				success : function(data) {
-					var json = JSON.parse(data);
-					var optionsAsString = "";
-					optionsAsString = "<option selected='selected'>Select Faculty</option>";
-					$('#faculty').find('option').remove();
-					for (var i = 0; i < json.length; i++) {
-						var idjson = json[i];
-						optionsAsString += "<option value='" +idjson.username + "'>" + idjson.username +" ("+idjson.firstname +" "+ idjson.lastname+") " + "</option>";
-					}
-					$('#faculty').append(optionsAsString);
-
-				}
-			});
-
-		});
-</script>
+					$("#campusId").on('change', function() {
+						var acadYear = $('#acadYearToExport').val();
+						var campusId = $('#campusId').val();
+						var programid = $('#programId').val();
+						var schoolName = $('#schoolToExport').val();
+						var campusId = $('#campusId').val();
+						$.ajax({
+							type : 'POST',
+							url : '${pageContext.request.contextPath}/getCourseByProgramIdOfSchool?' + 'programId='+ programid
+									+ '&acadYear='+ acadYear+ '&schoolName='+ schoolName+ '&campusId='+ campusId,
+							success : function(data) {
+									var json = JSON.parse(data);
+									var optionsAsString = "";
+									optionsAsString = "<option selected='selected'>Select course</option>";
+									$('#courses').find('option').remove();
+									for (var i = 0; i < json.length; i++) {
+										var idjson = json[i];
+										for ( var key in idjson) {
+											optionsAsString += "<option value='" +key + "'>" + idjson[key] + "</option>";
+										}
+									}
+									$('#courses').append(optionsAsString);
+									$('#faculty').find('option').remove();
+								}
+						});
+					});
+					$("#courses").on('change', function() {
+						var acadYear = $('#acadYearToExport').val();
+						var campusId = $('#campusId').val();
+						var programid = $('#programId').val();
+						var schoolName = $('#schoolToExport').val();
+						var campusId = $('#campusId').val();
+						var courseId = $('#courses').val();
+						$.ajax({
+							type : 'POST',
+							url : '${pageContext.request.contextPath}/getFacultyOfCourseFromOtherSchool?'+ 'programId=' + programid
+									+ '&acadYear=' + acadYear + '&schoolName=' + schoolName + '&campusId=' + campusId + '&courseId=' + courseId,
+							success : function(data) {
+									var json = JSON.parse(data);
+									var optionsAsString = "";
+									optionsAsString = "<option selected='selected'>Select Faculty</option>";
+									$('#faculty').find('option').remove();
+									for (var i = 0; i < json.length; i++) {
+										var idjson = json[i];
+										optionsAsString += "<option value='" +idjson.username + "'>" + idjson.username + " ("
+													+ idjson.firstname + " " + idjson.lastname + ") " + "</option>";
+									}
+									$('#faculty').append(optionsAsString);
+							}
+						});
+					});
+				</script>

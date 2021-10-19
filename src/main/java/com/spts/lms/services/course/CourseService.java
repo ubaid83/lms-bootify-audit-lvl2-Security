@@ -319,9 +319,9 @@ public List<Course> findCoursesByModuleIdAndCampusId(Long moduleId, String usern
     }
 
 	
-	public List<Course> findCoursesByProgramIdAndAcadYear(String acadYear,String programId){
-        return courseDAO.findCoursesByProgramIdAndAcadYear(acadYear,programId);
-  }
+	public List<Course> findCoursesByProgramIdAndAcadYear(String acadYear,String programId, String campusId){
+        return courseDAO.findCoursesByProgramIdAndAcadYear(acadYear,programId, campusId);
+	}
 
 	public List<Course> findAcadSessionForStudentMs() {
 		

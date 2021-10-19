@@ -1,5 +1,6 @@
 package com.spts.lms.daos.course;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -1081,9 +1082,17 @@ public List<Course> findCoursesByModuleIdAndCampusId(Long moduleId, String usern
 		return listOfStringParameter(sql, new Object[] {});
 	}
 	
-	public List<Course> findCoursesByProgramIdAndAcadYear(String acadYear,String programId){
+	public List<Course> findCoursesByProgramIdAndAcadYear(String acadYear,String programId,String campusId){
+		ArrayList<Object> parameters = new ArrayList<Object>();
 	    String sql = "select distinct id,courseName from course where acadYear = ? and programId = ?";
-	    return findAllSQL(sql, new Object[] { acadYear,programId });
+	    parameters.add(acadYear);
+	    parameters.add(programId);
+	    if(!campusId.equals("null")) {
+	    	sql = sql + " and campusId = ?";
+	    	  parameters.add(campusId);
+	    }
+	    return findAllSQL(sql, parameters.toArray());
+//	    return findAllSQL(sql, new Object[] { acadYear,programId });
 	}
 	
 	public List<Course> findAcadSessionForStudentMs() {

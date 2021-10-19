@@ -1,5 +1,7 @@
 package com.spts.lms.beans.studentConfirmation;
 
+import java.util.List;
+
 import com.spts.lms.beans.BaseBean;
 
 public class studentDetailConfirmation extends BaseBean{
@@ -35,9 +37,22 @@ private String username;
  private String address;
  private String programId;
  private String lastname;
+ private List<String> secQuestionList;
+ private List<String> schoolListForMaster;
  
  
- 
+public List<String> getSecQuestionList() {
+	return secQuestionList;
+}
+public void setSecQuestionList(List<String> secQuestionList) {
+	this.secQuestionList = secQuestionList;
+}
+public List<String> getSchoolListForMaster() {
+	return schoolListForMaster;
+}
+public void setSchoolListForMaster(List<String> schoolListForMaster) {
+	this.schoolListForMaster = schoolListForMaster;
+}
 public String getProgramId() {
 	return programId;
 }
@@ -224,7 +239,8 @@ public String toString() {
 			+ ", secQuestions=" + secQuestions + ", religion=" + religion + ", secAnswer=" + secAnswer + ", userphoto="
 			+ userphoto + ", sendEmailAlert=" + sendEmailAlert + ", remarks=" + remarks + ", userImage=" + userImage
 			+ ", nad=" + nad + ", acadSession=" + acadSession + ", programName=" + programName + ", address=" + address
-			+ ", programId=" + programId + ", lastname=" + lastname + "]";
+			+ ", programId=" + programId + ", lastname=" + lastname + ", secQuestionList=" + secQuestionList
+			+ ", schoolListForMaster=" + schoolListForMaster + "]";
 }
 
  

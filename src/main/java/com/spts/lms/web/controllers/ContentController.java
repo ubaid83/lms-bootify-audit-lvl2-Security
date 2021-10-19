@@ -156,8 +156,8 @@ public class ContentController extends BaseController {
 	
 	Client client = ClientBuilder.newClient();
 	ObjectMapper mapper = new ObjectMapper();
-	private static final String serverURL = "http://192.168.2.139:8443/"; // "http://localhost:8085/" "http://192.168.2.116:8443/"
-	private static final String serverCrudURL = "http://192.168.2.139:8443/usermgmtcrud/";
+	private static final String serverURL = "http://localhost:8085/"; // "http://localhost:8085/" "http://192.168.2.116:8443/" "http://192.168.2.139:8443/"
+	private static final String serverCrudURL = "http://localhost:8082/"; // "http://192.168.2.139:8443/usermgmtcrud/"
 	
 	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addContentForm", method = { RequestMethod.GET,
@@ -5135,6 +5135,26 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 					contentJson.toString(), MediaType.APPLICATION_JSON));
 			String respJson = response.readEntity(String.class);
 			return respJson;	
+		} catch (Exception e) {
+			logger.error("Exception", e);
+		}
+		return "";
+	}
+	
+	@RequestMapping(value = "/getProgramCampusOfSchool", method = {
+            RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String getProgramCampusOfSchool(
+            @RequestParam(name = "schoolName") String schoolName, Model m,Principal p) {
+		
+		String apiUrl = serverURL +schoolName.replace(" ", "")+"/api/getProgramCampusOfSchool";
+		
+		try {
+			ObjectMapper Objmapper = new ObjectMapper();
+			WebTarget webTarget = client.target(URIUtil.encodeQuery(apiUrl));
+			Invocation.Builder invocationBuilder = webTarget.request();
+			String response = invocationBuilder.get(String.class);
+		
+			return response;	
 		} catch (Exception e) {
 			logger.error("Exception", e);
 		}

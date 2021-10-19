@@ -9513,6 +9513,7 @@ public class ReportController extends BaseController {
 				}
 
 				int srNo = 1;
+				int totalUsed = 0;
 				logger.info("size of report1" + report1.size());
 				for (UtilityReport ur : report1) {
 					Row dataRow1 = sheet.createRow(rowNum++);
@@ -9528,15 +9529,40 @@ public class ReportController extends BaseController {
 					//cell2.setCellStyle(wrapStyle);
 
 					Cell cell3 = dataRow1.createCell(cellNo++);
-					cell3.setCellValue(ur.getNoOfUsersByRole());
+					
+					//new changes 
+					
+					int noOfUsersByRole = ur.getNoOfUsersByRole();
+					int noOfUsedByRole = ur.getNoOfUsedByRole()>ur.getNoOfUsersByRole()?
+							ur.getNoOfUsersByRole():ur.getNoOfUsedByRole();
+					double usagePercentage = ur.getNoOfUsedByRole()>ur.getNoOfUsersByRole()?100:ur.getUsagePercentage();
+					
+					
+					
+				
+					cell3.setCellValue(noOfUsersByRole);
 					cell3.setCellStyle(wrapStyle);
 
 					Cell cell4 = dataRow1.createCell(cellNo++);
-					cell4.setCellValue(ur.getNoOfUsedByRole());
+					
+					if(srNo == report1.size()) {
+						double div = ((double)totalUsed / noOfUsersByRole);
+						double multi = (div * 100);
+						usagePercentage = round(multi,2);
+//						logger.info("Total usage div--->"+div);
+//						logger.info("Total usage multi--->"+multi);
+//						logger.info("Total usage totalUsed--->"+totalUsed);
+//						logger.info("Total usage noOfUsersByRole--->"+noOfUsersByRole);
+//						logger.info("Total usage percentage--->"+usagePercentage);
+						cell4.setCellValue(totalUsed);
+					}else {
+						totalUsed=totalUsed+noOfUsedByRole;
+						cell4.setCellValue(noOfUsedByRole);
+					}
 					cell4.setCellStyle(wrapStyle);
 
 					Cell cell5 = dataRow1.createCell(cellNo++);
-					cell5.setCellValue(ur.getUsagePercentage());
+					cell5.setCellValue(usagePercentage);
 					cell5.setCellStyle(wrapStyle);
 
 					srNo = srNo + 1;

@@ -351,6 +351,10 @@ public class AssignmentController extends BaseController {
 				setError(redirectAttributes, "Invalid Start date and End date");
 				return "redirect:/createAssignmentFromMenu";
 			}
+			if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+				setError(redirectAttributes, "Invalid total score");
+				return "redirect:/createAssignmentFromMenu";
+			}
 			/* New Audit changes end */
 			if (assignment.getId() != null) {
 				assignmentService.update(assignment);
@@ -493,8 +497,15 @@ public class AssignmentController extends BaseController {
 
 							userdetails1.getProgramName()));
 			}
-
-
+			/* New Audit changes start */
+			if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+				setError(m, "Invalid total score");
+				if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
+					return "assignment/createAssignmentForAdmin";
+				}
+				return "assignment/createAssignment";
+			}
+			/* New Audit changes end */
 			// Upload new assignment file, if user selected one.
 			Assignment retrived = assignmentService
 
@@ -1087,6 +1098,10 @@ public class AssignmentController extends BaseController {
 		/* New Audit changes start */
 		if(!Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate())) {
 			setError(redirectAttributes, "Invalid Start date and End date");
+			return "redirect:/createAssignmentFromGroup";
+		}
+		if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+			setError(redirectAttributes, "Invalid total score");
 			return "redirect:/createAssignmentFromGroup";
 		}
 		/* New Audit changes start */
@@ -3215,6 +3230,10 @@ public class AssignmentController extends BaseController {
 			setError(redirectAttrs, "Invalid Start date and End date");
 			return "redirect:/createGroupAssignmentsForm?courseId=" + assignment.getCourseId();
 		}
+		if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+			setError(redirectAttrs, "Invalid total score");
+			return "redirect:/createGroupAssignmentsForm?courseId=" + assignment.getCourseId();
+		}
 		/* New Audit changes end */
 		if (grps1.isEmpty() && grps2.isEmpty() && grps3.isEmpty()
 				&& grps4.isEmpty() && grps5.isEmpty()) {
@@ -3396,6 +3415,10 @@ public class AssignmentController extends BaseController {
 				/* New Audit changes start */
 				if(!Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate())) {
 					setError(redirectAttributes, "Invalid Start date and End date");
+					return "redirect:/createAssignmentModuleForm";
+				}
+				if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+					setError(redirectAttributes, "Invalid total score");
 					return "redirect:/createAssignmentModuleForm";
 				}
 				/* New Audit changes end */
@@ -4108,8 +4131,13 @@ public class AssignmentController extends BaseController {
 			courseService.findByUserActive(username,
 
 			userdetails1.getProgramName()));
-
-
+			
+			/* New Audit changes start */
+			if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+				setError(m, "Invalid total score");
+				return "assignment/createAssignmentForModule";
+			}
+			/* New Audit changes end */
 			// Upload new assignment file, if user selected one.
 			Assignment retrived = assignmentService.findByID(assignment.getId());
 			logger.info("Old File---->"+retrived.getFilePath());
@@ -4679,6 +4707,10 @@ public class AssignmentController extends BaseController {
 			/* New Audit changes start */
 			if(!Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate())) {
 				setError(redirectAttributes, "Invalid Start date and End date");
+				return "redirect:/createAssignmentByAdmin";
+			}
+			if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+				setError(redirectAttributes, "Invalid total score");
 				return "redirect:/createAssignmentByAdmin";
 			}
 			/* New Audit changes end */

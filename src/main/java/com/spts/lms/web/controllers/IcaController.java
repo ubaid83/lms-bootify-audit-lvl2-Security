@@ -346,6 +346,22 @@ public class IcaController extends BaseController {
 				setError(redirectAttrs, "Invalid Start date and End date");
 				return "redirect:/addIcaForm";
 			}
+			if(Integer.valueOf(icaBean.getInternalMarks()) < 1) {
+				setError(redirectAttrs, "Invalid Internal marks.");
+				return "redirect:/addIcaForm";
+			}
+			if(Integer.valueOf(icaBean.getInternalPassMarks()) < 1) {
+				setError(redirectAttrs, "Invalid Internal pass marks.");
+				return "redirect:/addIcaForm";
+			}
+			if(icaBean.getExternalMarks() != null && Integer.valueOf(icaBean.getExternalMarks()) < 1) {
+				setError(redirectAttrs, "Invalid External marks.");
+				return "redirect:/addIcaForm";
+			}
+			if(icaBean.getExternalPassMarks() != null && Integer.valueOf(icaBean.getExternalPassMarks()) < 1) {
+				setError(redirectAttrs, "Invalid External pass marks.");
+				return "redirect:/addIcaForm";
+			}
 			/* New Audit changes end */
 			List<IcaBean> icaDBList = icaBeanService.checkAlreadyExistICAList(icaBean.getModuleId(),
 					icaBean.getAcadYear(), icaBean.getCampusId(), icaBean.getAcadSession());
@@ -9937,7 +9953,6 @@ public class IcaController extends BaseController {
 					compId = icaComponentService.getSubmittedIcaComponent(Long.valueOf(id)).getComponentId();
 					icaComponentMarksService.updateRaiseQuery(id, username, query, compId);
 				}
-
 			} else {
 				icaTotalMarksService.updateRaiseQuery(id, username, query);
 			}
