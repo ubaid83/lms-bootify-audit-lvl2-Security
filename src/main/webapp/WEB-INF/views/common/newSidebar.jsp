@@ -74,7 +74,7 @@ if(session.getAttribute("studentFeedbackActive")!= "Y"){
 
 
 						<a href="pendingTask"
-							class="list-group-item list-group-item-action"> <%=c.getTaskName()%>-${todo.description}-<%=dateInWords%>
+							class="list-group-item list-group-item-action"> <%=c.getTaskName()%>-${todo.description} A-<%=dateInWords%>
 
 
 							at <%=time%>

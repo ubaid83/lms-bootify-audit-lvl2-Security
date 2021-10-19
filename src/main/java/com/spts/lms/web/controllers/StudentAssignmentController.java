@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -365,6 +366,8 @@ public class StudentAssignmentController extends BaseController {
 			setError(rd, "Please select the file!");
 			return "redirect:/viewAssignmentFinal";
 		}else {
+			Tika tika = new Tika();
+			  String detectedType = tika.detect(file.getBytes());
 			if (file.getOriginalFilename().contains(".")) {
 				Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 				logger.info("length--->"+count);
@@ -374,7 +377,7 @@ public class StudentAssignmentController extends BaseController {
 				}else {
 					String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe")) {
+					if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 						setError(rd, "File uploaded is invalid!");
 						return "redirect:/viewAssignmentFinal";
 					}
@@ -3143,6 +3146,8 @@ public class StudentAssignmentController extends BaseController {
 		redirectAttrs.addAttribute("id", assignment.getId());
 		try {
 			//Audit change start
+			Tika tika = new Tika();
+			  String detectedType = tika.detect(file.getBytes());
 			if (file.getOriginalFilename().contains(".")) {
 				Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 				logger.info("length--->"+count);
@@ -3151,7 +3156,7 @@ public class StudentAssignmentController extends BaseController {
 					return "redirect:/submitAssignmentForm";
 				}else {
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe")) {
+					if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 						setError(redirectAttrs, "File uploaded is invalid!");
 						return "redirect:/submitAssignmentForm";
 					}
@@ -4752,6 +4757,8 @@ return  "redirect:/evaluateByStudentForModule?id="+assignmentId;
 			File submittedFile = new File(submissionFolderLocal + File.separator + file.getOriginalFilename());
 			try {
 				//Audit change start
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -4761,7 +4768,7 @@ return  "redirect:/evaluateByStudentForModule?id="+assignmentId;
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(rd, "File uploaded is invalid!");
 							return "redirect:/viewAssignmentFinal";
 						}

@@ -350,7 +350,7 @@
 		   var reg = new RegExp("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$");
 		   /* if(oldPasswd){
 			   $('span[id="errMessage"]').text("Fill all fields!");
-		   }else  */if(oldPasswd &&passwd.localeCompare(reenterPasswd) === 0){
+		   }else  */if(oldPasswd && passwd.localeCompare(reenterPasswd) === 0){
 			
 			if (reg.test(reenterPasswd)) {
 			    console.log("Valid");

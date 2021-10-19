@@ -60,6 +60,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.extensions.XSSFCellBorder;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -1937,6 +1938,8 @@ public class TeeController extends BaseController {
 			for (MultipartFile file : input) {
 				if (!file.isEmpty()) {
 					// Audit change start
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->" + count);
@@ -1946,7 +1949,7 @@ public class TeeController extends BaseController {
 						} else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->" + extension);
-							if (extension.equalsIgnoreCase("exe")) {
+							if (extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(redirectAttributes, "File uploaded is invalid!");
 								return "redirect:/showTeeQueries";
 							} else {
@@ -2052,6 +2055,8 @@ public class TeeController extends BaseController {
 				if (!file.isEmpty()) {
 					// 28-04-2020 Start
 					// Audit change start
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->" + count);
@@ -2060,7 +2065,7 @@ public class TeeController extends BaseController {
 						} else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->" + extension);
-							if (extension.equalsIgnoreCase("exe")) {
+							if (extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								errCount++;
 							} else {
 								String filePath = baseDirS3 + "/" + "TEEUploads";

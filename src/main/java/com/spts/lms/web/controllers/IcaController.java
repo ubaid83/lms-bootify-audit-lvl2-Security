@@ -64,6 +64,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.extensions.XSSFCellBorder;
+import org.apache.tika.Tika;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -344,6 +345,22 @@ public class IcaController extends BaseController {
 			/* New Audit changes start */
 			if(!Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate())) {
 				setError(redirectAttrs, "Invalid Start date and End date");
+				return "redirect:/addIcaForm";
+			}
+			if(Integer.valueOf(icaBean.getInternalMarks()) < 1) {
+				setError(redirectAttrs, "Invalid Internal marks.");
+				return "redirect:/addIcaForm";
+			}
+			if(Integer.valueOf(icaBean.getInternalPassMarks()) < 1) {
+				setError(redirectAttrs, "Invalid Internal pass marks.");
+				return "redirect:/addIcaForm";
+			}
+			if(icaBean.getExternalMarks() != null && Integer.valueOf(icaBean.getExternalMarks()) < 1) {
+				setError(redirectAttrs, "Invalid External marks.");
+				return "redirect:/addIcaForm";
+			}
+			if(icaBean.getExternalPassMarks() != null && Integer.valueOf(icaBean.getExternalPassMarks()) < 1) {
+				setError(redirectAttrs, "Invalid External pass marks.");
 				return "redirect:/addIcaForm";
 			}
 			/* New Audit changes end */
@@ -2671,6 +2688,8 @@ public class IcaController extends BaseController {
 				if (!file.isEmpty()) {
 					// 28-04-2020 Start
 					//Audit change start
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -2680,7 +2699,7 @@ public class IcaController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(redirectAttributes, "File uploaded is invalid!");
 								return "redirect:/showIcaQueries";
 							}else {
@@ -2811,6 +2830,8 @@ public class IcaController extends BaseController {
 				if (!file.isEmpty()) {
 					// 28-04-2020 Start
 					//Audit change start
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -2819,7 +2840,7 @@ public class IcaController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								errCount++;
 							}else {
 								String filePath = baseDirS3 + "/" + "ICAUploads";
@@ -9937,7 +9958,6 @@ public class IcaController extends BaseController {
 					compId = icaComponentService.getSubmittedIcaComponent(Long.valueOf(id)).getComponentId();
 					icaComponentMarksService.updateRaiseQuery(id, username, query, compId);
 				}
-
 			} else {
 				icaTotalMarksService.updateRaiseQuery(id, username, query);
 			}

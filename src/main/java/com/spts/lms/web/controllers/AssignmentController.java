@@ -39,6 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -351,6 +352,10 @@ public class AssignmentController extends BaseController {
 				setError(redirectAttributes, "Invalid Start date and End date");
 				return "redirect:/createAssignmentFromMenu";
 			}
+			if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+				setError(redirectAttributes, "Invalid total score");
+				return "redirect:/createAssignmentFromMenu";
+			}
 			/* New Audit changes end */
 			if (assignment.getId() != null) {
 				assignmentService.update(assignment);
@@ -358,6 +363,8 @@ public class AssignmentController extends BaseController {
 				for (MultipartFile file : files) {
 					if (!file.isEmpty()) {
 						//Audit change start
+						Tika tika = new Tika();
+						  String detectedType = tika.detect(file.getBytes());
 						if (file.getOriginalFilename().contains(".")) {
 							Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 							logger.info("length--->"+count);
@@ -368,7 +375,7 @@ public class AssignmentController extends BaseController {
 							}else {
 								String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 								logger.info("extension--->"+extension);
-								if(extension.equalsIgnoreCase("exe")) {
+								if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 									setError(redirectAttributes, "File uploaded is invalid!");
 									redirectAttributes.addAttribute("courseId", assignment.getCourseId());
 									return "redirect:/createAssignmentFromMenu";
@@ -493,8 +500,15 @@ public class AssignmentController extends BaseController {
 
 							userdetails1.getProgramName()));
 			}
-
-
+			/* New Audit changes start */
+			if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+				setError(m, "Invalid total score");
+				if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
+					return "assignment/createAssignmentForAdmin";
+				}
+				return "assignment/createAssignment";
+			}
+			/* New Audit changes end */
 			// Upload new assignment file, if user selected one.
 			Assignment retrived = assignmentService
 
@@ -502,6 +516,8 @@ public class AssignmentController extends BaseController {
 			for (MultipartFile file : files) {
 				if (file != null && !file.isEmpty()) {
 					//Audit change start
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -514,7 +530,7 @@ public class AssignmentController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(m, "File uploaded is invalid!");
 								if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
 									return "assignment/createAssignmentForAdmin";
@@ -1089,10 +1105,17 @@ public class AssignmentController extends BaseController {
 			setError(redirectAttributes, "Invalid Start date and End date");
 			return "redirect:/createAssignmentFromGroup";
 		}
+		if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+			setError(redirectAttributes, "Invalid total score");
+			return "redirect:/createAssignmentFromGroup";
+		}
 		/* New Audit changes start */
 		for (MultipartFile file : files) {
 			if (!file.isEmpty()) {
 				//Audit change start
+				try {
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -1103,7 +1126,7 @@ public class AssignmentController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(m, "File uploaded is invalid!");
 							//redirectAttrs.addAttribute("courseId", assignment.getCourseId());
 							return "assignment/createAssignmentFromGroupFinal";
@@ -1117,6 +1140,11 @@ public class AssignmentController extends BaseController {
 					return "assignment/createAssignmentFromGroupFinal";
 				}
 				//Audit change end
+				} catch (Exception e) {
+					logger.error("Exception while uploading file assign",e);
+					setError(m, "Error occurred  while uploading file!");
+					return "assignment/createAssignmentFromGroupFinal";
+				}
 			}
 		}
 		if (sendAlertsToParents.equalsIgnoreCase("Y")) {
@@ -3215,6 +3243,10 @@ public class AssignmentController extends BaseController {
 			setError(redirectAttrs, "Invalid Start date and End date");
 			return "redirect:/createGroupAssignmentsForm?courseId=" + assignment.getCourseId();
 		}
+		if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+			setError(redirectAttrs, "Invalid total score");
+			return "redirect:/createGroupAssignmentsForm?courseId=" + assignment.getCourseId();
+		}
 		/* New Audit changes end */
 		if (grps1.isEmpty() && grps2.isEmpty() && grps3.isEmpty()
 				&& grps4.isEmpty() && grps5.isEmpty()) {
@@ -3245,6 +3277,8 @@ public class AssignmentController extends BaseController {
 							//Audit change start
 							for(MultipartFile file : mapper.get(i)) {
 								if(!file.isEmpty()) {
+									Tika tika = new Tika();
+									  String detectedType = tika.detect(file.getBytes());
 									if (file.getOriginalFilename().contains(".")) {
 										Long count = file.getOriginalFilename().chars().filter(o -> o == ('.')).count();
 										logger.info("length--->"+count);
@@ -3255,7 +3289,7 @@ public class AssignmentController extends BaseController {
 										}else {
 											String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 											logger.info("extension--->"+extension);
-											if(extension.equalsIgnoreCase("exe")) {
+											if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 												setError(redirectAttrs, "File uploaded is invalid!");
 												redirectAttrs.addAttribute("courseId", assignment.getCourseId());
 												return "redirect:/createGroupAssignmentsForm";
@@ -3398,10 +3432,16 @@ public class AssignmentController extends BaseController {
 					setError(redirectAttributes, "Invalid Start date and End date");
 					return "redirect:/createAssignmentModuleForm";
 				}
+				if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+					setError(redirectAttributes, "Invalid total score");
+					return "redirect:/createAssignmentModuleForm";
+				}
 				/* New Audit changes end */
 				for (MultipartFile file : files) {
 					if (!file.isEmpty()) {
 						//Audit change start
+						Tika tika = new Tika();
+						  String detectedType = tika.detect(file.getBytes());
 						if (file.getOriginalFilename().contains(".")) {
 							Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 							logger.info("length--->"+count);
@@ -3411,7 +3451,7 @@ public class AssignmentController extends BaseController {
 							}else {
 								String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 								logger.info("extension--->"+extension);
-								if(extension.equalsIgnoreCase("exe")) {
+								if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 									setError(redirectAttributes, "File uploaded is invalid!");
 									return "redirect:/createAssignmentModuleForm";
 								}else {
@@ -4108,8 +4148,13 @@ public class AssignmentController extends BaseController {
 			courseService.findByUserActive(username,
 
 			userdetails1.getProgramName()));
-
-
+			
+			/* New Audit changes start */
+			if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+				setError(m, "Invalid total score");
+				return "assignment/createAssignmentForModule";
+			}
+			/* New Audit changes end */
 			// Upload new assignment file, if user selected one.
 			Assignment retrived = assignmentService.findByID(assignment.getId());
 			logger.info("Old File---->"+retrived.getFilePath());
@@ -4117,6 +4162,8 @@ public class AssignmentController extends BaseController {
 			for (MultipartFile file : files) {
 				if (file != null && !file.isEmpty()) {
 					//Audit change start
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -4126,7 +4173,7 @@ public class AssignmentController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(m, "File uploaded is invalid!");
 								return "assignment/createAssignmentForModule";
 							}else {
@@ -4681,6 +4728,10 @@ public class AssignmentController extends BaseController {
 				setError(redirectAttributes, "Invalid Start date and End date");
 				return "redirect:/createAssignmentByAdmin";
 			}
+			if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+				setError(redirectAttributes, "Invalid total score");
+				return "redirect:/createAssignmentByAdmin";
+			}
 			/* New Audit changes end */
 			if (assignment.getId() != null) {
 				assignmentService.update(assignment);
@@ -4688,6 +4739,8 @@ public class AssignmentController extends BaseController {
 				for (MultipartFile file : files) {
 					if (!file.isEmpty()) {
 						//Audit change start
+						Tika tika = new Tika();
+						  String detectedType = tika.detect(file.getBytes());
 						if (file.getOriginalFilename().contains(".")) {
 							Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 							logger.info("length--->"+count);
@@ -4697,7 +4750,7 @@ public class AssignmentController extends BaseController {
 							}else {
 								String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 								logger.info("extension--->"+extension);
-								if(extension.equalsIgnoreCase("exe")) {
+								if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 									setError(redirectAttributes, "File uploaded is invalid!");
 									return "redirect:/createAssignmentByAdmin";
 								}else {

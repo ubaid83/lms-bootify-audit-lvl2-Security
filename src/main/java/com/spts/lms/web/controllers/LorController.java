@@ -44,6 +44,7 @@ import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.tika.Tika;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -170,6 +171,8 @@ public class LorController extends BaseController {
 					setError(ra, "Selected File is empty!");
 					return "redirect:/lorApplicationForm";
 				}
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -179,7 +182,7 @@ public class LorController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(ra, "File uploaded is invalid!");
 							return "redirect:/viewAppliedApplicationStudentsForStaff";
 						}else {
@@ -295,6 +298,8 @@ public class LorController extends BaseController {
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					logger.info("file---->");
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -308,7 +313,7 @@ public class LorController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(ra, "File uploaded is invalid!");
 								if(userdetails.getAuthorities().contains(Role.ROLE_STAFF)) {
 									return "redirect:/viewAppliedApplicationStudentsForDepartment";
@@ -650,6 +655,8 @@ public class LorController extends BaseController {
 			String filepath = "";
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -659,7 +666,7 @@ public class LorController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(redirect, "File uploaded is invalid!");
 								return"redirect:/viewLor";
 							}else {

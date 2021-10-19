@@ -400,10 +400,21 @@ public class AssignmentDAO extends BaseDAO<Assignment> {
 		return findAllSQL(sql, new Object[] { username });
 		// , new Date() });
 	}
-
+	//Change By Hiren 04-10-2021
 	public List<Assignment> findByUserPending(String username,
 			boolean isFaculty, Long programId) {
 		String sql = "";
+		Calendar c = Calendar.getInstance();
+		c.setTime(Utils.getInIST());
+		int month = c.get(Calendar.MONTH) + 1;
+		int year = c.get(Calendar.YEAR) - 1;
+		int currentYear = c.get(Calendar.YEAR);
+		String yearAppend = "";
+		if (month > 6) {
+			yearAppend = "c.acadYear = "+ currentYear;
+		} else {
+			yearAppend =  "(c.acadYear = "+ currentYear + " or c.acadYear = "+ year + ")";
+		}
 		if (!isFaculty) {
 			sql = "SELECT a.*, c.courseName FROM assignment a "
 					+ " inner join student_assignment sa on sa.assignmentid = a.id "
@@ -413,7 +424,7 @@ public class AssignmentDAO extends BaseDAO<Assignment> {
 							// " and a.startDate <= ? "
 					+ " and a.active='Y'"
 					+ " and c.active='Y'"
-					+ " and "
+					+ " and " + yearAppend +" and "
 					+ " (sa.submissionStatus='N' or sa.submissionStatus is null) and c.programId =? ";
 		} else {
 			sql = "SELECT a.*, c.courseName FROM user_course uc , assignment a "
@@ -424,7 +435,7 @@ public class AssignmentDAO extends BaseDAO<Assignment> {
 							// " and a.startDate <= ? "
 					+ " and a.active='Y' "
 					+ " and c.active='Y' "
-					+ " and "
+					+ " and " + yearAppend +" and "
 					+ " (sa.evaluationStatus='N' or sa.evaluationStatus is null) and uc.courseId =a.courseId and uc.username =a.facultyId and c.programId =? group by a.id";
 		}
 
