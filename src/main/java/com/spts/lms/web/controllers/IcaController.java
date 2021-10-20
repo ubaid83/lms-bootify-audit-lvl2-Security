@@ -2699,7 +2699,7 @@ public class IcaController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(redirectAttributes, "File uploaded is invalid!");
 								return "redirect:/showIcaQueries";
 							}else {
@@ -2840,7 +2840,7 @@ public class IcaController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								errCount++;
 							}else {
 								String filePath = baseDirS3 + "/" + "ICAUploads";

@@ -1149,7 +1149,7 @@ public class RegistrationController extends BaseController {
 					} else {
 						String extension = FilenameUtils.getExtension(originalfileName);
 						logger.info("extension--->" + extension);
-						if (extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+						if (extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/updateProfileForm";
 						} else {

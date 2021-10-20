@@ -78,6 +78,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.apache.tika.Tika;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.exceptions.XMLSecurityException;
 import org.apache.xml.security.signature.XMLSignature;
@@ -3650,35 +3651,39 @@ public class LoginController extends BaseController {
 				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				chkStartAndEndDate = studentAssignmentService
 						.chkStartandEndDtOfAssignment(dateFormat.format(bufferEndDate), username, assignment.getId());
-
 			} catch (Exception e) {
 				// e.printStackTrace();
 			}
-
 			if (chkStartAndEndDate > 0) {
 
 				assignmentSubmission.setSubmissionStatus("Y");
-
 			} else {
 				assignmentSubmission.setSubmissionStatus("N");
 			}
-
 			assignmentSubmission.setStartDate(assignment.getStartDate());
-
 			assignmentSubmission.setEndDate(assignment.getEndDate());
-
 			if (chkStartDate == 0) {
-
 			} else {
-
 				if (!file.isEmpty()) {
-
+					Tika tika = new Tika();
+					String detectedType = "";
+					try {
+						detectedType = tika.detect(file.getBytes());
+						logger.info("detectedType ===> "+("application/x-msdownload").equals(detectedType));
+					}
+					catch(Exception e) {
+						e.printStackTrace();
+					}
 					logger.info("file_Orig_name " + file.getOriginalFilename());
 					String fileNameCheck = file.getOriginalFilename();
 					String fileNameCheckArr[] = fileNameCheck.split("\\.");
 					logger.info("fileNameCheckArr Size " + fileNameCheckArr.length);
 					String whiteList = "png,jpg,jpeg,doc,docx,xlsx,csv,pdf,ppt,txt";
-					if (fileNameCheckArr.length == 2 && whiteList.contains(fileNameCheckArr[1].trim().toLowerCase())) {
+					if(("application/x-msdownload").equals(detectedType)){
+						assignmentSubmission.setAssignmentError("malicous file found, please upload correct file.");
+						logger.info(assignmentSubmission.getAssignmentError());
+						assignmentSubmission.setAssignmentStatus("Pending");
+					}else if (fileNameCheckArr.length == 2 && whiteList.contains(fileNameCheckArr[1].trim().toLowerCase())) {
 						Date date = new Date();
 						String errorMessage = studentAssignmentController
 								.uploadAssignmentSubmissionFile(assignmentSubmission, file);
@@ -3872,7 +3877,8 @@ public class LoginController extends BaseController {
 							logger.info(assignmentSubmission.getAssignmentError());
 							assignmentSubmission.setAssignmentStatus("Pending");
 						}
-					} else {
+					}
+					else {
 						assignmentSubmission.setAssignmentError("improper file found, please upload correct file.");
 						logger.info(assignmentSubmission.getAssignmentError());
 						assignmentSubmission.setAssignmentStatus("Pending");
@@ -3884,7 +3890,6 @@ public class LoginController extends BaseController {
 					logger.info(assignmentSubmission.getAssignmentError());
 					assignmentSubmission.setAssignmentStatus("Pending");
 				}
-
 			}
 
 			if (assignment.getRunPlagiarism() != null) {

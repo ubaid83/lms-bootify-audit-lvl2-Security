@@ -377,7 +377,7 @@ public class StudentAssignmentController extends BaseController {
 				}else {
 					String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+					if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 						setError(rd, "File uploaded is invalid!");
 						return "redirect:/viewAssignmentFinal";
 					}
@@ -3156,7 +3156,7 @@ public class StudentAssignmentController extends BaseController {
 					return "redirect:/submitAssignmentForm";
 				}else {
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+					if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 						setError(redirectAttrs, "File uploaded is invalid!");
 						return "redirect:/submitAssignmentForm";
 					}
@@ -4768,7 +4768,7 @@ return  "redirect:/evaluateByStudentForModule?id="+assignmentId;
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType)) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(rd, "File uploaded is invalid!");
 							return "redirect:/viewAssignmentFinal";
 						}
