@@ -104,15 +104,15 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 		return new org.springframework.mail.SimpleMailMessage();
 	}
 	
-	@Bean
-	public LmsInterceptor lmsInterceptor() {
-		return new LmsInterceptor();
-	}
-	
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		// TODO Auto-generated method stub
-		registry.addInterceptor(lmsInterceptor()).excludePathPatterns("/handShake","/login","/error").addPathPatterns("/*");
-		super.addInterceptors(registry);
-	}
+//	@Bean
+//	public LmsInterceptor lmsInterceptor() {
+//		return new LmsInterceptor();
+//	}
+//	
+//	@Override
+//	public void addInterceptors(InterceptorRegistry registry) {
+//		// TODO Auto-generated method stub
+//		registry.addInterceptor(lmsInterceptor()).excludePathPatterns("/handShake","/login","/error").addPathPatterns("/*");
+//		super.addInterceptors(registry);
+//	}
 }

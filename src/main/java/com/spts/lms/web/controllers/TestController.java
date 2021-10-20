@@ -106,6 +106,7 @@ import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 //@Secured({ "ROLE_FACULTY", "ROLE_CORD", "ROLE_AR" })
 @Controller
@@ -396,15 +397,15 @@ public class TestController extends BaseController {
 		m.addAttribute("username", username);
 		try {
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/createTestForm";
-			}
+//			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/createTestForm";
+//			}
 			if("Mix".equals(test.getTestType())) {
 				if(Double.valueOf(test.getMaxQuestnToShow()) < 0.0 || 
 						Double.valueOf(test.getMaxDesQueToShow()) < 0.0 || 
 						Double.valueOf(test.getMaxImgQueToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxMcqQueToShow()) < 0.0 ||
+						Double.valueOf(test.getMaxMcqQueToShow()) < 0.0 || 
 						Double.valueOf(test.getMaxRngQueToShow()) < 0.0 ) {
 					setError(redirectAttrs, "Invalid value of max question to show.");
 					return "redirect:/createTestForm";
@@ -623,7 +624,8 @@ public class TestController extends BaseController {
 				}
 			}
 
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 
 			redirectAttrs.addAttribute("courseId", test.getCourseId());
@@ -6665,10 +6667,10 @@ public class TestController extends BaseController {
 		m.addAttribute("username", username);
 		try {
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addTestFormByAdmin";
-			}
+//			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addTestFormByAdmin";
+//			}
 			if("Mix".equals(test.getTestType())) {
 				if(Double.valueOf(test.getMaxQuestnToShow()) < 0.0 || 
 						Double.valueOf(test.getMaxDesQueToShow()) < 0.0 || 

@@ -343,10 +343,10 @@ public class IcaController extends BaseController {
 			 * icaBean.getAcadYear(), icaBean.getCampusId(), icaBean.getAcadSession());
 			 */
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addIcaForm";
-			}
+//			if(!Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addIcaForm";
+//			}
 			if(Integer.valueOf(icaBean.getInternalMarks()) < 1) {
 				setError(redirectAttrs, "Invalid Internal marks.");
 				return "redirect:/addIcaForm";
@@ -4663,10 +4663,10 @@ public class IcaController extends BaseController {
 
 			icaBean.setAssignedFaculty(null);
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addIcaFormForDivision";
-			}
+//			if(!Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addIcaFormForDivision";
+//			}
 			/* New Audit changes end */
 			List<IcaBean> icaDBList = icaBeanService.checkAlreadyExistICAList(icaBean.getModuleId(),
 					icaBean.getAcadYear(), icaBean.getCampusId(), icaBean.getAcadSession());
@@ -5505,10 +5505,10 @@ public class IcaController extends BaseController {
 			 */
 
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addIcaFormForNonEventModules";
-			}
+//			if(!Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addIcaFormForNonEventModules";
+//			}
 			/* New Audit changes end */
 			List<IcaBean> icaDBList = icaBeanService.checkAlreadyExistICAList(icaBean.getModuleId(),
 					icaBean.getAcadYear(), icaBean.getCampusId(), icaBean.getAcadSession());
@@ -7999,10 +7999,10 @@ public class IcaController extends BaseController {
 				icaBean.setScaledMarks(null);
 			}
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addIcaFormForCoursera";
-			}
+//			if(!Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addIcaFormForCoursera";
+//			}
 			/* New Audit changes end */
 			/*
 			 * IcaBean icaDB = icaBeanService.checkAlreadyExistICA( icaBean.getModuleId(),

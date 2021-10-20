@@ -682,15 +682,15 @@ public class AnnouncementController extends BaseController {
 		List<String> parentList = new ArrayList<String>();
 		try {
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				if (typeOfAnn != null) {
-					if ("PROGRAM".equals(typeOfAnn)) {
-						return "redirect:/addAnnouncementFormProgram";
-					}
-				}
-				return "redirect:/addAnnouncementForm";
-			} 
+//			if(!Utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				if (typeOfAnn != null) {
+//					if ("PROGRAM".equals(typeOfAnn)) {
+//						return "redirect:/addAnnouncementFormProgram";
+//					}
+//				}
+//				return "redirect:/addAnnouncementForm";
+//			} 
 			/* New Audit changes end */
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
@@ -2630,15 +2630,16 @@ public class AnnouncementController extends BaseController {
 		List<String> parentList = new ArrayList<String>();
 		try {
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				if (typeOfAnn != null) {
-					if ("PROGRAM".equals(typeOfAnn)) {
-						return "redirect:/addAnnouncementFormMultiProgram";
-					}
-				}
-				return "redirect:/addAnnouncementForm";
-			} /* New Audit changes end */
+//			if(!Utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				if (typeOfAnn != null) {
+//					if ("PROGRAM".equals(typeOfAnn)) {
+//						return "redirect:/addAnnouncementFormMultiProgram";
+//					}
+//				}
+//				return "redirect:/addAnnouncementForm";
+//			} 
+			/* New Audit changes end */
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					//Audit change start

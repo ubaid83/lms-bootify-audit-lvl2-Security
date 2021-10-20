@@ -396,10 +396,10 @@ public class ContentController extends BaseController {
 				content.setCourseId(Long.valueOf(idForCourse));
 			}
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addContentForm";
-			}
+//			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addContentForm";
+//			}
 			/* New Audit changes end */
 			performFolderPathCheck(content);
 			Token userdetails1 = (Token) p;
@@ -518,10 +518,10 @@ public class ContentController extends BaseController {
 			}
 			boolean create = true;
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addContentForm";
-			}
+//			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addContentForm";
+//			}
 			/* New Audit changes end */
 			performFolderPathCheckForModule(content);
 			for (MultipartFile file : files) {
@@ -716,10 +716,10 @@ public class ContentController extends BaseController {
 			m.addAttribute("Program_Name", ProgramName);
 			m.addAttribute("AcadSession", acadSession);
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addContentForm";
-			}
+//			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addContentForm";
+//			}
 			/* New Audit changes end */
 			String completFolderPath = content.getFolderPath()
 					+ content.getContentName();
@@ -805,10 +805,10 @@ public class ContentController extends BaseController {
 				content.setAcadYear(Integer.valueOf(acadYear));
 			}
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addContentForm";
-			}
+//			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addContentForm";
+//			}
 			/* New Audit changes end */
 			String acadMonth = courseService.getAcadMonthByModuleIdAndAcadYear(
 					content.getModuleId(),
@@ -1353,10 +1353,10 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addContentForm";
-			}
+//			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addContentForm";
+//			}
 			/* New Audit changes end */
 
 			if (content.getCourseId() == null) {
@@ -1465,10 +1465,10 @@ public class ContentController extends BaseController {
 			String username = p.getName();
 			performFolderPathCheckForModule(content);
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addContentForm";
-			}
+//			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addContentForm";
+//			}
 			/* New Audit changes end */
 			if (idForModule != null) {
 				content.setModuleId(idForModule);
@@ -1868,10 +1868,10 @@ public class ContentController extends BaseController {
 				content.setCourseId(Long.valueOf(idForCourse));
 			}
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addContentForm";
-			}
+//			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addContentForm";
+//			}
 			/* New Audit changes end */
 			performFolderPathCheck(content);
 			Course c = null;
@@ -1925,10 +1925,10 @@ public class ContentController extends BaseController {
 		try {
 			String username = p.getName();
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addContentForm";
-			}
+//			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addContentForm";
+//			}
 			/* New Audit changes end */
 			List<Course> courseIdList = new ArrayList<>();
 			courseIdList = courseService.findCoursesByModuleId(
