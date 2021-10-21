@@ -105,6 +105,7 @@ import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -401,6 +402,17 @@ public class TestController extends BaseController {
 //				setError(redirectAttrs, "Invalid Start date and End date");
 //				return "redirect:/createTestForm";
 //			}
+			BusinessBypassRule.validateAlphaNumeric(test.getTestName());
+			Course course = courseService.findByID(test.getCourseId());
+			if(null == course) {
+				throw new ValidationException("Invalid Course selected.");
+			}
+			UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(test.getFacultyId(), String.valueOf(test.getCourseId()));
+			if(null == userccourse) {
+				throw new ValidationException("Invalid faculty selected.");
+			}
+			Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate());
+			BusinessBypassRule.validateNumeric(test.getMaxScore());
 			if("Mix".equals(test.getTestType())) {
 				if(Double.valueOf(test.getMaxQuestnToShow()) < 0.0 || 
 						Double.valueOf(test.getMaxDesQueToShow()) < 0.0 || 

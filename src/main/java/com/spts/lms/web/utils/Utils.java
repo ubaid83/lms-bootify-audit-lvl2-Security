@@ -295,10 +295,6 @@ public static String addDaysToDate(String date,int numberOfDaysToAdd){
 		Date d3 = Utils.getInIST();
 		String date3 = format.format(d3);
 		date3 = date3.split(" ")[0].concat(" 00:00:00");
-//		System.out.println("date3: "+date3);
-//		long startEndDiff = 0;
-//		long startDiff = 0;
-//		long endDiff = 0;
 		try {
 			if(date1.contains("T")) {
 				date1 = date1.replace("T", " ");
@@ -325,23 +321,32 @@ public static String addDaysToDate(String date,int numberOfDaysToAdd){
 //				System.out.println("False - endDate before currentDate");
 				throw new ValidationException("Invalid Start date and End date.");
 			}
-//			System.out.println("True");
-//			startEndDiff = ((d2.getTime() - d1.getTime()) / 1000);
-//			startDiff = ((d1.getTime() - d3.getTime()) / 1000);
-//			endDiff = ((d2.getTime() - d3.getTime()) / 1000);
-//			System.out.println("startEndDiff: "+startEndDiff);
-//			System.out.println("startDiff: "+startDiff);
-//			System.out.println("endDiff: "+endDiff);
-//			if(startEndDiff > 0 && startDiff > - 300 && endDiff > 0) {
-//				System.out.println("True");
-//			}else {
-//				System.out.println("False");
-//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ValidationException("Invalid Start date and End date.");
 		}
 	}
-	
+	public static void validateDate(String date) throws ValidationException {
+		
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date d1 = null;
+		Date d2 = Utils.getInIST();
+		String date2 = format.format(d2);
+		date2 = date2.split(" ")[0].concat(" 00:00:00");
+		try {
+			if(date.contains("T")) {
+				date = date.replace("T", " ");
+			}
+			d1 = format.parse(date);
+			d2 = format.parse(date2);
+			if(d1.before(d2)) {
+//				System.out.println("False - date before currentDate");
+				throw new ValidationException("Invalid date selected.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ValidationException("Invalid date selected.");
+		}
+	}
 	/* New Audit changes end */
 }
