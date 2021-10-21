@@ -59,6 +59,9 @@ public class CustomAuthenticationProvider extends BaseController implements
 
 		String name = authentication.getName();
 		String password = authentication.getCredentials().toString();
+		
+		
+		
 		Token token = null;
 
 		WebTarget webTarget = client.target(userManagementUrl
