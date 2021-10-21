@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.ws.BindingProvider;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import com.spts.lms.daos.assignment.AssignmentDAO;
 import com.spts.lms.daos.attendance.AttendanceDAO;
 import com.spts.lms.daos.message.StudentMessageDAO;
 import com.spts.lms.sap.facultyWorkload.ZFACULTYWORKLOADWS;
+import com.spts.lms.sap.facultyWorkload.ZfacultyWorkloadSd;
 import com.spts.lms.sap.facultyWorkload.ZfacultyworkloadS;
 import com.spts.lms.sap.facultyWorkload.ZfacultyworkloadTt;
 import com.spts.lms.services.BaseService;
@@ -59,6 +62,9 @@ public String pullFacultyWorkload(String eventId,String facultyId){
 		
 		ZFACULTYWORKLOADWS ws = new ZFACULTYWORKLOADWS();
 		ZfacultyworkloadTt resp = ws.getZFACULTYWORKLOADBIN().zfacultyWorkload(currDate,eventId,facultyId);
+		BindingProvider prov = (BindingProvider)ws;
+		prov.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "basissp");
+		prov.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "india@123");
 		String json="";
 		for (ZfacultyworkloadS fwtt : resp.getItem()) {
 			

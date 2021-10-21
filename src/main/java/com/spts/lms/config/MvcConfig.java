@@ -9,11 +9,14 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
+
+import com.spts.lms.services.interceptor.LmsInterceptor;
 
 @Configuration
 public class MvcConfig extends WebMvcConfigurerAdapter {
@@ -100,4 +103,16 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 	public SimpleMailMessage getSimpleMailMessage() {
 		return new org.springframework.mail.SimpleMailMessage();
 	}
+	
+//	@Bean
+//	public LmsInterceptor lmsInterceptor() {
+//		return new LmsInterceptor();
+//	}
+//	
+//	@Override
+//	public void addInterceptors(InterceptorRegistry registry) {
+//		// TODO Auto-generated method stub
+//		registry.addInterceptor(lmsInterceptor()).excludePathPatterns("/handShake","/login","/error").addPathPatterns("/*");
+//		super.addInterceptors(registry);
+//	}
 }

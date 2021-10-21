@@ -15,6 +15,8 @@ import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -285,16 +287,14 @@ public static String addDaysToDate(String date,int numberOfDaysToAdd){
 	}	
 	
 	/* New Audit changes start */
-	public static boolean validateStartAndEndDates(String date1,String date2){
+	public static void validateStartAndEndDates(String date1,String date2) throws ValidationException {
 		
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date d1 = null;
 		Date d2 = null;
 		Date d3 = Utils.getInIST();
 		String date3 = format.format(d3);
-		long startEndDiff = 0;
-		long startDiff = 0;
-		long endDiff = 0;
+		date3 = date3.split(" ")[0].concat(" 00:00:00");
 		try {
 			if(date1.contains("T")) {
 				date1 = date1.replace("T", " ");
@@ -305,16 +305,48 @@ public static String addDaysToDate(String date,int numberOfDaysToAdd){
 			d1 = format.parse(date1);
 			d2 = format.parse(date2);
 			d3 = format.parse(date3);
-			startEndDiff = ((d2.getTime() - d1.getTime()) / 1000);
-			startDiff = ((d1.getTime() - d3.getTime()) / 1000);
-			endDiff = ((d2.getTime() - d3.getTime()) / 1000);
-			if(startEndDiff > 0 && startDiff > - 300 && endDiff > 0) {
-				return true;
+			if(d1.after(d2)) {
+//				System.out.println("False - startDate after endDate");
+				 throw new ValidationException("Invalid Start date and End date.");
+			}
+			if(d1.compareTo(d2) == 0) {
+//				System.out.println("False - startDate equals endDate");
+				throw new ValidationException("Invalid Start date and End date.");
+			}
+			if(d1.before(d3)) {
+//				System.out.println("False - startDate before currentDate");
+				throw new ValidationException("Invalid Start date and End date.");
+			}
+			if(d2.before(d3)) {
+//				System.out.println("False - endDate before currentDate");
+				throw new ValidationException("Invalid Start date and End date.");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw new ValidationException("Invalid Start date and End date.");
 		}
-		return false;
+	}
+	public static void validateDate(String date) throws ValidationException {
+		
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date d1 = null;
+		Date d2 = Utils.getInIST();
+		String date2 = format.format(d2);
+		date2 = date2.split(" ")[0].concat(" 00:00:00");
+		try {
+			if(date.contains("T")) {
+				date = date.replace("T", " ");
+			}
+			d1 = format.parse(date);
+			d2 = format.parse(date2);
+			if(d1.before(d2)) {
+//				System.out.println("False - date before currentDate");
+				throw new ValidationException("Invalid date selected.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ValidationException("Invalid date selected.");
+		}
 	}
 	/* New Audit changes end */
 }

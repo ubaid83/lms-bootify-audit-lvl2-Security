@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -102,7 +103,7 @@ public class StudentAttendanceController extends BaseController {
 
 	//vishal changes for view 23-13-2021
 	
-
+	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value="/viewAttendance",method = {RequestMethod.GET,RequestMethod.POST})
 	public String viewAttendance( RedirectAttributes redirectAttributes,@RequestParam(required = false) Long courseId,
 			@RequestParam(required = false) String attdDate,Model m, Principal principal) 
@@ -889,6 +890,7 @@ public long timeDifference(String time1,String time2){
 
 
 	//hiren=17-06-2020
+@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 @RequestMapping(value = "/saveStudentCourseAttendance", method = {
 		RequestMethod.GET, RequestMethod.POST })
 public String saveStudentCourseAttendance(

@@ -1,7 +1,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="sec"
-	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <html lang="en">
 <jsp:include page="../common/css.jsp" />
 
@@ -202,12 +202,11 @@
 																				<c:if test="${announcement.announcementType eq 'TIMETABLE'}">
 																					<a href="downloadStudentsReport?id=${announcement.id}"><i class="fa fa-download"></i></a>
 																				</c:if>
-																					<c:if test="${announcement.createdBy eq userBean.username}">
-																							<a
-																						href="${deleteurl}" title="Delete"
-																							onclick="return confirm('Are you sure you want to delete this Announcement?')"><i
-																								class="fa fa-trash-o fa-lg"></i></a>
-																						</c:if>
+																				<c:if test="${fn:containsIgnoreCase(announcement.createdBy,userBean.username)}">
+																					<a href="${deleteurl}" title="Delete" onclick="return confirm('Are you sure you want to delete this Announcement?')">
+																						<i class="fa fa-trash-o fa-lg"></i></a>
+																				</c:if>
+																					
 																				
 																		</sec:authorize></td>
 																</tr>

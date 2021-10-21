@@ -31,6 +31,7 @@ public interface ZCHANGESTMOBILEEMAILWSD {
      * @param photo
      * @param emailId
      * @param mobileNo
+     * @param stnum
      * @return
      *     returns java.lang.String
      */
@@ -45,6 +46,8 @@ public interface ZCHANGESTMOBILEEMAILWSD {
         String mobileNo,
         @WebParam(name = "Photo", targetNamespace = "")
         String photo,
+        @WebParam(name = "Stnum", targetNamespace = "")
+        String stnum,
         @WebParam(name = "Stobjid", targetNamespace = "")
         String stobjid,
         @WebParam(name = "TMessage", targetNamespace = "", mode = WebParam.Mode.OUT)

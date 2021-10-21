@@ -33,7 +33,7 @@ import com.spts.lms.services.test.StudentTestService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 
-@Secured("ROLE_USER")
+
 @Controller
 @SessionAttributes("userId")
 public class PendingTaskController extends BaseController {
@@ -53,6 +53,7 @@ public class PendingTaskController extends BaseController {
 	@Autowired
 	UserService userService;
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping("/pending")
 	public @ResponseBody String getPendingList(Principal principal) {
 		String json = "";
@@ -100,6 +101,7 @@ public class PendingTaskController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping("/pendingTask")
 	public String getPendingTask(Principal principal, Model modal) {
 
@@ -191,6 +193,7 @@ public class PendingTaskController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_PARENT" })
 	@RequestMapping(value = "/pendingTaskFormForParents", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String gradeCenterForm(Model m, Principal p) {
@@ -217,6 +220,7 @@ public class PendingTaskController extends BaseController {
 		return "course/pendingTaskForParents";
 	}
 
+	@Secured({ "ROLE_PARENT" })
 	@RequestMapping("/pendingTaskForParents")
 	public String pendingTaskForParents(Principal principal,
 			@RequestParam String uname, Model modal) {
@@ -290,6 +294,7 @@ public class PendingTaskController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping("/pendingTaskByCourse")
 	public String getPendingTask(Principal principal, Model modal,
 			String courseId) {

@@ -81,7 +81,7 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;
 
-@Secured("ROLE_USER")
+
 @Controller
 public class PortalFeedbackController extends BaseController {
 
@@ -132,6 +132,7 @@ public class PortalFeedbackController extends BaseController {
 	@Value("${app}")
 	private String app;
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping("/portalFeedbackForm")
 	public String portalFeedbackForm(Model m, Principal principal) {
 		m.addAttribute("webPage", new WebPage("portalFeedback",
@@ -356,6 +357,7 @@ public class PortalFeedbackController extends BaseController {
 		return false;
 	}
 
+	@Secured({ "ROLE_FACULTY", "ROLE_STUDENT", "ROLE_SUPPORT_ADMIN", "ROLE_ADMIN" })
 	@RequestMapping(value = "/createPortalFeedbackResponse", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String createPortalFeedbackResponse(
@@ -476,6 +478,7 @@ public class PortalFeedbackController extends BaseController {
 		return "portalFeedback/feedbackAlert";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/replyToQueryAnswer", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String replyToQueryAnswer(Model m, Principal principal,
@@ -602,6 +605,7 @@ public class PortalFeedbackController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/viewPortalFeedbacks", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String viewPortalFeedbacks(Principal principal, Model m,
@@ -842,6 +846,7 @@ public class PortalFeedbackController extends BaseController {
 		return feedbackList;
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY", "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping("/viewEachPortalFeedback")
 	public String viewEachPortalFeedback(Model m, Principal principal,
 			@ModelAttribute PortalFeedback portalFeedback,
@@ -1066,6 +1071,7 @@ public class PortalFeedbackController extends BaseController {
 	 * "portalFeedback/viewSchoolsList"; }
 	 */
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY", "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/getDiscussionByPortalFeedbackId", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getDiscussionByPortalFeedbackId(
@@ -1268,6 +1274,7 @@ public class PortalFeedbackController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/viewSchoolsList", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewSchoolsList(Model m, Principal principal,
@@ -1320,6 +1327,7 @@ public class PortalFeedbackController extends BaseController {
 		return "portalFeedback/viewSchoolsList";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY", "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/getQueryListByQueryId", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getQueryListByQueryId(
@@ -1481,6 +1489,7 @@ public class PortalFeedbackController extends BaseController {
 
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY", "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/downloadPortalFeedbackReport", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView downloadFile(@RequestParam String schoolObjId,

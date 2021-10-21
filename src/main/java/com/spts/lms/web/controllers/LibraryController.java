@@ -30,14 +30,13 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.util.IOUtils;
+import org.apache.tika.Tika;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -51,31 +50,21 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.base.JsonParseExceptionMapper;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.spts.lms.auth.Token;
 import com.spts.lms.beans.amazon.AmazonS3ClientService;
 import com.spts.lms.beans.announcement.Announcement;
 import com.spts.lms.beans.announcement.Announcement.AnnouncementType;
-import com.spts.lms.beans.assignment.StudentAssignment;
-import com.spts.lms.beans.content.Content;
-import com.spts.lms.beans.course.Course;
 import com.spts.lms.beans.library.Library;
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
@@ -93,7 +82,7 @@ import com.spts.lms.web.helper.UnzipFiles;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.Utils;
 
-@Secured("ROLE_USER")
+
 @Controller
 @SessionAttributes("userId")
 public class LibraryController extends BaseController {
@@ -166,11 +155,12 @@ public class LibraryController extends BaseController {
 	private static final Logger logger = Logger.getLogger(LibraryController.class);
 	private static final String FILE_SEPARATOR = "/";
 
-	private static final String serverURL = "http://3.7.84.108:8081/"; // "http://localhost:8085/"
+	private static final String serverURL = "http://192.168.2.116:8443/"; // "http://localhost:8085/"
 																		// "http://192.168.2.116:8443/"
-	private static final String serverCrudURL = "http://3.7.84.108:8081/usermgmtcrud/"; // "http://localhost:8082/"
+	private static final String serverCrudURL = "http://192.168.2.116:8443/usermgmtcrud/"; // "http://localhost:8082/"
 																						// "http://192.168.2.116:8443/usermgmtcrud/"
 
+	@Secured({ "ROLE_FACULTY" })
 	@RequestMapping(value = "viewExtLibraries", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewExtLibraries(Principal principal, Model m) {
 		String username = principal.getName();
@@ -180,6 +170,7 @@ public class LibraryController extends BaseController {
 		return "library/viewExtLibraries";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/viewLibraryAnnouncements", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewLibraryAnnouncements(@ModelAttribute Library library,
 			@RequestParam(required = false) String announcementType,
@@ -394,6 +385,7 @@ public class LibraryController extends BaseController {
 
 	
 	//Download Zipp chnage code Suraj
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/downloadAllFileForLibrary", method = { RequestMethod.GET, RequestMethod.POST })
 	public ResponseEntity<ByteArrayResource> downloadAllFileForLibrary(HttpServletRequest request,
 			HttpServletResponse response, Long libraryId) throws ServletException, IOException {
@@ -454,6 +446,7 @@ public class LibraryController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "createWebpageForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String createWebpageForm(Model m, Principal principal, @RequestParam(required = false) Long id) {
 		String username = principal.getName();
@@ -513,6 +506,7 @@ public class LibraryController extends BaseController {
 	 * return "redirect:/viewLibraryAnnouncements"; }
 	 */
 
+	@Secured({ "ROLE_LIBRARIAN" })
 	@RequestMapping(value = "createWebpageForLibrary", method = { RequestMethod.GET, RequestMethod.POST })
 	public String createWebpageForLibrary(Model m, @RequestParam("file") MultipartFile file, Principal principal,
 			@ModelAttribute Webpages webpages, RedirectAttributes redirectAttributes) {
@@ -530,6 +524,8 @@ public class LibraryController extends BaseController {
 		String type = "LIBRARY";
 		try {
 			if (!file.isEmpty()) {
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -539,7 +535,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttributes, "File uploaded is invalid!");
 							return "redirect:/viewLibraryAnnouncements";
 						}else {
@@ -601,6 +597,7 @@ public class LibraryController extends BaseController {
 	 * return "redirect:/viewLibraryAnnouncements"; }
 	 */
 
+	@Secured({ "ROLE_LIBRARIAN" })
 	@RequestMapping(value = "updateWebpageForLibrary", method = { RequestMethod.GET, RequestMethod.POST })
 	public String updateWebpageForLibrary(Model m, @RequestParam(name="file",required=false) MultipartFile file, Principal principal,
 			@ModelAttribute Webpages webpages, RedirectAttributes redirectAttributes) {
@@ -623,6 +620,8 @@ public class LibraryController extends BaseController {
 			logger.info("filePathupdate-------------->"+filePathupdate.getFilePath());
 			
 			if (!file.isEmpty() && file != null) {
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -632,7 +631,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttributes, "File uploaded is invalid!");
 							return "redirect:/viewLibraryAnnouncements";
 						}else {
@@ -737,6 +736,7 @@ public class LibraryController extends BaseController {
 	 * return errorMessage; }
 	 */
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/viewLibraryTabs", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewLibraryTabs(@ModelAttribute Library library,
 			@RequestParam(required = false, defaultValue = "1") int pageNo, @ModelAttribute Announcement announcement,
@@ -844,6 +844,7 @@ public class LibraryController extends BaseController {
 	 * } return null; }
 	 */
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/downloadWebpageFile", method = { RequestMethod.GET, RequestMethod.POST })
 	public ResponseEntity<ByteArrayResource> downloadWebpageFile(
 			@RequestParam(required = false, name = "id", defaultValue = "") String id,
@@ -896,6 +897,7 @@ public class LibraryController extends BaseController {
 		return null;
 	}
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/deleteWebpage", method = { RequestMethod.GET, RequestMethod.POST })
 	public String deleteWebpage(@RequestParam Integer id, RedirectAttributes redirectAttrs) {
 		try {
@@ -910,6 +912,7 @@ public class LibraryController extends BaseController {
 		return "redirect:/viewLibraryAnnouncements";
 	}
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addLibraryItemForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addLibraryItemForm(@ModelAttribute Library library, Model m, Principal principal) {
 		m.addAttribute("webPage", new WebPage("library", "Create Library Item", false, false));
@@ -1058,6 +1061,7 @@ public class LibraryController extends BaseController {
 	 * "redirect:/viewLibraryAnnouncements"; } }
 	 */
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addLibraryZip", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addLibraryZip(@ModelAttribute Library library, Principal principal,
 			@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs, Model m) {
@@ -1086,6 +1090,8 @@ public class LibraryController extends BaseController {
 			// for (MultipartFile file : files) {
 
 			if (!file.isEmpty()) {
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -1095,7 +1101,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/addLibraryItemForm";
 						}
@@ -1413,6 +1419,7 @@ public class LibraryController extends BaseController {
 	 * "redirect:/viewLibraryAnnouncements"; } }
 	 */
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addLibraryFolder", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addLibraryFolder(@ModelAttribute Library library, RedirectAttributes redirectAttrs,
 			Principal principal, Model m) {
@@ -1760,6 +1767,7 @@ public class LibraryController extends BaseController {
 //		return "redirect:/viewLibraryAnnouncements";
 //	}
 	
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/updateLibraryFolder", method = { RequestMethod.GET, RequestMethod.POST })
 	public String updateLibraryFolder(@ModelAttribute Library library, RedirectAttributes redirectAttrs,
 			Principal principal, Model m) {
@@ -1893,6 +1901,7 @@ public class LibraryController extends BaseController {
 	 * }
 	 */
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY", "ROLE_ADMIN", "ROLE_STUDENT" })
 	@RequestMapping(value = "/viewLibrary", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewLibrary(@ModelAttribute Library library, Model m, RedirectAttributes redirectAttributes,
 			Principal p) {
@@ -1985,6 +1994,7 @@ public class LibraryController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/viewLibraryForCopy", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewLibraryForCopy(@ModelAttribute Library library, Model m, Principal p) {
 
@@ -2163,6 +2173,7 @@ public class LibraryController extends BaseController {
 	 * "redirect:/viewLibraryAnnouncements"; } }
 	 */
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addLibraryFile", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addLibraryFile(@ModelAttribute Library library, Principal principal,
 			@RequestParam("file") List<MultipartFile> files, RedirectAttributes redirectAttrs, Model m) {
@@ -2191,6 +2202,8 @@ public class LibraryController extends BaseController {
 				if (!file.isEmpty()) {
 					//Audit change start
 					String errorMessage = "";
+					Tika tika = new Tika();
+					  String detectedType = tika.detect(file.getBytes());
 					if (file.getOriginalFilename().contains(".")) {
 						Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 						logger.info("length--->"+count);
@@ -2200,7 +2213,7 @@ public class LibraryController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe")) {
+							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(redirectAttrs, "File uploaded is invalid!");
 								return "redirect:/addLibraryItemForm";
 							}else {
@@ -2342,6 +2355,7 @@ public class LibraryController extends BaseController {
 	 * "redirect:/viewLibrary"; }
 	 */
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/updateLibraryFile", method = { RequestMethod.GET, RequestMethod.POST })
 	public String updateLibraryFile(@ModelAttribute Library library, Principal principal,
 			@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs) {
@@ -2368,6 +2382,8 @@ public class LibraryController extends BaseController {
 			if (file != null && !file.isEmpty()) {
 				//Audit change start
 				String errorMessage = "";
+				Tika tika = new Tika();
+				  String detectedType = tika.detect(file.getBytes());
 				if (file.getOriginalFilename().contains(".")) {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
@@ -2380,7 +2396,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe")) {
+						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							redirectAttrs.addAttribute("id", library.getId());
 							redirectAttrs.addAttribute("contentType", library.getContentType());
@@ -2546,6 +2562,7 @@ public class LibraryController extends BaseController {
 		return errorMessage;
 	}
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addLibraryLink", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addLibraryLink(@ModelAttribute Library library, RedirectAttributes redirectAttrs,
 			Principal principal) {
@@ -2605,6 +2622,7 @@ public class LibraryController extends BaseController {
 		}
 	}
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/updateLibraryLink", method = { RequestMethod.GET, RequestMethod.POST })
 	public String updateLibraryLink(@ModelAttribute Library library, RedirectAttributes redirectAttrs,
 			Principal principal) {
@@ -2791,6 +2809,7 @@ public class LibraryController extends BaseController {
 	
 	
 	//Deleted LibraryItem for s3
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/deleteLibraryItem", method = { RequestMethod.GET, RequestMethod.POST })
 	public String deleteLibraryItem(@ModelAttribute Library library, RedirectAttributes redirectAttrs) {
 
@@ -2998,7 +3017,7 @@ public class LibraryController extends BaseController {
 	
 	
 	
-
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/copyLibraryItemForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String copyLibraryItemForm(Model m, @ModelAttribute Library library, @RequestParam String action,
 			@RequestParam Long id, Principal principal) {
@@ -3081,6 +3100,7 @@ public class LibraryController extends BaseController {
 
 	// S3 CopyItem
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/copyLibraryItem", method = { RequestMethod.GET, RequestMethod.POST })
 	public String copyLibraryItem(Model m, @ModelAttribute Library library, RedirectAttributes redirectAttributes,
 			Principal principal) {
@@ -3206,6 +3226,7 @@ public class LibraryController extends BaseController {
 
 	// Move Itmes3
 
+	@Secured({ "ROLE_LIBRARIAN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/moveLibraryItem", method = { RequestMethod.GET, RequestMethod.POST })
 	public String moveLibraryItem(Model m, @ModelAttribute Library library, RedirectAttributes redirectAttributes,
 			Principal principal) {
@@ -3285,6 +3306,7 @@ public class LibraryController extends BaseController {
 	}
 
 	// Hiren 27-11-2019
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/getLibrarianListById", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String getLibrarianListById(@RequestParam(name = "libId") String libId, Principal principal) {
 
@@ -3297,6 +3319,7 @@ public class LibraryController extends BaseController {
 	}
 
 	// Hiren 27-11-2019
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/saveLibrarianRights", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String saveLibrarianRights(@RequestParam(name = "libId") String libId,
 			@RequestParam(name = "librarianRightsJson") String librarianRightsJson, Principal principal) {
@@ -3345,6 +3368,7 @@ public class LibraryController extends BaseController {
 	}
 
 	// Hiren 27-11-2019
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/shareLibraryContent", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String shareLibraryContent(@RequestParam(name = "libId") String libId,
 			@RequestParam(name = "schoolName") String schoolName, Principal principal) {
@@ -3412,6 +3436,7 @@ public class LibraryController extends BaseController {
 		return "{\"Status\":\"Success\"}";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/giveLibrarianRights", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String giveLibrarianRights(@RequestParam(name = "libId") String libId,
 			@RequestParam(name = "parentId") String parentId, Principal principal) {

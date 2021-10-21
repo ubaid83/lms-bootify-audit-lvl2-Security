@@ -281,7 +281,7 @@
 														<td>
 															<div class="pretty p-switch p-fill p-toggle">
 																<form:checkbox value="Yes" id="sendEmailAlert"
-																	path="sendEmailAlert" />
+																	path="sendEmailAlert" name="sendEmailAlert" />
 																<div class="state p-success p-on">
 																	<label>Yes</label>
 																</div>

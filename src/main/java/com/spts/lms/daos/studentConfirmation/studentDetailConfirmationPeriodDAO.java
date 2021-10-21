@@ -208,51 +208,20 @@ public class studentDetailConfirmationPeriodDAO extends
 	}
 	
 
-
+	//30-09-2021 New Changes
 	public studentDetailConfirmationPeriod findbyProgramId(String programId,String usersession,String campusId) {
-
-		/*
-		 * String sql =
-		 * "SELECT acadSession FROM student_detail_confirmation_period  WHERE programId= ? "
-		 * +
-		 * " AND active='Y' AND FIND_IN_SET(?,acadSession)  AND enddate>= SYSDATE() GROUP BY programid ORDER BY endDate DESC"
-		 * ; return findOneSQL(sql, new Object[]{programId,usersession});
-		 */
-		//for campus id
 		if(campusId!= null && !campusId.equals("null") && !campusId.isEmpty() && !campusId.equals("0") && !campusId.equals("") && !campusId.equals("00000000")) {
-			
-			/*
-			 * String sql =
-			 * " SELECT acadSession FROM student_detail_confirmation_period  WHERE programId= ? "
-			 * +
-			 * " AND active='Y' AND FIND_IN_SET(?,acadSession) AND campusId= ? AND enddate>= SYSDATE()  GROUP BY programid ORDER BY endDate DESC"
-			 * ;
-			 */
-			
-			String sql = " SELECT acadSession FROM student_detail_confirmation_period  WHERE programId= ? "
+	
+			String sql = " SELECT acadSession, enddate FROM student_detail_confirmation_period  WHERE programId= ? "
 					+ " AND active='Y' AND FIND_IN_SET(?,acadSession) AND campusId= ? AND enddate>= CURDATE()  GROUP BY programid ORDER BY endDate DESC";
-		
-			
 			 return findOneSQL(sql, new Object[]{programId,usersession,campusId});
 		}
 		else
 		{
-			
-			/*
-			 * String sql =
-			 * " SELECT acadSession FROM student_detail_confirmation_period  WHERE programId= ? "
-			 * +
-			 * " AND active='Y' AND FIND_IN_SET(?,acadSession)  AND enddate>= SYSDATE() GROUP BY programid ORDER BY endDate DESC"
-			 * ;
-			 */
-			
-			String sql = " SELECT acadSession FROM student_detail_confirmation_period  WHERE programId= ? "
+			String sql = " SELECT acadSession, enddate FROM student_detail_confirmation_period  WHERE programId= ? "
 					+ " AND active='Y' AND FIND_IN_SET(?,acadSession)  AND enddate>= CURDATE() GROUP BY programid ORDER BY endDate DESC";
-		
-		
 		 return findOneSQL(sql, new Object[]{programId,usersession});
 		}
-		
 	}
 	
 	public List<studentDetailConfirmationPeriod> fingAllActiveProgramWithSemester() {

@@ -117,13 +117,9 @@ public class UserService extends BaseService<User> {
 		return userDAO.findAllStudents(programId);
 	}
 
+	/*
 	public void changePasswordForStudentByAdmin(final User user) {
-		/*
-		 * if (!authenticateAlt(user.getPassword(), user.getOldPassword())) {
-		 * throw new ValidationException(
-		 * "Unable to change the password. Kindly verify the current password and retry."
-		 * ); }
-		 */
+		
 		if (!user.getNewPassword().equals(user.getReenterPassword())) {
 			throw new ValidationException(
 					"Unable to change the password. Kindly verify the the new password and reentered password");
@@ -133,15 +129,24 @@ public class UserService extends BaseService<User> {
 		user.setPassword(PasswordGenerator.generatePassword(user
 				.getNewPassword()));
 		int updated = userDAO.changePassword(user);
-		/*
-		 * if (updated == 0) {
-		 * 
-		 * throw new ValidationException(
-		 * "Unable to change the password. Kindly verify the current password and retry."
-		 * );
-		 * 
-		 * }
-		 */
+	
+
+		System.out.println(" rows Updated");
+
+	}*/
+	
+	public void changePasswordForStudentByAdmin(final User user) {
+		
+		if (!user.getNewPassword().equals(user.getReenterPassword())) {
+			throw new ValidationException(
+					"Unable to change the password. Kindly verify the the new password and reentered password");
+		} else {
+			System.out.println("password matched");
+		}
+		user.setPassword(user
+				.getNewPassword());
+		int updated = userDAO.changePassword(user);
+	
 
 		System.out.println(" rows Updated");
 
@@ -160,6 +165,9 @@ public class UserService extends BaseService<User> {
 	 * ); } }
 	 */
 
+	
+	//commented on 24-09-2021
+	/*
 	public void changePassword(final User user) {
 		if (!authenticateAlt(user.getPassword(), user.getOldPassword())) {
 			throw new ValidationException(
@@ -172,6 +180,32 @@ public class UserService extends BaseService<User> {
 		}
 		user.setPassword(PasswordGenerator.generatePassword(user
 				.getNewPassword()));
+		int updated = userDAO.changePassword(user);
+		
+
+		System.out.println(" rows Updated");
+
+	}*/
+	public void changePassword(final User user) {
+		//if (!authenticateAlt(user.getPassword(), user.getOldPassword())) {
+		if (!user.getPassword().equals(user.getOldPassword())) {
+			throw new ValidationException(
+					"Unable to change the password. Kindly verify the current password and retry.");
+		} else if (!user.getNewPassword().equals(user.getReenterPassword())) {
+			throw new ValidationException(
+					"Unable to change the password. Kindly verify the the new password and reentered password");
+		} else if (user.getPassword().equals(user.getNewPassword())) {
+			throw new ValidationException(
+					"Unable to change the password. The Password is previously used!");
+		} else {
+			System.out.println("password matched");
+		}
+		//temporarily commented
+		/*
+		user.setPassword(PasswordGenerator.generatePassword(user
+				.getNewPassword()));
+				*/
+		user.setPassword(user.getNewPassword());
 		int updated = userDAO.changePassword(user);
 		/*
 		 * if (updated == 0) {

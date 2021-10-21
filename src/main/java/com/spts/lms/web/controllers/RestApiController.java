@@ -222,6 +222,7 @@ public class RestApiController {
 			@RequestParam(name = "facultyId") String facultyId) {
 		logger.info("eventId " + eventId + " facultyId " + facultyId);
 		String json = attendanceService.pullFacultyWorkload(eventId, facultyId);
+		logger.info("json--->"+json);
 		return json;
 	}
 
@@ -1004,10 +1005,10 @@ public class RestApiController {
 		// Token userdetails1 = (Token) p;
 		// String ProgramId = userdetails1.getProgramId();
 		try {
-			Content cJson = mapper.readValue(contentJson, new TypeReference<Content>() {
-			});
+			Content cJson = mapper.readValue(contentJson, new TypeReference<Content>() {});
+//			logger.info("campus--->"+cJson.getCampusId());
 			List<Course> course = courseService.findCoursesByProgramIdAndAcadYear(String.valueOf(cJson.getAcadYear()),
-					String.valueOf(cJson.getProgramId()));
+					String.valueOf(cJson.getProgramId()), String.valueOf(cJson.getCampusId()));
 			logger.info("programs---->" + course);
 			// m.addAttribute("moduleList", moduleList);
 			List<Map<String, String>> res = new ArrayList<Map<String, String>>();
@@ -2193,5 +2194,30 @@ public class RestApiController {
 			return "";
 		}
 	}
+	
+	@RequestMapping(value = "/getProgramCampusOfSchool", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String getProgramCampusOfSchool() {
+		try {
+			List<User> campusList = userService.findCampus();
+			List<Map<String, String>> res = new ArrayList<Map<String, String>>();
+
+			for (User c : campusList) {
+				Map<String, String> returnMap = new HashMap();
+				returnMap.put(String.valueOf(c.getCampusId()), c.getCampusName());
+				res.add(returnMap);
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			String result = "";
+			result = mapper.writeValueAsString(res);
+			logger.info("result------->" + result);
+
+			return result;
+		} catch (Exception ex) {
+
+			logger.error("Exception", ex);
+			return "";
+		}
+	}
+
 }
 

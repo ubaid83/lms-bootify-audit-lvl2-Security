@@ -110,7 +110,7 @@ public class CopyCaseHelper {
 			if(null != questionFileLineContent)
 				questionFileContent.addAll(questionFileLineContent);
 		}
-
+		List<StudentAssignment> onlyPdfOrDocxFiles = new ArrayList<>();
 		for (StudentAssignment studentAssignment : studentAssignmentFilesList) {
 			long readStartTime = System.currentTimeMillis();
 			String studentSubmittedFile = studentAssignment.getStudentFilePath();
@@ -126,7 +126,8 @@ public class CopyCaseHelper {
 				List<String> fileContent = readLineByLine(null,
 						tempCopyFolder+"/"+studentFile.getName(), questionFileContent);
 				long readEndTime = System.currentTimeMillis();
-				logger.info("fileContent--->"+fileContent);
+				logger.info("fileContent-"+studentAssignment.getUsername()+"--->"+fileContent);
+				onlyPdfOrDocxFiles.add(studentAssignment);
 				if (fileContent != null) {
 					allFileContentsList.add(fileContent);
 				} else {
@@ -145,11 +146,11 @@ public class CopyCaseHelper {
 		ArrayList<ResultDomain> copyResultList = new ArrayList<>();
 	
 		for (int firstIndex = 0; firstIndex < allFileContentsList.size(); firstIndex++) {
-			StudentAssignment currentStudentStudentAssignment = studentAssignmentFilesList
+			StudentAssignment currentStudentStudentAssignment = onlyPdfOrDocxFiles
 					.get(firstIndex);
 			// List<String> firstPdf = readLineByLine(null,
 			// currentStudentStudentAssignment.getStudentFilePath());
-			
+			//logger.info("firstIndex--->"+firstIndex);
 			List<String> firstPdf = allFileContentsList.get(firstIndex);
 			int numberOfLinesInFirstFile = firstPdf.size();
 			
@@ -159,9 +160,9 @@ public class CopyCaseHelper {
 					.size(); secondIndex++) {
 				int maxConseutiveLinesMatched = 0;
 				int consecutiveMatchingLinesCounter = 0;
-
+				//logger.info("secondIndex--->"+secondIndex);
 				
-				StudentAssignment otherStudentStudentAssignment = studentAssignmentFilesList
+				StudentAssignment otherStudentStudentAssignment = onlyPdfOrDocxFiles
 						.get(secondIndex);
 				// List<String> secondPdf = readLineByLine(null,
 				// otherStudentStudentAssignment.getStudentFilePath());
@@ -210,7 +211,7 @@ public class CopyCaseHelper {
 						// double dff = (dd/(double)max)*100;
 
 						// if(dff<70){
-
+						
 						if (!linesMatchedInSecondFile.contains(secondFileLine)
 								&& firstFileLine.contains(secondFileLine)) {
 							matched = true;
@@ -272,7 +273,9 @@ public class CopyCaseHelper {
 				// (noOfMatches / (double) totalStringLength) * 100;
 
 				double matching = (noOfMatches / (double) totalStringLength) * 100;
-				
+				logger.info("File1--->"+currentStudentStudentAssignment.getStudentFilePath());
+				logger.info("File2--->"+otherStudentStudentAssignment.getStudentFilePath());
+				logger.info("matching--->"+matching);
 
 				/*
 				 * if (matching < 50) { totalStringLength = totalStringLength -

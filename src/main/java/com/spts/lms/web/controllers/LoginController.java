@@ -78,6 +78,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.apache.tika.Tika;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.exceptions.XMLSecurityException;
 import org.apache.xml.security.signature.XMLSignature;
@@ -135,6 +136,7 @@ import com.spts.lms.beans.assignment.Assignment;
 import com.spts.lms.beans.assignment.StudentAssignment;
 import com.spts.lms.beans.attendance.Attendance;
 import com.spts.lms.beans.attendance.StudentCourseAttendance;
+import com.spts.lms.beans.calender.Calender;
 import com.spts.lms.beans.copyleaksAudit.CopyleaksAudit;
 import com.spts.lms.beans.course.Course;
 import com.spts.lms.beans.dashboard.DashBoard;
@@ -146,6 +148,7 @@ import com.spts.lms.beans.ica.IcaComponentMarks;
 import com.spts.lms.beans.ica.IcaTotalMarks;
 import com.spts.lms.beans.library.Library;
 import com.spts.lms.beans.newsEvents.NewsEvents;
+import com.spts.lms.beans.pending.PendingTask;
 import com.spts.lms.beans.program.Program;
 import com.spts.lms.beans.studentConfirmation.studentDetailConfirmation;
 import com.spts.lms.beans.studentConfirmation.studentDetailConfirmationPeriod;
@@ -201,7 +204,6 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.services.user.WsdlLogService;
 import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.services.webpages.WebpagesService;
-import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSSEP;
 import com.spts.lms.studentms.sap.ZmessageLogTt;
 import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;
@@ -893,6 +895,7 @@ public class LoginController extends BaseController {
 		return "course/myCourse";
 	}
 
+	@Secured({ "ROLE_USER" })
 	@RequestMapping("/resetPasswordForm")
 	public String resetPasswordForm(Model m) {
 		m.addAttribute("webPage", new WebPage("forgot", "Forgot", true, true, true, true, false));
@@ -962,6 +965,7 @@ public class LoginController extends BaseController {
 			Pattern p = Pattern.compile(regex);
 			Matcher m = p.matcher(user.getNewPassword());
 			boolean isPassPerfect = m.matches();
+			//boolean isPassPerfect = true;
 			if(isPassPerfect == true) {
 				userService.changePasswordForStudentByAdmin(user);
 			} else {
@@ -1052,27 +1056,21 @@ public class LoginController extends BaseController {
 		user.setLastModifiedDate(Utils.getInIST());
 		user.setPassword(userFromUsermgmt.getPassword());
 
-		try {
-			String regex = "^(?=.*[0-9])"
-                    + "(?=.*[a-z])(?=.*[A-Z])"
-                    + "(?=.*[@#$%^&+=])"
-                    + "(?=\\S+$).{8,20}$";
-					   
-			Pattern p = Pattern.compile(regex);
-			Matcher m = p.matcher(user.getNewPassword());
-			boolean isPassPerfect = m.matches();
-			if(isPassPerfect == true) {
-				userService.changePassword(user);
-			} else {
-				throw new ValidationException(
-						"Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
-			}
-			
-		} catch (ValidationException ex) {
-			setError(redirectAttrs, ex.getMessage());
-			return "redirect:/changePasswordForm";
-		}
-
+		/*
+		 * try { String regex = "^(?=.*[0-9])" + "(?=.*[a-z])(?=.*[A-Z])" +
+		 * "(?=.*[@#$%^&+=])" + "(?=\\S+$).{8,20}$";
+		 * 
+		 * Pattern p = Pattern.compile(regex); Matcher m =
+		 * p.matcher(user.getNewPassword()); boolean isPassPerfect = m.matches();
+		 * //boolean isPassPerfect=true; if(isPassPerfect == true) {
+		 * userService.changePassword(user); } else { throw new ValidationException(
+		 * "Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!"
+		 * ); }
+		 * 
+		 * } catch (ValidationException ex) { setError(redirectAttrs, ex.getMessage());
+		 * return "redirect:/changePasswordForm"; }
+		 */
+		userService.changePassword(user); 
 		String json = new Gson().toJson(user);
 
 		// logger.info("passed json--->" + json);
@@ -1114,14 +1112,7 @@ public class LoginController extends BaseController {
 
 		m.addAttribute("loggeedInApp", app);
 
-		File files = new File(downloadResultPath + "/" + "Fyjc" + "/" + username + ".PDF");
-
-		if (files.exists()) {
-			m.addAttribute("downloadAvailable", "yes");
-		} else {
-			logger.info("downloadAvailable---------> no filePath found in db");
-			m.addAttribute("downloadAvailable", "no");
-		}
+		
 
 		// Strt Server Notification
 		List<Announcement> a = announcementService.getAnnouncementBySupportAdmin();
@@ -1143,51 +1134,40 @@ public class LoginController extends BaseController {
 
 		if (userDetails.getAuthorities().contains(Role.ROLE_FACULTY)) {
 			m.addAttribute("webPage", new WebPage("facultyHomePage", "Faculty HomePage", false, false));
-			m.addAttribute("courses", courseService.findByUserActive(username, userDetails.getProgramName()));
-
+//			m.addAttribute("courses", courseService.findByUserActive(username, userDetails.getProgramName()));
+			// Course Details
 			List<Course> courseDetails = courseService.findByUserActive(username, userDetails.getProgramName());
-			List<IcaBean> icaAllocatedByFaculty = icaBeanService.findIcaListByFacultyId(Role.ROLE_FACULTY.name(),
-					principal.getName());
+			m.addAttribute("courses", courseDetails);
+			// ICA Details
+			List<IcaBean> icaAllocatedByFaculty = icaBeanService.findIcaListByFacultyId(Role.ROLE_FACULTY.name(), principal.getName());
+			m.addAttribute("icaListDashboard", icaAllocatedByFaculty);
+			
 			Map<String, List<DashBoard>> sessionWiseCourseListMap = new HashMap<>();
 			Set<String> acadSessionList = new HashSet<>();
-
 			for (Course c : courseDetails) {
 				acadSessionList.add(c.getAcadSession() + "-" + c.getAcadYear());
-
 			}
 
-			m.addAttribute("assignments", assignmentService.findByFaculty(username));
-			m.addAttribute("icaListDashboard", icaAllocatedByFaculty);
-			m.addAttribute("tests", testService.findByFaculty(username));
-			m.addAttribute("announcements", announcementService.findAnnouncementsByUser(username));
-			listOfDashBoardElements = dashBoardService.listOfDashBoardElements(username, userDetails.getProgramName(),
-					userDetails.getCourseList());
+//			m.addAttribute("assignments", assignmentService.findByFaculty(username));
+//			m.addAttribute("tests", testService.findByFaculty(username));
+//			m.addAttribute("announcements", announcementService.findAnnouncementsByUser(username));
+			listOfDashBoardElements = dashBoardService.listOfDashBoardElements(username, userDetails.getProgramName(), userDetails.getCourseList());
 
 			for (String acadSesion : acadSessionList) {
 				List<DashBoard> dashboardList = new ArrayList<>();
 				for (DashBoard c : listOfDashBoardElements) {
-
 					if (c.getCourse().getAcadSession() != null && c.getCourse().getAcadYear() != null) {
 						String key = c.getCourse().getAcadSession() + "-" + c.getCourse().getAcadYear();
-
 						if (key.equals(acadSesion)) {
-
 							dashboardList.add(c);
-
 						}
 					}
 				}
-
 				sessionWiseCourseListMap.put(acadSesion, dashboardList);
 			}
 
-			m.addAttribute("receivedMessage", dashBoardService.getReceivedMessage(username));
+//			m.addAttribute("receivedMessage", dashBoardService.getReceivedMessage(username));
 			m.addAttribute("sessionWiseCourseListMap", sessionWiseCourseListMap);
-
-			/*
-			 * listOfDashBoardElements = dashBoardService .listOfDashBoardElements
-			 * (username,Long.parseLong(userDetails.getProgramId()));
-			 */
 
 			userBean = userService.findByUserName(username);
 			session.setAttribute("facultyType", userBean.getType());
@@ -1196,8 +1176,7 @@ public class LoginController extends BaseController {
 						null, acadSession, Long.valueOf(userDetails.getProgramId())));
 			}
 			session.setAttribute("userBean", userBean);
-			session.setAttribute("announcementForTopMenu",
-					dashBoardService.listOfAnnouncementsForCourseListMenu(username, null));
+			session.setAttribute("announcementForTopMenu", dashBoardService.listOfAnnouncementsForCourseListMenu(username, null));
 			session.setAttribute("courseDetailList", listOfDashBoardElements);
 			session.setAttribute("sessionWiseCourseListMap", sessionWiseCourseListMap);
 
@@ -1214,17 +1193,17 @@ public class LoginController extends BaseController {
 			// m.addAttribute("timetableToDoList", timetableToDoList);
 			session.setAttribute("timetableToDoList", timetableToDoList);
 			// TImetable todo List
-			Announcement announcement = announcementService.getFacultyNotificationAnnouncement();
-
-			if (announcement != null) {
-				String notificationFaculty = announcement.getDescription();
-
-				String subjectFaculty = announcement.getSubject();
-
-				m.addAttribute("subjectFaculty", subjectFaculty);
-				m.addAttribute("notificationFaculty", notificationFaculty);
-
-			}
+//			Announcement announcement = announcementService.getFacultyNotificationAnnouncement();
+//
+//			if (announcement != null) {
+//				String notificationFaculty = announcement.getDescription();
+//
+//				String subjectFaculty = announcement.getSubject();
+//
+//				m.addAttribute("subjectFaculty", subjectFaculty);
+//				m.addAttribute("notificationFaculty", notificationFaculty);
+//
+//			}
 			
 			//changed by hiren 07-05-2021
 			int lorStaff = lorRegStaffService.getIsLorStaff(username);
@@ -1236,7 +1215,76 @@ public class LoginController extends BaseController {
 
 			return "homepage/facultyHomePage";
 
-		} else if (userDetails.getAuthorities().contains(Role.ROLE_HOD)) {
+		} else if (userDetails.getAuthorities().contains(Role.ROLE_ADMIN)) {
+
+			m.addAttribute("webPage", new WebPage("adminHomePage", "Admin HomePage", false, false));
+			m.addAttribute("courses", courseService.findAllActive());
+			m.addAttribute("announcements", announcementService.findAll());
+			userBean = userService.findByUserName(username);
+			session.setAttribute("userBean", userBean);
+
+			Announcement announcement = announcementService.getAdminNotificationAnnouncement();
+
+			if (announcement != null) {
+				String notificationAdmin = announcement.getDescription();
+
+				String subjectAdmin = announcement.getSubject();
+
+				m.addAttribute("subjectAdmin", subjectAdmin);
+				m.addAttribute("notificationAdmin", notificationAdmin);
+
+			}
+
+			// Get CUSTOME SCHOOL LIST FOR MASTER VALIDATION FROM USERMGMT DB
+			try {
+				WebTarget webTarget4 = client
+						.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/getSchoolListForMasterValidation"));
+				Invocation.Builder invocationBuilder4 = webTarget4.request(MediaType.APPLICATION_JSON);
+				String resp4 = invocationBuilder4.get(String.class);
+				logger.info("Response Comming from usermgmt schoolListMaster---------------------------->" + resp4);
+				ObjectMapper objMapper = new ObjectMapper();
+				List<String> schoolListMaster = objMapper.readValue(resp4, new TypeReference<List<String>>() {
+				});
+				logger.info("schoolListMaster  ---   11 ------------>" + schoolListMaster);
+				// m.addAttribute("appName", app);
+				// m.addAttribute("schoolListMaster",schoolListMaster);
+				session.setAttribute("schoolListMaster", schoolListMaster);
+				session.setAttribute("appName", app.trim());
+			} catch (Exception e) {
+				logger.info("Error while getting response from usermgmt");
+				logger.error("Exception", e);
+			}
+
+			return "homepage/adminHomePage";
+		} else if (userDetails.getAuthorities().contains(Role.ROLE_LIBRARIAN)) {
+
+			userBean = userService.findByUserName(username);
+			session.setAttribute("userBean", userBean);
+
+			m.addAttribute("webPage", new WebPage("adminHomePage", "Librarian HomePage", false, false));
+			m.addAttribute("courses", courseService.findAllActive());
+			m.addAttribute("announcements", announcementService.findAll());
+			return "homepage/librarianHomePage";
+		} else if (userDetails.getAuthorities().contains(Role.ROLE_SUPPORT_ADMIN)
+				|| userDetails.getAuthorities().contains(Role.ROLE_SUPPORT_ADMIN_REPORT)) {
+			userBean = userService.findByUserName(username);
+			session.setAttribute("userBean", userBean);
+			m.addAttribute("webPage", new WebPage("adminHomePage", "Support Admin HomePage", false, false));
+			return "homepage/supportAdminHomePage";
+		} else if (userDetails.getAuthorities().contains(Role.ROLE_STAFF)) {
+			userBean = userService.findByUserName(username);
+			session.setAttribute("userBean", userBean);
+			m.addAttribute("webPage", new WebPage("adminHomePage", "Staff HomePage", false, false));
+			return "homepage/lorStaffHomepage";
+		} else if (userDetails.getAuthorities().contains(Role.ROLE_INTL)) {
+			userBean = userService.findByUserName(username);
+			session.setAttribute("userBean", userBean);
+			m.addAttribute("webPage", new WebPage("adminHomePage", "Staff HomePage", false, false));
+			return "homepage/intlAdminHomePage";
+		}
+		
+		
+		else  if (userDetails.getAuthorities().contains(Role.ROLE_HOD)) {
 			m.addAttribute("webPage", new WebPage("facultyHomePage", "HOD HomePage", false, false));
 			m.addAttribute("courses", courseService.findByUserActive(username, userDetails.getProgramName()));
 			m.addAttribute("assignments",
@@ -1294,60 +1342,6 @@ public class LoginController extends BaseController {
 			session.setAttribute("userBean", userBean);
 			session.setAttribute("courseDetailList", listOfDashBoardForDean);
 			return "homepage/deanHomePage";
-		} else if (userDetails.getAuthorities().contains(Role.ROLE_ADMIN)) {
-
-			m.addAttribute("webPage", new WebPage("adminHomePage", "Admin HomePage", false, false));
-			m.addAttribute("courses", courseService.findAllActive());
-			m.addAttribute("announcements", announcementService.findAll());
-			userBean = userService.findByUserName(username);
-			session.setAttribute("userBean", userBean);
-
-			Announcement announcement = announcementService.getAdminNotificationAnnouncement();
-
-			if (announcement != null) {
-				String notificationAdmin = announcement.getDescription();
-
-				String subjectAdmin = announcement.getSubject();
-
-				m.addAttribute("subjectAdmin", subjectAdmin);
-				m.addAttribute("notificationAdmin", notificationAdmin);
-
-			}
-
-			m.addAttribute("webPage", new WebPage("adminHomePage", "Admin HomePage", false, false));
-			m.addAttribute("courses", courseService.findAllActive());
-			m.addAttribute("announcements", announcementService.findAll());
-
-			// Get CUSTOME SCHOOL LIST FOR MASTER VALIDATION FROM USERMGMT DB
-			try {
-				WebTarget webTarget4 = client
-						.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/getSchoolListForMasterValidation"));
-				Invocation.Builder invocationBuilder4 = webTarget4.request(MediaType.APPLICATION_JSON);
-				String resp4 = invocationBuilder4.get(String.class);
-				logger.info("Response Comming from usermgmt schoolListMaster---------------------------->" + resp4);
-				ObjectMapper objMapper = new ObjectMapper();
-				List<String> schoolListMaster = objMapper.readValue(resp4, new TypeReference<List<String>>() {
-				});
-				logger.info("schoolListMaster  ---   11 ------------>" + schoolListMaster);
-				// m.addAttribute("appName", app);
-				// m.addAttribute("schoolListMaster",schoolListMaster);
-				session.setAttribute("schoolListMaster", schoolListMaster);
-				session.setAttribute("appName", app.trim());
-			} catch (Exception e) {
-				logger.info("Error while getting response from usermgmt");
-				logger.error("Exception", e);
-			}
-
-			return "homepage/adminHomePage";
-		} else if (userDetails.getAuthorities().contains(Role.ROLE_LIBRARIAN)) {
-
-			userBean = userService.findByUserName(username);
-			session.setAttribute("userBean", userBean);
-
-			m.addAttribute("webPage", new WebPage("adminHomePage", "Librarian HomePage", false, false));
-			m.addAttribute("courses", courseService.findAllActive());
-			m.addAttribute("announcements", announcementService.findAll());
-			return "homepage/librarianHomePage";
 		} else if (userDetails.getAuthorities().contains(Role.ROLE_EXAM)
 				|| userDetails.getAuthorities().contains(Role.ROLE_EXAM_ADMIN)) {
 
@@ -1376,17 +1370,7 @@ public class LoginController extends BaseController {
 			m.addAttribute("courses", courseService.findAllActive());
 			m.addAttribute("announcements", announcementService.findAll());
 			return "homepage/counselorHomePage";
-		} else if (userDetails.getAuthorities().contains(Role.ROLE_SUPPORT_ADMIN)
-				|| userDetails.getAuthorities().contains(Role.ROLE_SUPPORT_ADMIN_REPORT)) {
-
-			userBean = userService.findByUserName(username);
-			session.setAttribute("userBean", userBean);
-
-			m.addAttribute("webPage", new WebPage("adminHomePage", "Support Admin HomePage", false, false));
-			// m.addAttribute("courses", courseService.findAllActive());
-			// m.addAttribute("announcements", announcementService.findAll());
-			return "homepage/supportAdminHomePage";
-		}
+		} else 
 //		} /*
 //			 * else if (userDetails.getAuthorities().contains(Role.ROLE_STAFF)) {
 //			 * 
@@ -1399,35 +1383,9 @@ public class LoginController extends BaseController {
 //			 * "homepage/staffHomePage"; }
 //			 */
 		
-		
-		else if (userDetails.getAuthorities().contains(Role.ROLE_STAFF)) {
-			logger.info("rolestafff-----------------------------");
-			userBean = userService.findByUserName(username);
-			session.setAttribute("userBean", userBean);
-
-			m.addAttribute("webPage", new WebPage("adminHomePage", "Staff HomePage", false, false));
-			// m.addAttribute("courses", courseService.findAllActive());
-			// m.addAttribute("announcements", announcementService.findAll());
-			return "homepage/lorStaffHomepage";
-		}
 		//22-01-2021
 		
-		else if (userDetails.getAuthorities().contains(Role.ROLE_INTL)) {
-			logger.info("role-intl admin-----------------------------");
-			logger.info("Role I");
-			userBean = userService.findByUserName(username);
-			
-			
-			logger.info("userBean-----------intlll"+userBean);
-			session.setAttribute("userBean", userBean);
-			m.addAttribute("webPage", new WebPage("adminHomePage", "Staff HomePage", false, false));
-			// m.addAttribute("courses", courseService.findAllActive());
-			// m.addAttribute("announcements", announcementService.findAll());
-			return "homepage/intlAdminHomePage";
-		}
-		
-		
-		else if (userDetails.getAuthorities().contains(Role.ROLE_DEAN)) {
+			if (userDetails.getAuthorities().contains(Role.ROLE_DEAN)) {
 			m.addAttribute("webPage", new WebPage("adminHomePage", "Dean HomePage", false, false));
 			m.addAttribute("courses", courseService.findAllActive());
 			m.addAttribute("announcements", announcementService.findAll());
@@ -1510,7 +1468,15 @@ public class LoginController extends BaseController {
 			return "homepage/dashboard";
 		} else if (userDetails.getAuthorities().contains(Role.ROLE_STUDENT)) {
 			userBean = userService.findByUserName(username);
-
+			// Show Evaluation Report Button
+			File files = new File(downloadResultPath + "/" + "Fyjc" + "/" + username + ".PDF");
+			if (files.exists()) {
+				m.addAttribute("downloadAvailable", "yes");
+			} else {
+				m.addAttribute("downloadAvailable", "no");
+			}
+			// Show Evaluation Report Button
+			
 			// TCS ION DEFAULT HOMEPAGE
 
 			if ("TCSION".equals(userDetails.getProgramName())) {
@@ -1562,17 +1528,12 @@ public class LoginController extends BaseController {
 					m.addAttribute("notificationStudent", notificationStudent);
 
 				}
-				// logger.info("");
-
-				/*
-				 * session.setAttribute("announcmentList", dashBoardService
-				 * .listOfAnnouncementsForCourseList(username, null, acadSession,
-				 * Long.valueOf(userDetails.getProgramId())));
-				 */
+				
 				logger.info("TCS ION ENTERED");
 				return "homepage/failStudentHomepage";
 			}
 
+			// Announcement
 			Announcement announcement = announcementService.getStudentNotificationAnnouncement();
 
 			if (announcement != null) {
@@ -1585,13 +1546,8 @@ public class LoginController extends BaseController {
 				m.addAttribute("notificationStudent", notificationStudent);
 
 			}
+			// Announcement
 
-			// -------------
-
-			/*
-			 * listOfDashBoardElements = dashBoardService .listOfDashBoardElements
-			 * (username,Long.parseLong(userDetails.getProgramId()));
-			 */
 			listOfDashBoardElements = dashBoardService.listOfDashBoardElements(username, userDetails.getProgramName(),
 					userDetails.getCourseList());
 
@@ -1622,184 +1578,14 @@ public class LoginController extends BaseController {
 				sessionWiseCourseListMap.put(acadSesion, dashboardList);
 			}
 
-			userBean = userService.findByUserName(username);
 			m.addAttribute("courseDetailList", listOfDashBoardElements);
 			if (!userDetails.getProgramName().equals("INTDR")) {
 				session.setAttribute("announcmentList", dashBoardService.listOfAnnouncementsForCourseList(username,
 						null, acadSession, Long.valueOf(userDetails.getProgramId())));
 			}
-
-			// Master Validation Code
-			m.addAttribute("studentdetails", new studentDetailConfirmation());
-			studentDetailConfirmation dd = new studentDetailConfirmation();
-			logger.info("ddd----------->" + dd);
-			studentDetailConfirmation uservalid = studentDetailConfirmationService.findByUserNamevalidate(username);
-			String confirmperiod = studentDetailConfirmationPeriodService.findDateDifference();
-			// List<String> programforStudent =
-			// studentDetailConfirmationPeriodService.findProgramForValidation();
-
-			User usersession = userService.findByUserName(username);
-
-			logger.info("usersession----------->" + usersession.getAcadSession() + "--" + userDetails.getProgramId()
-					+ "--" + usersession.getCampusId() + "--");
-
-			studentDetailConfirmationPeriod programforStudent = studentDetailConfirmationPeriodService.findbyProgramId(
-					userDetails.getProgramId(), usersession.getAcadSession(),
-					String.valueOf(usersession.getCampusId()));
-
-			/*
-			 * int countData=
-			 * studentDetailConfirmationPeriodService.findDateDiffrenceCount();
-			 */
-
-			String ds = Utils.formatDate("yyyy-MM-dd", Utils.getInIST());
-
-			// LocalDate myDate = LocalDate.now();
-
-			/*
-			 * Date newDate= new Date(); SimpleDateFormat sd= new
-			 * SimpleDateFormat("yyyy-MM-dd");
-			 */
-			/// String ds= sd.format(newDate);
-
-			logger.info("confirmperiod---------------->" + confirmperiod + "  " + ds);
-
-			logger.info("uservalid--------->" + uservalid);
-
-			if (uservalid != null) {
-				m.addAttribute("uservalid", "Y");
-			} else {
-				m.addAttribute("uservalid", "N");
-			}
-			// confirmperiod.getEndDate().equals(myDate.toString())
-			// if(confirmperiod.getEndDate().equalsIgnoreCase(myDate.toString()))
-			/*
-			 * if(countData > 0) {
-			 */
-
-			logger.info("confirmperiod New---------------->" + userDetails.getProgramId() + "  "
-					+ userDetails.getAcadSession());
-
-			/*
-			 * if(fixedLenghtList.size() > 0){
-			 * 
-			 * if(fixedLenghtList.contains(usersession.getAcadSession())){ if(confirmperiod
-			 * != null){ if(confirmperiod.compareTo(ds)>=0) {
-			 * logger.info("confirmperiod----------------> >=0" +confirmperiod );
-			 * m.addAttribute("confirmperiod","true"); } else {
-			 * logger.info("confirmperiod----------------> >FALSE" +confirmperiod );
-			 * m.addAttribute("confirmperiod","false"); } } else {
-			 * m.addAttribute("confirmperiod","false"); } }
-			 * 
-			 * }
-			 */
-
-			if (programforStudent != null) {
-
-				if (confirmperiod != null) {
-					if (confirmperiod.compareTo(ds) >= 0) {
-						logger.info("confirmperiod----------------> >=0" + confirmperiod);
-						m.addAttribute("confirmperiod", "true");
-					} else {
-						logger.info("confirmperiod----------------> >FALSE" + confirmperiod);
-						m.addAttribute("confirmperiod", "false");
-					}
-				} else {
-					m.addAttribute("confirmperiod", "false");
-				}
-			}
-			/*
-			 * else { if(confirmperiod != null){ if(confirmperiod.compareTo(ds)>=0) {
-			 * m.addAttribute("confirmperiod","true"); } else {
-			 * m.addAttribute("confirmperiod","false"); } }else {
-			 * m.addAttribute("confirmperiod","false"); } }
-			 */
-			m.addAttribute("userprofile", new User());
-
-			// m.addAttribute("userprofile",new User());
-			try {
-				WebTarget webTarget3 = client.target(URIUtil.encodeQuery(
-						userRoleMgmtCrudUrl + "/checkSecurityQuestionForMastervalidation?username=" + username));
-				Invocation.Builder invocationBuilder3 = webTarget3.request(MediaType.APPLICATION_JSON);
-				String resp3 = invocationBuilder3.get(String.class);
-				logger.info("Response Comming from usermgmt---------------------------->" + resp3);
-				ObjectMapper objMapper = new ObjectMapper();
-
-				studentDetailConfirmation firstvalidationcheck = objMapper.readValue(resp3,
-						studentDetailConfirmation.class);
-
-				logger.info("First check validate Master 1------------>" + firstvalidationcheck);
-				if (firstvalidationcheck != null) {
-					m.addAttribute("firstvalidationcheck", "true");
-				} else {
-					m.addAttribute("firstvalidationcheck", "false");
-				}
-
-			} catch (Exception e) {
-
-			}
-
-			m.addAttribute("userprofile", userService.findByUserName(username));
-
-			/*
-			 * if(confirmperiod != null){
-			 * 
-			 * if(programforStudent.contains(userDetails.getProgramId())) {
-			 * if(confirmperiod.compareTo(ds)>=0) { m.addAttribute("confirmperiod","true");
-			 * } else { m.addAttribute("confirmperiod","false"); }}else {
-			 * m.addAttribute("confirmperiod","false"); } }
-			 */
-
-			logger.info("Valid Student-------------->" + uservalid);
-
-			// List<studentDetailConfirmation> secquestionList=
-			// studentDetailConfirmationService.findAllSecurityQuestion();
-
-			// Get SQQUERY QUESTION LIST FOR MASTER VALIDATION FROM USERMGMT DB
-
-			try {
-				WebTarget webTarget4 = client
-						.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/getSecurityQuestionListForStudentMaster"));
-				Invocation.Builder invocationBuilder4 = webTarget4.request(MediaType.APPLICATION_JSON);
-				String resp4 = invocationBuilder4.get(String.class);
-				logger.info("Response Comming from usermgmt secquestionList---------------------------->" + resp4);
-				ObjectMapper objMapper = new ObjectMapper();
-
-				List<String> secquestionList = objMapper.readValue(resp4, new TypeReference<List<String>>() {
-				});
-				logger.info("secquestionList  ---   11 ------------>" + secquestionList);
-
-				m.addAttribute("secquestionList", secquestionList);
-
-			} catch (Exception e) {
-
-			}
-
-			// Get CUSTOME SCHOOL LIST FOR MASTER VALIDATION FROM USERMGMT DB
-			try {
-				WebTarget webTarget4 = client
-						.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/getSchoolListForMasterValidation"));
-				Invocation.Builder invocationBuilder4 = webTarget4.request(MediaType.APPLICATION_JSON);
-				String resp4 = invocationBuilder4.get(String.class);
-				logger.info("Response Comming from usermgmt schoolListMaster---------------------------->" + resp4);
-				ObjectMapper objMapper = new ObjectMapper();
-
-				List<String> schoolListMaster = objMapper.readValue(resp4, new TypeReference<List<String>>() {
-				});
-				logger.info("schoolListMaster  ---   11 ------------>" + schoolListMaster);
-
-				m.addAttribute("schoolListMaster", schoolListMaster);
-
-			} catch (Exception e) {
-
-			}
-
-			// show alert to student code
-			// String showAlerttostudent=
-			// studentDetailConfirmationPeriodService.showMastervalidationAlert(username);
-
-			// m.addAttribute("studentMasterAlert",showAlerttostudent);
-
+			
+			isMasterDataValidationEnabled(username, m);
+			
 			m.addAttribute("userBean", userBean);
 			session.setAttribute("courseDetailList", listOfDashBoardElements);
 			session.setAttribute("sessionWiseCourseListMap", sessionWiseCourseListMap);
@@ -1808,23 +1594,18 @@ public class LoginController extends BaseController {
 			m.addAttribute("receivedMessage", dashBoardService.getReceivedMessage(username));
 
 			if (userDetails.getProgramName().equals("INTDR")) {
-				m.addAttribute("toDoDaily", dashBoardService.getToDoEveryday(username, Role.ROLE_STUDENT.name()));
-				session.setAttribute("toDoDaily", dashBoardService.getToDoEveryday(username, Role.ROLE_STUDENT.name()));
+				List<PendingTask> toDoDaily = dashBoardService.getToDoEveryday(username, Role.ROLE_STUDENT.name());
+				m.addAttribute("toDoDaily", toDoDaily);
+				session.setAttribute("toDoDaily", toDoDaily);
 			} else {
-				m.addAttribute("toDoDaily", dashBoardService.getToDoEveryday(username, Role.ROLE_STUDENT.name(),
-						Long.parseLong(userDetails.getProgramId())));
-				session.setAttribute("toDoDaily", dashBoardService.getToDoEveryday(username, Role.ROLE_STUDENT.name(),
-						Long.parseLong(userDetails.getProgramId())));
-
+				List<PendingTask> toDoDaily = dashBoardService.getToDoEveryday(username, Role.ROLE_STUDENT.name(),
+						Long.parseLong(userDetails.getProgramId()));
+				m.addAttribute("toDoDaily", toDoDaily);
+				session.setAttribute("toDoDaily", toDoDaily);
 			}
-			/*
-			 * m.addAttribute("toDoDaily", dashBoardService.getToDoEveryday( username,
-			 * Role.ROLE_STUDENT.name(), Long.parseLong(userDetails.getProgramId())));
-			 */
-			// m.addAttribute("toDoList",
-			// dashBoardService.getToDoList(username));
-			m.addAttribute("toDoList", dashBoardService.getToDoListByCourse(username, null));
-			session.setAttribute("toDoList", dashBoardService.getToDoListByCourse(username, null));
+			List<Calender> toDoList = dashBoardService.getToDoListByCourse(username, null);
+			m.addAttribute("toDoList", toDoList);
+			session.setAttribute("toDoList", toDoList);
 
 			// new method
 			if (!userDetails.getProgramName().equalsIgnoreCase("INTDR")) {
@@ -1896,24 +1677,13 @@ public class LoginController extends BaseController {
 				return "homepage/dashboard";
 			}
 
-			// ------------
-			/*
-			 * m.addAttribute("webPage", new WebPage("studentHomePage", "Student HomePage",
-			 * true, true)); m.addAttribute("courses", courseService.findByUser(username));
-			 * m.addAttribute("assignments",
-			 * assignmentService.findAllAssignments(username)); m.addAttribute("tests",
-			 * testService.findByUser(username)); m.addAttribute("announcements",
-			 * announcementService.findAnnouncementsByUser(username));
-			 * m.addAttribute("feedbacks", feedbackService.findByUser(username)); return
-			 * "homepage/studentHomePage";
-			 */
-
 		}
 
 		return "homepage/studentHomePage";
 	}
 
 	/* FOR USER PROFILE DATA */
+	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/profileDetails", method = { RequestMethod.GET, RequestMethod.POST })
 	public String profileDetails(Model m, @ModelAttribute User user, Principal principal) {
 		m.addAttribute("webPage", new WebPage("user", "View Profile Details", true, true, true, true, false));
@@ -3881,35 +3651,39 @@ public class LoginController extends BaseController {
 				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				chkStartAndEndDate = studentAssignmentService
 						.chkStartandEndDtOfAssignment(dateFormat.format(bufferEndDate), username, assignment.getId());
-
 			} catch (Exception e) {
 				// e.printStackTrace();
 			}
-
 			if (chkStartAndEndDate > 0) {
 
 				assignmentSubmission.setSubmissionStatus("Y");
-
 			} else {
 				assignmentSubmission.setSubmissionStatus("N");
 			}
-
 			assignmentSubmission.setStartDate(assignment.getStartDate());
-
 			assignmentSubmission.setEndDate(assignment.getEndDate());
-
 			if (chkStartDate == 0) {
-
 			} else {
-
 				if (!file.isEmpty()) {
-
+					Tika tika = new Tika();
+					String detectedType = "";
+					try {
+						detectedType = tika.detect(file.getBytes());
+						logger.info("detectedType ===> "+("application/x-msdownload").equals(detectedType));
+					}
+					catch(Exception e) {
+						e.printStackTrace();
+					}
 					logger.info("file_Orig_name " + file.getOriginalFilename());
 					String fileNameCheck = file.getOriginalFilename();
 					String fileNameCheckArr[] = fileNameCheck.split("\\.");
 					logger.info("fileNameCheckArr Size " + fileNameCheckArr.length);
 					String whiteList = "png,jpg,jpeg,doc,docx,xlsx,csv,pdf,ppt,txt";
-					if (fileNameCheckArr.length == 2 && whiteList.contains(fileNameCheckArr[1].trim().toLowerCase())) {
+					if(("application/x-msdownload").equals(detectedType)){
+						assignmentSubmission.setAssignmentError("malicous file found, please upload correct file.");
+						logger.info(assignmentSubmission.getAssignmentError());
+						assignmentSubmission.setAssignmentStatus("Pending");
+					}else if (fileNameCheckArr.length == 2 && whiteList.contains(fileNameCheckArr[1].trim().toLowerCase())) {
 						Date date = new Date();
 						String errorMessage = studentAssignmentController
 								.uploadAssignmentSubmissionFile(assignmentSubmission, file);
@@ -4103,7 +3877,8 @@ public class LoginController extends BaseController {
 							logger.info(assignmentSubmission.getAssignmentError());
 							assignmentSubmission.setAssignmentStatus("Pending");
 						}
-					} else {
+					}
+					else {
 						assignmentSubmission.setAssignmentError("improper file found, please upload correct file.");
 						logger.info(assignmentSubmission.getAssignmentError());
 						assignmentSubmission.setAssignmentStatus("Pending");
@@ -4115,7 +3890,6 @@ public class LoginController extends BaseController {
 					logger.info(assignmentSubmission.getAssignmentError());
 					assignmentSubmission.setAssignmentStatus("Pending");
 				}
-
 			}
 
 			if (assignment.getRunPlagiarism() != null) {
@@ -5372,6 +5146,7 @@ public class LoginController extends BaseController {
 
 	}
 
+	
 	@RequestMapping(value = "/downloadAttendanceReport", method = RequestMethod.GET)
 	public String downloadAttendanceReport(@RequestParam String ofDate, Model m, Principal p,
 			HttpServletResponse response, HttpServletRequest request) {
@@ -5681,7 +5456,6 @@ public class LoginController extends BaseController {
 
 	// ------------------------------TCS----------------------------------//
 	@RequestMapping(value = { "/samlRequestTCS" }, method = {
-
 			RequestMethod.GET, RequestMethod.POST })
 	public String samlRequestTCS(@RequestParam(name = "SAMLRequest") String SAMLRequest, HttpServletResponse resp,
 			Principal p, RedirectAttributes r, Model m) {
@@ -7385,7 +7159,7 @@ public class LoginController extends BaseController {
 
 				logger.info("eventIdWL=======>" + String.valueOf(tmtl.getEventId()));
 				logger.info("FacultyIdWL=======>" + username);
-				String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),username);
+				/* String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),username); */  String workLoadResponse = null;
 				if (null != workLoadResponse) {
 					String workload[] = fetchWorkload(workLoadResponse);
 					tmtl.setAllottedLecture(workload[0]);
@@ -12079,13 +11853,14 @@ public class LoginController extends BaseController {
 	}
 
 	// SupportAdmin
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/changePasswordBySupportAdminForm", method = RequestMethod.GET)
 	public String changePasswordBySupportAdminForm(@ModelAttribute("user") User user, Model m) {
 		m.addAttribute("webPage", new WebPage("changePassword", "Change Password", true, false));
 		return "user/changePasswordBySupportAdmin";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/changePasswordBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String changePasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
 			RedirectAttributes redirectAttrs, Model m, Principal p) {
@@ -12115,6 +11890,7 @@ public class LoginController extends BaseController {
 		return "redirect:/changePasswordBySupportAdminForm";
 	}
 	  /* New Audit changes start */
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/searchUserBySupportAdmin", method = { RequestMethod.GET, RequestMethod.POST })
 	public String searchUserBySupportAdmin(Principal principal, @ModelAttribute("user") User user, Model m,
 			RedirectAttributes redirectAttrs, @RequestParam(required = false) String username) {
@@ -12802,8 +12578,7 @@ public class LoginController extends BaseController {
 				tmtl.setEnd_time(tmtl.getEnd_time().split(" ")[1].replace(".", ":"));
 				tmtl.setMaxEndTimeForCourse(tmtl.getEnd_time());
 
-				String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),
-						username);
+				/* String workLoadResponse = attendanceService.pullFacultyWorkload(String.valueOf(tmtl.getEventId()),username); */  String workLoadResponse = null;
 
 				if (null != workLoadResponse) {
 					String workload[] = fetchWorkload(workLoadResponse);
@@ -13320,34 +13095,76 @@ public class LoginController extends BaseController {
 
 	}
 	// Change Password by Support Admin
-
+//	@Secured({ "ROLE_SUPPORT_ADMIN"})
+//	@RequestMapping(value = "/changeTemporaryPasswordBySupportAdmin", method = { RequestMethod.GET,
+//			RequestMethod.POST })
+//	public String changeTemporaryPasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
+//			RedirectAttributes redirectAttrs, Model m, Principal p) {
+//		System.out.println("changeTemporaryPasswordBySupportAdminForm");
+//		try {
+//			User userDB = userService.findByUserName(user.getUsername());
+//			logger.info("changeTemporaryPasswordBySupportAdmin userDB : " + userDB);
+//			WebTarget webTarget = client.target(URIUtil
+//					.encodeQuery(userRoleMgmtCrudUrl + "/changeTemporaryPasswordBySupportAdmin?username=" + username));
+//			logger.info("Return from UserRoleMamtCrud");
+//			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+//			logger.info("invocationBuilder " + invocationBuilder);
+//			String resp = invocationBuilder.get(String.class);
+//
+//			logger.info("checking response " + resp);
+//			if (resp.equals("Success")) {
+//				logger.info("Notification of Success");
+//				setSuccess(redirectAttrs, "Password Changed Successfully, New Password is pass@123");
+//			} else if (resp.equals("userExisted")) {
+//				setNote(redirectAttrs, "User Already Existed");
+//			} else if (resp.equals("defaultPassword")) {
+//				setNote(redirectAttrs, "Password is already pass@123");
+//			} else {
+//				setError(redirectAttrs, "Error");
+//			}
+//
+//		} catch (Exception e) {
+//			logger.error(e.getMessage(), e);
+//			setError(redirectAttrs, "Error in Updating");
+//		}
+//		// return null;
+//		return "redirect:/changePasswordBySupportAdminForm";
+//	}
+	/* New Audit changes start */
 	@RequestMapping(value = "/changeTemporaryPasswordBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String changeTemporaryPasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
 			RedirectAttributes redirectAttrs, Model m, Principal p) {
 		System.out.println("changeTemporaryPasswordBySupportAdminForm");
 		try {
+			WebTarget webTarget;
+			Invocation.Builder invocationBuilder;
+			String resp;
 			User userDB = userService.findByUserName(user.getUsername());
-			logger.info("changeTemporaryPasswordBySupportAdmin userDB : " + userDB);
-			WebTarget webTarget = client.target(URIUtil
-					.encodeQuery(userRoleMgmtCrudUrl + "/changeTemporaryPasswordBySupportAdmin?username=" + username));
-			logger.info("Return from UserRoleMamtCrud");
-			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-			logger.info("invocationBuilder " + invocationBuilder);
-			String resp = invocationBuilder.get(String.class);
+			if(null != user.getIsUserBlocked()) {
+				webTarget = client.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/unlockUserBySupportAdmin?username=" + username));
+				invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+				resp = invocationBuilder.get(String.class);
+				if (resp.equals("Success")) {
+					setSuccess(redirectAttrs, "User Unlock");
+				} else {
+					setError(redirectAttrs, "Error while unlock user.");
+				}
+			}else {
+				webTarget = client.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/changeTemporaryPasswordBySupportAdmin?username=" + username));
+				invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+				resp = invocationBuilder.get(String.class);
 
-			logger.info("checking response " + resp);
-			if (resp.equals("Success")) {
-				logger.info("Notification of Success");
-				setSuccess(redirectAttrs, "Password Changed Successfully, New Password is pass@123");
-			} else if (resp.equals("userExisted")) {
-				setNote(redirectAttrs, "User Already Existed");
-			} else if (resp.equals("defaultPassword")) {
-				setNote(redirectAttrs, "Password is already pass@123");
-			} else {
-				setError(redirectAttrs, "Error");
+				if (resp.equals("Success")) {
+					setSuccess(redirectAttrs, "Password Changed Successfully, New Password is pass@123");
+				} else if (resp.equals("userExisted")) {
+					setNote(redirectAttrs, "User Already Existed");
+				} else if (resp.equals("defaultPassword")) {
+					setNote(redirectAttrs, "Password is already pass@123");
+				} else {
+					setError(redirectAttrs, "Error");
+				}
 			}
-
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in Updating");
@@ -13355,7 +13172,9 @@ public class LoginController extends BaseController {
 		// return null;
 		return "redirect:/changePasswordBySupportAdminForm";
 	}
+	/* New Audit changes end */
 
+	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/deleteTemporaryPasswordBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String deleteTemporaryPasswordBySupportAdmin(@ModelAttribute User user, @RequestParam String username,
@@ -13395,6 +13214,7 @@ public class LoginController extends BaseController {
 		return "user/hostleStudentDetailsBySupportAdmin";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/searchHostelStudentDetailBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String searchHostelStudentDetailBySupportAdmin(Principal principal,
@@ -13432,6 +13252,7 @@ public class LoginController extends BaseController {
 		return "user/hostleStudentDetailsBySupportAdmin";
 	}
 
+	@Secured({ "ROLE_ADMIN", "ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/updateHostelStudentDetailBySupportAdmin", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public @ResponseBody String updateHostelStudentDetailBySupportAdmin(Principal principal,
@@ -13554,6 +13375,54 @@ public class LoginController extends BaseController {
 			// e.printStackTrace();
 		}
 		return encryptedStr;
+	}
+	
+	private void isMasterDataValidationEnabled(String username,Model m) {
+		try {
+			logger.info("Inside--->isMasterDataValidationEnabled"); 
+			User user = userService.findByUserName(username);
+			studentDetailConfirmation dd = new studentDetailConfirmation();
+			m.addAttribute("studentdetails",dd);
+			//Check MSDV enabled for student
+			studentDetailConfirmationPeriod programforStudent = 
+					studentDetailConfirmationPeriodService.findbyProgramId(String.valueOf(user.getProgramId()),
+							user.getAcadSession(), String.valueOf(user.getCampusId()));
+			String ds = Utils.formatDate("yyyy-MM-dd", Utils.getInIST());
+			if (programforStudent != null && programforStudent.getEndDate() != null) {
+				if (programforStudent.getEndDate().compareTo(ds) >= 0) {
+					m.addAttribute("confirmperiod", "true");
+					studentDetailConfirmation uservalid = studentDetailConfirmationService.findByUserNamevalidate(username);
+					// Firstname Lastname Address Validation (Step 2)
+					if (uservalid != null) {
+						m.addAttribute("uservalid", "Y");
+					} else {
+						m.addAttribute("uservalid", "N");
+					}
+					WebTarget webTarget = client.target(URIUtil.encodeQuery(
+							userRoleMgmtCrudUrl + "/getMasterDatavalidationChecks?username=" + username));
+					Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+					String resp = invocationBuilder.get(String.class);
+					ObjectMapper objMapper = new ObjectMapper();
+
+					studentDetailConfirmation msdvChecks = objMapper.readValue(resp, studentDetailConfirmation.class);
+
+					if (msdvChecks.getUsername() != null) {
+						m.addAttribute("firstvalidationcheck", "true");
+					} else {
+						m.addAttribute("firstvalidationcheck", "false");
+					}
+					m.addAttribute("secquestionList", msdvChecks.getSecQuestionList());
+					m.addAttribute("schoolListMaster", msdvChecks.getSchoolListForMaster());
+				} else {
+					m.addAttribute("confirmperiod", "false");
+				}
+			} else {
+				m.addAttribute("confirmperiod", "false");
+			}
+			m.addAttribute("userprofile", user);
+		} catch (Exception e) {
+			logger.error("Exception in MSDV---->"+e.getMessage());
+		}
 	}
 
 }

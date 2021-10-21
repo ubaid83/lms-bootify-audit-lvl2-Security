@@ -105,7 +105,9 @@ import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 //@Secured({ "ROLE_FACULTY", "ROLE_CORD", "ROLE_AR" })
 @Controller
@@ -396,8 +398,53 @@ public class TestController extends BaseController {
 		m.addAttribute("username", username);
 		try {
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
+//			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/createTestForm";
+//			}
+			BusinessBypassRule.validateAlphaNumeric(test.getTestName());
+			Course course = courseService.findByID(test.getCourseId());
+			if(null == course) {
+				throw new ValidationException("Invalid Course selected.");
+			}
+			UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(test.getFacultyId(), String.valueOf(test.getCourseId()));
+			if(null == userccourse) {
+				throw new ValidationException("Invalid faculty selected.");
+			}
+			Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate());
+			BusinessBypassRule.validateNumeric(test.getMaxScore());
+			if("Mix".equals(test.getTestType())) {
+				if(Double.valueOf(test.getMaxQuestnToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxDesQueToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxImgQueToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxMcqQueToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxRngQueToShow()) < 0.0 ) {
+					setError(redirectAttrs, "Invalid value of max question to show.");
+					return "redirect:/createTestForm";
+				}
+			}
+			if ("Y".equals(test.getRandomQuestion()) && Integer.valueOf(test.getMaxQuestnToShow()) < 0) {
+				setError(redirectAttrs, "Invalid value of max question to show.");
+				return "redirect:/createTestForm";
+			} 
+			if("Y".equals(test.getSameMarksQue()) && Double.valueOf(test.getMarksPerQue()) < 0.0) {
+				setError(redirectAttrs, "Invalid value of marks per question.");
+				return "redirect:/createTestForm";
+			}
+			if(test.getDuration() <= 0) {
+				setError(redirectAttrs, "Invalid test duration time.");
+				return "redirect:/createTestForm";
+			}
+			if(test.getMaxScore() <= 0.0) {
+				setError(redirectAttrs, "Invalid total score.");
+				return "redirect:/createTestForm";
+			}
+			if(test.getPassScore() <= 0) {
+				setError(redirectAttrs, "Invalid passing score.");
+				return "redirect:/createTestForm";
+			}
+			if(test.getMaxAttempt() <= 0) {
+				setError(redirectAttrs, "Invalid maximum attempts.");
 				return "redirect:/createTestForm";
 			}
 			/* New Audit changes end */
@@ -589,7 +636,8 @@ public class TestController extends BaseController {
 				}
 			}
 
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 
 			redirectAttrs.addAttribute("courseId", test.getCourseId());
@@ -762,6 +810,42 @@ public class TestController extends BaseController {
 		redirectAttrs.addAttribute("testId", test.getId());
 		Test oldTest = testService.findByID(test.getId());
 		try {
+			/* New Audit changes start */
+			if("Mix".equals(test.getTestType())) {
+				if(Double.valueOf(test.getMaxQuestnToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxDesQueToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxImgQueToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxMcqQueToShow()) < 0.0 ||
+						Double.valueOf(test.getMaxRngQueToShow()) < 0.0 ) {
+					setError(redirectAttrs, "Invalid value of max question to show.");
+					return "redirect:/addTestForm";
+				}
+			}
+			if ("Y".equals(test.getRandomQuestion()) && Integer.valueOf(test.getMaxQuestnToShow()) < 0) {
+				setError(redirectAttrs, "Invalid value of max question to show.");
+				return "redirect:/addTestForm";
+			} 
+			if("Y".equals(test.getSameMarksQue()) && Double.valueOf(test.getMarksPerQue()) < 0.0) {
+				setError(redirectAttrs, "Invalid value of marks per question.");
+				return "redirect:/addTestForm";
+			}
+			if(test.getDuration() <= 0) {
+				setError(redirectAttrs, "Invalid test duration time.");
+				return "redirect:/addTestForm";
+			}
+			if(test.getMaxScore() <= 0.0) {
+				setError(redirectAttrs, "Invalid total score.");
+				return "redirect:/addTestForm";
+			}
+			if(test.getPassScore() <= 0) {
+				setError(redirectAttrs, "Invalid passing score.");
+				return "redirect:/addTestForm";
+			}
+			if(test.getMaxAttempt() <= 0) {
+				setError(redirectAttrs, "Invalid maximum attempts.");
+				return "redirect:/addTestForm";
+			}
+			/* New Audit changes end */
 			if ("Y".equals(test.getRandomQuestion()) && "Y".equals(test.getSameMarksQue())) {
 				double total = test.getMarksPerQue() * Double.valueOf(test.getMaxQuestnToShow());
 				if (total != test.getMaxScore()) {
@@ -6595,8 +6679,42 @@ public class TestController extends BaseController {
 		m.addAttribute("username", username);
 		try {
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
+//			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addTestFormByAdmin";
+//			}
+			if("Mix".equals(test.getTestType())) {
+				if(Double.valueOf(test.getMaxQuestnToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxDesQueToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxImgQueToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxMcqQueToShow()) < 0.0 ||
+						Double.valueOf(test.getMaxRngQueToShow()) < 0.0 ) {
+					setError(redirectAttrs, "Invalid value of max question to show.");
+					return "redirect:/addTestFormByAdmin";
+				}
+			}
+			if ("Y".equals(test.getRandomQuestion()) && Integer.valueOf(test.getMaxQuestnToShow()) < 0) {
+				setError(redirectAttrs, "Invalid value of max question to show.");
+				return "redirect:/addTestFormByAdmin";
+			} 
+			if("Y".equals(test.getSameMarksQue()) && Double.valueOf(test.getMarksPerQue()) < 0.0) {
+				setError(redirectAttrs, "Invalid value of marks per question.");
+				return "redirect:/addTestFormByAdmin";
+			}
+			if(test.getDuration() <= 0) {
+				setError(redirectAttrs, "Invalid test duration time.");
+				return "redirect:/addTestFormByAdmin";
+			}
+			if(test.getMaxScore() <= 0.0) {
+				setError(redirectAttrs, "Invalid total score.");
+				return "redirect:/addTestFormByAdmin";
+			}
+			if(test.getPassScore() <= 0) {
+				setError(redirectAttrs, "Invalid passing score.");
+				return "redirect:/addTestFormByAdmin";
+			}
+			if(test.getMaxAttempt() <= 0) {
+				setError(redirectAttrs, "Invalid maximum attempts.");
 				return "redirect:/addTestFormByAdmin";
 			}
 			/* New Audit changes end */
@@ -7009,6 +7127,42 @@ public class TestController extends BaseController {
 		redirectAttrs.addAttribute("testId", test.getId());
 		Test oldTest = testService.findByID(test.getId());
 		try {
+			/* New Audit changes start */
+			if("Mix".equals(test.getTestType())) {
+				if(Double.valueOf(test.getMaxQuestnToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxDesQueToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxImgQueToShow()) < 0.0 || 
+						Double.valueOf(test.getMaxMcqQueToShow()) < 0.0 ||
+						Double.valueOf(test.getMaxRngQueToShow()) < 0.0 ) {
+					setError(redirectAttrs, "Invalid value of max question to show.");
+					return "redirect:/addTestFormByAdmin";
+				}
+			}
+			if ("Y".equals(test.getRandomQuestion()) && Integer.valueOf(test.getMaxQuestnToShow()) < 0) {
+				setError(redirectAttrs, "Invalid value of max question to show.");
+				return "redirect:/addTestFormByAdmin";
+			} 
+			if("Y".equals(test.getSameMarksQue()) && Double.valueOf(test.getMarksPerQue()) < 0.0) {
+				setError(redirectAttrs, "Invalid value of marks per question.");
+				return "redirect:/addTestFormByAdmin";
+			}
+			if(test.getDuration() <= 0) {
+				setError(redirectAttrs, "Invalid test duration time.");
+				return "redirect:/addTestFormByAdmin";
+			}
+			if(test.getMaxScore() <= 0.0) {
+				setError(redirectAttrs, "Invalid total score.");
+				return "redirect:/addTestFormByAdmin";
+			}
+			if(test.getPassScore() <= 0) {
+				setError(redirectAttrs, "Invalid passing score.");
+				return "redirect:/addTestFormByAdmin";
+			}
+			if(test.getMaxAttempt() <= 0) {
+				setError(redirectAttrs, "Invalid maximum attempts.");
+				return "redirect:/addTestFormByAdmin";
+			}
+			/* New Audit changes end */
 			if ("Y".equals(test.getRandomQuestion()) && "Y".equals(test.getSameMarksQue())) {
 				double total = test.getMarksPerQue() * Double.valueOf(test.getMaxQuestnToShow());
 				if (total != test.getMaxScore()) {

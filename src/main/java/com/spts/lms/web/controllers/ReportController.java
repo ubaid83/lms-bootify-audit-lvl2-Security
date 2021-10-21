@@ -61,6 +61,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -254,7 +255,7 @@ public class ReportController extends BaseController {
 	}
 
 	// Newly Added top5 Faculty Feedback with some query changes.
-
+	@Secured({ "ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/downloadTop5FacultyFeedbackNew", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadTop5FacultyFeedbackNew(Model m, Principal p,
@@ -428,7 +429,7 @@ public class ReportController extends BaseController {
 	// ------------------------------------------
 
 	// ====================================================
-
+	@Secured({ "ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/downloadTop5FacultyFeedback", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadTop5FacultyFeedback(Model m, Principal p,
@@ -583,7 +584,7 @@ public class ReportController extends BaseController {
 		sortedByValues.putAll(map);
 		return sortedByValues;
 	}
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/downloadFeedbackReportRangeWise", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadFeedbackReportRangeWise(Model m, Principal p,
@@ -805,7 +806,7 @@ public class ReportController extends BaseController {
 
 		return result;
 	}
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_ADMIN","ROLE_FACULTY"})
 	@RequestMapping(value = "/downloadDepartmentFacultyTermWiseFeedback", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadDepartmentFacultyTermWiseFeedback(Model m,
@@ -1030,7 +1031,7 @@ public class ReportController extends BaseController {
 	}
 
 	// ----------------------------------
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadDepartmentWiseFeedback", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadDepartmentWiseFeedback(Model m, Principal p,
@@ -1637,7 +1638,7 @@ public class ReportController extends BaseController {
 	}*/
 	
 	//amey 14-10-2020
-	
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadFeedbackReportProgramWise", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadFeedbackReportProgramWise(Model m, Principal p,
@@ -2109,6 +2110,7 @@ public class ReportController extends BaseController {
 		return "report/downLoadReportLink";
 	}
 
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadFeedbackReportQWise", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadFeedbackReportQWise(Model m, Principal p,
@@ -2697,7 +2699,7 @@ public class ReportController extends BaseController {
 		}
 		return listOfMapOfFeedbackReport;
 	}
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/GetProgramsFromAcadSession", method = { RequestMethod.GET })
 	public @ResponseBody String GetProgramsFromAcadSession(
 			@RequestParam String acadSession, Principal principal) {
@@ -2735,7 +2737,7 @@ public class ReportController extends BaseController {
 		}
 		return jsonarray.toString();
 	}
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadReportMyCourseStudentForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadReportMyCourseStudentForm(Model m, Principal principal) {
@@ -2789,7 +2791,7 @@ public class ReportController extends BaseController {
         }
 		return "report/downLoadReportLink";
 	}
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadReportMyCourseStudent", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public void downloadReportMyCourseStudent(Model m, Principal p,
@@ -2892,7 +2894,7 @@ public class ReportController extends BaseController {
 		}
 
 	}
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadFeedbackReportAcadSessionWise", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public void downloadFeedbackReportAcadSessionWise(Model m, Principal p,
@@ -4022,7 +4024,7 @@ public class ReportController extends BaseController {
 	}*/
 	
 	//amey 14-10-2020
-	
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadFacultyFeedbackReportQWise", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadFacultyFeedbackReportQWise(Model m, Principal p,
@@ -5608,7 +5610,7 @@ public class ReportController extends BaseController {
 	}*/
 	
 	//amey 14-10-2020
-	
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadFacultyFeedbackReportQuestionWise", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadFacultyFeedbackReportQuestionWise(Model m,
@@ -5892,7 +5894,9 @@ public class ReportController extends BaseController {
 	// =============================================================================================
 	// First Report
 	// =============================================================================================
-
+	
+	
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY"})
 	@RequestMapping(value = "/featureWiseUtilisationReport", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String FeatureWiseUtilisationReport(Model m, Principal p,
@@ -6228,7 +6232,7 @@ public class ReportController extends BaseController {
 	// =============================================================================================
 	// Second Report
 	// =============================================================================================
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/featureWiseDetailedUtilisationReport", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String featureWiseDetailedUtilisationReport(Model m, Principal p,
@@ -6806,7 +6810,7 @@ public class ReportController extends BaseController {
 		}
 		return "report/downLoadReportLink";
 	}*/
-	
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadFacultyFeedbackReportQuestionWiseForAllPrograms", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadFacultyFeedbackReportQuestionWiseForAllPrograms(
@@ -7079,7 +7083,7 @@ public class ReportController extends BaseController {
 	// =============================================================================================
 	// First Report
 	// =============================================================================================
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/featureWiseSummaryUtilityReport", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String featureWiseSummaryUtilityReport(Model m, Principal p,
@@ -7134,7 +7138,7 @@ public class ReportController extends BaseController {
 	// =============================================================================================
 	// Second Report
 	// =============================================================================================
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/featureWiseDetailedUtilityReport", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String featureWiseDetailedUtilityReport(Model m, Principal p,
@@ -7190,7 +7194,7 @@ public class ReportController extends BaseController {
 	// --------------------------------
 
 	// Feedback Letter Code
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadFacultyFeedbackLetterForAllPrograms", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadFacultyFeedbackLetterForAllPrograms(Model m,
@@ -8443,7 +8447,7 @@ public class ReportController extends BaseController {
 	}*/
 	
 	//amey 14-10-2020
-	
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/downloadFeedbackReportRangeWiseNew", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String downloadFeedbackReportRangeWiseNew(Model m, Principal p,
@@ -8718,7 +8722,7 @@ public class ReportController extends BaseController {
 	}
 		return "report/downLoadReportLink";
 	}
-	
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/reportFormForStudents", method = RequestMethod.GET)
 	public String reportFormForStudents(Model m, Principal p) {
 		
@@ -8742,10 +8746,11 @@ public class ReportController extends BaseController {
 		m.addAttribute("courseList", courseList);
 		return "report/reportStudent";
 	}
-
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 	@RequestMapping(value = "/getAssignmentStatsByCourseParent", method = {
 				RequestMethod.GET, RequestMethod.POST })
-		public @ResponseBody String getAssignmentStatsByCourseParent(@RequestParam Long courseId, Principal principal) {
+		public @ResponseBody String getAssignmentStatsByCourseParent(@RequestParam Long courseId, Principal principal) 
+	{
 
 			
 			logger.info("courseId---->" + courseId);
@@ -8776,6 +8781,7 @@ public class ReportController extends BaseController {
 			}
 
 		}
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 		@RequestMapping(value = "/getTestStatsByCourseParent", method = {
 				RequestMethod.GET, RequestMethod.POST })
 		public @ResponseBody String getTestStatsByCourseParent(@RequestParam Long courseId, Principal principal) {
@@ -8809,7 +8815,7 @@ public class ReportController extends BaseController {
 			}
 
 		}
-		
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 		@RequestMapping(value = "/reportFormForParents", method = RequestMethod.GET)
 		public String reportFormForParents(Model m, Principal p) {
 			
@@ -8843,7 +8849,7 @@ public class ReportController extends BaseController {
 		
 		
 		//New LMS Utilty Report Added with New Report Format By Akshay on 31-01-2020
-		
+	@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 		@RequestMapping(value = "/lmsUsageReportCombinedWithAllCampus", method = {
 				RequestMethod.GET, RequestMethod.POST })
 		public String lmsUsageReportCombinedWithAllCampus(Model m, Principal p,
@@ -9507,6 +9513,7 @@ public class ReportController extends BaseController {
 				}
 
 				int srNo = 1;
+				int totalUsed = 0;
 				logger.info("size of report1" + report1.size());
 				for (UtilityReport ur : report1) {
 					Row dataRow1 = sheet.createRow(rowNum++);
@@ -9522,15 +9529,40 @@ public class ReportController extends BaseController {
 					//cell2.setCellStyle(wrapStyle);
 
 					Cell cell3 = dataRow1.createCell(cellNo++);
-					cell3.setCellValue(ur.getNoOfUsersByRole());
+					
+					//new changes 
+					
+					int noOfUsersByRole = ur.getNoOfUsersByRole();
+					int noOfUsedByRole = ur.getNoOfUsedByRole()>ur.getNoOfUsersByRole()?
+							ur.getNoOfUsersByRole():ur.getNoOfUsedByRole();
+					double usagePercentage = ur.getNoOfUsedByRole()>ur.getNoOfUsersByRole()?100:ur.getUsagePercentage();
+					
+					
+					
+				
+					cell3.setCellValue(noOfUsersByRole);
 					cell3.setCellStyle(wrapStyle);
 
 					Cell cell4 = dataRow1.createCell(cellNo++);
-					cell4.setCellValue(ur.getNoOfUsedByRole());
+					
+					if(srNo == report1.size()) {
+						double div = ((double)totalUsed / noOfUsersByRole);
+						double multi = (div * 100);
+						usagePercentage = round(multi,2);
+//						logger.info("Total usage div--->"+div);
+//						logger.info("Total usage multi--->"+multi);
+//						logger.info("Total usage totalUsed--->"+totalUsed);
+//						logger.info("Total usage noOfUsersByRole--->"+noOfUsersByRole);
+//						logger.info("Total usage percentage--->"+usagePercentage);
+						cell4.setCellValue(totalUsed);
+					}else {
+						totalUsed=totalUsed+noOfUsedByRole;
+						cell4.setCellValue(noOfUsedByRole);
+					}
 					cell4.setCellStyle(wrapStyle);
 
 					Cell cell5 = dataRow1.createCell(cellNo++);
-					cell5.setCellValue(ur.getUsagePercentage());
+					cell5.setCellValue(usagePercentage);
 					cell5.setCellStyle(wrapStyle);
 
 					srNo = srNo + 1;
@@ -10050,7 +10082,7 @@ public class ReportController extends BaseController {
 		
 		
 		//MarksheetDownload
-		
+		@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 		@RequestMapping(value = "/downloadExamResult", method = { RequestMethod.GET, RequestMethod.POST })
 		public String downloadExamResult(
 				//@RequestParam(required = false, name = "filePath", defaultValue = "/data/FykcResult/40104190360.pdf") String filePath,
@@ -10129,7 +10161,7 @@ public class ReportController extends BaseController {
 			return null;
 		}
 		
-		
+		@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 		@RequestMapping(value = "/downloadAssignmentReportQuestionWise", method = RequestMethod.GET)
 		public String downloadAssignmentReportQuestionWise(@RequestParam String courseId, @RequestParam String assignmentId, Model m, Principal p,
 				HttpServletResponse response, HttpServletRequest request) {
@@ -10176,7 +10208,7 @@ public class ReportController extends BaseController {
 			return null;
 		}
 		
-		
+		@Secured({ "ROLE_SUPPORT_ADMIN_REPORT","ROLE_USER","ROLE_ADMIN" ,"ROLE_FACULTY" })
 		@RequestMapping(value = "/GetAssignmentFromCourse", method = { RequestMethod.GET })
 		public @ResponseBody String GetAssignmentFromCourse(
 				@RequestParam String courses, Principal principal) {
