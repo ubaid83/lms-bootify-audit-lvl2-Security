@@ -10,7 +10,7 @@ public class demo {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-			validateAlphaNumeric("yes");
+			validateAlphaNumeric("8.5");
 		} catch (ValidationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -19,9 +19,7 @@ public class demo {
 
 	public static void validateAlphaNumeric(String s) throws ValidationException{
 		//Allows Only Alpha Numeric values except _ and -
-	     s = s.replaceAll("-", " ");
-	     s = s.replaceAll("_", " ");
-	     Pattern p = Pattern.compile("[^ny]");
+	     Pattern p = Pattern.compile("[^0-9]");
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
 	     if(b) {

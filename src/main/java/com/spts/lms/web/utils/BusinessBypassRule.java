@@ -22,11 +22,7 @@ public class BusinessBypassRule {
 	     if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
-	     s = s.replaceAll("-", " ");
-	     s = s.replaceAll("_", " ");
-	     s = s.replaceAll("&", " ");
-	     s = s.replaceAll(",", " ");
-	     Pattern p = Pattern.compile("[^A-Za-z0-9\s]");
+	     Pattern p = Pattern.compile("[^A-Za-z0-9\s\\-,_&]");
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
 	     if(b) {
@@ -49,9 +45,8 @@ public class BusinessBypassRule {
 		if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
-		String str = s.replaceAll(".", "");
-		Pattern p = Pattern.compile("[^0-9]");
-	     Matcher m = p.matcher(str);
+		Pattern p = Pattern.compile("[^0-9.]");
+	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
 		if(b || Double.valueOf(s) <= 0.0) {
 	    	 throw new ValidationException("Input number should be a positive number and non zero number.");
@@ -62,8 +57,7 @@ public class BusinessBypassRule {
 		if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
-		String str = s.replaceAll(".", "");
-		Pattern p = Pattern.compile("[^0-9]");
+		Pattern p = Pattern.compile("[^0-9.]");
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
 	     if(b || Double.valueOf(s) < 0.0) {
