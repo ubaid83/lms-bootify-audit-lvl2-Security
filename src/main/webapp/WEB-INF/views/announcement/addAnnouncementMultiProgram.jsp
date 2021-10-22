@@ -196,7 +196,7 @@
 								</sec:authorize>
 								<div class="col-sm-6 col-md-4">
 									<div class="form-group">
-										<form:label path="subject" for="subject">Announcement Title <span
+										<form:label path="subject" for="subject">Announcement Titttle <span
 												style="color: red">*</span>
 										</form:label>
 										<form:input path="subject" type="text" class="form-control"
