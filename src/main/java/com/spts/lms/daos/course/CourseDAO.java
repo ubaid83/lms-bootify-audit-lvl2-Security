@@ -1360,6 +1360,45 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 		return findAllSQL(sql, new Object[] { username });
 	}
 	
+	
+	 public Course checkIfExistsInDB(String columnName, String value) {
+
+         String sql = "";
+
+         if(columnName.equals("acadYear")) {
+
+               sql = "select * from course where acadYear=? limit 1";
+
+         } else
+
+         if(columnName.equals("campusId")) {
+
+               sql = "select * from course where campusId=? limit 1";
+
+         } else
+
+         if(columnName.equals("acadSession")) {
+
+               sql = "select * from course where acadSession=? limit 1";
+
+         } else
+
+         if(columnName.equals("moduleId")) {
+
+               sql = "select * from course where moduleId=? limit 1";
+
+         } else
+
+         if(columnName.equals("programId")) {
+
+               sql = "select * from course where programId=? limit 1";
+
+         }
+
+         return findOneSQL(sql, new Object[] {value});
+
+   }
+	
 }
 
 

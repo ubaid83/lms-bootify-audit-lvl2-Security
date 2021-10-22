@@ -24,7 +24,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
-
+import org.springframework.stereotype.Component;
+@Component
 public class Utils {
 
 	private static final Logger logger = Logger.getLogger(Utils.class);
@@ -33,8 +34,7 @@ public class Utils {
 		return (object == null) ? "" : object.toString();
 	}
 
-	public static String formatDate(String formatFrom, String formatTo,
-			String dateVal) {
+	public static String formatDate(String formatFrom, String formatTo, String dateVal) {
 		if (dateVal == null)
 			return "";
 		DateFormat format1 = new SimpleDateFormat(formatFrom);
@@ -59,7 +59,7 @@ public class Utils {
 
 		return dateString;
 	}
-	
+
 	public static Date converFormatsDateAlt(String ip) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		String formatOut = "yyyy-MM-dd HH:mm:ss";
@@ -78,8 +78,7 @@ public class Utils {
 
 	}
 
-	public static int calculateDaysAgo(String formatFromDate)
-			throws ParseException {
+	public static int calculateDaysAgo(String formatFromDate) throws ParseException {
 
 		LocalDate date1 = LocalDate.parse(formatFromDate);
 		LocalDate date2 = LocalDate.now();
@@ -103,12 +102,10 @@ public class Utils {
 		try {
 			d = df.parse(time);
 
-			Calendar cal = Calendar.getInstance(TimeZone
-					.getTimeZone("Asia/Calcutta"));
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
 			cal.setTime(d);
 			cal.add(Calendar.MINUTE, duration);
-			testEndTime = date.format(completionTime) + " "
-					+ df.format(cal.getTime());
+			testEndTime = date.format(completionTime) + " " + df.format(cal.getTime());
 
 		} catch (ParseException e) {
 
@@ -136,12 +133,10 @@ public class Utils {
 		try {
 			d = df.parse(time);
 
-			Calendar cal = Calendar.getInstance(TimeZone
-					.getTimeZone("Asia/Calcutta"));
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
 			cal.setTime(d);
 
-			startTimeTime = date.format(completionTime) + " "
-					+ df.format(cal.getTime());
+			startTimeTime = date.format(completionTime) + " " + df.format(cal.getTime());
 
 		} catch (ParseException e) {
 
@@ -153,12 +148,10 @@ public class Utils {
 
 	}
 
-	public static Date getCompletionTimeDateType(Date completionTime,
-			int duration) {
+	public static Date getCompletionTimeDateType(Date completionTime, int duration) {
 
 		logger.info("raw date -----------------" + completionTime);
-		Calendar cal = Calendar.getInstance(TimeZone
-				.getTimeZone("Asia/Calcutta"));
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
 		if (completionTime != null) {
 			cal.setTime(completionTime);
 		}
@@ -223,72 +216,65 @@ public class Utils {
 		return d;
 
 	}
-	
-public static String addDaysToDate(String date,int numberOfDaysToAdd){
-		
-		
-		
+
+	public static String addDaysToDate(String date, int numberOfDaysToAdd) {
+
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar c = Calendar.getInstance();
-		try{
-		   //Setting the date to the given date
-		   c.setTime(sdf.parse(date));
-		}catch(ParseException e){
+		try {
+			// Setting the date to the given date
+			c.setTime(sdf.parse(date));
+		} catch (ParseException e) {
 			e.printStackTrace();
-		 }
-		   
-		//Number of Days to add
-		c.add(Calendar.DAY_OF_MONTH, numberOfDaysToAdd);  
-		//Date after adding the days to the given date
-		String newDate = sdf.format(c.getTime());  
-		//Displaying the new Date after addition of Days
-		System.out.println("Date after Addition: "+newDate);
-		
+		}
+
+		// Number of Days to add
+		c.add(Calendar.DAY_OF_MONTH, numberOfDaysToAdd);
+		// Date after adding the days to the given date
+		String newDate = sdf.format(c.getTime());
+		// Displaying the new Date after addition of Days
+		System.out.println("Date after Addition: " + newDate);
+
 		return newDate;
 	}
-	
-	public int compareToDate(String date1,String date2){
-	       int var1 = date1.compareTo( date2 );
-	       System.out.println("str1 & str2 comparison: "+var1);
-	       return var1;
-	}
-	
-	public static double round(double value, int places) {
-	    if (places < 0) throw new IllegalArgumentException();
 
-	    BigDecimal bd = new BigDecimal(value);
-	    bd = bd.setScale(places, RoundingMode.HALF_UP);
-	    return bd.doubleValue();
+	public int compareToDate(String date1, String date2) {
+		int var1 = date1.compareTo(date2);
+		System.out.println("str1 & str2 comparison: " + var1);
+		return var1;
 	}
-	
-	public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) 
-    {
-        Map<Object, Boolean> map = new ConcurrentHashMap<>();
-        return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-    }
-	
-	
-	public static <T> Predicate<T> distinctByKeys(Function<? super T, ?>... keyExtractors) 
-	  {
-	    final Map<List<?>, Boolean> seen = new ConcurrentHashMap<>();
-	     
-	    return t -> 
-	    {
-	      final List<?> keys = Arrays.stream(keyExtractors)
-	                  .map(ke -> ke.apply(t))
-	                  .collect(Collectors.toList());
-	       
-	      return seen.putIfAbsent(keys, Boolean.TRUE) == null;
-	    };
-	  }
-	
+
+	public static double round(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		return bd.doubleValue();
+	}
+
+	public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
+		Map<Object, Boolean> map = new ConcurrentHashMap<>();
+		return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+	}
+
+	public static <T> Predicate<T> distinctByKeys(Function<? super T, ?>... keyExtractors) {
+		final Map<List<?>, Boolean> seen = new ConcurrentHashMap<>();
+
+		return t -> {
+			final List<?> keys = Arrays.stream(keyExtractors).map(ke -> ke.apply(t)).collect(Collectors.toList());
+
+			return seen.putIfAbsent(keys, Boolean.TRUE) == null;
+		};
+	}
+
 	public static <T> boolean IsNullOrEmpty(Collection<T> list) {
-	    return list == null || list.isEmpty();
-	}	
-	
+		return list == null || list.isEmpty();
+	}
+
 	/* New Audit changes start */
-	public static void validateStartAndEndDates(String date1,String date2) throws ValidationException {
-		
+	public static void validateStartAndEndDates(String date1, String date2) throws ValidationException {
+
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date d1 = null;
 		Date d2 = null;
@@ -300,28 +286,28 @@ public static String addDaysToDate(String date,int numberOfDaysToAdd){
 //		long startDiff = 0;
 //		long endDiff = 0;
 		try {
-			if(date1.contains("T")) {
+			if (date1.contains("T")) {
 				date1 = date1.replace("T", " ");
 			}
-			if(date2.contains("T")) {
+			if (date2.contains("T")) {
 				date2 = date2.replace("T", " ");
 			}
 			d1 = format.parse(date1);
 			d2 = format.parse(date2);
 			d3 = format.parse(date3);
-			if(d1.after(d2)) {
+			if (d1.after(d2)) {
 //				System.out.println("False - startDate after endDate");
-				 throw new ValidationException("Invalid Start date and End date.");
+				throw new ValidationException("Invalid Start date and End date.");
 			}
-			if(d1.compareTo(d2) == 0) {
+			if (d1.compareTo(d2) == 0) {
 //				System.out.println("False - startDate equals endDate");
 				throw new ValidationException("Invalid Start date and End date.");
 			}
-			if(d1.before(d3)) {
+			if (d1.before(d3)) {
 //				System.out.println("False - startDate before currentDate");
 				throw new ValidationException("Invalid Start date and End date.");
 			}
-			if(d2.before(d3)) {
+			if (d2.before(d3)) {
 //				System.out.println("False - endDate before currentDate");
 				throw new ValidationException("Invalid Start date and End date.");
 			}
@@ -342,6 +328,6 @@ public static String addDaysToDate(String date,int numberOfDaysToAdd){
 			throw new ValidationException("Invalid Start date and End date.");
 		}
 	}
-	
+
 	/* New Audit changes end */
 }
