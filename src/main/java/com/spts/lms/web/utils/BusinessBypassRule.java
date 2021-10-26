@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +22,9 @@ public class BusinessBypassRule {
 	     if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
-	     s = s.replaceAll("-", "");
-	     s = s.replaceAll("_", "");
-	     s = s.replaceAll(" ", "");
-	     System.out.println("empty"+s);
-	     Pattern p = Pattern.compile("[^A-Za-z0-9]");
+
+	     Pattern p = Pattern.compile("[^A-Za-z0-9\\S\\-,_&]");
+
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
 	     System.out.println("b--"+b);
@@ -50,7 +49,10 @@ public class BusinessBypassRule {
 		if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
-		if(Double.valueOf(s) <= 0.0) {
+		Pattern p = Pattern.compile("[^0-9.]");
+	     Matcher m = p.matcher(s);
+	     boolean b = m.find();
+		if(b || Double.valueOf(s) <= 0.0) {
 	    	 throw new ValidationException("Input number should be a positive number and non zero number.");
 	     }  
 	 }
@@ -59,8 +61,10 @@ public class BusinessBypassRule {
 		if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
-	     
-	     if(Double.valueOf(s) < 0.0) {
+		Pattern p = Pattern.compile("[^0-9.]");
+	     Matcher m = p.matcher(s);
+	     boolean b = m.find();
+	     if(b || Double.valueOf(s) < 0.0) {
 	    	 throw new ValidationException("Input number should be a positive number.");
 	     }  
 	 }
