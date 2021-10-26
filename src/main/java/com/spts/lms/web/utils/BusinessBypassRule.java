@@ -21,11 +21,15 @@ public class BusinessBypassRule {
 	     if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
-	     s = s.replaceAll("-", " ");
-	     s = s.replaceAll("_", " ");
+	     s = s.replaceAll("-", "");
+	     s = s.replaceAll("_", "");
+	     s = s.replaceAll(" ", "");
+	     System.out.println("empty"+s);
 	     Pattern p = Pattern.compile("[^A-Za-z0-9]");
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
+	     System.out.println("b--"+b);
+	     
 	     if(b) {
 	    	 throw new ValidationException("Special characters are not allowed to enter except underscore(_) and hyphen(-).");
 	     }

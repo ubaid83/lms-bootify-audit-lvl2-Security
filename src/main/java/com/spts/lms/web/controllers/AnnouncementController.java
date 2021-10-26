@@ -75,6 +75,7 @@ import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
 import com.spts.lms.beans.user.UserRole;
 import com.spts.lms.daos.announcement.AnnouncementDAO;
+import com.spts.lms.daos.course.CourseDAO;
 import com.spts.lms.helpers.PaginationHelper.Page;
 import com.spts.lms.services.announcement.AnnouncementService;
 import com.spts.lms.services.course.CourseService;
@@ -656,7 +657,7 @@ public class AnnouncementController extends BaseController {
 		return "announcement/userAnnouncementList";
 	}
 
-	@SuppressWarnings("static-access")
+	@SuppressWarnings({ "static-access", "unlikely-arg-type" })
 	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/addAnnouncement", method = { RequestMethod.GET,
 			RequestMethod.POST })
@@ -708,11 +709,25 @@ public class AnnouncementController extends BaseController {
 //				return "redirect:/addAnnouncementForm";
 //			} 
 			/* New Audit changes end */
-			
+			logger.info("a--"+announcement.getSubject());
 			businessBypassRule.validateAlphaNumeric(announcement.getSubject());
 			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
-			
+	
 			businessBypassRule.validateNumeric(announcement.getCampusId().toString());
+			Course coursedata=courseService.checkIfExistsInDB("campusId", announcement.getCampusId().toString());
+			if(null==coursedata ||coursedata.equals(" "))
+			{
+				setError(redirectAttrs, " Invalid Campus");
+
+				if (typeOfAnn != null) {
+					if ("PROGRAM".equals(typeOfAnn)) {
+						return "redirect:/addAnnouncementFormProgram";
+					}
+				}
+
+				return "redirect:/addAnnouncementForm";
+			
+			}
 			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
 			for (MultipartFile file : files) {
