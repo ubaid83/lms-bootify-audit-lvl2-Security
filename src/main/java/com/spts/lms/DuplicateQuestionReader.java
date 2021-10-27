@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,21 +23,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class DuplicateQuestionReader {
 
 	public static void main(String args[]) {
-		try {
-			String baseDir = "D://Files//folder";
-			File base = new File(baseDir);
-
-			File[] filesPresent = base.listFiles();
-			for (int i = 0; i < filesPresent.length; i++) {
-				String fileName = filesPresent[i].getName();
-				System.out.println(fileName);
-				if (!"Verified".equalsIgnoreCase(fileName))
-					readXLSXFile(baseDir, fileName);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		String str="4";
+		
+		List<String> strList = Arrays.asList(str.split(","));
+		
+		List<String> empList = new ArrayList<>();
+		
+		System.out.println(empList.contains("6"));
+		System.out.println(strList.get(0));
 	}
 
 	public static void readXLSXFile(String baseDir, String fileName)

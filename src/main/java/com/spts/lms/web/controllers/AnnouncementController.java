@@ -75,6 +75,7 @@ import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
 import com.spts.lms.beans.user.UserRole;
 import com.spts.lms.daos.announcement.AnnouncementDAO;
+import com.spts.lms.daos.course.CourseDAO;
 import com.spts.lms.helpers.PaginationHelper.Page;
 import com.spts.lms.services.announcement.AnnouncementService;
 import com.spts.lms.services.course.CourseService;
@@ -86,7 +87,9 @@ import com.spts.lms.services.user.UserRoleService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 
 @Controller
@@ -124,7 +127,13 @@ public class AnnouncementController extends BaseController {
 	
 	@Autowired
 	AmazonS3ClientService amazonS3ClientService;
+	
+	@Autowired 
+	BusinessBypassRule businessBypassRule;
 
+	@Autowired 
+	Utils utils;
+	
 	@Value("${lms.announcement.courseFolderS3}")
 	private String courseAnnouncementFolder;
 
@@ -149,6 +158,8 @@ public class AnnouncementController extends BaseController {
 	public String[] getYearList() {
 		return enrollmentYears;
 	}
+	
+	
 
 	private static final Logger logger = Logger
 			.getLogger(AnnouncementController.class);
@@ -646,14 +657,20 @@ public class AnnouncementController extends BaseController {
 		return "announcement/userAnnouncementList";
 	}
 
+	@SuppressWarnings({ "static-access", "unlikely-arg-type" })
 	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/addAnnouncement", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addAnnouncement(@ModelAttribute Announcement announcement,
 			RedirectAttributes redirectAttrs, Model m, Principal principal,
 			@RequestParam("file") List<MultipartFile> files,
-			@RequestParam(required = false) String typeOfAnn) {
+			@RequestParam(required = false) String typeOfAnn)  {
 
+		
+		
+		
+	//	validateAlphaNumeric validateStartAndEndDates
+		
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
@@ -692,6 +709,27 @@ public class AnnouncementController extends BaseController {
 //				return "redirect:/addAnnouncementForm";
 //			} 
 			/* New Audit changes end */
+			logger.info("a--"+announcement.getSubject());
+			businessBypassRule.validateAlphaNumeric(announcement.getSubject());
+			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
+	
+			businessBypassRule.validateNumeric(announcement.getCampusId().toString());
+			Course coursedata=courseService.checkIfExistsInDB("campusId", announcement.getCampusId().toString());
+			if(null==coursedata ||coursedata.equals(" "))
+			{
+				setError(redirectAttrs, " Invalid Campus");
+
+				if (typeOfAnn != null) {
+					if ("PROGRAM".equals(typeOfAnn)) {
+						return "redirect:/addAnnouncementFormProgram";
+					}
+				}
+
+				return "redirect:/addAnnouncementForm";
+			
+			}
+			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					Tika tika = new Tika();
@@ -875,7 +913,7 @@ public class AnnouncementController extends BaseController {
 				announcement
 						.setCampusName(userService.findCampusName(campusId));
 			}
-			try {
+			
 
 				if (!userList.isEmpty()) {
 
@@ -959,11 +997,22 @@ public class AnnouncementController extends BaseController {
 								notificationMobileMessage);
 					}
 				}
-			} catch (Exception e) {
-				logger.error("Exception", e);
+			
+
+		} 
+		catch (ValidationException e) {
+			logger.error("Exception", e);
+			setError(redirectAttrs, e.getMessage().toString());
+
+			if (typeOfAnn != null) {
+				if ("PROGRAM".equals(typeOfAnn)) {
+					return "redirect:/addAnnouncementFormProgram";
+				}
 			}
 
-		} catch (Exception e) {
+			return "redirect:/addAnnouncementForm";
+		}
+		catch (Exception e) {
 			logger.error("Exception", e);
 			setError(redirectAttrs, "Error in creating Announcement");
 
@@ -975,6 +1024,7 @@ public class AnnouncementController extends BaseController {
 
 			return "redirect:/addAnnouncementForm";
 		}
+		
 
 		if (acadSessionList.size() > 0) {
 			return "redirect:/searchAnnouncement";

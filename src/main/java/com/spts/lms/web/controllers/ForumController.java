@@ -38,7 +38,9 @@ import com.spts.lms.services.message.StudentMessageService;
 import com.spts.lms.services.user.UserRoleService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 @Controller
 public class ForumController extends BaseController {
@@ -73,6 +75,9 @@ public class ForumController extends BaseController {
 	@Autowired
 	ForumCounterReplyService forumCounterReplyService;
 
+	
+	BusinessBypassRule businessBypassRule = new BusinessBypassRule ();
+	
 	private static final Logger logger = Logger
 			.getLogger(ForumController.class);
 
@@ -156,7 +161,11 @@ public class ForumController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
+	
+		try {
+	
 		
+		BusinessBypassRule.validateAlphaNumeric("^%&");
 
 		String acadSession = u.getAcadSession();
 		
@@ -164,8 +173,7 @@ public class ForumController extends BaseController {
 		m.addAttribute("AcadSession", acadSession);
 		
 
-		try {
-
+	
 			forum.setCreatedBy(username);
 			forum.setLastModifiedBy(username);
 			// forum.setCourseId(courseId);
@@ -187,8 +195,23 @@ public class ForumController extends BaseController {
 					courseService.findByID(forum.getCourseId()));
 			m.addAttribute("id", forum.getId());
 
-		} catch (Exception e) {
+		} 
+		catch (ValidationException e) {
 			logger.error(e.getMessage(), e);
+			logger.info(e.getMessage());
+			logger.info(e.getLocalizedMessage());
+			setError(m, e.getMessage());
+			m.addAttribute("webPage", new WebPage("forum", "Create Forum",
+					false, false));
+			m.addAttribute(
+					"allCourses",
+					courseService.findByUserActive(username,
+							userdetails1.getProgramName()));
+			return "forum/createForum";
+		}
+		catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			
 			setError(m, "Error in creating forum");
 			m.addAttribute("webPage", new WebPage("forum", "Create Forum",
 					false, false));
