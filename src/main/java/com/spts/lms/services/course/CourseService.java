@@ -390,9 +390,6 @@ public String getAcadMonthByModuleIdAndAcadYearAndProgram(String moduleId, Strin
 		
 		return courseDAO.getModulesForTest(username, programId);
 	}
-	 public Course checkIfExistsInDB(String flag, String campusId) {
-	return courseDAO.checkIfExistsInDB(flag, campusId);
-	 }
 	 
 	public List<Course> getCourseByProgramId(String programIds) {
 		return courseDAO.getCourseByProgramId(programIds);
