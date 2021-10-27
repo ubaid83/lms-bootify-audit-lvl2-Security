@@ -23,7 +23,7 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
 
-	     Pattern p = Pattern.compile("[^A-Za-z0-9\\S\\-,_&]");
+	     Pattern p = Pattern.compile("[^A-Za-z0-9\s-,_&\\-]");
 
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
