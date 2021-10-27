@@ -17,6 +17,8 @@ public class BusinessBypassRule {
 	
 	private static final Logger logger = Logger.getLogger(BusinessBypassRule.class);
 	
+	
+	
 	public static void validateAlphaNumeric(String s) throws ValidationException{
 		//Allows Only Alpha Numeric values except _ and -
 	     if (s == null || s.trim().isEmpty()) {
@@ -24,6 +26,7 @@ public class BusinessBypassRule {
 	     }
 
 	     Pattern p = Pattern.compile("[^A-Za-z0-9\s-,_&\\-]");
+
 
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
