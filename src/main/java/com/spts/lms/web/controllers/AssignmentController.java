@@ -1111,7 +1111,7 @@ public class AssignmentController extends BaseController {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveGroupAssignment(@ModelAttribute Assignment assignment,
 			@RequestParam("file") List<MultipartFile> files, Model m,
-			Principal principal,RedirectAttributes redirectAttributes) {
+			Principal principal,RedirectAttributes redirectAttributes, String multipleAssignmentErrorMsg) throws ValidationException{
 		m.addAttribute("webPage", new WebPage("assignment",
 				"Create Assignment", true, false));
 
@@ -1148,7 +1148,9 @@ public class AssignmentController extends BaseController {
 		BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 		BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 		BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
-		BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
+		if(!multipleAssignmentErrorMsg.equals("Success")) {
+			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
+		}
 		BusinessBypassRule.validateYesOrNo(assignment.getSendEmailAlert());
 		BusinessBypassRule.validateYesOrNo(assignment.getSendSmsAlert());
 
@@ -1320,19 +1322,29 @@ public class AssignmentController extends BaseController {
 				setSuccess(m, "Assignment allocated to "
 						+ assignment.getGrps().size() + " groups successfully");
 
-				return viewByGroupAssignment(assignment.getId(), m, principal);
+				if(multipleAssignmentErrorMsg.equals("Success")) {
+					viewByGroupAssignment(assignment.getId(), m, principal);
+					return "Success";
+				}else {
+					return viewByGroupAssignment(assignment.getId(), m, principal);
+				}
 			}
-
 		}catch (ValidationException ve) {
 			logger.error(ve.getMessage(), ve);
-			setError(m, ve.getMessage());
-			return "assignment/createAssignment";
+			setError(redirectAttributes, ve.getMessage());
+			if(multipleAssignmentErrorMsg.equals("Success")) {
+				return ve.getMessage();
+			}else {
+				return "redirect:/createAssignmentFromGroup";
+			}
+			
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in allocating assignment");
 			m.addAttribute("webPage", new WebPage("assignment",
 					"Create Assignment", false, false));
-			return "assignment/createAssignment";
+			return "assignment/createAssignmentFromGroupFinal";
 		}
 		m.addAttribute("assignment", assignment);
 		m.addAttribute("groupAssignmentMappingList", groupAssignmentMappingList);
@@ -3294,20 +3306,21 @@ public class AssignmentController extends BaseController {
 		map.put(5, grps5);
 		try {
 		/* New Audit changes start */
-		Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
-		BusinessBypassRule.validateNumeric(assignment.getMaxScore());
-		BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
-		validateAssignmentType(assignment.getAssignmentType());
-		Course course = courseService.findByID(assignment.getCourseId());
-		if(null == course) {
-			throw new ValidationException("Invalid Course selected.");
-		}
-		BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
-		BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
-		BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
-		BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
-		BusinessBypassRule.validateYesOrNo(assignment.getSendEmailAlert());
-		BusinessBypassRule.validateYesOrNo(assignment.getSendSmsAlert());
+			
+//		Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
+//		BusinessBypassRule.validateNumeric(assignment.getMaxScore());
+//		BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
+//		validateAssignmentType(assignment.getAssignmentType());
+//		Course course = courseService.findByID(assignment.getCourseId());
+//		if(null == course) {
+//			throw new ValidationException("Invalid Course selected.");
+//		}
+//		BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+//		BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
+//		BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
+//		BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
+//		BusinessBypassRule.validateYesOrNo(assignment.getSendEmailAlert());
+//		BusinessBypassRule.validateYesOrNo(assignment.getSendSmsAlert());
 //		if(!Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate())) {
 //			setError(redirectAttrs, "Invalid Start date and End date");
 //			return "redirect:/createGroupAssignmentsForm?courseId=" + assignment.getCourseId();
@@ -3372,7 +3385,12 @@ public class AssignmentController extends BaseController {
 									}
 								}
 							}
-							saveGroupAssignment(assignment, mapper.get(i), m, p,redirectAttrs);
+							String multipleAssignmentErrorMsg = "Success";
+							multipleAssignmentErrorMsg = saveGroupAssignment(assignment, mapper.get(i), m, p,redirectAttrs,multipleAssignmentErrorMsg);
+							logger.info("multipleAssignmentErrorMsg---->"+multipleAssignmentErrorMsg);
+							if(!multipleAssignmentErrorMsg.equals("Success")) {
+								throw new ValidationException("Invalid argument.");
+							}
 							//Audit change end
 						} else {
 							/* logger.info("Multipart Files is null"); */
@@ -3383,13 +3401,15 @@ public class AssignmentController extends BaseController {
 				setSuccess(redirectAttrs, "Assignments created successfully!");
 			
 			}
-		}catch (ValidationException ve) {
-			logger.error(ve.getMessage(), ve);
+		}catch(ValidationException ve) {
 			setError(redirectAttrs, ve.getMessage());
 			redirectAttrs.addAttribute("courseId", assignment.getCourseId());
 			return "redirect:/createGroupAssignmentsForm";
 		} catch (Exception e) {
 			logger.error("Ëxception", e);
+			setError(redirectAttrs, e.getMessage());
+			redirectAttrs.addAttribute("courseId", assignment.getCourseId());
+			return "redirect:/createGroupAssignmentsForm";
 		}
 		m.addAttribute("assignment", assignment);
 
@@ -3545,7 +3565,7 @@ public class AssignmentController extends BaseController {
 								if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 									setError(redirectAttributes, "File uploaded is invalid!");
 									return "redirect:/createAssignmentModuleForm";
-								}else {
+								} else {
 									String errorMessage = uploadAssignmentFileForS3(assignment, file);
 								}
 							}

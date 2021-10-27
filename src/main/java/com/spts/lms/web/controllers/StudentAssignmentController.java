@@ -103,7 +103,9 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.web.helper.CopyCaseHelper;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 @Controller
 @SessionAttributes("userId")
@@ -2385,6 +2387,7 @@ public class StudentAssignmentController extends BaseController {
 			Principal principal) {
 		String username = principal.getName();
 		try {
+			BusinessBypassRule.validateAlphaNumeric(value);
 			studentAssignmentService.saveAssignmentRemarks(value, pk, username);
 			return "{\"status\": \"success\", \"msg\": \"Remarks saved successfully!\"}";
 		} catch (Exception e) {
@@ -2393,12 +2396,23 @@ public class StudentAssignmentController extends BaseController {
 		}
 
 	}
+	public void validateLowScoreReason(String s) throws ValidationException{
+		if (s == null || s.trim().isEmpty()) {
+			 throw new ValidationException("Input field cannot be empty");
+		 }
+		if(!s.equals("Copy Case-Internet") && !s.equals("Copy Case-Other Student") && !s.equals("Wrong Answers") &&
+				!s.equals("Other subject Assignment") && !s.equals("Scanned/Handwritten Assignment") && !s.equals("Only Questions written") && 
+				!s.equals("Question Paper Uploaded") && !s.equals("Blank Assignment") && !s.equals("Corrupt file uploaded")) {
+			throw new ValidationException("Invalid Reason.");
+		}
+	}
 	@Secured({ "ROLE_ADMIN" ,"ROLE_FACULTY","ROLE_STUDENT" })
 	@RequestMapping(value = "/saveLowScoreReason", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String saveLowScoreReason(@RequestParam String value, @RequestParam Long pk,
 			Principal principal) {
 		String username = principal.getName();
 		try {
+			validateLowScoreReason(value);
 			studentAssignmentService.saveLowScoreReason(value, pk, username);
 			return "{\"status\": \"success\", \"msg\": \"Reason saved successfully!\"}";
 		} catch (Exception e) {
