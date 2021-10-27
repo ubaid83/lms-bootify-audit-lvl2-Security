@@ -710,11 +710,20 @@ public class AnnouncementController extends BaseController {
 //			} 
 			/* New Audit changes end */
 			logger.info("a--"+announcement.getSubject());
+			
+			if(null!=announcement.getAnnouncementSubType() || !announcement.getAnnouncementSubType().isEmpty())
+			{
+				validateAnnouncementSubType(announcement.getAnnouncementSubType());
+			}
 			businessBypassRule.validateAlphaNumeric(announcement.getSubject());
 			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
+			
 	
+			if(null!=announcement.getCampusId())
+			{
 			businessBypassRule.validateNumeric(announcement.getCampusId().toString());
 			Course coursedata=courseService.checkIfExistsInDB("campusId", announcement.getCampusId().toString());
+			
 			if(null==coursedata ||coursedata.equals(" "))
 			{
 				setError(redirectAttrs, " Invalid Campus");
@@ -727,6 +736,7 @@ public class AnnouncementController extends BaseController {
 
 				return "redirect:/addAnnouncementForm";
 			
+			}
 			}
 			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
@@ -2678,7 +2688,91 @@ public class AnnouncementController extends BaseController {
 		String defaultMsg = "\\r\\n\\r\\nNote: This Announcement is created by : ?? \\r\\nTo view any attached files to this mail kindly login to \\r\\nUrl: https://portal.svkm.ac.in/usermgmt/login ";
 
 		List<String> parentList = new ArrayList<String>();
+		
 		try {
+		Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
+			
+			if(semdata.toString().isEmpty() || null==semdata)
+			{
+
+		
+				setError(redirectAttrs, "Invalid Semester ");
+
+				if (typeOfAnn != null) {
+					if ("PROGRAM".equals(typeOfAnn)) {
+						return "redirect:/addAnnouncementFormMultiProgram";
+					}
+				}
+
+				return "redirect:/addAnnouncementForm";
+			
+			}
+			for(String programId:announcement.getProgramIds())
+			{
+				businessBypassRule.validateNumeric(programId.toString());
+				Course Programdata=courseService.checkIfExistsInDB("programId", programId);
+				if(Programdata.toString().isEmpty() || null==Programdata)
+				{
+		
+					setError(redirectAttrs, "Invalid program Id");
+
+					if (typeOfAnn != null) {
+						if ("PROGRAM".equals(typeOfAnn)) {
+							return "redirect:/addAnnouncementFormMultiProgram";
+						}
+					}
+
+					return "redirect:/addAnnouncementForm";
+				
+				}
+			}
+			List<String> courseList = new ArrayList<String>(Arrays.asList(admincourseId.split(",")));
+
+			for(String courseId:courseList)
+			{
+				businessBypassRule.validateNumeric(courseId);
+				Course course=courseService.findByID(Long.valueOf(courseId));
+				if(course.toString().isEmpty() || null==course)
+				{
+		
+					setError(redirectAttrs, "Invalid Course Id");
+
+					if (typeOfAnn != null) {
+						if ("PROGRAM".equals(typeOfAnn)) {
+							return "redirect:/addAnnouncementFormMultiProgram";
+						}
+					}
+
+					return "redirect:/addAnnouncementForm";
+				
+				}
+			}
+			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
+			businessBypassRule.validateNumeric(announcement.getAcadSession());
+			Course acadYear=courseService.checkIfExistsInDB("acadYear", announcement.getAcadSession());
+			if(acadYear.toString().isEmpty() || null==acadYear)
+			{
+	
+				setError(redirectAttrs, "Invalid AcadYear Id");
+
+				if (typeOfAnn != null) {
+					if ("PROGRAM".equals(typeOfAnn)) {
+						return "redirect:/addAnnouncementFormMultiProgram";
+					}
+				}
+
+				return "redirect:/addAnnouncementForm";
+			
+			}
+			
+			
+			validateAnnouncementSubType(announcement.getAnnouncementSubType());
+			businessBypassRule.validateAlphaNumeric(announcement.getSubject());
+			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
+			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
+			
 			/* New Audit changes start */
 //			if(!Utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate())) {
 //				setError(redirectAttrs, "Invalid Start date and End date");
@@ -2996,7 +3090,23 @@ public class AnnouncementController extends BaseController {
 				logger.error("Exception", e);
 			}
 
-		} catch (Exception e) {
+		}	catch (ValidationException e) { 
+
+			logger.error("Exception", e);
+			setError(redirectAttrs, e.getMessage());
+
+			if (typeOfAnn != null) {
+				if ("PROGRAM".equals(typeOfAnn)) {
+					return "redirect:/addAnnouncementFormMultiProgram";
+				}
+			}
+
+			return "redirect:/addAnnouncementForm";
+		
+			
+		} 
+		
+		catch (Exception e) {
 			logger.error("Exception", e);
 			setError(redirectAttrs, "Error in creating Announcement");
 
@@ -4012,7 +4122,14 @@ public class AnnouncementController extends BaseController {
 		return json;
 
 	}
-	
+	public void validateAnnouncementSubType(String s) throws ValidationException{
+		if (s == null || s.trim().isEmpty()) {
+			 throw new ValidationException("Input field cannot be empty");
+		 }
+		if(!s.equals("EXAM") && !s.equals("EVENT") && !s.equals("ASSIGNMENT") && !s.equals("Internal") && !s.equals("Academics") && !s.equals("WeCare") && !s.equals("FROMTHECOUNSELLORSDESK") ) {
+			throw new ValidationException("Invalid Announcement SubType.");
+		}
+	}
 	
 	
 }

@@ -1373,7 +1373,7 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 
          if(columnName.equals("campusId")) {
 
-               sql = "select * from program_campus where campusId=? ";
+               sql = "select * from course where campusId=? ";
 
          } else
 

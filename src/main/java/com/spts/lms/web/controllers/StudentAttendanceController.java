@@ -49,7 +49,9 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 @Controller
 public class StudentAttendanceController extends BaseController {
@@ -81,6 +83,8 @@ public class StudentAttendanceController extends BaseController {
 	@Autowired
 	LmsVariablesService lmsVariablesService;
 
+	@Autowired 
+	BusinessBypassRule BusinessBypassRule ; 
 	@Value("${app}")
 	private String app;
 
@@ -307,7 +311,7 @@ public class StudentAttendanceController extends BaseController {
 
           DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 
-          .createConnectionByDS("jdbc:mysql://10.25.10.50:3307/", defaultUsername,
+          .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
                       defaultPassword, "timetable_metadata");
 
           timetableDAO.setDS(dataSourceTimetable);
@@ -436,21 +440,21 @@ public class StudentAttendanceController extends BaseController {
                       if(userdetails1.getName().contains("_")){
                           usernameForWSDL = userdetails1.getName().substring(0,username.indexOf("_"));
                          }
-                      String jsonResponse = attendanceService.
-                    		  pullFacultyWorkload(String.valueOf(tmtl.getEventId()),usernameForWSDL);
-                      Timetable workloadResponse = new Gson().fromJson(jsonResponse,Timetable.class);
-                      if(null != workloadResponse){
-                    	  tmtl.setAllottedLecture(workloadResponse.getAllottedLecture());
-                          tmtl.setConductedLecture(workloadResponse.getConductedLecture());
-                          logger.info("allotated lectures-->"+tmtl.getAllottedLecture());
-                          logger.info("conducted lectures-->"+tmtl.getConductedLecture());
-                          /*String remainingLecture ="";
-                          if(Double.parseDouble(tmtl.getAllottedLecture()) > Double.parseDouble(tmtl.getConductedLecture())){
-                        	  remainingLecture = String.valueOf(Double.parseDouble(tmtl.getAllottedLecture()) - Double.parseDouble(tmtl.getConductedLecture()));
-                          }*/
-                          
-                          //m.addAttribute("remainingLecture",remainingLecture);
-                      }
+//                      String jsonResponse = attendanceService.
+//                    		  pullFacultyWorkload(String.valueOf(tmtl.getEventId()),usernameForWSDL);
+//                      Timetable workloadResponse = new Gson().fromJson(jsonResponse,Timetable.class);
+//                      if(null != workloadResponse){
+//                    	  tmtl.setAllottedLecture(workloadResponse.getAllottedLecture());
+//                          tmtl.setConductedLecture(workloadResponse.getConductedLecture());
+//                          logger.info("allotated lectures-->"+tmtl.getAllottedLecture());
+//                          logger.info("conducted lectures-->"+tmtl.getConductedLecture());
+//                          /*String remainingLecture ="";
+//                          if(Double.parseDouble(tmtl.getAllottedLecture()) > Double.parseDouble(tmtl.getConductedLecture())){
+//                        	  remainingLecture = String.valueOf(Double.parseDouble(tmtl.getAllottedLecture()) - Double.parseDouble(tmtl.getConductedLecture()));
+//                          }*/
+//                          
+//                          //m.addAttribute("remainingLecture",remainingLecture);
+//                      }
                       
                       tmtl.setMaxEndTimeForCourse(tmtl.getEnd_time());
                       lecutreEndTimeMap.put(courseIdList.toString(),
@@ -633,20 +637,21 @@ public class StudentAttendanceController extends BaseController {
                 if(userdetails1.getName().contains("_")){
                     usernameForWSDL = userdetails1.getName().substring(0,username.indexOf("_"));
                    }
-                String jsonResponse = attendanceService.
-              		  pullFacultyWorkload(eventIdForWorkload,usernameForWSDL);
-                Timetable workloadResponse = new Gson().fromJson(jsonResponse,Timetable.class);
-                if(null != workloadResponse){
-                attendance.setAllottedLecture(workloadResponse.getAllottedLecture());
-                attendance.setConductedLecture(workloadResponse.getConductedLecture());
-                String remainingLecture = String.valueOf(Double.parseDouble(attendance.getAllottedLecture()) - Double.parseDouble(attendance.getConductedLecture()));
-                //m.addAttribute("remainingLecture", ((Long.valueOf(attendance.getAllottedLecture().toString())) - (Long.valueOf(attendance.getConductedLecture().toString()))));
-                logger.info("remainingLecture"+remainingLecture);
-                m.addAttribute("remainingLecture",remainingLecture);
                 
-                logger.info("allotated lectures-->"+attendance.getAllottedLecture());
-                logger.info("conducted lectures-->"+attendance.getConductedLecture());
-                }
+//                String jsonResponse = attendanceService.
+//              		  pullFacultyWorkload(eventIdForWorkload,usernameForWSDL);
+//                Timetable workloadResponse = new Gson().fromJson(jsonResponse,Timetable.class);
+//                if(null != workloadResponse){
+//                attendance.setAllottedLecture(workloadResponse.getAllottedLecture());
+//                attendance.setConductedLecture(workloadResponse.getConductedLecture());
+//                String remainingLecture = String.valueOf(Double.parseDouble(attendance.getAllottedLecture()) - Double.parseDouble(attendance.getConductedLecture()));
+//                //m.addAttribute("remainingLecture", ((Long.valueOf(attendance.getAllottedLecture().toString())) - (Long.valueOf(attendance.getConductedLecture().toString()))));
+//                logger.info("remainingLecture"+remainingLecture);
+//                m.addAttribute("remainingLecture",remainingLecture);
+//                
+//                logger.info("allotated lectures-->"+attendance.getAllottedLecture());
+//                logger.info("conducted lectures-->"+attendance.getConductedLecture());
+//                }
                 m.addAttribute("courseName", courseName);
                 attendance.setLecture(lecture);
                 SimpleDateFormat format = new SimpleDateFormat(
@@ -912,6 +917,8 @@ public String saveStudentCourseAttendance(
 	
 	ArrayList<StudentCourseAttendance> studentAttendanceMappingList = new ArrayList<StudentCourseAttendance>();
 	List<String> studentList = new ArrayList<String>();
+
+	
 	Map<String,String> courseAcadYearMap = new HashMap<String, String>();
 
 	if ((attendance.getCourseId() != null || !attendance.getCourseId()
@@ -926,11 +933,17 @@ public String saveStudentCourseAttendance(
 				lectureDetails.indexOf("[") + 1,
 				lectureDetails.indexOf("]"));
 		String[] courseidsStrings = tmpCourseId.split(", ");
-
+		try {
 		List<Long> courseIdList = new ArrayList<>();
 		for (int i = 0; i < courseidsStrings.length; i++) {
 			courseIdList.add(Long.valueOf(courseidsStrings[i]));
+			Course courseData=courseService.findByID(Long.valueOf(courseidsStrings[i]));
 			
+			 if(null ==courseData)
+			 {
+					throw new ValidationException("Invalid Course selected.");
+
+			 }
 			MultipleDBConnection multipleDBConnection = new MultipleDBConnection();
 
 		       DriverManagerDataSource dataSourceDefaultLms = multipleDBConnection
@@ -939,18 +952,18 @@ public String saveStudentCourseAttendance(
 
 		       defaultPassword);
 
-		       DriverManagerDataSource dataSourceTimetable = multipleDBConnection
+//		       DriverManagerDataSource dataSourceTimetable = multipleDBConnection
+//
+//		       .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
+//		                   defaultPassword, "sap_master_inc");
 
-		       .createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername,
-		                   defaultPassword, "sap_master_inc");
-
-		       timetableDAO.setDS(dataSourceTimetable);
+		   //    timetableDAO.setDS(dataSourceTimetable);
 		       
-					String sapAcadYear = timetableDAO.getAcadYearFromSapMaster(courseidsStrings[i].substring(0, 8), courseidsStrings[i].substring(8));
+				//	String sapAcadYear = timetableDAO.getAcadYearFromSapMaster(courseidsStrings[i].substring(0, 8), courseidsStrings[i].substring(8));
 					//String sapAcadYear = timetableDAO.getAcadYearFromSapMaster("51709397", "50474742");
-					courseAcadYearMap.put(courseidsStrings[i], sapAcadYear);
+				//	courseAcadYearMap.put(courseidsStrings[i], sapAcadYear);
 			
-				timetableDAO.setDS(dataSourceDefaultLms);
+				//timetableDAO.setDS(dataSourceDefaultLms);
 		}
 		List<Course> students = courseService
 				.findStudentsByMultipleCourseId(courseIdList);
@@ -966,7 +979,7 @@ public String saveStudentCourseAttendance(
 				"dd-MM-yyyy HH:mm:ss");
 		String acadYear = "";
 		String studAcadSession = "";
-		try {
+		//
 			Date dt = format
 					.parse(attendance.getLecture().split(" To ")[0]);
 			Date dt1 = format
@@ -974,7 +987,39 @@ public String saveStudentCourseAttendance(
 							.split(",")[0]);
 			SimpleDateFormat formatter = new SimpleDateFormat(
 					"yyyy-MM-dd HH:mm:ss");
-
+			
+			Date d1 = null;
+			Date d3 = null;
+			Date d2 = Utils.getInIST();
+			String date2 = formatter.format(d2);
+			date2 = date2.split(" ")[0].concat(" 00:00:00");
+			
+				
+				d1 = formatter.parse(attendance.getLecture().split(" To ")[0]);
+				d3 = formatter.parse(attendance.getLecture().split(" To ")[1].split(",")[0]);
+				
+				
+				if(d1.before(d2)) {
+//					System.out.println("False - date before currentDate");
+					throw new ValidationException("Invalid date selected.");
+				}
+				if(d1.after(d2)) {
+//					System.out.println("False - date before currentDate");
+					throw new ValidationException("Invalid date selected.");
+				}
+				
+				if(d3.before(d2)) {
+//					System.out.println("False - date before currentDate");
+					throw new ValidationException("Invalid date selected.");
+				}
+				if(d3.after(d2)) {
+//					System.out.println("False - date before currentDate");
+					throw new ValidationException("Invalid date selected.");
+				}
+			
+				
+			
+			
 			/*Map<String, List<String>> presentStudentMap = new HashMap<String, List<String>>();*/
 			List<String> absentCourseIds = new ArrayList<>();
 			Map<String,String> suc = new HashMap<String,String>();
@@ -1018,6 +1063,7 @@ public String saveStudentCourseAttendance(
 						bean.setStatus(statusArray[0]);
 						bean.setCourseId(statusArray[1]);
 						Course c = courseService.findByID(Long.valueOf(statusArray[1]));
+						
 						//bean.setAcadYear(c.getAcadYear());
 						//acadYear = c.getAcadYear();
 						bean.setAcadSession(c.getAcadSession());
@@ -1161,7 +1207,14 @@ public String saveStudentCourseAttendance(
 
 			}
 
-		} catch (Exception e) {
+		} catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			
+			setError(redirectAttributes, e.getMessage());
+
+		} 
+		
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttributes, "Error in marking attendance");
 
@@ -1349,18 +1402,18 @@ public String saveStudentCourseAttendance(
 
 		       defaultPassword);
 
-		       DriverManagerDataSource dataSourceTimetable = multipleDBConnection
-
-		       .createConnectionByDS("jdbc:mysql://10.25.10.50:3310/", defaultUsername,
-		                   defaultPassword, "sap_master_inc");
-
-		       timetableDAO.setDS(dataSourceTimetable);
-		       
-					String sapAcadYear = timetableDAO.getAcadYearFromSapMaster(courseidsStrings[i].substring(0, 8), courseidsStrings[i].substring(8));
-					//String sapAcadYear = timetableDAO.getAcadYearFromSapMaster("51709397", "50474742");
-					courseAcadYearMap.put(courseidsStrings[i], sapAcadYear);
-			
-				timetableDAO.setDS(dataSourceDefaultLms);
+//		       DriverManagerDataSource dataSourceTimetable = multipleDBConnection
+//
+//		       .createConnectionByDS("jdbc:mysql://localhhost:3306/", defaultUsername,
+//		                   defaultPassword, "sap_master_inc");
+//
+//		       timetableDAO.setDS(dataSourceTimetable);
+//		       
+//					String sapAcadYear = timetableDAO.getAcadYearFromSapMaster(courseidsStrings[i].substring(0, 8), courseidsStrings[i].substring(8));
+//					//String sapAcadYear = timetableDAO.getAcadYearFromSapMaster("51709397", "50474742");
+//					courseAcadYearMap.put(courseidsStrings[i], sapAcadYear);
+//			
+//				timetableDAO.setDS(dataSourceDefaultLms);
 		
 		}
 		List<Course> students = courseService
