@@ -92,8 +92,7 @@
 					</div>
 
 					<select class="cust-select" id="selectSem">
-						<c:forEach  items="${ acadSessLst }"
-							var="acadSess" varStatus="count">
+						<c:forEach  items="${ acadSessLst }" var="acadSess" varStatus="count">
 							<c:if test="${acadSess eq userBean.acadSession}">
 								<option value="${acadSess}" selected>${acadSess}</option>
 							</c:if>

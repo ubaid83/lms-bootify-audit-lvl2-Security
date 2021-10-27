@@ -275,6 +275,10 @@
                                                                                   + '&query='
                                                                                   + query,
                                                                       success : function(data) {
+                                                                    	  if(data=='validationError'){
+                                                                    		  $(".newLoaderWrap").css('display','none');
+                                                                              swal('Special characters are not allowed to enter except underscore(_) and hyphen(-)');
+                                                                    	  } else {
                                                                             $(".newLoaderWrap").css('display','none');
                                                                             $(
                                                                                         '#raiseQHide'
@@ -296,6 +300,7 @@
                                                                                                     + teeId).value = query;
                                                                             swal('query raised successfully');
                                                                             //$("#raiseQ").addClass('disabled');
+                                                                    	  }
                                                                       },
                                                                       error : function() {
                                                                             $(".newLoaderWrap").css('display','none');

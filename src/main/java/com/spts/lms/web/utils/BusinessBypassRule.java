@@ -28,35 +28,45 @@ public class BusinessBypassRule {
 	     }
 	 }
 	public static void validateYesOrNo(String s) throws ValidationException{
+		logger.info("String is " + s);
 		if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
-		Pattern p = Pattern.compile("[ny]");
+		Pattern p = Pattern.compile("[^nyNY]");
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
+	     logger.info("boolean is " + b);
 	     if(b) {
 	    	 throw new ValidationException("Input should be Y or N.");
-	     }  
-	 }
-	public static void validateNumericNotAZero(String s) throws ValidationException{
-		//Allows Only Double Positive Numbers as String, Zero not allowed
-		if (s == null || s.trim().isEmpty()) {
-	    	 throw new ValidationException("Input field cannot be empty");
 	     }
-		if(Double.valueOf(s) <= 0.0) {
-	    	 throw new ValidationException("Input number should be a positive number and non zero number.");
-	     }  
 	 }
-	public static void validateNumeric(String s) throws ValidationException{
-		//Allows Only Double Positive Numbers as String, Zero allowed
-		if (s == null || s.trim().isEmpty()) {
-	    	 throw new ValidationException("Input field cannot be empty");
-	     }
-	     
-	     if(Double.valueOf(s) < 0.0) {
-	    	 throw new ValidationException("Input number should be a positive number.");
-	     }  
-	 }
+		public static void validateNumericNotAZero(String s) throws ValidationException{
+	        //Allows Only Double Positive Numbers as String, Zero not allowed
+	        if (s == null || s.trim().isEmpty()) {
+	         throw new ValidationException("Input field cannot be empty");
+	      }
+	        String str = s.replaceAll(".", "");
+	        Pattern p = Pattern.compile("[^0-9]");
+	      Matcher m = p.matcher(str);
+	      boolean b = m.find();
+	        if(b || Double.valueOf(s) <= 0.0) {
+	         throw new ValidationException("Input number should be a positive number and non zero number.");
+	      }  
+	  }
+
+		public static void validateNumeric(String s) throws ValidationException{
+	        //Allows Only Double Positive Numbers as String, Zero allowed
+	        if (s == null || s.trim().isEmpty()) {
+	         throw new ValidationException("Input field cannot be empty");
+	      }
+	        Pattern p = Pattern.compile("[^0-9.]");
+	      Matcher m = p.matcher(s);
+	      boolean b = m.find();
+	      if(b || Double.valueOf(s) < 0.0) {
+	         throw new ValidationException("Input number should be a positive number.");
+	      }  
+	  }
+
 	public static void validateNumericNotAZero(double d) throws ValidationException{
 		//Allows Only Double Positive Numbers as double, Zero not allowed
 		if(d <= 0.0) {
