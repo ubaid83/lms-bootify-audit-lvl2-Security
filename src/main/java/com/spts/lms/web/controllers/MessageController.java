@@ -35,7 +35,9 @@ import com.spts.lms.services.message.StudentMessageService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 @Controller
 public class MessageController extends BaseController {
@@ -131,11 +133,16 @@ public class MessageController extends BaseController {
 			RequestMethod.POST })
 	public String createMessage(@ModelAttribute Message message, Long courseId,
 			RedirectAttributes redirectAttrs, Model m, Principal principal) {
+		System.out.println("INSIDE CREATE MSG GET POST>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		m.addAttribute("webPage", new WebPage("message", "Message Details",
 				true, false));
+		System.out.println("<<<<<<<<<<<<<<<<<<<<<INSIDE CREATE MESSAGE>>>>>>>>>>>>>>>>>>>>>>>");
 		String username = principal.getName();
 		UsernamePasswordAuthenticationToken userDeatils = (UsernamePasswordAuthenticationToken) principal;
 		m.addAttribute("message", message);
+	
+		
+		//changes 25-10-2021 for create msg
 		try {
 
 			message.setCreatedBy(username);
@@ -143,7 +150,18 @@ public class MessageController extends BaseController {
 			message.setFacultyId(username);
 
 			String idForCourse = message.getIdForCourse();
+			String subject = message.getSubject(); 
 			
+			System.out.println("CourseId is>>>>>>>>>>>>>:"+idForCourse);
+			
+			if(idForCourse == null)
+			{
+				throw new ValidationException("Something went wrong...");
+			}
+			  
+	        // BusinessBypassRule.validateNumeric(idForCourse); 
+	         BusinessBypassRule.validateAlphaNumeric(subject);
+	         
 			message.setCourseId(Long.valueOf(idForCourse));
 			
 			if (idForCourse != null) {
@@ -168,7 +186,16 @@ public class MessageController extends BaseController {
 			m.addAttribute("students", students);
 			
 
-		} catch (Exception e) {
+		}
+		catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(m, "Input field cannot be empty");
+			m.addAttribute("webPage", new WebPage("message", "Create Message",
+					false, false));
+			return "message/createMessage";
+		}
+
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in creating message");
 			m.addAttribute("webPage", new WebPage("message", "Create Message",
@@ -405,16 +432,25 @@ public class MessageController extends BaseController {
 		return "message/viewMyMessage";
 	}
 
+	// changes 25-10-2021
 	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/giveResponseToMessage", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String giveResponseToMessage(Model m,
-			@RequestParam("id") Long messageId) {
+			@RequestParam("id") Long messageId) throws ValidationException {
 		m.addAttribute("webPage", new WebPage("assignment", "View Message",
 				true, false));
-
-		Message msg = messageService.findByID(messageId);
+        
+		
+	//	Message msg = messageService.findByID(messageId);
+		
 		StudentMessage message = studentMessageService.findByID(messageId);
+	//	Message msg = messageService.findByID(message.getMessageId());
+		//String subject = message.getSubject();
+ 	 
+		String subject = message.getSubject();
+		System.out.println("MSG REPLY IS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+subject);
+       
 		Document doc = Jsoup.parse(message.getDescription());
 		String cQuestion = doc.text();
 		message.setDescription(cQuestion);
@@ -458,24 +494,53 @@ public class MessageController extends BaseController {
 		return "message/viewOutboxMessage";
 
 	}
-
+	
+    //add validations
 	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/saveMessageReply", method = { RequestMethod.GET,
 			RequestMethod.POST })
-	public String saveMessageReply(Model m,
+	    public String saveMessageReply(Model m,
 			@ModelAttribute StudentMessage message, Principal principal,
-			@RequestParam Long id) {
+			@RequestParam Long id ,	@RequestParam("id") Long messageId) {
 		m.addAttribute("webPage", new WebPage("assignment", "View Message",
 				true, false));
 		String username = principal.getName();
+		String subject = message.getSubject();
+	//	System.out.println("message is>>>>>>>>>>>>>>>>>>>>>>>>"+message);		
+		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<SUBJECT from student end IS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:"+subject);
+		
+	     String reply =	message.getMessageReply();
+		System.out.println("<<<<<<<<<<<<<<<<<<Reply to message>>>>>>>>>>>>>>"+reply);
 		try {
+			
+		 if(subject == null ||subject.isEmpty()) {
+		    	 throw new ValidationException("Subject Can't be blank");
+		     }
+			 
+			 if(reply == null|| reply.isEmpty())
+			 {
+				 throw new ValidationException("Reply can't  be blank");
+			 }
+			 BusinessBypassRule.validateAlphaNumeric(reply);
+			
 			message.setLastModifiedBy(username);
 			message.setMessageRepliedBy(username);
 			Date dt = Utils.getInIST();
 			message.setMessageRepliedDate(dt);
 			studentMessageDAO.update(message);
+		
+			}
+		
+		catch(ValidationException e)
+		{
+			logger.error("Exception", e);
+			setError(m, e.getMessage());
+			m.addAttribute("webPage", new WebPage("message", "viewMyMessage",
+					false, false));
+			return "message/viewMyMessage";
+		}
 			
-		} catch (Exception e) {
+		 catch (Exception e) {
 			logger.error("Exception", e);
 		}
 		return viewMyMessage(m, principal);
