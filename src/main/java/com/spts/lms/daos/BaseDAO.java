@@ -245,6 +245,9 @@ public abstract class BaseDAO<T extends BaseBean> extends
 		initInsert(bean);
 		SqlParameterSource parameterSource = getParameterSource(bean);
 		KeyHolder keyHolder = new GeneratedKeyHolder();
+		
+		System.out.println("KEYHOLDER>>>>>>>>>>>"+keyHolder);
+		System.out.println("PARAMETER SOURCE>>>>>>>>>>>"+parameterSource);
 
 		int affected = getNamedParameterJdbcTemplate().update(getInsertSql(),
 				parameterSource, keyHolder);
