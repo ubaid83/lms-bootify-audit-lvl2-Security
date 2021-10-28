@@ -17,13 +17,16 @@ public class BusinessBypassRule {
 	
 	private static final Logger logger = Logger.getLogger(BusinessBypassRule.class);
 	
+	
+	
 	public static void validateAlphaNumeric(String s) throws ValidationException{
 		//Allows Only Alpha Numeric values except _ and -
 	     if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
 
-	     Pattern p = Pattern.compile("[^A-Za-z0-9\\S\\-,_&]");
+	     Pattern p = Pattern.compile("[^A-Za-z0-9\s-,_&\\-]");
+
 
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
@@ -34,15 +37,17 @@ public class BusinessBypassRule {
 	     }
 	 }
 	public static void validateYesOrNo(String s) throws ValidationException{
+		logger.info("String is " + s);
 		if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
-		Pattern p = Pattern.compile("[ny]");
+		Pattern p = Pattern.compile("[^nyNY]");
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
+	     logger.info("boolean is " + b);
 	     if(b) {
 	    	 throw new ValidationException("Input should be Y or N.");
-	     }  
+	     }
 	 }
 	public static void validateNumericNotAZero(String s) throws ValidationException{
 		//Allows Only Double Positive Numbers as String, Zero not allowed
@@ -68,6 +73,7 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Input number should be a positive number.");
 	     }  
 	 }
+
 	public static void validateNumericNotAZero(double d) throws ValidationException{
 		//Allows Only Double Positive Numbers as double, Zero not allowed
 		if(d <= 0.0) {

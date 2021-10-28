@@ -1359,46 +1359,51 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 
 		return findAllSQL(sql, new Object[] { username });
 	}
+
+
+	public Course findAcadYear(String acadYear) {
+		String sql = "select acadYear from course where acadYear=? limit 1";
+//		return getJdbcTemplate().queryForObject(sql, new Object[] {acadYear}, String.class);
+		return findOneSQL(sql, new Object[] {acadYear});
+	}
 	
-	
-	 public Course checkIfExistsInDB(String columnName, String value) {
+	public Course checkIfExistsInDB(String columnName, String value) {
+		String sql = "";
+		if(columnName.equals("acadYear")) {
+			sql = "select * from course where acadYear=? limit 1";
+		} else 
+		if(columnName.equals("campusId")) {
+			sql = "select * from course where campusId=? limit 1";
+		} else
+		if(columnName.equals("acadSession")) {
+			sql = "select * from course where acadSession=? limit 1";
+		} else
+		if(columnName.equals("moduleId")) {
+			sql = "select * from course where moduleId=? limit 1";
+		} else
+		if(columnName.equals("programId")) {
+			sql = "select * from course where programId=? limit 1";
+		}
+		return findOneSQL(sql, new Object[] {value});
+	}
 
-         String sql = "";
+	//Peter 25/10/2021
+	public Course checkIfAcadSessionExists(String acadSession) {
+		String sql="SELECT sapSessionText FROM session_master WHERE sapSessionText=?";
+		return findOneSQL(sql, new Object[] {acadSession});
+	}
 
-         if(columnName.equals("acadYear")) {
+	//Peter 25/10/2021
+	public Course checkIfModuleExists(String moduleId) {
+		String sql="SELECT module_id FROM module WHERE module_id=?";
+		return findOneSQL(sql, new Object[] {moduleId});
+	}
 
-               sql = "select * from course where acadYear=? limit 1";
-
-         } else
-
-         if(columnName.equals("campusId")) {
-
-               sql = "select * from program_campus where campusId=? ";
-
-         } else
-
-         if(columnName.equals("acadSession")) {
-
-               sql = "select * from course where acadSession=? limit 1";
-
-         } else
-
-         if(columnName.equals("moduleId")) {
-
-               sql = "select * from course where moduleId=? limit 1";
-
-         } else
-
-         if(columnName.equals("programId")) {
-
-               sql = "select * from course where programId=? limit 1";
-
-         }
-
-         return findOneSQL(sql, new Object[] {value});
-
-   }
-	
+	//Peter 25/10/2021
+	public Course checkIfCampusExists(String campusId) {
+		String sql="SELECT campusId FROM program_campus WHERE campusId=?";
+		return findOneSQL(sql, new Object[] {campusId});
+	}
 }
 
 

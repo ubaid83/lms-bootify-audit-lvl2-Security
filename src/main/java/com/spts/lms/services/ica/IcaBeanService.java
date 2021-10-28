@@ -242,4 +242,9 @@ public class IcaBeanService extends BaseService<IcaBean> {
 	public List<IcaBean> getSubmittedIcaCompsNE(String username) {
 		return icaBeanDAO.getSubmittedIcaCompsNE(username);
 	}
+
+	//Peter 25/10/2021
+	public IcaBean checkIfComponentIdExists(String componentId) {
+		return icaBeanDAO.checkIfComponentIdExists(componentId);
+	}
 }

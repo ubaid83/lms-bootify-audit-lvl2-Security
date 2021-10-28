@@ -1615,4 +1615,10 @@ public class UserCourseDAO extends BaseDAO<UserCourse> {
 		return listOfStringParameter(sql, new Object[] { courseId });
 
 	}
+
+	//Peter 22/10/2021
+	public UserCourse getFacultyCourseId(String assignedFaculty, String moduleId) {
+		String sql = "select courseId from course c join user_course uc on c.id=uc.courseId where uc.username=? and c.moduleId=? limit 1";
+		return findOneSQL(sql,new Object[] { assignedFaculty, moduleId });
+	}
 }
