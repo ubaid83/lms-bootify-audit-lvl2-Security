@@ -140,7 +140,7 @@ public class StudentAttendanceController extends BaseController {
 
 			DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 
-					.createConnectionByDS("jdbc:mysql://10.25.10.50:3307/", defaultUsername, defaultPassword,
+					.createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword,
 							"timetable_metadata");
 
 			timetableDAO.setDS(dataSourceTimetable);
@@ -301,29 +301,10 @@ public class StudentAttendanceController extends BaseController {
                       "Mark Attendance", true, false));
           StudentCourseAttendance attendance = new StudentCourseAttendance();
 
-          MultipleDBConnection multipleDBConnection = new MultipleDBConnection();
 
-          DriverManagerDataSource dataSourceDefaultLms = multipleDBConnection
 
-          .createDefaultConnectionByDS(defaultUrl, defaultUsername,
-
-          defaultPassword);
-
-          DriverManagerDataSource dataSourceTimetable = multipleDBConnection
-
-          .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
-                      defaultPassword, "timetable_metadata");
-
-          timetableDAO.setDS(dataSourceTimetable);
-
-          Date dt = Utils.getInIST();
-          SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-          String curDate = "%" + dateFormat.format(dt) + "%";
-          logger.info("username ------->" + username);
-          logger.info("current Date ------->" + curDate);
-
-          List<Timetable> tt1 = timetableDAO.getTimetableByUsernameAndDate(
-                      username, curDate);
+          List<Timetable> tt1 = getFacultyLectures(username);
+          
           List<Timetable> tt = new ArrayList<>();
           for (Timetable tmtl : tt1) {
   			int check=0;
@@ -564,10 +545,6 @@ public class StudentAttendanceController extends BaseController {
                 m.addAttribute("flags", tt);
 
           }
-
-          timetableDAO.setDS(dataSourceDefaultLms);
-
-          
           List<String> facultyIdList = new ArrayList<String>();
           if(null != facultyId) {
   		  	facultyId =  facultyId.replaceAll(" ","");
@@ -1808,4 +1785,27 @@ public String saveStudentCourseAttendance(
 		return tt;
 	}
 
+	public List<Timetable> getFacultyLectures(String username) {
+		List<Timetable> tt = new ArrayList<>();
+		try {
+			MultipleDBConnection multipleDBConnection = new MultipleDBConnection();
+			DriverManagerDataSource dataSourceDefaultLms = multipleDBConnection.createDefaultConnectionByDS(defaultUrl,
+					defaultUsername, defaultPassword);
+
+			DriverManagerDataSource dataSourceTimetable = multipleDBConnection.createConnectionByDS(
+					"jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword, "timetable_metadata");
+			timetableDAO.setDS(dataSourceTimetable);
+
+			Date dt = Utils.getInIST();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+			String curDate = "%" + dateFormat.format(dt) + "%";
+
+			tt = timetableDAO.getTimetableByUsernameAndDate(username, curDate);
+			
+			timetableDAO.setDS(dataSourceDefaultLms);
+		} catch (Exception e) {
+			logger.error("Error-->" + e.getMessage());
+		}
+		return tt;
+	}
 }
