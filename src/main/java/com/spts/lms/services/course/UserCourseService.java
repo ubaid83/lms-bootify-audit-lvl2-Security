@@ -522,4 +522,9 @@ public class UserCourseService extends BaseService<UserCourse> {
 	public List<String> getFacultyByCourse(String courseId) {
 		return userCourseDAO.getFacultyByCourse(courseId);
 	}
+
+	//Peter 22/10/2021
+	public UserCourse getFacultyCourseId(String assignedFaculty, String moduleId) {
+		return userCourseDAO.getFacultyCourseId(assignedFaculty,moduleId);
+	}
 }

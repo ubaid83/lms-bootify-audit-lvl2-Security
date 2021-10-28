@@ -872,6 +872,7 @@
 								}
 
 								if (acadYear && !acadSession) {
+									console.log("getting")
 
 									$
 											.ajax({

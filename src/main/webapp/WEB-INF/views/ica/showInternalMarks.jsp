@@ -480,6 +480,12 @@
                                                                          url: '${pageContext.request.contextPath}/raiseQueryForStudent',
                                                                          data: {id:icaId,query:query},
                                                                       success : function(data) {
+                                                                    	  if(data=='validationError'){
+                                                                    		  $(".newLoaderWrap").css('display','none');
+                                                                              swal('Special characters are not allowed to enter except underscore(_) and hyphen(-)');
+                                                                    	  } else {
+                                                                    	  
+                                                                    	  console.log('data is ' + data);
                                                                             $(".newLoaderWrap").css('display','none');
                                                                             $(
                                                                                         '#raiseQHide'
@@ -501,6 +507,7 @@
                                                                                                     + icaId).value = query;
                                                                             swal('query raised successfully');
                                                                             //$("#raiseQ").addClass('disabled');
+                                                                    	  }
                                                                       },
                                                                       error : function() {
                                                                             $(".newLoaderWrap").css('display','none');

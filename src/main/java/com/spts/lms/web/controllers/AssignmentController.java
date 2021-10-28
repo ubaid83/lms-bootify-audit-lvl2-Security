@@ -112,6 +112,7 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -206,6 +207,7 @@ public class AssignmentController extends BaseController {
 	
 	@Autowired
 	TestQuestionPoolsService testQuestionPoolsService;
+	
 
 	protected static final int BUFFER_SIZE = 4096;
 
@@ -363,6 +365,7 @@ public class AssignmentController extends BaseController {
 //				setError(redirectAttributes, "Invalid Start date and End date");
 //				return "redirect:/createAssignmentFromMenu";
 //			}
+			HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
 			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -435,7 +438,7 @@ public class AssignmentController extends BaseController {
 					assignment.setSendSmsAlertToParents("Y");
 				}
 				
-
+			
 				assignment.setAcadMonth(course.getAcadMonth());
 				assignment.setAcadYear(Integer.valueOf(course.getAcadYear()));
 
@@ -522,6 +525,7 @@ public class AssignmentController extends BaseController {
 				m.addAttribute("allCourses",courseService.findByUserActive(username,userdetails1.getProgramName()));
 			}
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
 			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -1110,7 +1114,7 @@ public class AssignmentController extends BaseController {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveGroupAssignment(@ModelAttribute Assignment assignment,
 			@RequestParam("file") List<MultipartFile> files, Model m,
-			Principal principal,RedirectAttributes redirectAttributes) {
+			Principal principal,RedirectAttributes redirectAttributes, String multipleAssignmentErrorMsg) throws ValidationException{
 		m.addAttribute("webPage", new WebPage("assignment",
 				"Create Assignment", true, false));
 
@@ -1136,6 +1140,7 @@ public class AssignmentController extends BaseController {
 			assignment.setCourseId(courseId);
 		}
 		/* New Audit changes start */
+		HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
 		Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 		BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 		BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -1147,7 +1152,9 @@ public class AssignmentController extends BaseController {
 		BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 		BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 		BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
-		BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
+		if(!multipleAssignmentErrorMsg.equals("Success")) {
+			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
+		}
 		BusinessBypassRule.validateYesOrNo(assignment.getSendEmailAlert());
 		BusinessBypassRule.validateYesOrNo(assignment.getSendSmsAlert());
 
@@ -1319,19 +1326,29 @@ public class AssignmentController extends BaseController {
 				setSuccess(m, "Assignment allocated to "
 						+ assignment.getGrps().size() + " groups successfully");
 
-				return viewByGroupAssignment(assignment.getId(), m, principal);
+				if(multipleAssignmentErrorMsg.equals("Success")) {
+					viewByGroupAssignment(assignment.getId(), m, principal);
+					return "Success";
+				}else {
+					return viewByGroupAssignment(assignment.getId(), m, principal);
+				}
 			}
-
 		}catch (ValidationException ve) {
 			logger.error(ve.getMessage(), ve);
-			setError(m, ve.getMessage());
-			return "assignment/createAssignment";
+			setError(redirectAttributes, ve.getMessage());
+			if(multipleAssignmentErrorMsg.equals("Success")) {
+				return ve.getMessage();
+			}else {
+				return "redirect:/createAssignmentFromGroup";
+			}
+			
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in allocating assignment");
 			m.addAttribute("webPage", new WebPage("assignment",
 					"Create Assignment", false, false));
-			return "assignment/createAssignment";
+			return "assignment/createAssignmentFromGroupFinal";
 		}
 		m.addAttribute("assignment", assignment);
 		m.addAttribute("groupAssignmentMappingList", groupAssignmentMappingList);
@@ -3291,8 +3308,23 @@ public class AssignmentController extends BaseController {
 		map.put(3, grps3);
 		map.put(4, grps4);
 		map.put(5, grps5);
-		
+		try {
 		/* New Audit changes start */
+			
+//		Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
+//		BusinessBypassRule.validateNumeric(assignment.getMaxScore());
+//		BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
+//		validateAssignmentType(assignment.getAssignmentType());
+//		Course course = courseService.findByID(assignment.getCourseId());
+//		if(null == course) {
+//			throw new ValidationException("Invalid Course selected.");
+//		}
+//		BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+//		BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
+//		BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
+//		BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
+//		BusinessBypassRule.validateYesOrNo(assignment.getSendEmailAlert());
+//		BusinessBypassRule.validateYesOrNo(assignment.getSendSmsAlert());
 //		if(!Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate())) {
 //			setError(redirectAttrs, "Invalid Start date and End date");
 //			return "redirect:/createGroupAssignmentsForm?courseId=" + assignment.getCourseId();
@@ -3302,13 +3334,14 @@ public class AssignmentController extends BaseController {
 //			return "redirect:/createGroupAssignmentsForm?courseId=" + assignment.getCourseId();
 //		}
 		/* New Audit changes end */
+		
 		if (grps1.isEmpty() && grps2.isEmpty() && grps3.isEmpty()
 				&& grps4.isEmpty() && grps5.isEmpty()) {
 			setNote(redirectAttrs, "No Groups Selected!");
 			return "redirect:/createGroupAssignmentsForm?courseId="
 					+ assignment.getCourseId();
 		} else {
-			try {
+			
 				if (sendAlertsToParents.equalsIgnoreCase("Y")) {
 					assignment.setSendEmailAlertToParents("Y");
 					assignment.setSendSmsAlertToParents("Y");
@@ -3356,7 +3389,13 @@ public class AssignmentController extends BaseController {
 									}
 								}
 							}
-							saveGroupAssignment(assignment, mapper.get(i), m, p,redirectAttrs);
+							String multipleAssignmentErrorMsg = "Success";
+							HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
+							multipleAssignmentErrorMsg = saveGroupAssignment(assignment, mapper.get(i), m, p,redirectAttrs,multipleAssignmentErrorMsg);
+							logger.info("multipleAssignmentErrorMsg---->"+multipleAssignmentErrorMsg);
+							if(!multipleAssignmentErrorMsg.equals("Success")) {
+								throw new ValidationException("Invalid argument.");
+							}
 							//Audit change end
 						} else {
 							/* logger.info("Multipart Files is null"); */
@@ -3365,9 +3404,17 @@ public class AssignmentController extends BaseController {
 
 				}
 				setSuccess(redirectAttrs, "Assignments created successfully!");
-			} catch (Exception e) {
-				logger.error("Ëxception", e);
+			
 			}
+		}catch(ValidationException ve) {
+			setError(redirectAttrs, ve.getMessage());
+			redirectAttrs.addAttribute("courseId", assignment.getCourseId());
+			return "redirect:/createGroupAssignmentsForm";
+		} catch (Exception e) {
+			logger.error("Ëxception", e);
+			setError(redirectAttrs, e.getMessage());
+			redirectAttrs.addAttribute("courseId", assignment.getCourseId());
+			return "redirect:/createGroupAssignmentsForm";
 		}
 		m.addAttribute("assignment", assignment);
 
@@ -3482,6 +3529,22 @@ public class AssignmentController extends BaseController {
 				assignmentService.update(assignment);
 			} else {
 				/* New Audit changes start */
+				HtmlValidation.validateHtml(assignment,Arrays.asList("assignmentText"));
+				Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
+				BusinessBypassRule.validateNumeric(assignment.getMaxScore());
+				BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
+				validateAssignmentType(assignment.getAssignmentType());
+				Course course = courseService.findByID(assignment.getCourseId());
+				if(null == course) {
+					throw new ValidationException("Invalid Course selected.");
+				}
+				BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+				BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
+				BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
+				BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
+				BusinessBypassRule.validateYesOrNo(assignment.getSendEmailAlert());
+				BusinessBypassRule.validateYesOrNo(assignment.getSendSmsAlert());
+
 //				if(!Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate())) {
 //					setError(redirectAttributes, "Invalid Start date and End date");
 //					return "redirect:/createAssignmentModuleForm";
@@ -3508,7 +3571,7 @@ public class AssignmentController extends BaseController {
 								if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 									setError(redirectAttributes, "File uploaded is invalid!");
 									return "redirect:/createAssignmentModuleForm";
-								}else {
+								} else {
 									String errorMessage = uploadAssignmentFileForS3(assignment, file);
 								}
 							}
@@ -3607,6 +3670,10 @@ public class AssignmentController extends BaseController {
 				m.addAttribute("id", parentModuleId);
 				
 			}
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttributes, ve.getMessage());
+			return "redirect:/createAssignmentModuleForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttributes, "Error in creating assignment");
@@ -4204,10 +4271,25 @@ public class AssignmentController extends BaseController {
 			userdetails1.getProgramName()));
 			
 			/* New Audit changes start */
-			if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
-				setError(m, "Invalid total score");
-				return "assignment/createAssignmentForModule";
+			HtmlValidation.validateHtml(assignment,Arrays.asList("assignmentText"));
+			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
+			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
+			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
+			validateAssignmentType(assignment.getAssignmentType());
+			Course course = courseService.findByID(assignment.getCourseId());
+			if(null == course) {
+				throw new ValidationException("Invalid Course selected.");
 			}
+			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
+			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
+			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
+			BusinessBypassRule.validateYesOrNo(assignment.getSendEmailAlert());
+			BusinessBypassRule.validateYesOrNo(assignment.getSendSmsAlert());
+//			if(Double.valueOf(assignment.getMaxScore()) < 0.0) {
+//				setError(m, "Invalid total score");
+//				return "assignment/createAssignmentForModule";
+//			}
 			/* New Audit changes end */
 			// Upload new assignment file, if user selected one.
 			Assignment retrived = assignmentService.findByID(assignment.getId());
@@ -4248,7 +4330,7 @@ public class AssignmentController extends BaseController {
 
 			// existing assignment to use generic update query
 
-			Course course = retrived.getCourseId() != null ? courseService.findByID(Long.valueOf(retrived.getCourseId())) : null;
+//			Course course = retrived.getCourseId() != null ? courseService.findByID(Long.valueOf(retrived.getCourseId())) : null;
 			String subject = " Assigment with name  ";
 
 			StringBuffer buff = new StringBuffer(subject);
@@ -4427,15 +4509,17 @@ public class AssignmentController extends BaseController {
 
 			}
 
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttributes, ve.getMessage());
+			return "redirect:/createAssignmentForModule";
 		} catch (Exception e) {
 
 			logger.error(e.getMessage(), e);
 
 			setError(m, "Error in updating assignment");
 
-			m.addAttribute("webPage", new WebPage("assignment",
-
-			"Create Assignment", false, false));
+			m.addAttribute("webPage", new WebPage("assignment","Create Assignment", false, false));
 
 			return "assignment/createAssignmentForModule";
 
@@ -4786,6 +4870,21 @@ public class AssignmentController extends BaseController {
 //				setError(redirectAttributes, "Invalid total score");
 //				return "redirect:/createAssignmentByAdmin";
 //			}
+			HtmlValidation.validateHtml(assignment,Arrays.asList("assignmentText"));
+			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
+			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
+			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
+			validateAssignmentType(assignment.getAssignmentType());
+			Course course = courseService.findByID(assignment.getCourseId());
+			if(null == course) {
+				throw new ValidationException("Invalid Course selected.");
+			}
+			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
+			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
+			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
+			BusinessBypassRule.validateYesOrNo(assignment.getSendEmailAlert());
+			BusinessBypassRule.validateYesOrNo(assignment.getSendSmsAlert());
 			/* New Audit changes end */
 			if (assignment.getId() != null) {
 				assignmentService.update(assignment);
@@ -4870,6 +4969,10 @@ public class AssignmentController extends BaseController {
 				 * } else { setError(m, errorMessage); } }
 				 */
 			}
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttributes, ve.getMessage());
+			return "redirect:/createAssignmentByAdmin";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in creating assignment");

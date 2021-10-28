@@ -61,7 +61,9 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 //@Secured({ "ROLE_FACULTY", "ROLE_CORD", "ROLE_AREA_INCHARGE", "ROLE_AR" })
 @Controller
@@ -215,7 +217,8 @@ public class StudentTestController extends BaseController {
 		StudentQuestionResponse studQuestionResponse = studentQuestionResponseService
 				.findByStudentUsernameAndTestQuestnId(studusername, testQuestionId);
 		String username = p.getName();
-
+		try {
+			BusinessBypassRule.validateNumeric(testQuestion.getMarks());
 		if (testQuestionDB.getMarks() < testQuestion.getMarks()) {
 			redirectAttributes.addAttribute("id", testId);
 			redirectAttributes.addAttribute("studusername", studusername);
@@ -234,7 +237,7 @@ public class StudentTestController extends BaseController {
 			studentQuestionResponseAudit.setMarks(studQuestionResponse.getMarks());
 
 			m.addAttribute("testQuestId", testQuestionId);
-			try {
+			
 				studentQuestionResponseService.insert(studQuestionResponse);
 				studentQuestionResponseAuditService.insert(studentQuestionResponseAudit);
 
@@ -260,16 +263,20 @@ public class StudentTestController extends BaseController {
 				setSuccess(redirectAttributes, "student marks saved");
 
 				return "redirect:/evaluateTestForm";
-
-			} catch (Exception ex) {
-				logger.error("Exception", ex);
-				redirectAttributes.addAttribute("id", testId);
-				redirectAttributes.addAttribute("studusername", studusername);
-				setError(redirectAttributes, "Error in saving marks");
-				return "redirect:/evaluateTestForm";
 			}
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttributes, ve.getMessage());
+			redirectAttributes.addAttribute("id", testId);
+			redirectAttributes.addAttribute("studusername", studusername);
+			return "redirect:/evaluateTestForm";
+		} catch (Exception ex) {
+			logger.error("Exception", ex);
+			redirectAttributes.addAttribute("id", testId);
+			redirectAttributes.addAttribute("studusername", studusername);
+			setError(redirectAttributes, "Error in saving marks");
+			return "redirect:/evaluateTestForm";
 		}
-
 	}
 
 	@Secured({"ROLE_ADMIN"})

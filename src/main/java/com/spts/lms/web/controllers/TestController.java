@@ -105,6 +105,8 @@ import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -222,6 +224,7 @@ public class TestController extends BaseController {
 
 	@Autowired
 	TestPoolConfigurationService testPoolConfigurationService;
+	
 
 	private static final Logger logger = Logger.getLogger(TestController.class);
 
@@ -397,43 +400,36 @@ public class TestController extends BaseController {
 		m.addAttribute("username", username);
 		try {
 			/* New Audit changes start */
-//			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
-//				setError(redirectAttrs, "Invalid Start date and End date");
-//				return "redirect:/createTestForm";
-//			}
+			HtmlValidation.validateHtml(test, Arrays.asList("testDescription"));
+			BusinessBypassRule.validateAlphaNumeric(test.getTestName());
+			Course course = courseService.findByID(test.getCourseId());
+			if(null == course) {
+				throw new ValidationException("Invalid Course selected.");
+			}
+			UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(test.getFacultyId(), String.valueOf(test.getCourseId()));
+			if(null == userccourse) {
+				throw new ValidationException("Invalid faculty selected.");
+			}
+			Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate());
+			BusinessBypassRule.validateNumericNotAZero(test.getMaxScore());
+			BusinessBypassRule.validateNumericNotAZero(test.getDuration());
+			BusinessBypassRule.validateNumericNotAZero(test.getPassScore());
+			BusinessBypassRule.validateNumericNotAZero(test.getMaxAttempt());
+			BusinessBypassRule.validateYesOrNo(test.getRandomQuestion());
+			BusinessBypassRule.validateYesOrNo(test.getSameMarksQue());
+			if ("Y".equals(test.getRandomQuestion())) {
+				BusinessBypassRule.validateNumericNotAZero(test.getMaxQuestnToShow());
+			}
+			if ("Y".equals(test.getSameMarksQue())) {
+				BusinessBypassRule.validateNumericNotAZero(test.getMarksPerQue());
+			}
+			
 			if("Mix".equals(test.getTestType())) {
-				if(Double.valueOf(test.getMaxQuestnToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxDesQueToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxImgQueToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxMcqQueToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxRngQueToShow()) < 0.0 ) {
-					setError(redirectAttrs, "Invalid value of max question to show.");
-					return "redirect:/createTestForm";
-				}
-			}
-			if ("Y".equals(test.getRandomQuestion()) && Integer.valueOf(test.getMaxQuestnToShow()) < 0) {
-				setError(redirectAttrs, "Invalid value of max question to show.");
-				return "redirect:/createTestForm";
-			} 
-			if("Y".equals(test.getSameMarksQue()) && Double.valueOf(test.getMarksPerQue()) < 0.0) {
-				setError(redirectAttrs, "Invalid value of marks per question.");
-				return "redirect:/createTestForm";
-			}
-			if(test.getDuration() <= 0) {
-				setError(redirectAttrs, "Invalid test duration time.");
-				return "redirect:/createTestForm";
-			}
-			if(test.getMaxScore() <= 0.0) {
-				setError(redirectAttrs, "Invalid total score.");
-				return "redirect:/createTestForm";
-			}
-			if(test.getPassScore() <= 0) {
-				setError(redirectAttrs, "Invalid passing score.");
-				return "redirect:/createTestForm";
-			}
-			if(test.getMaxAttempt() <= 0) {
-				setError(redirectAttrs, "Invalid maximum attempts.");
-				return "redirect:/createTestForm";
+				BusinessBypassRule.validateNumeric(test.getMaxQuestnToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxDesQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxImgQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxMcqQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxRngQueToShow());
 			}
 			/* New Audit changes end */
 			if ("Y".equals(test.getRandomQuestion()) && "Y".equals(test.getSameMarksQue())) {
@@ -624,8 +620,12 @@ public class TestController extends BaseController {
 				}
 			}
 
-		}
-		catch (Exception e) {
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			redirectAttrs.addAttribute("courseId", test.getCourseId());
+			return "redirect:/createTestForm";
+		}catch (Exception e) {
 			logger.error(e.getMessage(), e);
 
 			redirectAttrs.addAttribute("courseId", test.getCourseId());
@@ -799,39 +799,36 @@ public class TestController extends BaseController {
 		Test oldTest = testService.findByID(test.getId());
 		try {
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(test, Arrays.asList("testDescription"));
+			BusinessBypassRule.validateAlphaNumeric(test.getTestName());
+			Course course = courseService.findByID(test.getCourseId());
+			if(null == course) {
+				throw new ValidationException("Invalid Course selected.");
+			}
+			UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(test.getFacultyId(), String.valueOf(test.getCourseId()));
+			if(null == userccourse) {
+				throw new ValidationException("Invalid faculty selected.");
+			}
+			Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate());
+			BusinessBypassRule.validateNumericNotAZero(test.getMaxScore());
+			BusinessBypassRule.validateNumericNotAZero(test.getDuration());
+			BusinessBypassRule.validateNumericNotAZero(test.getPassScore());
+			BusinessBypassRule.validateNumericNotAZero(test.getMaxAttempt());
+			BusinessBypassRule.validateYesOrNo(test.getRandomQuestion());
+			BusinessBypassRule.validateYesOrNo(test.getSameMarksQue());
+			if ("Y".equals(test.getRandomQuestion())) {
+				BusinessBypassRule.validateNumericNotAZero(test.getMaxQuestnToShow());
+			}
+			if ("Y".equals(test.getSameMarksQue())) {
+				BusinessBypassRule.validateNumericNotAZero(test.getMarksPerQue());
+			}
+
 			if("Mix".equals(test.getTestType())) {
-				if(Double.valueOf(test.getMaxQuestnToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxDesQueToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxImgQueToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxMcqQueToShow()) < 0.0 ||
-						Double.valueOf(test.getMaxRngQueToShow()) < 0.0 ) {
-					setError(redirectAttrs, "Invalid value of max question to show.");
-					return "redirect:/addTestForm";
-				}
-			}
-			if ("Y".equals(test.getRandomQuestion()) && Integer.valueOf(test.getMaxQuestnToShow()) < 0) {
-				setError(redirectAttrs, "Invalid value of max question to show.");
-				return "redirect:/addTestForm";
-			} 
-			if("Y".equals(test.getSameMarksQue()) && Double.valueOf(test.getMarksPerQue()) < 0.0) {
-				setError(redirectAttrs, "Invalid value of marks per question.");
-				return "redirect:/addTestForm";
-			}
-			if(test.getDuration() <= 0) {
-				setError(redirectAttrs, "Invalid test duration time.");
-				return "redirect:/addTestForm";
-			}
-			if(test.getMaxScore() <= 0.0) {
-				setError(redirectAttrs, "Invalid total score.");
-				return "redirect:/addTestForm";
-			}
-			if(test.getPassScore() <= 0) {
-				setError(redirectAttrs, "Invalid passing score.");
-				return "redirect:/addTestForm";
-			}
-			if(test.getMaxAttempt() <= 0) {
-				setError(redirectAttrs, "Invalid maximum attempts.");
-				return "redirect:/addTestForm";
+				BusinessBypassRule.validateNumeric(test.getMaxQuestnToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxDesQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxImgQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxMcqQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxRngQueToShow());
 			}
 			/* New Audit changes end */
 			if ("Y".equals(test.getRandomQuestion()) && "Y".equals(test.getSameMarksQue())) {
@@ -971,7 +968,12 @@ public class TestController extends BaseController {
 				}
 			}
 
-		} catch (Exception e) {
+		}catch(ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			redirectAttrs.addFlashAttribute("test", test);
+			return "redirect:/addTestForm";
+		}  catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating Test");
 			redirectAttrs.addFlashAttribute("test", test);
@@ -2570,7 +2572,30 @@ public class TestController extends BaseController {
 		}
 
 	}
-
+	public void validateTestType(String s) throws ValidationException{
+		if (s == null || s.trim().isEmpty()) {
+			 throw new ValidationException("Input field cannot be empty");
+		 }
+		if(!s.equals("Objective") && !s.equals("Subjective") && !s.equals("Mix")) {
+			throw new ValidationException("Invalid Test Question Type.");
+		}
+	}
+	public void validateTestQuestionType(String s) throws ValidationException{
+		if (s == null || s.trim().isEmpty()) {
+			 throw new ValidationException("Input field cannot be empty");
+		 }
+		if(!s.equals("MCQ") && !s.equals("Numeric") && !s.equals("Image")) {
+			throw new ValidationException("Invalid Test Question Type.");
+		}
+	}
+	public void validateTestQuestionSubType(String s) throws ValidationException{
+		if (s == null || s.trim().isEmpty()) {
+			 throw new ValidationException("Input field cannot be empty");
+		 }
+		if(!s.equals("SINGLESELECT") && !s.equals("MULTISELECT")) {
+			throw new ValidationException("Invalid Test Question Sub Type.");
+		}
+	}
 	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestQuestion", method = RequestMethod.POST)
 	public String addTestQuestion(@ModelAttribute TestQuestion testQuestion, Model m, RedirectAttributes redirectAttrs,
@@ -2581,7 +2606,26 @@ public class TestController extends BaseController {
 		Test test = testService.findByID(testQuestion.getTestId());
 		double sumOfQuestionMarks = 0.0;
 		try {
-
+			/* New Audit changes start */
+			HtmlValidation.validateHtml(testQuestion, Arrays.asList("description","option1","option2","option3","option4","option5","option6","option7","option8"));
+			if(testQuestion.getDescription() == null || testQuestion.getDescription().isEmpty()) {
+				throw new ValidationException("Input field cannot be empty");
+			}
+			BusinessBypassRule.validateNumericNotAZero(testQuestion.getMarks());
+			validateTestQuestionType(testQuestion.getQuestionType());
+			if(testQuestion.getQuestionType().equals("MCQ")) {
+				validateTestQuestionSubType(testQuestion.getType());
+				BusinessBypassRule.validateYesOrNo(testQuestion.getOptionShuffle());
+				if(testQuestion.getCorrectOption() == null && testQuestion.getCorrectOption().isEmpty()) {
+					throw new ValidationException("Please select correct Answer");
+				}
+			}
+			if(testQuestion.getQuestionType().equals("Numeric")) {
+				if(testQuestion.getCorrectAnswerNum() == null && testQuestion.getCorrectAnswerNum().isEmpty()) {
+					throw new ValidationException("Please select correct Answer");
+				}
+			}
+			/* New Audit changes end */
 			if (testQuestions.isEmpty()) {
 				sumOfQuestionMarks = testQuestion.getMarks();
 
@@ -2661,9 +2705,13 @@ public class TestController extends BaseController {
 
 			}
 
+		}catch(ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addTestQuestionForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			setNote(redirectAttrs, "Please select Correct Answer");
+			setError(redirectAttrs, "Error in adding question.");
 			return "redirect:/addTestQuestionForm";
 		}
 		return "redirect:/addTestQuestionForm";
@@ -2688,7 +2736,16 @@ public class TestController extends BaseController {
 		Test test = testService.findByID(testQuestion.getTestId());
 		double sumOfQuestionMarks = 0.0;
 		try {
-
+			/* New Audit changes start */
+			HtmlValidation.validateHtml(testQuestion, Arrays.asList("description","option1","option2","option3","option4","option5","option6","option7","option8"));
+			if(testQuestion.getDescription() == null || testQuestion.getDescription().isEmpty()) {
+				throw new ValidationException("Input field cannot be empty");
+			}
+			BusinessBypassRule.validateNumeric(testQuestion.getMarks());
+			if(testQuestion.getQuestionType() == null || testQuestion.getQuestionType().isEmpty() || !testQuestion.getQuestionType().equals("Descriptive")) {
+				throw new ValidationException("Input field cannot be empty");
+			}
+			/* New Audit changes end */
 			if (testQuestions.isEmpty()) {
 
 				sumOfQuestionMarks = testQuestion.getMarks();
@@ -2732,9 +2789,13 @@ public class TestController extends BaseController {
 
 			}
 
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addTestQuestionForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			setNote(redirectAttrs, "Please select Correct Answer");
+			setNote(redirectAttrs, "Error in adding Question.");
 			return "redirect:/addTestQuestionForm";
 		}
 		return "redirect:/addTestQuestionForm";
@@ -2805,10 +2866,33 @@ public class TestController extends BaseController {
 		TestQuestion testQuestion = test.getTestQuestions().get(test.getTestQuestions().size() - 1);
 		double sumOfQuestionMarks = 0.0;
 		try {
+			
 			TestQuestion testQuestionFromDb = testQuestionService.findByID(testQuestion.getId());
 			test = testService.findByID(testQuestionFromDb.getTestId());
 			int id = testQuestionFromDb.getTestId().intValue();
 			redirectAttrs.addAttribute("id", testQuestionFromDb.getTestId());
+			/* New Audit changes start */
+			HtmlValidation.validateHtml(testQuestion, Arrays.asList("description","option1","option2","option3","option4","option5","option6","option7","option8"));
+	
+			if(testQuestion.getDescription() == null || testQuestion.getDescription().isEmpty()) {
+				throw new ValidationException("Input field cannot be empty");
+			}
+			BusinessBypassRule.validateNumericNotAZero(testQuestion.getMarks());
+			logger.info(testQuestion.getQuestionType());
+//			validateTestQuestionType(testQuestion.getQuestionType());
+			if(testQuestion.getQuestionType().equals("MCQ")) {
+				validateTestQuestionSubType(testQuestion.getType());
+				BusinessBypassRule.validateYesOrNo(testQuestion.getOptionShuffle());
+				if(testQuestion.getCorrectOption() == null && testQuestion.getCorrectOption().isEmpty()) {
+					throw new ValidationException("Please select correct Answer");
+				}
+			}
+			if(testQuestion.getQuestionType().equals("Numeric")) {
+				if(testQuestion.getCorrectAnswerNum() == null && testQuestion.getCorrectAnswerNum().isEmpty()) {
+					throw new ValidationException("Please select correct Answer");
+				}
+			}
+			/* New Audit changes end */
 			sumOfQuestionMarks = (testQuestionService.getSumOfTestQuestionMarksByTestId(testQuestionFromDb.getTestId())
 					- testQuestionFromDb.getMarks()) + testQuestion.getMarks();
 			if (!"Y".equals(test.getRandomQuestion())) {
@@ -2902,7 +2986,11 @@ public class TestController extends BaseController {
 				return "redirect:/addTestQuestionForm";
 			}
 
-		} catch (Exception e) {
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addTestQuestionForm";
+		}catch (Exception e) {
 
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating Test Question");
@@ -3501,7 +3589,10 @@ public class TestController extends BaseController {
 			Model m) {
 		try {
 			String username = principal.getName();
-
+			/* New Audit changes start */
+			HtmlValidation.validateHtml(testPool, new ArrayList<>());
+			BusinessBypassRule.validateAlphaNumeric(testPool.getTestPoolName());
+			/* New Audit changes end */
 			Token userdetails1 = (Token) principal;
 			String ProgramName = userdetails1.getProgramName();
 			User u = userService.findByUserName(username);
@@ -3518,6 +3609,10 @@ public class TestController extends BaseController {
 			redirectAttrs.addFlashAttribute("testPool", testPool);
 			setSuccess(redirectAttrs, " Test Pool added successfully");
 
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addTestPoolForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in adding Test Pool");
@@ -3809,7 +3904,26 @@ public class TestController extends BaseController {
 		String username = principal.getName();
 		redirectAttrs.addAttribute("testPoolId", testQuestionPools.getTestPoolId());
 		try {
-
+			/* New Audit changes start */
+			HtmlValidation.validateHtml(testQuestionPools, Arrays.asList("description","option1","option2","option3","option4","option5","option6","option7","option8"));
+			if(testQuestionPools.getDescription() == null || testQuestionPools.getDescription().isEmpty()) {
+				throw new ValidationException("Input field cannot be empty");
+			}
+			BusinessBypassRule.validateNumericNotAZero(testQuestionPools.getMarks());
+			validateTestQuestionType(testQuestionPools.getQuestionType());
+			if(testQuestionPools.getQuestionType().equals("MCQ")) {
+				validateTestQuestionSubType(testQuestionPools.getType());
+				BusinessBypassRule.validateYesOrNo(testQuestionPools.getOptionShuffle());
+				if(testQuestionPools.getCorrectOption() == null && testQuestionPools.getCorrectOption().isEmpty()) {
+					throw new ValidationException("Please select correct Answer");
+				}
+			}
+			if(testQuestionPools.getQuestionType().equals("Numeric")) {
+				if(testQuestionPools.getCorrectAnswerNum() == null && testQuestionPools.getCorrectAnswerNum().isEmpty()) {
+					throw new ValidationException("Please select correct Answer");
+				}
+			}
+			/* New Audit changes end */
 			if (testQuestionPools.getQuestionType().equals("Numeric")) {
 
 				double answerRangeFrom = Double.valueOf(testQuestionPools.getAnswerRangeFrom());
@@ -3842,6 +3956,10 @@ public class TestController extends BaseController {
 			testQuestionPoolsService.insert(testQuestionPools);
 
 			setSuccess(redirectAttrs, "Test Question Added Successfully To The Pool");
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/configureImageTestQuestionPoolForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setNote(redirectAttrs, "Error in Adding Question");
@@ -4912,6 +5030,26 @@ public class TestController extends BaseController {
 		TestQuestionPools testQuestionPool = test.getTestQuestionPools().get(test.getTestQuestionPools().size() - 1);
 		logger.info("testquestionpool" + testQuestionPool);
 		try {
+			/* New Audit changes start */
+			HtmlValidation.validateHtml(testQuestionPool, Arrays.asList("description","option1","option2","option3","option4","option5","option6","option7","option8"));
+			if(testQuestionPool.getDescription() == null || testQuestionPool.getDescription().isEmpty()) {
+				throw new ValidationException("Input field cannot be empty");
+			}
+			BusinessBypassRule.validateNumericNotAZero(testQuestionPool.getMarks());
+			validateTestQuestionType(testQuestionPool.getQuestionType());
+			if(testQuestionPool.getQuestionType().equals("MCQ")) {
+				validateTestQuestionSubType(testQuestionPool.getType());
+				BusinessBypassRule.validateYesOrNo(testQuestionPool.getOptionShuffle());
+				if(testQuestionPool.getCorrectOption() == null && testQuestionPool.getCorrectOption().isEmpty()) {
+					throw new ValidationException("Please select correct Answer");
+				}
+			}
+			if(testQuestionPool.getQuestionType().equals("Numeric")) {
+				if(testQuestionPool.getCorrectAnswerNum() == null && testQuestionPool.getCorrectAnswerNum().isEmpty()) {
+					throw new ValidationException("Please select correct Answer");
+				}
+			}
+			/* New Audit changes end */
 			TestQuestionPools testQuestionPoolsFromDb = testQuestionPoolsService.findByID(testQuestionPool.getId());
 
 			int id = testQuestionPoolsFromDb.getTestPoolId().intValue();
@@ -4947,6 +5085,10 @@ public class TestController extends BaseController {
 				setError(redirectAttrs, "Test Question cannot be updated");
 			}
 
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/viewTestQuestionsByTestPool";
 		} catch (Exception e) {
 
 			logger.error(e.getMessage(), e);
@@ -5023,6 +5165,10 @@ public class TestController extends BaseController {
 
 		try {
 
+			/* New Audit changes start */
+			HtmlValidation.validateHtml(testPool, new ArrayList<>());
+			BusinessBypassRule.validateAlphaNumeric(testPool.getTestPoolName());
+			/* New Audit changes end */
 			TestPool testPoolFromDb = testPoolService.findByID(testPool.getId());
 			testPoolFromDb = LMSHelper.copyNonNullFields(testPoolFromDb, testPool);
 			testPoolFromDb.setLastModifiedBy(username);
@@ -5032,15 +5178,27 @@ public class TestController extends BaseController {
 			else
 				setError(redirectAttrs, "Test-Pool cannot be updated");
 
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			redirectAttrs.addFlashAttribute("testPool", testPool);
+			if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
+				return "redirect:/addTestPoolFormByAdmin";
+			} else {
+				return "redirect:/addTestPoolForm";
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating Test Pool");
 			redirectAttrs.addFlashAttribute("testPool", testPool);
-			return "redirect:/addTestPoolForm";
+			if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
+				return "redirect:/addTestPoolFormByAdmin";
+			} else {
+				return "redirect:/addTestPoolForm";
+			}
 		}
 		if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
 			return "redirect:/addTestPoolFormByAdmin";
-
 		} else {
 			return "redirect:/addTestPoolForm";
 		}
@@ -6667,43 +6825,36 @@ public class TestController extends BaseController {
 		m.addAttribute("username", username);
 		try {
 			/* New Audit changes start */
-//			if(!Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate())) {
-//				setError(redirectAttrs, "Invalid Start date and End date");
-//				return "redirect:/addTestFormByAdmin";
-//			}
+			HtmlValidation.validateHtml(test, Arrays.asList("testDescription"));
+			BusinessBypassRule.validateAlphaNumeric(test.getTestName());
+			Course course = courseService.findByID(test.getCourseId());
+			if(null == course) {
+				throw new ValidationException("Invalid Course selected.");
+			}
+			UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(test.getFacultyId(), String.valueOf(test.getCourseId()));
+			if(null == userccourse) {
+				throw new ValidationException("Invalid faculty selected.");
+			}
+			Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate());
+			BusinessBypassRule.validateNumericNotAZero(test.getMaxScore());
+			BusinessBypassRule.validateNumericNotAZero(test.getDuration());
+			BusinessBypassRule.validateNumericNotAZero(test.getPassScore());
+			BusinessBypassRule.validateNumericNotAZero(test.getMaxAttempt());
+			BusinessBypassRule.validateYesOrNo(test.getRandomQuestion());
+			BusinessBypassRule.validateYesOrNo(test.getSameMarksQue());
+			if ("Y".equals(test.getRandomQuestion())) {
+				BusinessBypassRule.validateNumericNotAZero(test.getMaxQuestnToShow());
+			}
+			if ("Y".equals(test.getSameMarksQue())) {
+				BusinessBypassRule.validateNumericNotAZero(test.getMarksPerQue());
+			}
+
 			if("Mix".equals(test.getTestType())) {
-				if(Double.valueOf(test.getMaxQuestnToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxDesQueToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxImgQueToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxMcqQueToShow()) < 0.0 ||
-						Double.valueOf(test.getMaxRngQueToShow()) < 0.0 ) {
-					setError(redirectAttrs, "Invalid value of max question to show.");
-					return "redirect:/addTestFormByAdmin";
-				}
-			}
-			if ("Y".equals(test.getRandomQuestion()) && Integer.valueOf(test.getMaxQuestnToShow()) < 0) {
-				setError(redirectAttrs, "Invalid value of max question to show.");
-				return "redirect:/addTestFormByAdmin";
-			} 
-			if("Y".equals(test.getSameMarksQue()) && Double.valueOf(test.getMarksPerQue()) < 0.0) {
-				setError(redirectAttrs, "Invalid value of marks per question.");
-				return "redirect:/addTestFormByAdmin";
-			}
-			if(test.getDuration() <= 0) {
-				setError(redirectAttrs, "Invalid test duration time.");
-				return "redirect:/addTestFormByAdmin";
-			}
-			if(test.getMaxScore() <= 0.0) {
-				setError(redirectAttrs, "Invalid total score.");
-				return "redirect:/addTestFormByAdmin";
-			}
-			if(test.getPassScore() <= 0) {
-				setError(redirectAttrs, "Invalid passing score.");
-				return "redirect:/addTestFormByAdmin";
-			}
-			if(test.getMaxAttempt() <= 0) {
-				setError(redirectAttrs, "Invalid maximum attempts.");
-				return "redirect:/addTestFormByAdmin";
+				BusinessBypassRule.validateNumeric(test.getMaxQuestnToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxDesQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxImgQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxMcqQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxRngQueToShow());
 			}
 			/* New Audit changes end */
 			if ("Y".equals(test.getRandomQuestion()) && "Y".equals(test.getSameMarksQue())) {
@@ -6820,7 +6971,11 @@ public class TestController extends BaseController {
 				}
 			}
 
-		} catch (Exception e) {
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addTestFormByAdmin";
+		}catch (Exception e) {
 			logger.error(e.getMessage(), e);
 
 			// redirectAttrs.addAttribute("courseId", test.getCourseId());
@@ -7038,7 +7193,10 @@ public class TestController extends BaseController {
 			Principal principal, Model m) {
 		try {
 			String username = principal.getName();
-
+			/* New Audit changes start */
+			HtmlValidation.validateHtml(testPool, new ArrayList<>());
+			BusinessBypassRule.validateAlphaNumeric(testPool.getTestPoolName());
+			/* New Audit changes end */
 			Token userdetails1 = (Token) principal;
 			String ProgramName = userdetails1.getProgramName();
 			User u = userService.findByUserName(username);
@@ -7058,6 +7216,10 @@ public class TestController extends BaseController {
 			redirectAttrs.addFlashAttribute("testPool", testPool);
 			setSuccess(redirectAttrs, " Test Pool added successfully");
 
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addTestPoolFormByAdmin";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in adding Test Pool");
@@ -7116,39 +7278,37 @@ public class TestController extends BaseController {
 		Test oldTest = testService.findByID(test.getId());
 		try {
 			/* New Audit changes start */
+			
+			HtmlValidation.validateHtml(test, Arrays.asList("testDescription"));
+			BusinessBypassRule.validateAlphaNumeric(test.getTestName());
+			Course course = courseService.findByID(test.getCourseId());
+			if(null == course) {
+				throw new ValidationException("Invalid Course selected.");
+			}
+			UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(test.getFacultyId(), String.valueOf(test.getCourseId()));
+			if(null == userccourse) {
+				throw new ValidationException("Invalid faculty selected.");
+			}
+			Utils.validateStartAndEndDates(test.getStartDate(), test.getEndDate());
+			BusinessBypassRule.validateNumericNotAZero(test.getMaxScore());
+			BusinessBypassRule.validateNumericNotAZero(test.getDuration());
+			BusinessBypassRule.validateNumericNotAZero(test.getPassScore());
+			BusinessBypassRule.validateNumericNotAZero(test.getMaxAttempt());
+			BusinessBypassRule.validateYesOrNo(test.getRandomQuestion());
+			BusinessBypassRule.validateYesOrNo(test.getSameMarksQue());
+			if ("Y".equals(test.getRandomQuestion())) {
+				BusinessBypassRule.validateNumericNotAZero(test.getMaxQuestnToShow());
+			}
+			if ("Y".equals(test.getSameMarksQue())) {
+				BusinessBypassRule.validateNumericNotAZero(test.getMarksPerQue());
+			}
+
 			if("Mix".equals(test.getTestType())) {
-				if(Double.valueOf(test.getMaxQuestnToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxDesQueToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxImgQueToShow()) < 0.0 || 
-						Double.valueOf(test.getMaxMcqQueToShow()) < 0.0 ||
-						Double.valueOf(test.getMaxRngQueToShow()) < 0.0 ) {
-					setError(redirectAttrs, "Invalid value of max question to show.");
-					return "redirect:/addTestFormByAdmin";
-				}
-			}
-			if ("Y".equals(test.getRandomQuestion()) && Integer.valueOf(test.getMaxQuestnToShow()) < 0) {
-				setError(redirectAttrs, "Invalid value of max question to show.");
-				return "redirect:/addTestFormByAdmin";
-			} 
-			if("Y".equals(test.getSameMarksQue()) && Double.valueOf(test.getMarksPerQue()) < 0.0) {
-				setError(redirectAttrs, "Invalid value of marks per question.");
-				return "redirect:/addTestFormByAdmin";
-			}
-			if(test.getDuration() <= 0) {
-				setError(redirectAttrs, "Invalid test duration time.");
-				return "redirect:/addTestFormByAdmin";
-			}
-			if(test.getMaxScore() <= 0.0) {
-				setError(redirectAttrs, "Invalid total score.");
-				return "redirect:/addTestFormByAdmin";
-			}
-			if(test.getPassScore() <= 0) {
-				setError(redirectAttrs, "Invalid passing score.");
-				return "redirect:/addTestFormByAdmin";
-			}
-			if(test.getMaxAttempt() <= 0) {
-				setError(redirectAttrs, "Invalid maximum attempts.");
-				return "redirect:/addTestFormByAdmin";
+				BusinessBypassRule.validateNumeric(test.getMaxQuestnToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxDesQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxImgQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxMcqQueToShow());
+				BusinessBypassRule.validateNumeric(test.getMaxRngQueToShow());
 			}
 			/* New Audit changes end */
 			if ("Y".equals(test.getRandomQuestion()) && "Y".equals(test.getSameMarksQue())) {
@@ -7272,6 +7432,11 @@ public class TestController extends BaseController {
 				}
 			}
 
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			redirectAttrs.addFlashAttribute("test", test);
+			return "redirect:/addTestFormByAdmin";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating Test");
