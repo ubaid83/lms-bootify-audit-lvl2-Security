@@ -100,9 +100,9 @@
 													<div class="col-sm-4 column">
 														<div class="form-group">
 															<c:if test="${showDropDown}">
-																<form:label path="courseId" for="courseId">Course</form:label>
+																<form:label path="courseId" for="courseId">Course<span style="color: red">*</span></form:label>
 																<form:select id="idForCourse" path="idForCourse"
-																	class="form-control">
+																	class="form-control" required="required">
 																	<form:option value="">Select Course</form:option>
 																	<c:forEach var="course" items="${courses}"
 																		varStatus="status">

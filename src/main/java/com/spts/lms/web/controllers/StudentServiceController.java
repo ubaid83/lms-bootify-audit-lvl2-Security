@@ -86,8 +86,7 @@ import com.spts.lms.web.helper.WebPage;
 @Controller
 public class StudentServiceController extends BaseController {
 
-	private static final Logger logger = Logger
-			.getLogger(StudentServiceController.class);
+	private static final Logger logger = Logger.getLogger(StudentServiceController.class);
 
 	@Autowired
 	UserService userService;
@@ -123,17 +122,15 @@ public class StudentServiceController extends BaseController {
 	private String app;
 
 	Client client = ClientBuilder.newClient();
-	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
-	@RequestMapping(value = "/createBFServiceForm", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String createBFServiceForm(Model m, Principal principal,
-			@RequestParam Long serviceId) {
+
+	@Secured({ "ROLE_ADMIN", "ROLE_STUDENT" })
+	@RequestMapping(value = "/createBFServiceForm", method = { RequestMethod.GET, RequestMethod.POST })
+	public String createBFServiceForm(Model m, Principal principal, @RequestParam Long serviceId) {
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		if (serviceId != null) {
 			StudentServiceBean ss = studentWsService.findByID(serviceId);
@@ -144,26 +141,24 @@ public class StudentServiceController extends BaseController {
 		return "studentService/createBFService";
 
 	}
-	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
-	@RequestMapping(value = "/createBFService", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String createBFService(Model m, Principal principal,
-			@ModelAttribute StudentServiceBean studentServiceBean) {
+
+	@Secured({ "ROLE_ADMIN", "ROLE_STUDENT" })
+	@RequestMapping(value = "/createBFService", method = { RequestMethod.GET, RequestMethod.POST })
+	public String createBFService(Model m, Principal principal, @ModelAttribute StudentServiceBean studentServiceBean) {
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		try {
 			studentServiceBean.setActive("Y");
 			studentServiceBean.setCreatedBy(username);
 			studentServiceBean.setLastModifiedBy(username);
 			studentServiceBean.setLevel3(studentServiceBean.getLevel1());
 			/*
-			 * SimpleDateFormat dateFormat = new SimpleDateFormat( "HH:mm:ss");
-			 * new Date().getTime()
-			 * studentServiceBean.setDuration(studentServiceBean
+			 * SimpleDateFormat dateFormat = new SimpleDateFormat( "HH:mm:ss"); new
+			 * Date().getTime() studentServiceBean.setDuration(studentServiceBean
 			 * .getDuration().getTime()); cellValue = dateFormat.format(cell
 			 * .getDateCellValue());
 			 */
@@ -185,21 +180,20 @@ public class StudentServiceController extends BaseController {
 	 * RequestMethod.POST }) public String updateBFService(Model m, Principal
 	 * principal,
 	 * 
-	 * @ModelAttribute StudentServiceBean studentServiceBean) { String username
-	 * = principal.getName();
+	 * @ModelAttribute StudentServiceBean studentServiceBean) { String username =
+	 * principal.getName();
 	 * 
 	 * Token userdetails1 = (Token) principal; String ProgramName =
-	 * userdetails1.getProgramName(); User u =
-	 * userService.findByUserName(username);
-	 * logger.info("ACAD SESSION------------------------->" +
-	 * u.getAcadSession()); StudentServiceBean dbBean = studentWsService
-	 * .findByID(studentServiceBean.getId()); try { if (studentServiceBean !=
-	 * null) { studentServiceBean.setActive("Y"); //
+	 * userdetails1.getProgramName(); User u = userService.findByUserName(username);
+	 * logger.info("ACAD SESSION------------------------->" + u.getAcadSession());
+	 * StudentServiceBean dbBean = studentWsService
+	 * .findByID(studentServiceBean.getId()); try { if (studentServiceBean != null)
+	 * { studentServiceBean.setActive("Y"); //
 	 * studentServiceBean.setCreatedBy(username);
 	 * studentServiceBean.setLastModifiedBy(username); //
 	 * studentWsService.insertWithIdReturn(studentServiceBean);
-	 * studentServiceBean.setDuration(studentServiceBean.getDuration() +
-	 * ":00:00"); studentServiceBean.setLevel3(studentServiceBean.getLevel1());
+	 * studentServiceBean.setDuration(studentServiceBean.getDuration() + ":00:00");
+	 * studentServiceBean.setLevel3(studentServiceBean.getLevel1());
 	 * studentWsService.update(studentServiceBean); setSuccess(m,
 	 * "Service created successfully!"); } } catch (Exception e) { setError(m,
 	 * "Error in creating service!"); logger.error(e); return
@@ -209,28 +203,23 @@ public class StudentServiceController extends BaseController {
 	 * 
 	 * return "studentService/createBFService"; }
 	 */
-	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
-	@RequestMapping(value = "/updateBFService", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String updateBFService(Model m, Principal principal,
-			@ModelAttribute StudentServiceBean studentServiceBean,
+	@Secured({ "ROLE_ADMIN", "ROLE_STUDENT" })
+	@RequestMapping(value = "/updateBFService", method = { RequestMethod.GET, RequestMethod.POST })
+	public String updateBFService(Model m, Principal principal, @ModelAttribute StudentServiceBean studentServiceBean,
 			RedirectAttributes redirectAttributes) {
 		String username = principal.getName();
-		
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
-		StudentServiceBean dbBean = studentWsService
-				.findByID(studentServiceBean.getId());
+
+		StudentServiceBean dbBean = studentWsService.findByID(studentServiceBean.getId());
 		try {
 			List<User> userList = new ArrayList<User>();
 			if (studentServiceBean != null) {
 				studentServiceBean.setActive("Y");
 				studentServiceBean.setLastModifiedBy(username);
-				studentServiceBean.setDuration(studentServiceBean.getDuration()
-						+ ":00:00");
+				studentServiceBean.setDuration(studentServiceBean.getDuration() + ":00:00");
 				String level2 = null;
 				User user2 = new User();
 				User user3 = new User();
@@ -238,8 +227,7 @@ public class StudentServiceController extends BaseController {
 				if (studentServiceBean.getLevel2() != null) {
 					if (!studentServiceBean.getLevel2().endsWith("STAFF")) {
 						level2 = studentServiceBean.getLevel2();
-						studentServiceBean.setLevel2(studentServiceBean
-								.getLevel2().trim() + "_STAFF");
+						studentServiceBean.setLevel2(studentServiceBean.getLevel2().trim() + "_STAFF");
 
 					} else {
 						level2 = studentServiceBean.getLevel2().substring(0,
@@ -254,8 +242,7 @@ public class StudentServiceController extends BaseController {
 					String level3 = studentServiceBean.getLevel3();
 					if (!studentServiceBean.getLevel3().endsWith("STAFF")) {
 						level3 = studentServiceBean.getLevel3();
-						studentServiceBean.setLevel3(studentServiceBean
-								.getLevel3().trim() + "_STAFF");
+						studentServiceBean.setLevel3(studentServiceBean.getLevel3().trim() + "_STAFF");
 
 					} else {
 						level3 = studentServiceBean.getLevel3().substring(0,
@@ -275,12 +262,11 @@ public class StudentServiceController extends BaseController {
 				 * 
 				 * if (userService.findByUserName(level3) == null) { if
 				 * (level3.endsWith("ADMIN")) { user3.setUsername(level3);
-				 * user3.setSchoolAbbr(app); user3.setRole("ROLE_ADMIN"); } else
-				 * if (level3.endsWith("STAFF")) { user3.setUsername(level3);
+				 * user3.setSchoolAbbr(app); user3.setRole("ROLE_ADMIN"); } else if
+				 * (level3.endsWith("STAFF")) { user3.setUsername(level3);
 				 * user3.setSchoolAbbr(app); user3.setRole("ROLE_STAFF");
 				 * 
-				 * } else { user3.setUsername(level3);
-				 * //user3.setUsername(level3 + "_STAFF");
+				 * } else { user3.setUsername(level3); //user3.setUsername(level3 + "_STAFF");
 				 * user3.setSchoolAbbr(app); user3.setRole("ROLE_STAFF");
 				 * 
 				 * } userList.add(user3); }
@@ -299,33 +285,28 @@ public class StudentServiceController extends BaseController {
 				if (userList.size() != 0) {
 					for (User uzr : userList) {
 						String json = mapper.writeValueAsString(uzr);
-						
+
 						// logger.info(" json--->" + (json));
-						WebTarget webTarget = client.target(URIUtil
-								.encodeQuery(userRoleMgmtCrudUrl
-										+ "/addOtherUserStaffService?json="
-										+ json));
-						Invocation.Builder invocationBuilder = webTarget
-								.request(MediaType.APPLICATION_JSON);
+						WebTarget webTarget = client.target(
+								URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/addOtherUserStaffService?json=" + json));
+						Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 						String resp = invocationBuilder.get(String.class);
-						
+
 						ObjectMapper objMapper = new ObjectMapper();
 						Status status = objMapper.readValue(resp, Status.class);
-						
+
 						if (status.getStatus().SUCCESS != null) {
 							UserTo userTo;
 
 							// for (User uzr : userList) {
-							
+
 							User user = new User();
-							User newUser = userService.findByUserName(uzr
-									.getUsername());
+							User newUser = userService.findByUserName(uzr.getUsername());
 							if (newUser != null) {
 
 								user = newUser;
 								user.setUsername(uzr.getUsername() + "_STAFF");
 							} else {
-								
 
 								user.setUsername(uzr.getUsername() + "_STAFF");
 								if (status.getUser() != null) {
@@ -363,8 +344,6 @@ public class StudentServiceController extends BaseController {
 							userRoleList.add(userRole);
 							userRoleList.add(userRole1);
 
-							
-
 							userService.upsert(user);
 							userRoleService.upsertBatch(userRoleList);
 							// studentWsService.update(studentServiceBean);
@@ -372,8 +351,7 @@ public class StudentServiceController extends BaseController {
 
 						} else {
 							setError(m, "Error in creating service!");
-							return "redirect:/createBFServiceForm?serviceId="
-									+ studentServiceBean.getId();
+							return "redirect:/createBFServiceForm?serviceId=" + studentServiceBean.getId();
 						}
 					}
 				}
@@ -386,47 +364,36 @@ public class StudentServiceController extends BaseController {
 		} catch (Exception e) {
 			setError(redirectAttributes, "Error in creating service!");
 			logger.error(e);
-			return "redirect:/createBFServiceForm?serviceId="
-					+ studentServiceBean.getId();
+			return "redirect:/createBFServiceForm?serviceId=" + studentServiceBean.getId();
 
 		}
 
-		return "redirect:/createBFServiceForm?serviceId="
-				+ studentServiceBean.getId();
+		return "redirect:/createBFServiceForm?serviceId=" + studentServiceBean.getId();
 	}
-	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
-	@RequestMapping(value = "/viewBFServices", method = { RequestMethod.GET,
-			RequestMethod.POST })
+
+	@Secured({ "ROLE_ADMIN", "ROLE_STUDENT" })
+	@RequestMapping(value = "/viewBFServices", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewBFServices(Model m, Principal principal) {
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
-		List<StudentServiceBean> serviceList = studentWsService
-				.findServiceByName("Bonafide Service");
+
+		List<StudentServiceBean> serviceList = studentWsService.findServiceByName("Bonafide Service");
 		m.addAttribute("serviceList", serviceList);
 		if (serviceList.size() != 0)
 			if (userdetails1.getAuthorities().contains(Role.ROLE_STUDENT)) {
 				for (StudentServiceBean sb : serviceList) {
-					BonafideForm bonafide = bonafideFormService
-							.findStudentBonafide(username, sb.getId());
+					BonafideForm bonafide = bonafideFormService.findStudentBonafide(username, sb.getId());
 					if (bonafide != null) {
-						User user1 = userService.findByUserName(bonafide
-								.getLevel1());
-						User user2 = userService.findByUserName(bonafide
-								.getLevel2());
-						User user3 = userService.findByUserName(bonafide
-								.getLevel3());
-						
-						bonafide.setUser1(user1.getFirstname() + " "
-								+ user1.getLastname());
-						bonafide.setUser2(user2.getFirstname() + " "
-								+ user2.getLastname());
-						bonafide.setUser3(user3.getFirstname() + " "
-								+ user3.getLastname());
-						
+						User user1 = userService.findByUserName(bonafide.getLevel1());
+						User user2 = userService.findByUserName(bonafide.getLevel2());
+						User user3 = userService.findByUserName(bonafide.getLevel3());
+
+						bonafide.setUser1(user1.getFirstname() + " " + user1.getLastname());
+						bonafide.setUser2(user2.getFirstname() + " " + user2.getLastname());
+						bonafide.setUser3(user3.getFirstname() + " " + user3.getLastname());
 
 						sb.setBonafide(bonafide);
 					}
@@ -437,16 +404,16 @@ public class StudentServiceController extends BaseController {
 		return "studentService/viewBFServices";
 
 	}
-	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
-	@RequestMapping(value = "/viewServices", method = { RequestMethod.GET,
-			RequestMethod.POST })
+
+	@Secured({ "ROLE_ADMIN", "ROLE_STUDENT" })
+	@RequestMapping(value = "/viewServices", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewServices(Model m, Principal principal) {
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		List<StudentServiceBean> serviceList = studentWsService.findAllAvail();
 		m.addAttribute("serviceList", serviceList);
 		/*
@@ -458,9 +425,8 @@ public class StudentServiceController extends BaseController {
 		 * sb.getId()); if (railway != null) { User user1 =
 		 * userService.findByUserName(railway .getLevel1()); User user2 =
 		 * userService.findByUserName(railway .getLevel2()); User user3 =
-		 * userService.findByUserName(railway .getLevel3());
-		 * logger.info("user1 --- " + user1);
-		 * railway.setUser1(user1.getFirstname() + " " + user1.getLastname());
+		 * userService.findByUserName(railway .getLevel3()); logger.info("user1 --- " +
+		 * user1); railway.setUser1(user1.getFirstname() + " " + user1.getLastname());
 		 * railway.setUser2(user2.getFirstname() + " " + user2.getLastname());
 		 * railway.setUser3(user3.getFirstname() + " " + user3.getLastname());
 		 * logger.info("railway ----- " + railway);
@@ -472,40 +438,31 @@ public class StudentServiceController extends BaseController {
 		return "studentService/viewServices";
 
 	}
-	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
-	@RequestMapping(value = "/viewRCServices", method = { RequestMethod.GET,
-			RequestMethod.POST })
+
+	@Secured({ "ROLE_ADMIN", "ROLE_STUDENT" })
+	@RequestMapping(value = "/viewRCServices", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewRCServices(Model m, Principal principal) {
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
-		List<StudentServiceBean> serviceList = studentWsService
-				.findServiceByName("Railway Service");
+
+		List<StudentServiceBean> serviceList = studentWsService.findServiceByName("Railway Service");
 		m.addAttribute("serviceList", serviceList);
 		if (serviceList.size() != 0)
 			if (userdetails1.getAuthorities().contains(Role.ROLE_STUDENT)) {
 				for (StudentServiceBean sb : serviceList) {
 
-					RailwayForm railway = railwayFormService.findStudentRC(
-							username, sb.getId());
+					RailwayForm railway = railwayFormService.findStudentRC(username, sb.getId());
 					if (railway != null) {
-						User user1 = userService.findByUserName(railway
-								.getLevel1());
-						User user2 = userService.findByUserName(railway
-								.getLevel2());
-						User user3 = userService.findByUserName(railway
-								.getLevel3());
-						
-						railway.setUser1(user1.getFirstname() + " "
-								+ user1.getLastname());
-						railway.setUser2(user2.getFirstname() + " "
-								+ user2.getLastname());
-						railway.setUser3(user3.getFirstname() + " "
-								+ user3.getLastname());
-						
+						User user1 = userService.findByUserName(railway.getLevel1());
+						User user2 = userService.findByUserName(railway.getLevel2());
+						User user3 = userService.findByUserName(railway.getLevel3());
+
+						railway.setUser1(user1.getFirstname() + " " + user1.getLastname());
+						railway.setUser2(user2.getFirstname() + " " + user2.getLastname());
+						railway.setUser3(user3.getFirstname() + " " + user3.getLastname());
 
 						sb.setRailway(railway);
 					}
@@ -516,16 +473,15 @@ public class StudentServiceController extends BaseController {
 		return "studentService/viewRCServices";
 
 	}
-	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
-	@RequestMapping(value = "/viewCreateServiceForm", method = {
-			RequestMethod.GET, RequestMethod.POST })
+
+	@Secured({ "ROLE_ADMIN", "ROLE_STUDENT" })
+	@RequestMapping(value = "/viewCreateServiceForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewCreateServiceForm(Model m, Principal principal) {
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		StudentServiceBean studentServiceBean = new StudentServiceBean();
 		m.addAttribute("studentServiceBean", studentServiceBean);
@@ -536,36 +492,29 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/viewBonafideServiceForStaff", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String viewServiceForStaff(Model m, Principal principal,
-			@RequestParam Long serviceId) {
+	@RequestMapping(value = "/viewBonafideServiceForStaff", method = { RequestMethod.GET, RequestMethod.POST })
+	public String viewServiceForStaff(Model m, Principal principal, @RequestParam Long serviceId) {
 		/*
-		 * m.addAttribute("webPage", new WebPage("viewAssignment",
-		 * "Bonafide Service", true, false));
+		 * m.addAttribute("webPage", new WebPage("viewAssignment", "Bonafide Service",
+		 * true, false));
 		 */
-		m.addAttribute("webPage", new WebPage("evaluateAssignment",
-				"Bonafide Service", true, false));
+		m.addAttribute("webPage", new WebPage("evaluateAssignment", "Bonafide Service", true, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
-		StudentServiceBean studentServiceBean = studentWsService
-				.findByID(serviceId);
+		StudentServiceBean studentServiceBean = studentWsService.findByID(serviceId);
 		m.addAttribute("serviceId", serviceId);
 		m.addAttribute("studentServiceBean", studentServiceBean);
 		List<BonafideForm> bList = new ArrayList<BonafideForm>();
 		int levelNo = 1;
 		if (studentServiceBean.getLevel2().equalsIgnoreCase(username)) {
 			levelNo = 2;
-			bList = bonafideFormService
-					.findAllSubmittedStudentsByServiceIdFlag2(serviceId);
+			bList = bonafideFormService.findAllSubmittedStudentsByServiceIdFlag2(serviceId);
 		} else {
-			bList = bonafideFormService
-					.findAllSubmittedStudentsByServiceIdFlag1(serviceId);
+			bList = bonafideFormService.findAllSubmittedStudentsByServiceIdFlag1(serviceId);
 		}
 
 		m.addAttribute("bList", bList);
@@ -575,29 +524,26 @@ public class StudentServiceController extends BaseController {
 		Integer levelNum = 1;
 		/*
 		 * if (studentServiceBean.getLevel1().equalsIgnoreCase(username)) { for
-		 * (BonafideForm bf : bList) { if (bf.isFlag1()) {
-		 * bf.setApprovedLevel1("true"); bf.setApprovedLevel("true");
-		 * bList.set(bList.indexOf(bf), bf); } } m.addAttribute("showActions",
-		 * true); } else if
+		 * (BonafideForm bf : bList) { if (bf.isFlag1()) { bf.setApprovedLevel1("true");
+		 * bf.setApprovedLevel("true"); bList.set(bList.indexOf(bf), bf); } }
+		 * m.addAttribute("showActions", true); } else if
 		 * (studentServiceBean.getLevel2().equalsIgnoreCase(username)) { for
 		 * (BonafideForm bf : bList) { if (bf.isFlag1()) { if (bf.isFlag2()) {
 		 * bf.setApprovedLevel2("true"); bf.setApprovedLevel("true"); } else {
 		 * bf.setAllowLevel2("true"); } bList.set(bList.indexOf(bf), bf); }
 		 * 
-		 * } } else if
-		 * (studentServiceBean.getLevel3().equalsIgnoreCase(username)) { for
+		 * } } else if (studentServiceBean.getLevel3().equalsIgnoreCase(username)) { for
 		 * (BonafideForm bf : bList) { if (bf.isFlag1() && bf.isFlag2()) { if
-		 * (bf.isFlag3()) { bf.setApprovedLevel3("true");
-		 * bf.setApprovedLevel("true"); } else { bf.setAllowLevel3("true"); }
-		 * bList.set(bList.indexOf(bf), bf); }
+		 * (bf.isFlag3()) { bf.setApprovedLevel3("true"); bf.setApprovedLevel("true"); }
+		 * else { bf.setAllowLevel3("true"); } bList.set(bList.indexOf(bf), bf); }
 		 * 
 		 * } }
 		 */
 		/*
-		 * if (studentServiceBean.getLevel1().equalsIgnoreCase(username)) {
-		 * levelNum = 1; for (BonafideForm bf : bList) { if
-		 * (bf.getFlag1().equals("APPROVED")) { bf.setApprovedLevel1("true");
-		 * bf.setApprovedLevel("true"); bList.set(bList.indexOf(bf), bf);
+		 * if (studentServiceBean.getLevel1().equalsIgnoreCase(username)) { levelNum =
+		 * 1; for (BonafideForm bf : bList) { if (bf.getFlag1().equals("APPROVED")) {
+		 * bf.setApprovedLevel1("true"); bf.setApprovedLevel("true");
+		 * bList.set(bList.indexOf(bf), bf);
 		 * 
 		 * } if (bf.getFlag1().equals("PENDING")) {
 		 * 
@@ -624,8 +570,7 @@ public class StudentServiceController extends BaseController {
 		} else if (studentServiceBean.getLevel3().equalsIgnoreCase(username)) {
 			levelNum = 3;
 			for (BonafideForm bf : bList) {
-				if (bf.getFlag1().equals("APPROVED")
-						&& bf.getFlag2().equals("APPROVED")) {
+				if (bf.getFlag1().equals("APPROVED") && bf.getFlag2().equals("APPROVED")) {
 					if (bf.getFlag3().equals("APPROVED")) {
 						bf.setApprovedLevel3("true");
 						bf.setApprovedLevel("true");
@@ -645,18 +590,16 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/approveBonafideApplication", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String approveBonafideApplication(Model m, Principal principal,
-			@RequestParam Long id, @RequestParam String status) {
-		m.addAttribute("webPage", new WebPage("viewAssignment",
-				"Bonafide Service", true, false));
+	@RequestMapping(value = "/approveBonafideApplication", method = { RequestMethod.GET, RequestMethod.POST })
+	public String approveBonafideApplication(Model m, Principal principal, @RequestParam Long id,
+			@RequestParam String status) {
+		m.addAttribute("webPage", new WebPage("viewAssignment", "Bonafide Service", true, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		BonafideForm bonafide = bonafideFormService.findByID(id);
 
 		try {
@@ -675,39 +618,35 @@ public class StudentServiceController extends BaseController {
 		} catch (Exception e) {
 
 		}
-		return "redirect:/viewBonafideServiceForStaff?serviceId="
-				+ bonafide.getServiceId();
+		return "redirect:/viewBonafideServiceForStaff?serviceId=" + bonafide.getServiceId();
 
 	}
-	@Secured({ "ROLE_ADMIN" ,"ROLE_STUDENT" })
+
+	@Secured({ "ROLE_ADMIN", "ROLE_STUDENT" })
 	@RequestMapping(value = "/downloadStudentsBonafideForms", method = RequestMethod.GET)
-	public void downloadStudentsBonafideForms(HttpServletResponse response,
-			Principal principal, @RequestParam Long serviceId,
-			@RequestParam String levelNum) {
-		
+	public void downloadStudentsBonafideForms(HttpServletResponse response, Principal principal,
+			@RequestParam Long serviceId, @RequestParam String levelNum) {
+
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		InputStream is = null;
 		String filePath = "";
-		StudentServiceBean studentServiceBean = studentWsService
-				.findByID(serviceId);
+		StudentServiceBean studentServiceBean = studentWsService.findByID(serviceId);
 		try {
 			// get your file as InputStream
 			List<BonafideForm> bList = new ArrayList<BonafideForm>();
 			int levelNo = 1;
 			if (studentServiceBean.getLevel2().equalsIgnoreCase(username)) {
 				levelNo = 2;
-				bList = bonafideFormService
-						.findAllSubmittedStudentsByServiceIdFlag2(serviceId);
+				bList = bonafideFormService.findAllSubmittedStudentsByServiceIdFlag2(serviceId);
 			} /*
-			 * else { bList = bonafideFormService
-			 * .findAllSubmittedStudentsByServiceIdFlag1(serviceId); }
-			 */
-			
+				 * else { bList = bonafideFormService
+				 * .findAllSubmittedStudentsByServiceIdFlag1(serviceId); }
+				 */
 
 			filePath = getBonafideApplications(bList, username);
 			is = new FileInputStream(filePath);
@@ -718,9 +657,7 @@ public class StudentServiceController extends BaseController {
 
 			response.flushBuffer();
 		} catch (Exception ex) {
-			logger.info(
-					"Error writing file to output stream. Filename was '{}'",
-					ex);
+			logger.info("Error writing file to output stream. Filename was '{}'", ex);
 			throw new RuntimeException("IOError writing file to output stream");
 		} finally {
 			if (is != null) {
@@ -733,11 +670,9 @@ public class StudentServiceController extends BaseController {
 	}
 
 	public String getRCApplications(List<RailwayForm> bList, String username) {
-		String filePath = downloadAllFolder + File.separator
-				+ "BonafideStudentApplications.xlsx";
-		String h[] = { "Application ID", "Date", "Sex", "Year", "SAPId",
-				"Name", "DOB", "Class & Monthly /Quarterly", "From Station",
-				"To Station", "Address", "Status", "Remarks" };
+		String filePath = downloadAllFolder + File.separator + "BonafideStudentApplications.xlsx";
+		String h[] = { "Application ID", "Date", "Sex", "Year", "SAPId", "Name", "DOB", "Class & Monthly /Quarterly",
+				"From Station", "To Station", "Address", "Status", "Remarks" };
 		List<String> header = Arrays.asList(h);
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Railway Concession Sheet");
@@ -756,8 +691,7 @@ public class StudentServiceController extends BaseController {
 			row.createCell(3).setCellValue(bf.getYear());
 			row.createCell(4).setCellValue(bf.getUsername());
 			// row.createCell(5).setCellValue(bf.getMotherName());
-			row.createCell(5).setCellValue(
-					bf.getFirstname() + " " + bf.getLastname());
+			row.createCell(5).setCellValue(bf.getFirstname() + " " + bf.getLastname());
 			row.createCell(6).setCellValue(bf.getDob());
 			row.createCell(7).setCellValue(bf.getType());
 			row.createCell(8).setCellValue(bf.getFromStation());
@@ -782,10 +716,8 @@ public class StudentServiceController extends BaseController {
 		String[] actions = new String[] { "PENDING,APPROVED,REJECTED" };
 		XSSFDataValidationConstraint constraint = (XSSFDataValidationConstraint) dvHelper
 				.createExplicitListConstraint(actions);
-		CellRangeAddressList addressList = new CellRangeAddressList(1, 100, 11,
-				11);
-		XSSFDataValidation validation = (XSSFDataValidation) dvHelper
-				.createValidation(constraint, addressList);
+		CellRangeAddressList addressList = new CellRangeAddressList(1, 100, 11, 11);
+		XSSFDataValidation validation = (XSSFDataValidation) dvHelper.createValidation(constraint, addressList);
 		validation.setShowErrorBox(true);
 		sheet.addValidationData(validation);
 		try {
@@ -802,31 +734,25 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/uploadStudentsBonafideForms", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String uploadStudentsBonafideForms(Model m, Principal principal,
-			RedirectAttributes redirectAttributes,
-			@ModelAttribute StudentServiceBean studentServiceBean,
-			@RequestParam("file") MultipartFile file) {
-		
-		m.addAttribute("webPage", new WebPage("viewAssignment",
-				"Bonafide Service", true, false));
+	@RequestMapping(value = "/uploadStudentsBonafideForms", method = { RequestMethod.GET, RequestMethod.POST })
+	public String uploadStudentsBonafideForms(Model m, Principal principal, RedirectAttributes redirectAttributes,
+			@ModelAttribute StudentServiceBean studentServiceBean, @RequestParam("file") MultipartFile file) {
+
+		m.addAttribute("webPage", new WebPage("viewAssignment", "Bonafide Service", true, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		if (file.isEmpty()) {
 			setNote(redirectAttributes, "File is empty!");
 
 		} else {
 
-			StudentServiceBean serviceBean = studentWsService
-					.findByID(studentServiceBean.getId());
+			StudentServiceBean serviceBean = studentWsService.findByID(studentServiceBean.getId());
 
-			String statusOfUpload = uploadFileAndReturnStatus(file, username,
-					serviceBean);
+			String statusOfUpload = uploadFileAndReturnStatus(file, username, serviceBean);
 			if (statusOfUpload.equalsIgnoreCase("SUCCESS")) {
 				setSuccess(redirectAttributes, "File uploaded successfully!");
 			} else {
@@ -834,21 +760,18 @@ public class StudentServiceController extends BaseController {
 			}
 		}
 
-		return "redirect:/viewBonafideServiceForStaff?serviceId="
-				+ studentServiceBean.getId();
+		return "redirect:/viewBonafideServiceForStaff?serviceId=" + studentServiceBean.getId();
 
 	}
 
-	private String uploadFileAndReturnStatus(MultipartFile file,
-			String username, StudentServiceBean serviceBean) {
+	private String uploadFileAndReturnStatus(MultipartFile file, String username, StudentServiceBean serviceBean) {
 
 		InputStream inputStream = null;
 
 		String fileName = file.getOriginalFilename();
 
 		fileName = RandomStringUtils.randomAlphanumeric(10)
-				+ fileName.substring(fileName.lastIndexOf("."),
-						fileName.length());
+				+ fileName.substring(fileName.lastIndexOf("."), fileName.length());
 		List<BonafideForm> bList = new ArrayList<BonafideForm>();
 		try {
 
@@ -863,31 +786,26 @@ public class StudentServiceController extends BaseController {
 			File dest = new File(filePath);
 
 			FileUtils.copyInputStreamToFile(inputStream, dest);
-			List<Map<String, String>> listCells = excelReader
-					.readXLSXFileForBonafide(dest.getAbsolutePath());
+			List<Map<String, String>> listCells = excelReader.readXLSXFileForBonafide(dest.getAbsolutePath());
 			List<String> ids = new ArrayList<String>();
 			for (Map<String, String> m : listCells) {
-				
+
 				BonafideForm bean = new BonafideForm();
 				/*
 				 * bean.setId(Long.valueOf(m.get("Application ID")));
-				 * bean.setUsername(m.get("SAPId"));
-				 * bean.setFirstname(m.get("First Name"));
+				 * bean.setUsername(m.get("SAPId")); bean.setFirstname(m.get("First Name"));
 				 * bean.setLastname(m.get("Last Name"));
 				 * bean.setFatherName(m.get("Father Name"));
-				 * bean.setMotherName(m.get("Mother Name"));
-				 * bean.setRollNo(m.get("Roll No"));
+				 * bean.setMotherName(m.get("Mother Name")); bean.setRollNo(m.get("Roll No"));
 				 * bean.setAcadYear(m.get("Acad Year"));
 				 * bean.setProgramName(m.get("Program Name"));
-				 * bean.setStudyClass(m.get("Class"));
-				 * bean.setDivision(m.get("Division"));
+				 * bean.setStudyClass(m.get("Class")); bean.setDivision(m.get("Division"));
 				 * bean.setReason(m.get("Reason"));
 				 */
 				Integer flagNo = 1;
 				/*
 				 * if (serviceBean.getLevel1().equalsIgnoreCase(username)) {
-				 * bean.setFlag1(m.get("Status"));
-				 * bean.setRemark1(m.get("Remarks")); } else
+				 * bean.setFlag1(m.get("Status")); bean.setRemark1(m.get("Remarks")); } else
 				 */if (serviceBean.getLevel2().equalsIgnoreCase(username)) {
 					bean.setFlag2(m.get("Status"));
 					bean.setRemark2(m.get("Remarks"));
@@ -899,11 +817,9 @@ public class StudentServiceController extends BaseController {
 				}
 
 				// bList.add(bean);
-				
-				bonafideFormService.updateFlagsAndRemarks(
-						String.valueOf(flagNo), (String) m.get("Status"),
-						(String) m.get("Remarks"),
-						(String) m.get("Application ID"));
+
+				bonafideFormService.updateFlagsAndRemarks(String.valueOf(flagNo), (String) m.get("Status"),
+						(String) m.get("Remarks"), (String) m.get("Application ID"));
 			}
 
 			return "SUCCESS";
@@ -920,42 +836,36 @@ public class StudentServiceController extends BaseController {
 	/*
 	 * @RequestMapping(value = "/displayStudentServiceList", method = {
 	 * RequestMethod.GET, RequestMethod.POST }) public String
-	 * displayStudentServiceList(Model m, Principal principal) { String username
-	 * = principal.getName(); Token userdetails1 = (Token) principal; String
+	 * displayStudentServiceList(Model m, Principal principal) { String username =
+	 * principal.getName(); Token userdetails1 = (Token) principal; String
 	 * ProgramName = userdetails1.getProgramName(); List<StudentServiceBean>
-	 * serviceList = studentWsService.findAllActive();
-	 * m.addAttribute("serviceList", serviceList); return
-	 * "studentService/viewServices"; }
+	 * serviceList = studentWsService.findAllActive(); m.addAttribute("serviceList",
+	 * serviceList); return "studentService/viewServices"; }
 	 */
 	@Secured({ "ROLE_STUDENT" })
-	@RequestMapping(value = "/applyForBonafide", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String applyForBonafide(Model m, Principal principal,
-			@RequestParam(required = false) String serviceId) {
+	@RequestMapping(value = "/applyForBonafide", method = { RequestMethod.GET, RequestMethod.POST })
+	public String applyForBonafide(Model m, Principal principal, @RequestParam(required = false) String serviceId) {
 		String username = principal.getName();
-	
+
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
-		
+
 		Date dt = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 		String strDate = formatter.format(dt);
 		m.addAttribute("currentDate", strDate);
 		User u = userService.findUserProgramAcadYearByusername(username);
-		
+
 		m.addAttribute("serviceId", serviceId);
 		m.addAttribute("student", u);
 		m.addAttribute("bonafideForm", new BonafideForm());
 		return "studentService/studentBonafide";
 	}
 
-	@RequestMapping(value = "/sendStudentBonafideData", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String sendStudentBonafideData(Model m, Principal principal,
-			@ModelAttribute BonafideForm bonafideForm) {
+	@RequestMapping(value = "/sendStudentBonafideData", method = { RequestMethod.GET, RequestMethod.POST })
+	public String sendStudentBonafideData(Model m, Principal principal, @ModelAttribute BonafideForm bonafideForm) {
 		String username = bonafideForm.getUsername();
-		BonafideForm bfd = bonafideFormService
-				.findByUsernameAndSubmitted(username);
+		BonafideForm bfd = bonafideFormService.findByUsernameAndSubmitted(username);
 		if (bfd != null) {
 			bonafideFormService.deleteSoftById(String.valueOf(bfd.getId()));
 		}
@@ -970,10 +880,9 @@ public class StudentServiceController extends BaseController {
 		bonafideForm.setFlag3("0");
 		bonafideForm.setCreatedBy(username);
 		bonafideForm.setLastModifiedBy(username);
-		
-		StudentServiceBean service = studentWsService.findByID(bonafideForm
-				.getServiceId());
-		
+
+		StudentServiceBean service = studentWsService.findByID(bonafideForm.getServiceId());
+
 		bonafideForm.setPayment(service.getPayment());
 		if (service.getLevel1() != null || !"".equals(service.getLevel1())) {
 			bonafideForm.setLevel1(service.getLevel1());
@@ -985,54 +894,44 @@ public class StudentServiceController extends BaseController {
 			bonafideForm.setLevel3(service.getLevel3());
 		}
 		/*
-		 * BonafideForm b =
-		 * bonafideFormService.findAllByUsernameAndSubmitted(username); if(b !=
-		 * null || !"".equals(b)){ bonafideFormService.updateSubmit(b.getId());
+		 * BonafideForm b = bonafideFormService.findAllByUsernameAndSubmitted(username);
+		 * if(b != null || !"".equals(b)){ bonafideFormService.updateSubmit(b.getId());
 		 * 
-		 * bonafideFormService.insert(bonafideForm);
-		 * logger.info("data upsert manual"); }else{
-		 * bonafideFormService.insert(bonafideForm);
+		 * bonafideFormService.insert(bonafideForm); logger.info("data upsert manual");
+		 * }else{ bonafideFormService.insert(bonafideForm);
 		 * logger.info("data inserted"); }
 		 */
 		bonafideFormService.insert(bonafideForm);
-		
-		BonafideForm bf = bonafideFormService
-				.findByUsernameAndSubmitted(username);
-		
+
+		BonafideForm bf = bonafideFormService.findByUsernameAndSubmitted(username);
+
 		m.addAttribute("formId", bf.getId());
 		return "studentService/bonafideFormSubmitted";
 	}
 
-	@RequestMapping(value = "/viewStudentBonafideApplication", method = {
-			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/viewStudentBonafideApplication", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewStudentBonafideApplication(Model m, Principal principal,
 			@RequestParam(required = false) String id) {
-		BonafideForm bf = bonafideFormService.getSubmittedStudentById(Long
-				.valueOf(id));
-		
+		BonafideForm bf = bonafideFormService.getSubmittedStudentById(Long.valueOf(id));
 
 		m.addAttribute("student", bf);
 		return "studentService/viewStudentBonafide";
 	}
 
-	@RequestMapping(value = "/viewBonafideApplication", method = {
-			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/viewBonafideApplication", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewBonafideApplication(Model m, Principal principal) {
 		String username = principal.getName();
-		BonafideForm bf = bonafideFormService
-				.findByUsernameAndSubmitted(username);
+		BonafideForm bf = bonafideFormService.findByUsernameAndSubmitted(username);
 
 		return "studentService/viewBonafideFormStatus";
 	}
 
-	@RequestMapping(value = "/saveBonafideRemarks", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String saveBonafideRemarks(@RequestParam String value,
-			@RequestParam Long pk, @RequestParam String remark,
-			Principal principal) {
+	@RequestMapping(value = "/saveBonafideRemarks", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String saveBonafideRemarks(@RequestParam String value, @RequestParam Long pk,
+			@RequestParam String remark, Principal principal) {
 		String username = principal.getName();
 		try {
-			
+
 			bonafideFormService.saveBonafideRemarks(value, remark, pk);
 			return "{\"status\": \"success\", \"msg\": \"Remarks saved successfully!\"}";
 		} catch (Exception e) {
@@ -1042,14 +941,12 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/saveBonafideStatus", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String saveBonafideStatus(@RequestParam String value,
-			@RequestParam Long pk, @RequestParam String flag,
-			Principal principal) {
+	@RequestMapping(value = "/saveBonafideStatus", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String saveBonafideStatus(@RequestParam String value, @RequestParam Long pk,
+			@RequestParam String flag, Principal principal) {
 		String username = principal.getName();
 		try {
-			
+
 			bonafideFormService.saveBonafideStatus(value, flag, pk);
 			return "{\"status\": \"success\", \"msg\": \"Flags saved successfully!\"}";
 		} catch (Exception e) {
@@ -1059,19 +956,17 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/viewEscalatedServiceForLevel3", method = {
-			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/viewEscalatedServiceForLevel3", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewEscalatedServiceForLevel3(Model m, Principal principal) {
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		if ((userdetails1.getAuthorities().contains(Role.ROLE_ADMIN))
 				|| (userdetails1.getAuthorities().contains(Role.ROLE_STAFF))) {
-			List<StudentServiceBean> serviceList = studentWsService
-					.findAllActive();
+			List<StudentServiceBean> serviceList = studentWsService.findAllActive();
 			m.addAttribute("serviceList", serviceList);
 		}
 		m.addAttribute("username", username);
@@ -1079,24 +974,19 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/viewBonafideServiceForLevel3", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String viewBonafideServiceForLevel3(Model m, Principal principal,
-			@RequestParam Long serviceId) {
-		m.addAttribute("webPage", new WebPage("evaluateAssignment",
-				"Bonafide Service", true, false));
+	@RequestMapping(value = "/viewBonafideServiceForLevel3", method = { RequestMethod.GET, RequestMethod.POST })
+	public String viewBonafideServiceForLevel3(Model m, Principal principal, @RequestParam Long serviceId) {
+		m.addAttribute("webPage", new WebPage("evaluateAssignment", "Bonafide Service", true, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
-		StudentServiceBean studentServiceBean = studentWsService
-				.findByID(serviceId);
+		StudentServiceBean studentServiceBean = studentWsService.findByID(serviceId);
 		m.addAttribute("serviceId", serviceId);
 		m.addAttribute("studentServiceBean", studentServiceBean);
 
-		List<BonafideForm> bf = bonafideFormService
-				.findAllPendingBonafidesForLevel3(username);
-		
+		List<BonafideForm> bf = bonafideFormService.findAllPendingBonafidesForLevel3(username);
+
 		m.addAttribute("pendingList", bf);
 		if (bf.isEmpty() || bf.size() == 0) {
 			setNote(m, "no Records Found!");
@@ -1119,16 +1009,13 @@ public class StudentServiceController extends BaseController {
 		return "studentService/viewBonafideLevel3";
 	}
 
-	@RequestMapping(value = "/saveBonafideStatusForLevel3", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String saveBonafideStatusForLevel3(
-			@RequestParam String value, @RequestParam Long pk,
+	@RequestMapping(value = "/saveBonafideStatusForLevel3", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String saveBonafideStatusForLevel3(@RequestParam String value, @RequestParam Long pk,
 			@RequestParam String flag, Principal principal) {
 		String username = principal.getName();
 		try {
-			
-			bonafideFormService.saveBonafideStatusForLevel3(value, flag,
-					String.valueOf(pk));
+
+			bonafideFormService.saveBonafideStatusForLevel3(value, flag, String.valueOf(pk));
 			return "{\"status\": \"success\", \"msg\": \"Flags saved successfully!\"}";
 		} catch (Exception e) {
 			logger.error("Exception", e);
@@ -1137,16 +1024,13 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/saveBonafideRemarksForLevel3", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String saveBonafideRemarksForLevel3(
-			@RequestParam String value, @RequestParam Long pk,
+	@RequestMapping(value = "/saveBonafideRemarksForLevel3", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String saveBonafideRemarksForLevel3(@RequestParam String value, @RequestParam Long pk,
 			@RequestParam String remark, Principal principal) {
 		String username = principal.getName();
 		try {
-			
-			bonafideFormService.saveBonafideRemarksForLevel3(value, remark,
-					String.valueOf(pk));
+
+			bonafideFormService.saveBonafideRemarksForLevel3(value, remark, String.valueOf(pk));
 			return "{\"status\": \"success\", \"msg\": \"Remarks saved successfully!\"}";
 		} catch (Exception e) {
 			logger.error("Exception", e);
@@ -1155,15 +1039,13 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/createBFServiceSupportForm", method = {
-			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/createBFServiceSupportForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String createBFServiceSupportForm(Model m, Principal principal) {
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		m.addAttribute("studentServiceBean", new StudentServiceBean());
 		m.addAttribute("username", username);
@@ -1173,27 +1055,21 @@ public class StudentServiceController extends BaseController {
 	}
 
 	@RequestMapping(value = "/downloadStudentsBonafideFormsForLevel3", method = RequestMethod.GET)
-	public void downloadStudentsBonafideFormsForLevel3(
-			HttpServletResponse response, Principal principal,
+	public void downloadStudentsBonafideFormsForLevel3(HttpServletResponse response, Principal principal,
 			@RequestParam Long serviceId) {
-		
 
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		InputStream is = null;
 		String filePath = "";
-		StudentServiceBean studentServiceBean = studentWsService
-				.findByID(serviceId);
+		StudentServiceBean studentServiceBean = studentWsService.findByID(serviceId);
 		try {
 			// get your file as InputStream
-			List<BonafideForm> bList = bonafideFormService
-					.findAllPendingBonafidesForLevel3(username);
-
-			
+			List<BonafideForm> bList = bonafideFormService.findAllPendingBonafidesForLevel3(username);
 
 			filePath = getBonafideApplications(bList, username);
 			is = new FileInputStream(filePath);
@@ -1204,9 +1080,7 @@ public class StudentServiceController extends BaseController {
 
 			response.flushBuffer();
 		} catch (Exception ex) {
-			logger.info(
-					"Error writing file to output stream. Filename was '{}'",
-					ex);
+			logger.info("Error writing file to output stream. Filename was '{}'", ex);
 			throw new RuntimeException("IOError writing file to output stream");
 		} finally {
 			if (is != null) {
@@ -1218,31 +1092,26 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/uploadStudentsBonafideFormsForLevel3", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String uploadStudentsBonafideFormsForLevel3(Model m,
-			Principal principal, RedirectAttributes redirectAttributes,
-			@ModelAttribute StudentServiceBean studentServiceBean,
+	@RequestMapping(value = "/uploadStudentsBonafideFormsForLevel3", method = { RequestMethod.GET, RequestMethod.POST })
+	public String uploadStudentsBonafideFormsForLevel3(Model m, Principal principal,
+			RedirectAttributes redirectAttributes, @ModelAttribute StudentServiceBean studentServiceBean,
 			@RequestParam("file") MultipartFile file) {
-		
-		m.addAttribute("webPage", new WebPage("viewAssignment",
-				"Bonafide Service", true, false));
+
+		m.addAttribute("webPage", new WebPage("viewAssignment", "Bonafide Service", true, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		if (file.isEmpty()) {
 			setNote(redirectAttributes, "File is empty!");
 
 		} else {
 
-			StudentServiceBean serviceBean = studentWsService
-					.findByID(studentServiceBean.getId());
+			StudentServiceBean serviceBean = studentWsService.findByID(studentServiceBean.getId());
 
-			String statusOfUpload = uploadFileAndReturnStatusForLevel3(file,
-					username, serviceBean);
+			String statusOfUpload = uploadFileAndReturnStatusForLevel3(file, username, serviceBean);
 			if (statusOfUpload.equalsIgnoreCase("SUCCESS")) {
 				setSuccess(redirectAttributes, "File uploaded successfully!");
 			} else {
@@ -1250,21 +1119,19 @@ public class StudentServiceController extends BaseController {
 			}
 		}
 
-		return "redirect:/viewBonafideServiceForLevel3?serviceId="
-				+ studentServiceBean.getId();
+		return "redirect:/viewBonafideServiceForLevel3?serviceId=" + studentServiceBean.getId();
 
 	}
 
-	private String uploadFileAndReturnStatusForLevel3(MultipartFile file,
-			String username, StudentServiceBean serviceBean) {
+	private String uploadFileAndReturnStatusForLevel3(MultipartFile file, String username,
+			StudentServiceBean serviceBean) {
 
 		InputStream inputStream = null;
 
 		String fileName = file.getOriginalFilename();
 
 		fileName = RandomStringUtils.randomAlphanumeric(10)
-				+ fileName.substring(fileName.lastIndexOf("."),
-						fileName.length());
+				+ fileName.substring(fileName.lastIndexOf("."), fileName.length());
 		List<BonafideForm> bList = new ArrayList<BonafideForm>();
 		try {
 
@@ -1279,24 +1146,20 @@ public class StudentServiceController extends BaseController {
 			File dest = new File(filePath);
 
 			FileUtils.copyInputStreamToFile(inputStream, dest);
-			List<Map<String, String>> listCells = excelReader
-					.readXLSXFileForBonafide(dest.getAbsolutePath());
+			List<Map<String, String>> listCells = excelReader.readXLSXFileForBonafide(dest.getAbsolutePath());
 			List<String> ids = new ArrayList<String>();
 			for (Map<String, String> m : listCells) {
-				
+
 				BonafideForm bean = new BonafideForm();
 				/*
 				 * bean.setId(Long.valueOf(m.get("Application ID")));
-				 * bean.setUsername(m.get("SAPId"));
-				 * bean.setFirstname(m.get("First Name"));
+				 * bean.setUsername(m.get("SAPId")); bean.setFirstname(m.get("First Name"));
 				 * bean.setLastname(m.get("Last Name"));
 				 * bean.setFatherName(m.get("Father Name"));
-				 * bean.setMotherName(m.get("Mother Name"));
-				 * bean.setRollNo(m.get("Roll No"));
+				 * bean.setMotherName(m.get("Mother Name")); bean.setRollNo(m.get("Roll No"));
 				 * bean.setAcadYear(m.get("Acad Year"));
 				 * bean.setProgramName(m.get("Program Name"));
-				 * bean.setStudyClass(m.get("Class"));
-				 * bean.setDivision(m.get("Division"));
+				 * bean.setStudyClass(m.get("Class")); bean.setDivision(m.get("Division"));
 				 * bean.setReason(m.get("Reason"));
 				 */
 				Integer flagNo = 1;
@@ -1306,16 +1169,14 @@ public class StudentServiceController extends BaseController {
 				bean.setRemark2(m.get("Remarks"));
 
 				// bList.add(bean);
-				
+
 				/*
-				 * bonafideFormService.updateFlagsAndRemarks(
-				 * String.valueOf(flagNo), (String) m.get("Status"), (String)
-				 * m.get("Remarks"), (String) m.get("Application ID"));
+				 * bonafideFormService.updateFlagsAndRemarks( String.valueOf(flagNo), (String)
+				 * m.get("Status"), (String) m.get("Remarks"), (String)
+				 * m.get("Application ID"));
 				 */
-				bonafideFormService.saveBonafideStatusForLevel3(
-						m.get("Status"), "flag2", m.get("Application ID"));
-				bonafideFormService.saveBonafideRemarksForLevel3(
-						m.get("Remarks"), "remark2", m.get("Application ID"));
+				bonafideFormService.saveBonafideStatusForLevel3(m.get("Status"), "flag2", m.get("Application ID"));
+				bonafideFormService.saveBonafideRemarksForLevel3(m.get("Remarks"), "remark2", m.get("Application ID"));
 			}
 
 			return "SUCCESS";
@@ -1364,34 +1225,29 @@ public class StudentServiceController extends BaseController {
 	 * 
 	 * }
 	 */
-	@RequestMapping(value = "/applyForRC", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String applyForRC(Model m, Principal principal,
-			@RequestParam(required = false) String serviceId) {
+	@RequestMapping(value = "/applyForRC", method = { RequestMethod.GET, RequestMethod.POST })
+	public String applyForRC(Model m, Principal principal, @RequestParam(required = false) String serviceId) {
 		String username = principal.getName();
-		
+
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
-		
+
 		Date dt = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 		String strDate = formatter.format(dt);
 		m.addAttribute("currentDate", strDate);
 		User u = userService.findUserProgramAcadYearByusername(username);
-		
+
 		m.addAttribute("serviceId", serviceId);
 		m.addAttribute("student", u);
 		m.addAttribute("railwayForm", new RailwayForm());
 		return "studentService/studentRC";
 	}
 
-	@RequestMapping(value = "/sendStudentRCData", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public String sendStudentRCData(Model m, Principal principal,
-			@ModelAttribute RailwayForm railwayForm) {
+	@RequestMapping(value = "/sendStudentRCData", method = { RequestMethod.GET, RequestMethod.POST })
+	public String sendStudentRCData(Model m, Principal principal, @ModelAttribute RailwayForm railwayForm) {
 		String username = railwayForm.getUsername();
-		RailwayForm bfd = railwayFormService
-				.findByUsernameAndSubmitted(username);
+		RailwayForm bfd = railwayFormService.findByUsernameAndSubmitted(username);
 		if (bfd != null) {
 			railwayFormService.deleteSoftById(String.valueOf(bfd.getId()));
 		}
@@ -1403,10 +1259,9 @@ public class StudentServiceController extends BaseController {
 		railwayForm.setFlag3("0");
 		railwayForm.setCreatedBy(username);
 		railwayForm.setLastModifiedBy(username);
-		
-		StudentServiceBean service = studentWsService.findByID(railwayForm
-				.getServiceId());
-		
+
+		StudentServiceBean service = studentWsService.findByID(railwayForm.getServiceId());
+
 		railwayForm.setPayment(service.getPayment());
 		if (service.getLevel1() != null || !"".equals(service.getLevel1())) {
 			railwayForm.setLevel1(service.getLevel1());
@@ -1418,54 +1273,44 @@ public class StudentServiceController extends BaseController {
 			railwayForm.setLevel3(service.getLevel3());
 		}
 		/*
-		 * BonafideForm b =
-		 * bonafideFormService.findAllByUsernameAndSubmitted(username); if(b !=
-		 * null || !"".equals(b)){ bonafideFormService.updateSubmit(b.getId());
+		 * BonafideForm b = bonafideFormService.findAllByUsernameAndSubmitted(username);
+		 * if(b != null || !"".equals(b)){ bonafideFormService.updateSubmit(b.getId());
 		 * 
-		 * bonafideFormService.insert(bonafideForm);
-		 * logger.info("data upsert manual"); }else{
-		 * bonafideFormService.insert(bonafideForm);
+		 * bonafideFormService.insert(bonafideForm); logger.info("data upsert manual");
+		 * }else{ bonafideFormService.insert(bonafideForm);
 		 * logger.info("data inserted"); }
 		 */
 		railwayFormService.insert(railwayForm);
-		
-		RailwayForm bf = railwayFormService
-				.findByUsernameAndSubmitted(username);
-		
+
+		RailwayForm bf = railwayFormService.findByUsernameAndSubmitted(username);
+
 		m.addAttribute("formId", bf.getId());
 		return "studentService/RCFormSubmitted";
 	}
 
-	@RequestMapping(value = "/viewRCServiceForStaff", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String viewRCServiceForStaff(Model m, Principal principal,
-			@RequestParam Long serviceId) {
+	@RequestMapping(value = "/viewRCServiceForStaff", method = { RequestMethod.GET, RequestMethod.POST })
+	public String viewRCServiceForStaff(Model m, Principal principal, @RequestParam Long serviceId) {
 		/*
-		 * m.addAttribute("webPage", new WebPage("viewAssignment",
-		 * "Bonafide Service", true, false));
+		 * m.addAttribute("webPage", new WebPage("viewAssignment", "Bonafide Service",
+		 * true, false));
 		 */
-		m.addAttribute("webPage", new WebPage("evaluateAssignment",
-				"Bonafide Service", true, false));
+		m.addAttribute("webPage", new WebPage("evaluateAssignment", "Bonafide Service", true, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
-		StudentServiceBean studentServiceBean = studentWsService
-				.findByID(serviceId);
+		StudentServiceBean studentServiceBean = studentWsService.findByID(serviceId);
 		m.addAttribute("serviceId", serviceId);
 		m.addAttribute("studentServiceBean", studentServiceBean);
 		List<RailwayForm> rList = new ArrayList<RailwayForm>();
 		int levelNo = 1;
 		if (studentServiceBean.getLevel2().equalsIgnoreCase(username)) {
 			levelNo = 2;
-			rList = railwayFormService
-					.findAllSubmittedStudentsByServiceIdFlag2(serviceId);
+			rList = railwayFormService.findAllSubmittedStudentsByServiceIdFlag2(serviceId);
 		} else {
-			rList = railwayFormService
-					.findAllSubmittedStudentsByServiceIdFlag1(serviceId);
+			rList = railwayFormService.findAllSubmittedStudentsByServiceIdFlag1(serviceId);
 		}
 
 		m.addAttribute("rList", rList);
@@ -1475,29 +1320,26 @@ public class StudentServiceController extends BaseController {
 		Integer levelNum = 1;
 		/*
 		 * if (studentServiceBean.getLevel1().equalsIgnoreCase(username)) { for
-		 * (BonafideForm bf : bList) { if (bf.isFlag1()) {
-		 * bf.setApprovedLevel1("true"); bf.setApprovedLevel("true");
-		 * bList.set(bList.indexOf(bf), bf); } } m.addAttribute("showActions",
-		 * true); } else if
+		 * (BonafideForm bf : bList) { if (bf.isFlag1()) { bf.setApprovedLevel1("true");
+		 * bf.setApprovedLevel("true"); bList.set(bList.indexOf(bf), bf); } }
+		 * m.addAttribute("showActions", true); } else if
 		 * (studentServiceBean.getLevel2().equalsIgnoreCase(username)) { for
 		 * (BonafideForm bf : bList) { if (bf.isFlag1()) { if (bf.isFlag2()) {
 		 * bf.setApprovedLevel2("true"); bf.setApprovedLevel("true"); } else {
 		 * bf.setAllowLevel2("true"); } bList.set(bList.indexOf(bf), bf); }
 		 * 
-		 * } } else if
-		 * (studentServiceBean.getLevel3().equalsIgnoreCase(username)) { for
+		 * } } else if (studentServiceBean.getLevel3().equalsIgnoreCase(username)) { for
 		 * (BonafideForm bf : bList) { if (bf.isFlag1() && bf.isFlag2()) { if
-		 * (bf.isFlag3()) { bf.setApprovedLevel3("true");
-		 * bf.setApprovedLevel("true"); } else { bf.setAllowLevel3("true"); }
-		 * bList.set(bList.indexOf(bf), bf); }
+		 * (bf.isFlag3()) { bf.setApprovedLevel3("true"); bf.setApprovedLevel("true"); }
+		 * else { bf.setAllowLevel3("true"); } bList.set(bList.indexOf(bf), bf); }
 		 * 
 		 * } }
 		 */
 		/*
-		 * if (studentServiceBean.getLevel1().equalsIgnoreCase(username)) {
-		 * levelNum = 1; for (BonafideForm bf : bList) { if
-		 * (bf.getFlag1().equals("APPROVED")) { bf.setApprovedLevel1("true");
-		 * bf.setApprovedLevel("true"); bList.set(bList.indexOf(bf), bf);
+		 * if (studentServiceBean.getLevel1().equalsIgnoreCase(username)) { levelNum =
+		 * 1; for (BonafideForm bf : bList) { if (bf.getFlag1().equals("APPROVED")) {
+		 * bf.setApprovedLevel1("true"); bf.setApprovedLevel("true");
+		 * bList.set(bList.indexOf(bf), bf);
 		 * 
 		 * } if (bf.getFlag1().equals("PENDING")) {
 		 * 
@@ -1524,8 +1366,7 @@ public class StudentServiceController extends BaseController {
 		} else if (studentServiceBean.getLevel3().equalsIgnoreCase(username)) {
 			levelNum = 3;
 			for (RailwayForm rf : rList) {
-				if (rf.getFlag1().equals("APPROVED")
-						&& rf.getFlag2().equals("APPROVED")) {
+				if (rf.getFlag1().equals("APPROVED") && rf.getFlag2().equals("APPROVED")) {
 					if (rf.getFlag3().equals("APPROVED")) {
 						rf.setApprovedLevel3("true");
 						rf.setApprovedLevel("true");
@@ -1545,26 +1386,20 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/viewStudentRCApplication", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String viewStudentRCApplication(Model m, Principal principal,
-			@RequestParam(required = false) String id) {
-		RailwayForm rf = railwayFormService.getSubmittedStudentById(Long
-				.valueOf(id));
-		
+	@RequestMapping(value = "/viewStudentRCApplication", method = { RequestMethod.GET, RequestMethod.POST })
+	public String viewStudentRCApplication(Model m, Principal principal, @RequestParam(required = false) String id) {
+		RailwayForm rf = railwayFormService.getSubmittedStudentById(Long.valueOf(id));
 
 		m.addAttribute("student", rf);
 		return "studentService/viewStudentRC";
 	}
 
-	@RequestMapping(value = "/saveRCRemarks", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public @ResponseBody String saveRCRemarks(@RequestParam String value,
-			@RequestParam Long pk, @RequestParam String remark,
-			Principal principal) {
+	@RequestMapping(value = "/saveRCRemarks", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String saveRCRemarks(@RequestParam String value, @RequestParam Long pk,
+			@RequestParam String remark, Principal principal) {
 		String username = principal.getName();
 		try {
-			
+
 			railwayFormService.saveRCRemarks(value, remark, pk);
 			return "{\"status\": \"success\", \"msg\": \"Remarks saved successfully!\"}";
 		} catch (Exception e) {
@@ -1574,14 +1409,12 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/saveRCStatus", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public @ResponseBody String saveRCStatus(@RequestParam String value,
-			@RequestParam Long pk, @RequestParam String flag,
-			Principal principal) {
+	@RequestMapping(value = "/saveRCStatus", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String saveRCStatus(@RequestParam String value, @RequestParam Long pk,
+			@RequestParam String flag, Principal principal) {
 		String username = principal.getName();
 		try {
-			
+
 			railwayFormService.saveRCStatus(value, flag, pk);
 			return "{\"status\": \"success\", \"msg\": \"Flags saved successfully!\"}";
 		} catch (Exception e) {
@@ -1592,33 +1425,29 @@ public class StudentServiceController extends BaseController {
 	}
 
 	@RequestMapping(value = "/downloadStudentsRCForms", method = RequestMethod.GET)
-	public void downloadStudentsRCForms(HttpServletResponse response,
-			Principal principal, @RequestParam Long serviceId,
+	public void downloadStudentsRCForms(HttpServletResponse response, Principal principal, @RequestParam Long serviceId,
 			@RequestParam String levelNum) {
-		
+
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		InputStream is = null;
 		String filePath = "";
-		StudentServiceBean studentServiceBean = studentWsService
-				.findByID(serviceId);
+		StudentServiceBean studentServiceBean = studentWsService.findByID(serviceId);
 		try {
 			// get your file as InputStream
 			List<RailwayForm> bList = new ArrayList<RailwayForm>();
 			int levelNo = 1;
 			if (studentServiceBean.getLevel2().equalsIgnoreCase(username)) {
 				levelNo = 2;
-				bList = railwayFormService
-						.findAllSubmittedStudentsByServiceIdFlag2(serviceId);
+				bList = railwayFormService.findAllSubmittedStudentsByServiceIdFlag2(serviceId);
 			} /*
-			 * else { bList = bonafideFormService
-			 * .findAllSubmittedStudentsByServiceIdFlag1(serviceId); }
-			 */
-			
+				 * else { bList = bonafideFormService
+				 * .findAllSubmittedStudentsByServiceIdFlag1(serviceId); }
+				 */
 
 			filePath = getRCApplications(bList, username);
 			is = new FileInputStream(filePath);
@@ -1629,9 +1458,7 @@ public class StudentServiceController extends BaseController {
 
 			response.flushBuffer();
 		} catch (Exception ex) {
-			logger.info(
-					"Error writing file to output stream. Filename was '{}'",
-					ex);
+			logger.info("Error writing file to output stream. Filename was '{}'", ex);
 			throw new RuntimeException("IOError writing file to output stream");
 		} finally {
 			if (is != null) {
@@ -1643,13 +1470,10 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	public String getBonafideApplications(List<BonafideForm> bList,
-			String username) {
-		String filePath = downloadAllFolder + File.separator
-				+ "BonafideStudentApplications.xlsx";
-		String h[] = { "Application ID", "SAPId", "First Name", "Last Name",
-				"Father Name", "Roll No", "Acad Year", "Program Name", "Class",
-				"Division", "Reason", "Status", "Remarks" };
+	public String getBonafideApplications(List<BonafideForm> bList, String username) {
+		String filePath = downloadAllFolder + File.separator + "BonafideStudentApplications.xlsx";
+		String h[] = { "Application ID", "SAPId", "First Name", "Last Name", "Father Name", "Roll No", "Acad Year",
+				"Program Name", "Class", "Division", "Reason", "Status", "Remarks" };
 		List<String> header = Arrays.asList(h);
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Bonafide Sheet");
@@ -1693,10 +1517,8 @@ public class StudentServiceController extends BaseController {
 		String[] actions = new String[] { "PENDING,APPROVED,REJECTED" };
 		XSSFDataValidationConstraint constraint = (XSSFDataValidationConstraint) dvHelper
 				.createExplicitListConstraint(actions);
-		CellRangeAddressList addressList = new CellRangeAddressList(1, 100, 11,
-				11);
-		XSSFDataValidation validation = (XSSFDataValidation) dvHelper
-				.createValidation(constraint, addressList);
+		CellRangeAddressList addressList = new CellRangeAddressList(1, 100, 11, 11);
+		XSSFDataValidation validation = (XSSFDataValidation) dvHelper.createValidation(constraint, addressList);
 		validation.setShowErrorBox(true);
 		sheet.addValidationData(validation);
 		try {
@@ -1713,31 +1535,25 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/uploadStudentsRCForms", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String uploadStudentsRCForms(Model m, Principal principal,
-			RedirectAttributes redirectAttributes,
-			@ModelAttribute StudentServiceBean studentServiceBean,
-			@RequestParam("file") MultipartFile file) {
-		
-		m.addAttribute("webPage", new WebPage("viewAssignment",
-				"Railway Service", true, false));
+	@RequestMapping(value = "/uploadStudentsRCForms", method = { RequestMethod.GET, RequestMethod.POST })
+	public String uploadStudentsRCForms(Model m, Principal principal, RedirectAttributes redirectAttributes,
+			@ModelAttribute StudentServiceBean studentServiceBean, @RequestParam("file") MultipartFile file) {
+
+		m.addAttribute("webPage", new WebPage("viewAssignment", "Railway Service", true, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		if (file.isEmpty()) {
 			setNote(redirectAttributes, "File is empty!");
 
 		} else {
 
-			StudentServiceBean serviceBean = studentWsService
-					.findByID(studentServiceBean.getId());
+			StudentServiceBean serviceBean = studentWsService.findByID(studentServiceBean.getId());
 
-			String statusOfUpload = uploadFileAndReturnStatusForRC(file,
-					username, serviceBean);
+			String statusOfUpload = uploadFileAndReturnStatusForRC(file, username, serviceBean);
 			if (statusOfUpload.equalsIgnoreCase("SUCCESS")) {
 				setSuccess(redirectAttributes, "File uploaded successfully!");
 			} else {
@@ -1745,21 +1561,18 @@ public class StudentServiceController extends BaseController {
 			}
 		}
 
-		return "redirect:/viewRCServiceForStaff?serviceId="
-				+ studentServiceBean.getId();
+		return "redirect:/viewRCServiceForStaff?serviceId=" + studentServiceBean.getId();
 
 	}
 
-	private String uploadFileAndReturnStatusForRC(MultipartFile file,
-			String username, StudentServiceBean serviceBean) {
+	private String uploadFileAndReturnStatusForRC(MultipartFile file, String username, StudentServiceBean serviceBean) {
 
 		InputStream inputStream = null;
 
 		String fileName = file.getOriginalFilename();
 
 		fileName = RandomStringUtils.randomAlphanumeric(10)
-				+ fileName.substring(fileName.lastIndexOf("."),
-						fileName.length());
+				+ fileName.substring(fileName.lastIndexOf("."), fileName.length());
 		List<BonafideForm> bList = new ArrayList<BonafideForm>();
 		try {
 
@@ -1774,31 +1587,26 @@ public class StudentServiceController extends BaseController {
 			File dest = new File(filePath);
 
 			FileUtils.copyInputStreamToFile(inputStream, dest);
-			List<Map<String, String>> listCells = excelReader
-					.readXLSXFileForBonafide(dest.getAbsolutePath());
+			List<Map<String, String>> listCells = excelReader.readXLSXFileForBonafide(dest.getAbsolutePath());
 			List<String> ids = new ArrayList<String>();
 			for (Map<String, String> m : listCells) {
-				
+
 				RailwayForm bean = new RailwayForm();
 				/*
 				 * bean.setId(Long.valueOf(m.get("Application ID")));
-				 * bean.setUsername(m.get("SAPId"));
-				 * bean.setFirstname(m.get("First Name"));
+				 * bean.setUsername(m.get("SAPId")); bean.setFirstname(m.get("First Name"));
 				 * bean.setLastname(m.get("Last Name"));
 				 * bean.setFatherName(m.get("Father Name"));
-				 * bean.setMotherName(m.get("Mother Name"));
-				 * bean.setRollNo(m.get("Roll No"));
+				 * bean.setMotherName(m.get("Mother Name")); bean.setRollNo(m.get("Roll No"));
 				 * bean.setAcadYear(m.get("Acad Year"));
 				 * bean.setProgramName(m.get("Program Name"));
-				 * bean.setStudyClass(m.get("Class"));
-				 * bean.setDivision(m.get("Division"));
+				 * bean.setStudyClass(m.get("Class")); bean.setDivision(m.get("Division"));
 				 * bean.setReason(m.get("Reason"));
 				 */
 				Integer flagNo = 1;
 				/*
 				 * if (serviceBean.getLevel1().equalsIgnoreCase(username)) {
-				 * bean.setFlag1(m.get("Status"));
-				 * bean.setRemark1(m.get("Remarks")); } else
+				 * bean.setFlag1(m.get("Status")); bean.setRemark1(m.get("Remarks")); } else
 				 */if (serviceBean.getLevel2().equalsIgnoreCase(username)) {
 					bean.setFlag2(m.get("Status"));
 					bean.setRemark2(m.get("Remarks"));
@@ -1810,11 +1618,9 @@ public class StudentServiceController extends BaseController {
 				}
 
 				// bList.add(bean);
-				
-				railwayFormService.updateFlagsAndRemarks(
-						String.valueOf(flagNo), (String) m.get("Status"),
-						(String) m.get("Remarks"),
-						(String) m.get("Application ID"));
+
+				railwayFormService.updateFlagsAndRemarks(String.valueOf(flagNo), (String) m.get("Status"),
+						(String) m.get("Remarks"), (String) m.get("Application ID"));
 			}
 
 			return "SUCCESS";
@@ -1828,24 +1634,19 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/viewRCServiceForLevel3", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String viewRCServiceForLevel3(Model m, Principal principal,
-			@RequestParam Long serviceId) {
-		m.addAttribute("webPage", new WebPage("evaluateAssignment",
-				"Bonafide Service", true, false));
+	@RequestMapping(value = "/viewRCServiceForLevel3", method = { RequestMethod.GET, RequestMethod.POST })
+	public String viewRCServiceForLevel3(Model m, Principal principal, @RequestParam Long serviceId) {
+		m.addAttribute("webPage", new WebPage("evaluateAssignment", "Bonafide Service", true, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
-		StudentServiceBean studentServiceBean = studentWsService
-				.findByID(serviceId);
+		StudentServiceBean studentServiceBean = studentWsService.findByID(serviceId);
 		m.addAttribute("serviceId", serviceId);
 		m.addAttribute("studentServiceBean", studentServiceBean);
 
-		List<RailwayForm> rf = railwayFormService
-				.findAllPendingRCForLevel3(username);
-		
+		List<RailwayForm> rf = railwayFormService.findAllPendingRCForLevel3(username);
+
 		m.addAttribute("pendingList", rf);
 		if (rf.isEmpty() || rf.size() == 0) {
 			setNote(m, "no Records Found!");
@@ -1868,16 +1669,13 @@ public class StudentServiceController extends BaseController {
 		return "studentService/viewRCLevel3";
 	}
 
-	@RequestMapping(value = "/saveRCStatusForLevel3", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String saveRCStatusForLevel3(
-			@RequestParam String value, @RequestParam Long pk,
+	@RequestMapping(value = "/saveRCStatusForLevel3", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String saveRCStatusForLevel3(@RequestParam String value, @RequestParam Long pk,
 			@RequestParam String flag, Principal principal) {
 		String username = principal.getName();
 		try {
-			
-			railwayFormService.saveRCStatusForLevel3(value, flag,
-					String.valueOf(pk));
+
+			railwayFormService.saveRCStatusForLevel3(value, flag, String.valueOf(pk));
 			return "{\"status\": \"success\", \"msg\": \"Flags saved successfully!\"}";
 		} catch (Exception e) {
 			logger.error("Exception", e);
@@ -1886,16 +1684,13 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/saveRCRemarksForLevel3", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String saveRCRemarksForLevel3(
-			@RequestParam String value, @RequestParam Long pk,
+	@RequestMapping(value = "/saveRCRemarksForLevel3", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String saveRCRemarksForLevel3(@RequestParam String value, @RequestParam Long pk,
 			@RequestParam String remark, Principal principal) {
 		String username = principal.getName();
 		try {
-			
-			railwayFormService.saveRCRemarksForLevel3(value, remark,
-					String.valueOf(pk));
+
+			railwayFormService.saveRCRemarksForLevel3(value, remark, String.valueOf(pk));
 			return "{\"status\": \"success\", \"msg\": \"Remarks saved successfully!\"}";
 		} catch (Exception e) {
 			logger.error("Exception", e);
@@ -1905,26 +1700,21 @@ public class StudentServiceController extends BaseController {
 	}
 
 	@RequestMapping(value = "/downloadStudentsRCFormsForLevel3", method = RequestMethod.GET)
-	public void downloadStudentsRCFormsForLevel3(HttpServletResponse response,
-			Principal principal, @RequestParam Long serviceId) {
-		
+	public void downloadStudentsRCFormsForLevel3(HttpServletResponse response, Principal principal,
+			@RequestParam Long serviceId) {
 
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		InputStream is = null;
 		String filePath = "";
-		StudentServiceBean studentServiceBean = studentWsService
-				.findByID(serviceId);
+		StudentServiceBean studentServiceBean = studentWsService.findByID(serviceId);
 		try {
 			// get your file as InputStream
-			List<RailwayForm> bList = railwayFormService
-					.findAllPendingRCForLevel3(username);
-
-			
+			List<RailwayForm> bList = railwayFormService.findAllPendingRCForLevel3(username);
 
 			filePath = getRCApplications(bList, username);
 			is = new FileInputStream(filePath);
@@ -1935,9 +1725,7 @@ public class StudentServiceController extends BaseController {
 
 			response.flushBuffer();
 		} catch (Exception ex) {
-			logger.info(
-					"Error writing file to output stream. Filename was '{}'",
-					ex);
+			logger.info("Error writing file to output stream. Filename was '{}'", ex);
 			throw new RuntimeException("IOError writing file to output stream");
 		} finally {
 			if (is != null) {
@@ -1949,31 +1737,25 @@ public class StudentServiceController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/uploadStudentsRCFormsForLevel3", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String uploadStudentsRCFormsForLevel3(Model m, Principal principal,
-			RedirectAttributes redirectAttributes,
-			@ModelAttribute StudentServiceBean studentServiceBean,
-			@RequestParam("file") MultipartFile file) {
-		
-		m.addAttribute("webPage", new WebPage("viewAssignment",
-				"Bonafide Service", true, false));
+	@RequestMapping(value = "/uploadStudentsRCFormsForLevel3", method = { RequestMethod.GET, RequestMethod.POST })
+	public String uploadStudentsRCFormsForLevel3(Model m, Principal principal, RedirectAttributes redirectAttributes,
+			@ModelAttribute StudentServiceBean studentServiceBean, @RequestParam("file") MultipartFile file) {
+
+		m.addAttribute("webPage", new WebPage("viewAssignment", "Bonafide Service", true, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		if (file.isEmpty()) {
 			setNote(redirectAttributes, "File is empty!");
 
 		} else {
 
-			StudentServiceBean serviceBean = studentWsService
-					.findByID(studentServiceBean.getId());
+			StudentServiceBean serviceBean = studentWsService.findByID(studentServiceBean.getId());
 
-			String statusOfUpload = uploadFileAndReturnStatusForLevel3RC(file,
-					username, serviceBean);
+			String statusOfUpload = uploadFileAndReturnStatusForLevel3RC(file, username, serviceBean);
 			if (statusOfUpload.equalsIgnoreCase("SUCCESS")) {
 				setSuccess(redirectAttributes, "File uploaded successfully!");
 			} else {
@@ -1981,21 +1763,19 @@ public class StudentServiceController extends BaseController {
 			}
 		}
 
-		return "redirect:/viewRCServiceForLevel3?serviceId="
-				+ studentServiceBean.getId();
+		return "redirect:/viewRCServiceForLevel3?serviceId=" + studentServiceBean.getId();
 
 	}
 
-	private String uploadFileAndReturnStatusForLevel3RC(MultipartFile file,
-			String username, StudentServiceBean serviceBean) {
+	private String uploadFileAndReturnStatusForLevel3RC(MultipartFile file, String username,
+			StudentServiceBean serviceBean) {
 
 		InputStream inputStream = null;
 
 		String fileName = file.getOriginalFilename();
 
 		fileName = RandomStringUtils.randomAlphanumeric(10)
-				+ fileName.substring(fileName.lastIndexOf("."),
-						fileName.length());
+				+ fileName.substring(fileName.lastIndexOf("."), fileName.length());
 		List<BonafideForm> bList = new ArrayList<BonafideForm>();
 		try {
 
@@ -2010,24 +1790,20 @@ public class StudentServiceController extends BaseController {
 			File dest = new File(filePath);
 
 			FileUtils.copyInputStreamToFile(inputStream, dest);
-			List<Map<String, String>> listCells = excelReader
-					.readXLSXFileForBonafide(dest.getAbsolutePath());
+			List<Map<String, String>> listCells = excelReader.readXLSXFileForBonafide(dest.getAbsolutePath());
 			List<String> ids = new ArrayList<String>();
 			for (Map<String, String> m : listCells) {
-				
+
 				BonafideForm bean = new BonafideForm();
 				/*
 				 * bean.setId(Long.valueOf(m.get("Application ID")));
-				 * bean.setUsername(m.get("SAPId"));
-				 * bean.setFirstname(m.get("First Name"));
+				 * bean.setUsername(m.get("SAPId")); bean.setFirstname(m.get("First Name"));
 				 * bean.setLastname(m.get("Last Name"));
 				 * bean.setFatherName(m.get("Father Name"));
-				 * bean.setMotherName(m.get("Mother Name"));
-				 * bean.setRollNo(m.get("Roll No"));
+				 * bean.setMotherName(m.get("Mother Name")); bean.setRollNo(m.get("Roll No"));
 				 * bean.setAcadYear(m.get("Acad Year"));
 				 * bean.setProgramName(m.get("Program Name"));
-				 * bean.setStudyClass(m.get("Class"));
-				 * bean.setDivision(m.get("Division"));
+				 * bean.setStudyClass(m.get("Class")); bean.setDivision(m.get("Division"));
 				 * bean.setReason(m.get("Reason"));
 				 */
 				Integer flagNo = 1;
@@ -2037,16 +1813,14 @@ public class StudentServiceController extends BaseController {
 				bean.setRemark2(m.get("Remarks"));
 
 				// bList.add(bean);
-				
+
 				/*
-				 * bonafideFormService.updateFlagsAndRemarks(
-				 * String.valueOf(flagNo), (String) m.get("Status"), (String)
-				 * m.get("Remarks"), (String) m.get("Application ID"));
+				 * bonafideFormService.updateFlagsAndRemarks( String.valueOf(flagNo), (String)
+				 * m.get("Status"), (String) m.get("Remarks"), (String)
+				 * m.get("Application ID"));
 				 */
-				railwayFormService.saveRCStatusForLevel3(m.get("Status"),
-						"flag2", m.get("Application ID"));
-				railwayFormService.saveRCRemarksForLevel3(m.get("Remarks"),
-						"remark2", m.get("Application ID"));
+				railwayFormService.saveRCStatusForLevel3(m.get("Status"), "flag2", m.get("Application ID"));
+				railwayFormService.saveRCRemarksForLevel3(m.get("Remarks"), "remark2", m.get("Application ID"));
 			}
 
 			return "SUCCESS";
@@ -2069,16 +1843,15 @@ public class StudentServiceController extends BaseController {
 	 * principal,
 	 * 
 	 * @RequestParam(required = false) String serviceId) { String username =
-	 * principal.getName(); logger.info("sap name" + username); Token
-	 * userdetails1 = (Token) principal; String ProgramName =
-	 * userdetails1.getProgramName(); logger.info("program name" + ProgramName);
-	 * Date dt = new Date(); SimpleDateFormat formatter = new
-	 * SimpleDateFormat("dd/MM/yyyy"); String strDate = formatter.format(dt);
-	 * m.addAttribute("currentDate", strDate); User u =
-	 * userService.findUserProgramAcadYearByusername(username);
+	 * principal.getName(); logger.info("sap name" + username); Token userdetails1 =
+	 * (Token) principal; String ProgramName = userdetails1.getProgramName();
+	 * logger.info("program name" + ProgramName); Date dt = new Date();
+	 * SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy"); String
+	 * strDate = formatter.format(dt); m.addAttribute("currentDate", strDate); User
+	 * u = userService.findUserProgramAcadYearByusername(username);
 	 * logger.info("user" + u); m.addAttribute("serviceId", serviceId);
-	 * m.addAttribute("student", u); m.addAttribute("hostelForm", new
-	 * HostelForm()); return "studentService/studentHostel"; }
+	 * m.addAttribute("student", u); m.addAttribute("hostelForm", new HostelForm());
+	 * return "studentService/studentHostel"; }
 	 * 
 	 * @RequestMapping(value = "/sendStudentHostelData", method = {
 	 * RequestMethod.GET, RequestMethod.POST }) public String
@@ -2086,59 +1859,55 @@ public class StudentServiceController extends BaseController {
 	 * 
 	 * @ModelAttribute HostelForm hostelForm) { String username =
 	 * principal.getName(); HostelForm bfd =
-	 * hostelFormService.findByUsernameAndSubmitted(username); if (bfd != null)
-	 * { hostelFormService.deleteSoftById(String.valueOf(bfd.getId())); }
+	 * hostelFormService.findByUsernameAndSubmitted(username); if (bfd != null) {
+	 * hostelFormService.deleteSoftById(String.valueOf(bfd.getId())); }
 	 * hostelForm.setUsername(username); hostelForm.setIsSubmitted("Y");
 	 * hostelForm.setActive("Y"); hostelForm.setFlag1("APPROVED");
 	 * hostelForm.setFlag2("PENDING"); hostelForm.setFlag3("0");
-	 * hostelForm.setCreatedBy(username);
-	 * hostelForm.setLastModifiedBy(username); logger.info("Student serviceid" +
-	 * hostelForm.getServiceId()); StudentServiceBean service =
-	 * studentWsService.findByID(hostelForm .getServiceId());
-	 * logger.info("Student Data" + hostelForm);
-	 * hostelForm.setPayment(service.getPayment()); if (service.getLevel1() !=
-	 * null || !"".equals(service.getLevel1())) {
-	 * hostelForm.setLevel1(service.getLevel1()); } if (service.getLevel2() !=
-	 * null || !"".equals(service.getLevel2())) {
-	 * hostelForm.setLevel2(service.getLevel2()); } if (service.getLevel3() !=
-	 * null || !"".equals(service.getLevel3())) {
+	 * hostelForm.setCreatedBy(username); hostelForm.setLastModifiedBy(username);
+	 * logger.info("Student serviceid" + hostelForm.getServiceId());
+	 * StudentServiceBean service = studentWsService.findByID(hostelForm
+	 * .getServiceId()); logger.info("Student Data" + hostelForm);
+	 * hostelForm.setPayment(service.getPayment()); if (service.getLevel1() != null
+	 * || !"".equals(service.getLevel1())) {
+	 * hostelForm.setLevel1(service.getLevel1()); } if (service.getLevel2() != null
+	 * || !"".equals(service.getLevel2())) {
+	 * hostelForm.setLevel2(service.getLevel2()); } if (service.getLevel3() != null
+	 * || !"".equals(service.getLevel3())) {
 	 * hostelForm.setLevel3(service.getLevel3()); }
 	 * 
-	 * BonafideForm b =
-	 * bonafideFormService.findAllByUsernameAndSubmitted(username); if(b != null
-	 * || !"".equals(b)){ bonafideFormService.updateSubmit(b.getId());
+	 * BonafideForm b = bonafideFormService.findAllByUsernameAndSubmitted(username);
+	 * if(b != null || !"".equals(b)){ bonafideFormService.updateSubmit(b.getId());
 	 * 
-	 * bonafideFormService.insert(bonafideForm);
-	 * logger.info("data upsert manual"); }else{
-	 * bonafideFormService.insert(bonafideForm); logger.info("data inserted"); }
+	 * bonafideFormService.insert(bonafideForm); logger.info("data upsert manual");
+	 * }else{ bonafideFormService.insert(bonafideForm);
+	 * logger.info("data inserted"); }
 	 * 
 	 * hostelFormService.insert(hostelForm); logger.info("data inserted");
 	 * HostelForm bf = hostelFormService.findByUsernameAndSubmitted(username);
 	 * logger.info("formId" + bf.getId()); m.addAttribute("formId", bf.getId());
 	 * return "studentService/hostelFormSubmitted"; }
 	 * 
-	 * @RequestMapping(value = "/viewHostelServices", method = {
-	 * RequestMethod.GET, RequestMethod.POST }) public String
-	 * viewHostelServices(Model m, Principal principal) { String username =
-	 * principal.getName();
+	 * @RequestMapping(value = "/viewHostelServices", method = { RequestMethod.GET,
+	 * RequestMethod.POST }) public String viewHostelServices(Model m, Principal
+	 * principal) { String username = principal.getName();
 	 * 
 	 * Token userdetails1 = (Token) principal; String ProgramName =
-	 * userdetails1.getProgramName(); User u =
-	 * userService.findByUserName(username);
-	 * logger.info("ACAD SESSION------------------------->" +
-	 * u.getAcadSession()); List<StudentServiceBean> serviceList =
-	 * studentWsService .findServiceByName("Hostel Service");
-	 * m.addAttribute("serviceList", serviceList); if (serviceList.size() != 0)
-	 * if (userdetails1.getAuthorities().contains(Role.ROLE_STUDENT)) { for
+	 * userdetails1.getProgramName(); User u = userService.findByUserName(username);
+	 * logger.info("ACAD SESSION------------------------->" + u.getAcadSession());
+	 * List<StudentServiceBean> serviceList = studentWsService
+	 * .findServiceByName("Hostel Service"); m.addAttribute("serviceList",
+	 * serviceList); if (serviceList.size() != 0) if
+	 * (userdetails1.getAuthorities().contains(Role.ROLE_STUDENT)) { for
 	 * (StudentServiceBean sb : serviceList) { HostelForm hostel =
 	 * hostelFormService.findStudentHostel( username, sb.getId()); if (hostel !=
-	 * null) { User user1 = userService.findByUserName(hostel .getLevel1());
-	 * User user2 = userService.findByUserName(hostel .getLevel2()); User user3
-	 * = userService.findByUserName(hostel .getLevel3());
-	 * logger.info("user1 --- " + user1); hostel.setUser1(user1.getFirstname() +
-	 * " " + user1.getLastname()); hostel.setUser2(user2.getFirstname() + " " +
-	 * user2.getLastname()); hostel.setUser3(user3.getFirstname() + " " +
-	 * user3.getLastname()); logger.info("hostel ----- " + hostel);
+	 * null) { User user1 = userService.findByUserName(hostel .getLevel1()); User
+	 * user2 = userService.findByUserName(hostel .getLevel2()); User user3 =
+	 * userService.findByUserName(hostel .getLevel3()); logger.info("user1 --- " +
+	 * user1); hostel.setUser1(user1.getFirstname() + " " + user1.getLastname());
+	 * hostel.setUser2(user2.getFirstname() + " " + user2.getLastname());
+	 * hostel.setUser3(user3.getFirstname() + " " + user3.getLastname());
+	 * logger.info("hostel ----- " + hostel);
 	 * 
 	 * sb.setHostel(hostel); }
 	 * 
@@ -2155,19 +1924,17 @@ public class StudentServiceController extends BaseController {
 	 * 
 	 * @RequestParam(required = false) String campusLocation) {
 	 * 
-	 * m.addAttribute("webPage", new WebPage("evaluateAssignment",
-	 * "Hostel Service", true, false)); String username = principal.getName();
-	 * ObjectMapper mapper = new ObjectMapper(); Token userdetails1 = (Token)
-	 * principal; String ProgramName = userdetails1.getProgramName(); User u =
+	 * m.addAttribute("webPage", new WebPage("evaluateAssignment", "Hostel Service",
+	 * true, false)); String username = principal.getName(); ObjectMapper mapper =
+	 * new ObjectMapper(); Token userdetails1 = (Token) principal; String
+	 * ProgramName = userdetails1.getProgramName(); User u =
 	 * userService.findByUserName(username);
-	 * logger.info("ACAD SESSION------------------------->" +
-	 * u.getAcadSession());
+	 * logger.info("ACAD SESSION------------------------->" + u.getAcadSession());
 	 * 
 	 * StudentServiceBean studentServiceBean = studentWsService
 	 * .findByID(serviceId); m.addAttribute("serviceId", serviceId);
-	 * m.addAttribute("studentServiceBean", studentServiceBean);
-	 * List<HostelForm> rList = new ArrayList<HostelForm>(); if (campusLocation
-	 * != null) {
+	 * m.addAttribute("studentServiceBean", studentServiceBean); List<HostelForm>
+	 * rList = new ArrayList<HostelForm>(); if (campusLocation != null) {
 	 * 
 	 * try { String json; json = mapper.writeValueAsString(campusLocation);
 	 * logger.info("encoded json--->" + URIUtil.encodeQuery(json));
@@ -2175,22 +1942,20 @@ public class StudentServiceController extends BaseController {
 	 * logger.info(" json--->" + (json)); WebTarget webTarget =
 	 * client.target(URIUtil .encodeQuery(userRoleMgmtCrudUrl +
 	 * "/addOtherUserStaffService?json=" + json)); Invocation.Builder
-	 * invocationBuilder = webTarget .request(MediaType.APPLICATION_JSON);
-	 * String resp = invocationBuilder.get(String.class); logger.info("resp" +
-	 * resp); if (resp == null) { setError(m, "Error in getting school list"); }
-	 * else {
+	 * invocationBuilder = webTarget .request(MediaType.APPLICATION_JSON); String
+	 * resp = invocationBuilder.get(String.class); logger.info("resp" + resp); if
+	 * (resp == null) { setError(m, "Error in getting school list"); } else {
 	 * 
-	 * rList = mapper.readValue(resp, new TypeReference<List<HostelForm>>() {
-	 * }); logger.info("rList --------- " + rList); m.addAttribute("rList",
-	 * rList);
+	 * rList = mapper.readValue(resp, new TypeReference<List<HostelForm>>() { });
+	 * logger.info("rList --------- " + rList); m.addAttribute("rList", rList);
 	 * 
 	 * } } catch (IOException e) { // TODO Auto-generated catch block
 	 * e.printStackTrace(); }
 	 * 
 	 * } m.addAttribute("rList", rList);
 	 * 
-	 * if (rList.isEmpty() || rList.size() == 0) { setNote(m,
-	 * "no Records Found!"); } Integer levelNum = 1;
+	 * if (rList.isEmpty() || rList.size() == 0) { setNote(m, "no Records Found!");
+	 * } Integer levelNum = 1;
 	 * 
 	 * m.addAttribute("levelNum", levelNum); m.addAttribute("hostel", new
 	 * HostelForm());
@@ -2204,50 +1969,46 @@ public class StudentServiceController extends BaseController {
 	 * downloadStudentsHostelForms(HttpServletResponse response, Principal
 	 * principal, @RequestParam Long serviceId,
 	 * 
-	 * @RequestParam String levelNum) { logger.info("serviceId ==== " +
-	 * serviceId); logger.info("levelNum ----------- " + levelNum); String
-	 * username = principal.getName();
+	 * @RequestParam String levelNum) { logger.info("serviceId ==== " + serviceId);
+	 * logger.info("levelNum ----------- " + levelNum); String username =
+	 * principal.getName();
 	 * 
 	 * Token userdetails1 = (Token) principal; String ProgramName =
-	 * userdetails1.getProgramName(); User u =
-	 * userService.findByUserName(username);
-	 * logger.info("ACAD SESSION------------------------->" +
-	 * u.getAcadSession()); InputStream is = null; String filePath = "";
-	 * StudentServiceBean studentServiceBean = studentWsService
-	 * .findByID(serviceId); try { // get your file as InputStream
-	 * List<HostelForm> bList = new ArrayList<HostelForm>(); int levelNo = 1; if
-	 * (studentServiceBean.getLevel2().equalsIgnoreCase(username)) { levelNo =
-	 * 2; bList = hostelFormService
+	 * userdetails1.getProgramName(); User u = userService.findByUserName(username);
+	 * logger.info("ACAD SESSION------------------------->" + u.getAcadSession());
+	 * InputStream is = null; String filePath = ""; StudentServiceBean
+	 * studentServiceBean = studentWsService .findByID(serviceId); try { // get your
+	 * file as InputStream List<HostelForm> bList = new ArrayList<HostelForm>(); int
+	 * levelNo = 1; if (studentServiceBean.getLevel2().equalsIgnoreCase(username)) {
+	 * levelNo = 2; bList = hostelFormService
 	 * .findAllSubmittedStudentsByServiceIdFlag2(serviceId); } else { bList =
-	 * bonafideFormService .findAllSubmittedStudentsByServiceIdFlag1(serviceId);
-	 * }
+	 * bonafideFormService .findAllSubmittedStudentsByServiceIdFlag1(serviceId); }
 	 * 
 	 * logger.info("blist -------------- " + bList);
 	 * 
 	 * filePath = getHostelApplications(bList, username); is = new
 	 * FileInputStream(filePath); response.setContentType(
-	 * "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); //
-	 * copy it to response's OutputStream org.apache.commons.io.IOUtils.copy(is,
+	 * "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); // copy
+	 * it to response's OutputStream org.apache.commons.io.IOUtils.copy(is,
 	 * response.getOutputStream()); response.flushBuffer();
 	 * 
 	 * response.flushBuffer(); } catch (Exception ex) { logger.info(
 	 * "Error writing file to output stream. Filename was '{}'", ex); throw new
-	 * RuntimeException("IOError writing file to output stream"); } finally { if
-	 * (is != null) { org.apache.commons.io.IOUtils.closeQuietly(is); }
+	 * RuntimeException("IOError writing file to output stream"); } finally { if (is
+	 * != null) { org.apache.commons.io.IOUtils.closeQuietly(is); }
 	 * 
 	 * FileUtils.deleteQuietly(new File(filePath)); }
 	 * 
 	 * }
 	 * 
-	 * public String getHostelApplications(List<HostelForm> bList, String
-	 * username) { String filePath = downloadAllFolder + File.separator +
-	 * "BonafideStudentApplications.xlsx"; String h[] = { "Application ID",
-	 * "Date", "Sex", "Year", "SAPId", "Name", "DOB",
-	 * "Class & Monthly /Quarterly", "From Station", "To Station", "Address",
-	 * "Status", "Remarks" }; List<String> header = Arrays.asList(h);
-	 * XSSFWorkbook workbook = new XSSFWorkbook(); XSSFSheet sheet =
-	 * workbook.createSheet("Railway Concession Sheet"); Row headerRow =
-	 * sheet.createRow(0); for (int colNum = 0; colNum < header.size();
+	 * public String getHostelApplications(List<HostelForm> bList, String username)
+	 * { String filePath = downloadAllFolder + File.separator +
+	 * "BonafideStudentApplications.xlsx"; String h[] = { "Application ID", "Date",
+	 * "Sex", "Year", "SAPId", "Name", "DOB", "Class & Monthly /Quarterly",
+	 * "From Station", "To Station", "Address", "Status", "Remarks" }; List<String>
+	 * header = Arrays.asList(h); XSSFWorkbook workbook = new XSSFWorkbook();
+	 * XSSFSheet sheet = workbook.createSheet("Railway Concession Sheet"); Row
+	 * headerRow = sheet.createRow(0); for (int colNum = 0; colNum < header.size();
 	 * colNum++) { Cell cell = headerRow.createCell(colNum);
 	 * cell.setCellValue(header.get(colNum)); } int rowNum = 1;
 	 * 
@@ -2264,50 +2025,45 @@ public class StudentServiceController extends BaseController {
 	 * 
 	 * rowNum++;
 	 * 
-	 * } XSSFDataValidationHelper dvHelper = new
-	 * XSSFDataValidationHelper(sheet); String[] actions = new String[] {
-	 * "PENDING,APPROVED,REJECTED" }; XSSFDataValidationConstraint constraint =
-	 * (XSSFDataValidationConstraint) dvHelper
-	 * .createExplicitListConstraint(actions); CellRangeAddressList addressList
-	 * = new CellRangeAddressList(1, 100, 11, 11); XSSFDataValidation validation
-	 * = (XSSFDataValidation) dvHelper .createValidation(constraint,
+	 * } XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper(sheet);
+	 * String[] actions = new String[] { "PENDING,APPROVED,REJECTED" };
+	 * XSSFDataValidationConstraint constraint = (XSSFDataValidationConstraint)
+	 * dvHelper .createExplicitListConstraint(actions); CellRangeAddressList
+	 * addressList = new CellRangeAddressList(1, 100, 11, 11); XSSFDataValidation
+	 * validation = (XSSFDataValidation) dvHelper .createValidation(constraint,
 	 * addressList); validation.setShowErrorBox(true);
-	 * sheet.addValidationData(validation); try { FileOutputStream outputStream
-	 * = new FileOutputStream(filePath); workbook.write(outputStream);
+	 * sheet.addValidationData(validation); try { FileOutputStream outputStream =
+	 * new FileOutputStream(filePath); workbook.write(outputStream);
 	 * 
-	 * workbook.close(); } catch (FileNotFoundException e) {
-	 * e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); }
-	 * return filePath;
+	 * workbook.close(); } catch (FileNotFoundException e) { e.printStackTrace(); }
+	 * catch (IOException e) { e.printStackTrace(); } return filePath;
 	 * 
 	 * }
 	 * 
 	 * @RequestMapping(value = "/uploadStudentsHostelForms", method = {
 	 * RequestMethod.GET, RequestMethod.POST }) public String
-	 * uploadStudentsHostelForms(Model m, Principal principal,
-	 * RedirectAttributes redirectAttributes,
+	 * uploadStudentsHostelForms(Model m, Principal principal, RedirectAttributes
+	 * redirectAttributes,
 	 * 
 	 * @ModelAttribute StudentServiceBean studentServiceBean,
 	 * 
 	 * @RequestParam("file") MultipartFile file) {
 	 * logger.info("uploadStudentsBonafideForms ---------------------------" +
-	 * studentServiceBean); m.addAttribute("webPage", new
-	 * WebPage("viewAssignment", "Hostel Service", true, false)); String
-	 * username = principal.getName();
+	 * studentServiceBean); m.addAttribute("webPage", new WebPage("viewAssignment",
+	 * "Hostel Service", true, false)); String username = principal.getName();
 	 * 
 	 * Token userdetails1 = (Token) principal; String ProgramName =
-	 * userdetails1.getProgramName(); User u =
-	 * userService.findByUserName(username);
-	 * logger.info("ACAD SESSION------------------------->" +
-	 * u.getAcadSession()); if (file.isEmpty()) { setNote(redirectAttributes,
-	 * "File is empty!");
+	 * userdetails1.getProgramName(); User u = userService.findByUserName(username);
+	 * logger.info("ACAD SESSION------------------------->" + u.getAcadSession());
+	 * if (file.isEmpty()) { setNote(redirectAttributes, "File is empty!");
 	 * 
 	 * } else {
 	 * 
 	 * StudentServiceBean serviceBean = studentWsService
 	 * .findByID(studentServiceBean.getId());
 	 * 
-	 * String statusOfUpload = uploadFileAndReturnStatusForHostel(file,
-	 * username, serviceBean); if (statusOfUpload.equalsIgnoreCase("SUCCESS")) {
+	 * String statusOfUpload = uploadFileAndReturnStatusForHostel(file, username,
+	 * serviceBean); if (statusOfUpload.equalsIgnoreCase("SUCCESS")) {
 	 * setSuccess(redirectAttributes, "File uploaded successfully!"); } else {
 	 * setError(redirectAttributes, "Error while uploading file!"); } }
 	 * 
@@ -2316,8 +2072,8 @@ public class StudentServiceController extends BaseController {
 	 * 
 	 * }
 	 * 
-	 * private String uploadFileAndReturnStatusForHostel(MultipartFile file,
-	 * String username, StudentServiceBean serviceBean) {
+	 * private String uploadFileAndReturnStatusForHostel(MultipartFile file, String
+	 * username, StudentServiceBean serviceBean) {
 	 * 
 	 * InputStream inputStream = null;
 	 * 
@@ -2327,27 +2083,26 @@ public class StudentServiceController extends BaseController {
 	 * fileName.substring(fileName.lastIndexOf("."), fileName.length());
 	 * List<BonafideForm> bList = new ArrayList<BonafideForm>(); try {
 	 * 
-	 * inputStream = file.getInputStream(); String filePath = downloadAllFolder
-	 * + File.separator + fileName;
+	 * inputStream = file.getInputStream(); String filePath = downloadAllFolder +
+	 * File.separator + fileName;
 	 * 
-	 * File folderPath = new File(downloadAllFolder); if (!folderPath.exists())
-	 * { boolean created = folderPath.mkdirs(); }
+	 * File folderPath = new File(downloadAllFolder); if (!folderPath.exists()) {
+	 * boolean created = folderPath.mkdirs(); }
 	 * 
 	 * File dest = new File(filePath);
 	 * 
-	 * FileUtils.copyInputStreamToFile(inputStream, dest); List<Map<String,
-	 * String>> listCells = excelReader
-	 * .readXLSXFileForBonafide(dest.getAbsolutePath()); List<String> ids = new
-	 * ArrayList<String>(); for (Map<String, String> m : listCells) {
-	 * logger.info("M----------------------------- " + m); HostelForm bean = new
-	 * HostelForm();
+	 * FileUtils.copyInputStreamToFile(inputStream, dest); List<Map<String, String>>
+	 * listCells = excelReader .readXLSXFileForBonafide(dest.getAbsolutePath());
+	 * List<String> ids = new ArrayList<String>(); for (Map<String, String> m :
+	 * listCells) { logger.info("M----------------------------- " + m); HostelForm
+	 * bean = new HostelForm();
 	 * 
 	 * bean.setId(Long.valueOf(m.get("Application ID")));
 	 * bean.setUsername(m.get("SAPId")); bean.setFirstname(m.get("First Name"));
 	 * bean.setLastname(m.get("Last Name"));
 	 * bean.setFatherName(m.get("Father Name"));
-	 * bean.setMotherName(m.get("Mother Name"));
-	 * bean.setRollNo(m.get("Roll No")); bean.setAcadYear(m.get("Acad Year"));
+	 * bean.setMotherName(m.get("Mother Name")); bean.setRollNo(m.get("Roll No"));
+	 * bean.setAcadYear(m.get("Acad Year"));
 	 * bean.setProgramName(m.get("Program Name"));
 	 * bean.setStudyClass(m.get("Class")); bean.setDivision(m.get("Division"));
 	 * bean.setReason(m.get("Reason"));
@@ -2355,12 +2110,12 @@ public class StudentServiceController extends BaseController {
 	 * Integer flagNo = 1;
 	 * 
 	 * if (serviceBean.getLevel1().equalsIgnoreCase(username)) {
-	 * bean.setFlag1(m.get("Status")); bean.setRemark1(m.get("Remarks")); } else
-	 * if (serviceBean.getLevel2().equalsIgnoreCase(username)) {
-	 * bean.setFlag2(m.get("Status")); bean.setRemark2(m.get("Remarks")); flagNo
-	 * = 2; } else if (serviceBean.getLevel3().equalsIgnoreCase(username)) {
-	 * bean.setFlag3(m.get("Status")); bean.setRemark3(m.get("Remarks")); flagNo
-	 * = 3; }
+	 * bean.setFlag1(m.get("Status")); bean.setRemark1(m.get("Remarks")); } else if
+	 * (serviceBean.getLevel2().equalsIgnoreCase(username)) {
+	 * bean.setFlag2(m.get("Status")); bean.setRemark2(m.get("Remarks")); flagNo =
+	 * 2; } else if (serviceBean.getLevel3().equalsIgnoreCase(username)) {
+	 * bean.setFlag3(m.get("Status")); bean.setRemark3(m.get("Remarks")); flagNo =
+	 * 3; }
 	 * 
 	 * // bList.add(bean); logger.info("Status ---- " + m.get("Status"));
 	 * logger.info("Remarks ---- " + m.get("Remarks"));
@@ -2370,8 +2125,7 @@ public class StudentServiceController extends BaseController {
 	 * 
 	 * return "SUCCESS";
 	 * 
-	 * } catch (Exception e) { e.printStackTrace(); logger.error(e); return
-	 * "ERROR";
+	 * } catch (Exception e) { e.printStackTrace(); logger.error(e); return "ERROR";
 	 * 
 	 * }
 	 * 
@@ -2382,18 +2136,15 @@ public class StudentServiceController extends BaseController {
 	 * ---------------------------------------
 	 */
 
-	@RequestMapping(value = "/createHostelServiceForm", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String createHostelServiceForm(Model m, Principal principal,
-			@RequestParam(required = false) Long id) {
-		m.addAttribute("webPage", new WebPage("evaluateAssignment",
-				"Hostel Service", true, false));
+	@RequestMapping(value = "/createHostelServiceForm", method = { RequestMethod.GET, RequestMethod.POST })
+	public String createHostelServiceForm(Model m, Principal principal, @RequestParam(required = false) Long id) {
+		m.addAttribute("webPage", new WebPage("evaluateAssignment", "Hostel Service", true, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		if (id != null) {
 			HostelForm hostelForm = hostelFormService.findByID(id);
 			m.addAttribute("hostelForm", hostelForm);
@@ -2408,26 +2159,24 @@ public class StudentServiceController extends BaseController {
 		m.addAttribute("nmHostelList", nmHostelList);
 		m.addAttribute("hydHostelList", hydHostelList);
 		m.addAttribute("bngHostelList", bngHostelList);
-		
+
 		m.addAttribute("username", username);
 		return "hostelService/createHostelService";
 
 	}
-	
-	@RequestMapping(value = "/saveHostelDetails", method = { RequestMethod.GET,
-			RequestMethod.POST })
-	public @ResponseBody String saveHostelDetails(@RequestParam String value,
-			@RequestParam String pk, @RequestParam String dbCol, @RequestParam String location,
-			Principal principal) {
+
+	@RequestMapping(value = "/saveHostelDetails", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String saveHostelDetails(@RequestParam String value, @RequestParam String pk,
+			@RequestParam String dbCol, @RequestParam String location, Principal principal) {
 		String username = principal.getName();
 		try {
-			
+
 			HostelForm hostelForm = new HostelForm();
 			hostelForm.setHostelName(pk);
 			hostelForm.setLocation(location);
-			/*hostelForm.setTotalSeats(value);*/
+			/* hostelForm.setTotalSeats(value); */
 			hostelForm.setLastModifiedBy(username);
-			hostelFormService.saveHostelDetails(hostelForm,dbCol,value);
+			hostelFormService.saveHostelDetails(hostelForm, dbCol, value);
 			return "{\"status\": \"success\", \"msg\": \"TotalSeats saved successfully!\"}";
 		} catch (Exception e) {
 			logger.error("Exception", e);
@@ -2435,91 +2184,73 @@ public class StudentServiceController extends BaseController {
 		}
 
 	}
-	
-	
 
-	@RequestMapping(value = "/createHostelService", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String createHostelService(Model m, Principal principal,
-			@ModelAttribute HostelForm hostelForm) {
-		m.addAttribute("webPage", new WebPage("viewAssignment",
-				"Hostel Service", false, false));
+	@RequestMapping(value = "/createHostelService", method = { RequestMethod.GET, RequestMethod.POST })
+	public String createHostelService(Model m, Principal principal, @ModelAttribute HostelForm hostelForm) {
+		m.addAttribute("webPage", new WebPage("viewAssignment", "Hostel Service", false, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 
 		if (hostelForm != null) {
-			
-			/*hostelForm.setCreatedBy(username);
-			hostelForm.setLastModifiedBy(username);*/
-			/*hostelFormService.upsert(hostelForm);*/
-		
+
+			/*
+			 * hostelForm.setCreatedBy(username); hostelForm.setLastModifiedBy(username);
+			 */
+			/* hostelFormService.upsert(hostelForm); */
+
 			List<HostelForm> hList = hostelFormService.findByLocation(hostelForm.getLocation());
-			if(hList.size()>0){
-			hostelFormService.updateByLocation(username, hostelForm.getYear(), hostelForm.getLocation());
-			setSuccess(m, "Hostel Service Created Successfully!");
-			}else{
+			if (hList.size() > 0) {
+				hostelFormService.updateByLocation(username, hostelForm.getYear(), hostelForm.getLocation());
+				setSuccess(m, "Hostel Service Created Successfully!");
+			} else {
 				setError(m, "You haven't added hostel details");
 			}
 			String json;
-			/*try {
-				
-				json = mapper.writeValueAsString(hostelForm);
-				logger.info("encoded json--->" + URIUtil.encodeQuery(json));
-				logger.info("userRoleMgmtCrudUrl" + userRoleMgmtCrudUrl);
-				logger.info(" json--->" + (json));
-				WebTarget webTarget = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/createHostelService?json=" + json));
-				Invocation.Builder invocationBuilder = webTarget
-						.request(MediaType.APPLICATION_JSON);
-				String resp = invocationBuilder.get(String.class);
-				logger.info("resp" + resp);
-				ObjectMapper objMapper = new ObjectMapper();
-				Status status = objMapper.readValue(resp, Status.class);
-				if (status.getStatus().SUCCESS != null) {
-					setSuccess(m, "Hostel Service Created Successfully!");
-				} else {
-					setError(m, "Error!");
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}*/
-			
+			/*
+			 * try {
+			 * 
+			 * json = mapper.writeValueAsString(hostelForm); logger.info("encoded json--->"
+			 * + URIUtil.encodeQuery(json)); logger.info("userRoleMgmtCrudUrl" +
+			 * userRoleMgmtCrudUrl); logger.info(" json--->" + (json)); WebTarget webTarget
+			 * = client.target(URIUtil .encodeQuery(userRoleMgmtCrudUrl +
+			 * "/createHostelService?json=" + json)); Invocation.Builder invocationBuilder =
+			 * webTarget .request(MediaType.APPLICATION_JSON); String resp =
+			 * invocationBuilder.get(String.class); logger.info("resp" + resp); ObjectMapper
+			 * objMapper = new ObjectMapper(); Status status = objMapper.readValue(resp,
+			 * Status.class); if (status.getStatus().SUCCESS != null) { setSuccess(m,
+			 * "Hostel Service Created Successfully!"); } else { setError(m, "Error!"); } }
+			 * catch (IOException e) { // TODO Auto-generated catch block
+			 * e.printStackTrace(); }
+			 */
+
 		}
 
 		return "hostelService/createHostelService";
 	}
 
-	@RequestMapping(value = "/viewHostelServices", method = {
-			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/viewHostelServices", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewHostelServices(Model m, Principal principal) {
-		m.addAttribute("webPage", new WebPage("viewAssignment",
-				"Hostel Service", false, false));
+		m.addAttribute("webPage", new WebPage("viewAssignment", "Hostel Service", false, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		List<HostelForm> hfList = hostelFormService.findAllActive();
-		
+
 		m.addAttribute("hfList", hfList);
 		return "hostelService/viewHostelServices";
 	}
 
-	@RequestMapping(value = "/viewEachHostelService", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public String viewEachHostelService(Model m, Principal principal,
-			@RequestParam Long id) {
-		m.addAttribute("webPage", new WebPage("viewAssignment",
-				"Hostel Service", false, false));
+	@RequestMapping(value = "/viewEachHostelService", method = { RequestMethod.GET, RequestMethod.POST })
+	public String viewEachHostelService(Model m, Principal principal, @RequestParam Long id) {
+		m.addAttribute("webPage", new WebPage("viewAssignment", "Hostel Service", false, false));
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
@@ -2531,19 +2262,16 @@ public class StudentServiceController extends BaseController {
 			String json;
 			try {
 				json = mapper.writeValueAsString(id);
-				
+
 				// logger.info(" json--->" + (json));
-				WebTarget webTarget = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/findStudentHostelByLocation?json=" + json));
-				Invocation.Builder invocationBuilder = webTarget
-						.request(MediaType.APPLICATION_JSON);
+				WebTarget webTarget = client
+						.target(URIUtil.encodeQuery(userRoleMgmtCrudUrl + "/findStudentHostelByLocation?json=" + json));
+				Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 				String resp = invocationBuilder.get(String.class);
 				// logger.info("resp" + resp);
 				ObjectMapper objMapper = new ObjectMapper();
-				studentList = objMapper.readValue(resp,
-						new TypeReference<List<StudentHostelForm>>() {
-						});
+				studentList = objMapper.readValue(resp, new TypeReference<List<StudentHostelForm>>() {
+				});
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -2554,33 +2282,34 @@ public class StudentServiceController extends BaseController {
 		return "hostelService/viewEachHostelService";
 	}
 
-	@RequestMapping(value = "/getHostelNamesByLocation", method = {
-			RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody String getHostelNamesByLocation(
-			@RequestParam(name = "location") String location,
+	@RequestMapping(value = "/getHostelNamesByLocation", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String getHostelNamesByLocation(@RequestParam(name = "location") String location,
 			Principal principal) {
-		
+
 		String json = "";
 		String username = principal.getName();
 		StringBuilder sb = new StringBuilder();
 		if (location != null) {
 			try {
 
-				List<String> hostelsList = hostelFormService
-						.findHostelNamesByLocation(location);
-				
+				List<String> hostelsList = hostelFormService.findHostelNamesByLocation(location);
 
 				int count = 1;
 				if (hostelsList.size() != 0) {
 					sb.append("<table><tr>");
-					sb.append("<th>Hostel Name</th><th>Total Seats</th><th>Hostel Fees</th><th>Refundable Security Deposit</th><th>Total Hostel Fees</th>");
+					sb.append(
+							"<th>Hostel Name</th><th>Total Seats</th><th>Hostel Fees</th><th>Refundable Security Deposit</th><th>Total Hostel Fees</th>");
 					sb.append("</tr>");
 					for (String hostel : hostelsList) {
 						sb.append("<tr><td>" + hostel + "</td>");
-						sb.append("<td><input name='totalSeats' class='form-control' value='${hostelForm.totalSeats}' type='number' required='required' /></td>");
-						sb.append("<td><input name='hostelFees' class='form-control' value='${hostelForm.hostelFees}' type='number' required='required' /></td>");
-						sb.append("<td><input name='refundDeposit' class='form-control' value='${hostelForm.refundDeposit}' type='number' required='required' /></td>");
-						sb.append("<td><input name='totalFees' class='form-control' value='${hostelForm.totalFees}' type='number' required='required' /></td></tr>");
+						sb.append(
+								"<td><input name='totalSeats' class='form-control' value='${hostelForm.totalSeats}' type='number' required='required' /></td>");
+						sb.append(
+								"<td><input name='hostelFees' class='form-control' value='${hostelForm.hostelFees}' type='number' required='required' /></td>");
+						sb.append(
+								"<td><input name='refundDeposit' class='form-control' value='${hostelForm.refundDeposit}' type='number' required='required' /></td>");
+						sb.append(
+								"<td><input name='totalFees' class='form-control' value='${hostelForm.totalFees}' type='number' required='required' /></td></tr>");
 						count++;
 					}
 				}
@@ -2599,11 +2328,10 @@ public class StudentServiceController extends BaseController {
 		return json;
 
 	}
-	
-	@RequestMapping(value = "/viewNewHostel", method = {
-			RequestMethod.GET, RequestMethod.POST })
+
+	@RequestMapping(value = "/viewNewHostel", method = { RequestMethod.GET, RequestMethod.POST })
 	public String viewHostels(Model m) {
-		
+
 		return "studentService/newHostelService";
 	}
 }
