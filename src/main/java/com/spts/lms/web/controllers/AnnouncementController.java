@@ -88,6 +88,7 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -710,6 +711,9 @@ public class AnnouncementController extends BaseController {
 //			} 
 			/* New Audit changes end */
 			logger.info("a--"+announcement.getSubject());
+			
+			HtmlValidation.validateHtml(announcement, Arrays.asList("description"));
+			
 			businessBypassRule.validateAlphaNumeric(announcement.getSubject());
 			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
 	

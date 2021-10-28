@@ -4,6 +4,7 @@ import java.security.Principal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +40,7 @@ import com.spts.lms.services.user.UserRoleService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -164,7 +166,7 @@ public class ForumController extends BaseController {
 	
 		try {
 	
-		
+		HtmlValidation.validateHtml(forum, Arrays.asList("description"));
 		BusinessBypassRule.validateAlphaNumeric("^%&");
 
 		String acadSession = u.getAcadSession();

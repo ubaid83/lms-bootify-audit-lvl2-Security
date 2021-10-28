@@ -13,7 +13,7 @@ public class HtmlValidation {
 	
 	private static final Logger logger = Logger.getLogger(HtmlValidation.class);
 	
-	public static void validateEmail(Object obj,List<String> fieldsNotToValidate) throws ValidationException{  
+	public static void validateHtml(Object obj,List<String> fieldsNotToValidate) throws ValidationException{  
 		
 		ObjectMapper map = new ObjectMapper();
 		Map<String,Object> propMap = map.convertValue(obj, Map.class);
@@ -51,6 +51,17 @@ public class HtmlValidation {
 		}
 		
 		return false;
+	}
+	
+	public static boolean checkHtmlCode(String s) throws ValidationException{
+		
+		Pattern pattern = Pattern.compile("<?[a-z^A-Z][\\s\\S]*>");
+		Matcher matcher = pattern.matcher(s);
+		if(matcher.matches()){
+			throw new ValidationException("Html/Scripts are not allowed in Form"); 
+		}else{
+			return false;
+		}
 	}
 
 }
