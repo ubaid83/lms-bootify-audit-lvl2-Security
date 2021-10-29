@@ -133,10 +133,8 @@ public class MessageController extends BaseController {
 			RequestMethod.POST })
 	public String createMessage(@ModelAttribute Message message, Long courseId,
 			RedirectAttributes redirectAttrs, Model m, Principal principal) {
-		System.out.println("INSIDE CREATE MSG GET POST>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		m.addAttribute("webPage", new WebPage("message", "Message Details",
 				true, false));
-		System.out.println("<<<<<<<<<<<<<<<<<<<<<INSIDE CREATE MESSAGE>>>>>>>>>>>>>>>>>>>>>>>");
 		String username = principal.getName();
 		UsernamePasswordAuthenticationToken userDeatils = (UsernamePasswordAuthenticationToken) principal;
 		m.addAttribute("message", message);
@@ -152,11 +150,10 @@ public class MessageController extends BaseController {
 			String idForCourse = message.getIdForCourse();
 			String subject = message.getSubject(); 
 			
-			System.out.println("CourseId is>>>>>>>>>>>>>:"+idForCourse);
 			
 			if(idForCourse == null)
 			{
-				throw new ValidationException("Something went wrong...");
+				throw new ValidationException("Invalid Course Selected.");
 			}
 			  
 	        // BusinessBypassRule.validateNumeric(idForCourse); 
@@ -449,7 +446,6 @@ public class MessageController extends BaseController {
 		//String subject = message.getSubject();
  	 
 		String subject = message.getSubject();
-		System.out.println("MSG REPLY IS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+subject);
        
 		Document doc = Jsoup.parse(message.getDescription());
 		String cQuestion = doc.text();
@@ -506,21 +502,15 @@ public class MessageController extends BaseController {
 				true, false));
 		String username = principal.getName();
 		String subject = message.getSubject();
-	//	System.out.println("message is>>>>>>>>>>>>>>>>>>>>>>>>"+message);		
-		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<SUBJECT from student end IS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:"+subject);
 		
 	     String reply =	message.getMessageReply();
-		System.out.println("<<<<<<<<<<<<<<<<<<Reply to message>>>>>>>>>>>>>>"+reply);
 		try {
 			
 		 if(subject == null ||subject.isEmpty()) {
 		    	 throw new ValidationException("Subject Can't be blank");
 		     }
 			 
-			 if(reply == null|| reply.isEmpty())
-			 {
-				 throw new ValidationException("Reply can't  be blank");
-			 }
+			
 			 BusinessBypassRule.validateAlphaNumeric(reply);
 			
 			message.setLastModifiedBy(username);

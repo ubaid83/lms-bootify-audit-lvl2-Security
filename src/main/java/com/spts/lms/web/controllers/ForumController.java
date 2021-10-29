@@ -79,11 +79,9 @@ public class ForumController extends BaseController {
 
 	@Autowired
 	ForumCounterReplyService forumCounterReplyService;
-	@Autowired
-	BusinessBypassRule BusinessBypassRule  ;
-
 	
-	BusinessBypassRule businessBypassRule = new BusinessBypassRule ();
+	@Autowired
+	BusinessBypassRule BusinessBypassRule;
 	
 	private static final Logger logger = Logger
 			.getLogger(ForumController.class);
@@ -182,7 +180,7 @@ public class ForumController extends BaseController {
 		try {
 	
 		HtmlValidation.validateHtml(forum, Arrays.asList("description"));
-		BusinessBypassRule.validateAlphaNumeric("^%&");
+//		BusinessBypassRule.validateAlphaNumeric("^%&");
 
 
 		String acadSession = u.getAcadSession();
@@ -190,14 +188,11 @@ public class ForumController extends BaseController {
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		
-
-
-			
-			Course c = courseService.findByID(courseId);
-			
-	         if(c == null) {
-		    	 throw new ValidationException("Invalid Course Selected");
-		     }
+		Course c = courseService.findByID(courseId);
+		
+         if(c == null) {
+	    	 throw new ValidationException("Invalid Course Selected");
+	     }
 	         
 	       //  BusinessBypassRule.validateNumericForLong(courseId); 
 	         BusinessBypassRule.validateAlphaNumeric(forum.getTopic());
@@ -438,10 +433,11 @@ public class ForumController extends BaseController {
 
 		try {
 			
-//			if(reply == null ||reply.isEmpty())
-//			{
-//				 throw new ValidationException("Invalid Reply to Forum");
-//			}
+//			//reply validation
+			if(reply == null ||reply.isEmpty())
+		    {
+				 throw new ValidationException("Reply can't be blank");
+			}
 			
 			if (questionId != null) {
 				
@@ -469,11 +465,7 @@ public class ForumController extends BaseController {
 					}
 
 				}
-				//reply validation
-				if(reply == null ||reply.isEmpty())
-			    {
-						 throw new ValidationException("Reply can't be blank");
-				}
+				
 				m.addAttribute("allReplies", allReplies);
 				
 
