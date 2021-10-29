@@ -390,7 +390,7 @@ public String getAcadMonthByModuleIdAndAcadYearAndProgram(String moduleId, Strin
 		
 		return courseDAO.getModulesForTest(username, programId);
 	}
-
+	 
 	public List<Course> getCourseByProgramId(String programIds) {
 		return courseDAO.getCourseByProgramId(programIds);
 	}
@@ -401,5 +401,30 @@ public String getAcadMonthByModuleIdAndAcadYearAndProgram(String moduleId, Strin
 	}
 	public List<Course> findCoursesForAttd(String username) {
 		return courseDAO.findCoursesForAttd(username);
+	}
+
+	//Peter 22/10/2021
+	public Course findAcadYear(String acadYear) {
+		return courseDAO.findAcadYear(acadYear);
+	}
+
+	//Peter 22/10/2021
+	public Course checkIfExistsInDB(String columnName, String value) {
+		return courseDAO.checkIfExistsInDB(columnName,value);
+	}
+
+	//Peter 20/10/2021
+	public Course checkIfAcadSessionExists(String acadSession) {
+		return courseDAO.checkIfAcadSessionExists(acadSession);
+	}
+
+	//Peter 20/10/2021
+	public Course checkIfModuleExists(String moduleId) {
+		return courseDAO.checkIfModuleExists(moduleId);
+	}
+
+	//Peter 20/10/2021
+	public Course checkIfCampusExists(String campusId) {
+		return courseDAO.checkIfCampusExists(campusId);
 	}
 }

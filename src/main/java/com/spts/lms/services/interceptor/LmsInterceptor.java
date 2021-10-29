@@ -19,8 +19,8 @@ import com.spts.lms.web.utils.Utils;
 
 public class LmsInterceptor extends HandlerInterceptorAdapter{
 	
-	@Autowired
-	private MongoDAO mongoDao;
+//	@Autowired
+//	private MongoDAO mongoDao;
 	
 	@Autowired
     private HttpServletRequest httpRequest;
@@ -28,6 +28,13 @@ public class LmsInterceptor extends HandlerInterceptorAdapter{
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
+		Enumeration enumeration = request.getParameterNames();
+		Map<String, Object> modelMap = new HashMap<>();
+        while(enumeration.hasMoreElements()){
+            String parameterName = enumeration.nextElement().toString();
+            modelMap.put(parameterName, request.getParameter(parameterName));
+        }
+		System.out.println("pre Parameter--->"+modelMap);
 		// TODO Auto-generated method stub
 		return super.preHandle(request, response, handler);
 	}
@@ -48,23 +55,23 @@ public class LmsInterceptor extends HandlerInterceptorAdapter{
 			System.out.println("Parameter--->"+modelMap);
 			UserLog userLog = new UserLog();
 			String currDate = Utils.formatDate("dd-MM-yyyy HH:mm:ss", Utils.getInIST());
-			try {
-				String username = request.getUserPrincipal().getName();
-				String ipAddr = getClientIP();
-				userLog.setUsername(username);
-				userLog.setIpAddr(ipAddr);
-				userLog.setAction(request.getRequestURL().toString());
-				userLog.setStatus(String.valueOf(response.getStatus()));
-				userLog.setDateTime(currDate);
-				mongoDao.save(userLog);
-			}catch(Exception e) {
-				String ipAddr = getClientIP();
-				userLog.setIpAddr(ipAddr);
-				userLog.setAction(request.getRequestURL().toString());
-				userLog.setStatus(String.valueOf(response.getStatus()));
-				userLog.setDateTime(currDate);
-				mongoDao.save(userLog);
-			}
+//			try {
+//				String username = request.getUserPrincipal().getName();
+//				String ipAddr = getClientIP();
+//				userLog.setUsername(username);
+//				userLog.setIpAddr(ipAddr);
+//				userLog.setAction(request.getRequestURL().toString());
+//				userLog.setStatus(String.valueOf(response.getStatus()));
+//				userLog.setDateTime(currDate);
+//				mongoDao.save(userLog);
+//			}catch(Exception e) {
+//				String ipAddr = getClientIP();
+//				userLog.setIpAddr(ipAddr);
+//				userLog.setAction(request.getRequestURL().toString());
+//				userLog.setStatus(String.valueOf(response.getStatus()));
+//				userLog.setDateTime(currDate);
+//				mongoDao.save(userLog);
+//			}
 			
 		super.postHandle(request, response, handler, modelAndView);
 	}

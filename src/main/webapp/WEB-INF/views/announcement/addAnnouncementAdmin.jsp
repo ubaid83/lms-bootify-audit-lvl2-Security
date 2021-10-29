@@ -98,7 +98,7 @@
 													<form:select id="announcementSubType"
 														path="announcementSubType"
 														placeholder="Announcement Subtype" class="form-control">
-														<form:option value="">Select Announcement Subtype</form:option>
+														<form:option value="" >Select Announcement Subtype</form:option>
 														<form:option value="EXAM">EXAM</form:option>
 														<form:option value="EVENT">EVENT</form:option>
 														<form:option value="ASSIGNMENT">ASSIGNMENT</form:option>

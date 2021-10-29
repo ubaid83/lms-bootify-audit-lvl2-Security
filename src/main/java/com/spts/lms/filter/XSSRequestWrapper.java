@@ -15,6 +15,7 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
     public String[] getParameterValues(String parameter) {
 //    	System.out.println("parameter Filter ---->"+parameter);
         String[] values = super.getParameterValues(parameter);
+
         if (values == null) {
             return null;
         }

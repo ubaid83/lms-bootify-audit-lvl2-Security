@@ -196,7 +196,7 @@
 								</sec:authorize>
 								<div class="col-sm-6 col-md-4">
 									<div class="form-group">
-										<form:label path="subject" for="subject">Announcement Title <span
+										<form:label path="subject" for="subject">Announcement Titttle <span
 												style="color: red">*</span>
 										</form:label>
 										<form:input path="subject" type="text" class="form-control"
@@ -281,7 +281,7 @@
 														<td>
 															<div class="pretty p-switch p-fill p-toggle">
 																<form:checkbox value="Yes" id="sendEmailAlert"
-																	path="sendEmailAlert" />
+																	path="sendEmailAlert" name="sendEmailAlert" />
 																<div class="state p-success p-on">
 																	<label>Yes</label>
 																</div>

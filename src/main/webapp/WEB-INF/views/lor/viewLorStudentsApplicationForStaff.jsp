@@ -499,7 +499,7 @@
 </div>
 <script>
 /* on click get lor details of student */
-	$('.lorDetailsModalBtn').on('click', function () {
+	$(document).on('click', '.lorDetailsModalBtn', function() {
 		
 	    let lrId =  $(this).attr("data-lorRegId");
 	   
@@ -700,7 +700,7 @@
 	});
 	 
 /*  file upload modal */	
-	$('.lorFormatFileUploadData').on('click', function () {
+	$(document).on('click', '.lorFormatFileUploadData', function() {
         var lorFileUploadModal = $('#lorFormatFileUploadModal');
         var lorRegStaffId =  $(this).attr("data-lorRegStaffId");
         //alert(lorRegId+"   "+stUsername);

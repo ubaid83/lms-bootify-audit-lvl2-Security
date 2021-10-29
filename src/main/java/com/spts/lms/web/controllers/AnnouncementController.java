@@ -75,6 +75,7 @@ import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
 import com.spts.lms.beans.user.UserRole;
 import com.spts.lms.daos.announcement.AnnouncementDAO;
+import com.spts.lms.daos.course.CourseDAO;
 import com.spts.lms.helpers.PaginationHelper.Page;
 import com.spts.lms.services.announcement.AnnouncementService;
 import com.spts.lms.services.course.CourseService;
@@ -86,7 +87,10 @@ import com.spts.lms.services.user.UserRoleService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 
 @Controller
@@ -124,7 +128,13 @@ public class AnnouncementController extends BaseController {
 	
 	@Autowired
 	AmazonS3ClientService amazonS3ClientService;
+	
+	@Autowired 
+	BusinessBypassRule businessBypassRule;
 
+	@Autowired 
+	Utils utils;
+	
 	@Value("${lms.announcement.courseFolderS3}")
 	private String courseAnnouncementFolder;
 
@@ -149,6 +159,8 @@ public class AnnouncementController extends BaseController {
 	public String[] getYearList() {
 		return enrollmentYears;
 	}
+	
+	
 
 	private static final Logger logger = Logger
 			.getLogger(AnnouncementController.class);
@@ -646,14 +658,20 @@ public class AnnouncementController extends BaseController {
 		return "announcement/userAnnouncementList";
 	}
 
+	@SuppressWarnings({ "static-access", "unlikely-arg-type" })
 	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/addAnnouncement", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String addAnnouncement(@ModelAttribute Announcement announcement,
 			RedirectAttributes redirectAttrs, Model m, Principal principal,
 			@RequestParam("file") List<MultipartFile> files,
-			@RequestParam(required = false) String typeOfAnn) {
+			@RequestParam(required = false) String typeOfAnn)  {
 
+		
+		
+		
+	//	validateAlphaNumeric validateStartAndEndDates
+		
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
@@ -682,16 +700,52 @@ public class AnnouncementController extends BaseController {
 		List<String> parentList = new ArrayList<String>();
 		try {
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
+//			if(!Utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				if (typeOfAnn != null) {
+//					if ("PROGRAM".equals(typeOfAnn)) {
+//						return "redirect:/addAnnouncementFormProgram";
+//					}
+//				}
+//				return "redirect:/addAnnouncementForm";
+//			} 
+			/* New Audit changes end */
+			logger.info("a--"+announcement.getSubject());
+			
+
+			HtmlValidation.validateHtml(announcement, Arrays.asList("description"));
+			
+
+			if(null!=announcement.getAnnouncementSubType() || !announcement.getAnnouncementSubType().isEmpty())
+			{
+				validateAnnouncementSubType(announcement.getAnnouncementSubType());
+			}
+
+			businessBypassRule.validateAlphaNumeric(announcement.getSubject());
+			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
+			
+	
+			if(null!=announcement.getCampusId())
+			{
+			businessBypassRule.validateNumeric(announcement.getCampusId().toString());
+			Course coursedata=courseService.checkIfExistsInDB("campusId", announcement.getCampusId().toString());
+			
+			if(null==coursedata ||coursedata.equals(" "))
+			{
+				setError(redirectAttrs, " Invalid Campus");
+
 				if (typeOfAnn != null) {
 					if ("PROGRAM".equals(typeOfAnn)) {
 						return "redirect:/addAnnouncementFormProgram";
 					}
 				}
+
 				return "redirect:/addAnnouncementForm";
-			} 
-			/* New Audit changes end */
+			
+			}
+			}
+			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					Tika tika = new Tika();
@@ -875,7 +929,7 @@ public class AnnouncementController extends BaseController {
 				announcement
 						.setCampusName(userService.findCampusName(campusId));
 			}
-			try {
+			
 
 				if (!userList.isEmpty()) {
 
@@ -959,11 +1013,22 @@ public class AnnouncementController extends BaseController {
 								notificationMobileMessage);
 					}
 				}
-			} catch (Exception e) {
-				logger.error("Exception", e);
+			
+
+		} 
+		catch (ValidationException e) {
+			logger.error("Exception", e);
+			setError(redirectAttrs, e.getMessage().toString());
+
+			if (typeOfAnn != null) {
+				if ("PROGRAM".equals(typeOfAnn)) {
+					return "redirect:/addAnnouncementFormProgram";
+				}
 			}
 
-		} catch (Exception e) {
+			return "redirect:/addAnnouncementForm";
+		}
+		catch (Exception e) {
 			logger.error("Exception", e);
 			setError(redirectAttrs, "Error in creating Announcement");
 
@@ -975,6 +1040,7 @@ public class AnnouncementController extends BaseController {
 
 			return "redirect:/addAnnouncementForm";
 		}
+		
 
 		if (acadSessionList.size() > 0) {
 			return "redirect:/searchAnnouncement";
@@ -2628,17 +2694,102 @@ public class AnnouncementController extends BaseController {
 		String defaultMsg = "\\r\\n\\r\\nNote: This Announcement is created by : ?? \\r\\nTo view any attached files to this mail kindly login to \\r\\nUrl: https://portal.svkm.ac.in/usermgmt/login ";
 
 		List<String> parentList = new ArrayList<String>();
+		
 		try {
-			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
+		Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
+			
+			if(semdata.toString().isEmpty() || null==semdata)
+			{
+
+		
+				setError(redirectAttrs, "Invalid Semester ");
+
 				if (typeOfAnn != null) {
 					if ("PROGRAM".equals(typeOfAnn)) {
 						return "redirect:/addAnnouncementFormMultiProgram";
 					}
 				}
+
 				return "redirect:/addAnnouncementForm";
-			} /* New Audit changes end */
+			
+			}
+			for(String programId:announcement.getProgramIds())
+			{
+				businessBypassRule.validateNumeric(programId.toString());
+				Course Programdata=courseService.checkIfExistsInDB("programId", programId);
+				if(Programdata.toString().isEmpty() || null==Programdata)
+				{
+		
+					setError(redirectAttrs, "Invalid program Id");
+
+					if (typeOfAnn != null) {
+						if ("PROGRAM".equals(typeOfAnn)) {
+							return "redirect:/addAnnouncementFormMultiProgram";
+						}
+					}
+
+					return "redirect:/addAnnouncementForm";
+				
+				}
+			}
+			List<String> courseList = new ArrayList<String>(Arrays.asList(admincourseId.split(",")));
+
+			for(String courseId:courseList)
+			{
+				businessBypassRule.validateNumeric(courseId);
+				Course course=courseService.findByID(Long.valueOf(courseId));
+				if(course.toString().isEmpty() || null==course)
+				{
+		
+					setError(redirectAttrs, "Invalid Course Id");
+
+					if (typeOfAnn != null) {
+						if ("PROGRAM".equals(typeOfAnn)) {
+							return "redirect:/addAnnouncementFormMultiProgram";
+						}
+					}
+
+					return "redirect:/addAnnouncementForm";
+				
+				}
+			}
+			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
+			businessBypassRule.validateNumeric(announcement.getAcadSession());
+			Course acadYear=courseService.checkIfExistsInDB("acadYear", announcement.getAcadSession());
+			if(acadYear.toString().isEmpty() || null==acadYear)
+			{
+	
+				setError(redirectAttrs, "Invalid AcadYear Id");
+
+				if (typeOfAnn != null) {
+					if ("PROGRAM".equals(typeOfAnn)) {
+						return "redirect:/addAnnouncementFormMultiProgram";
+					}
+				}
+
+				return "redirect:/addAnnouncementForm";
+			
+			}
+			
+			
+			validateAnnouncementSubType(announcement.getAnnouncementSubType());
+			businessBypassRule.validateAlphaNumeric(announcement.getSubject());
+			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
+			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
+			
+			/* New Audit changes start */
+//			if(!Utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				if (typeOfAnn != null) {
+//					if ("PROGRAM".equals(typeOfAnn)) {
+//						return "redirect:/addAnnouncementFormMultiProgram";
+//					}
+//				}
+//				return "redirect:/addAnnouncementForm";
+//			} 
+			/* New Audit changes end */
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					//Audit change start
@@ -2945,7 +3096,23 @@ public class AnnouncementController extends BaseController {
 				logger.error("Exception", e);
 			}
 
-		} catch (Exception e) {
+		}	catch (ValidationException e) { 
+
+			logger.error("Exception", e);
+			setError(redirectAttrs, e.getMessage());
+
+			if (typeOfAnn != null) {
+				if ("PROGRAM".equals(typeOfAnn)) {
+					return "redirect:/addAnnouncementFormMultiProgram";
+				}
+			}
+
+			return "redirect:/addAnnouncementForm";
+		
+			
+		} 
+		
+		catch (Exception e) {
 			logger.error("Exception", e);
 			setError(redirectAttrs, "Error in creating Announcement");
 
@@ -3961,7 +4128,14 @@ public class AnnouncementController extends BaseController {
 		return json;
 
 	}
-	
+	public void validateAnnouncementSubType(String s) throws ValidationException{
+		if (s == null || s.trim().isEmpty()) {
+			 throw new ValidationException("Input field cannot be empty");
+		 }
+		if(!s.equals("EXAM") && !s.equals("EVENT") && !s.equals("ASSIGNMENT") && !s.equals("Internal") && !s.equals("Academics") && !s.equals("WeCare") && !s.equals("FROMTHECOUNSELLORSDESK") ) {
+			throw new ValidationException("Invalid Announcement SubType.");
+		}
+	}
 	
 	
 }

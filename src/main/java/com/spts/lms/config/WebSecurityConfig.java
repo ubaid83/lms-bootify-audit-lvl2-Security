@@ -42,15 +42,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * ) .and().httpBasic(); } }
 	 */
 	
-	@Bean
-	public FilterRegistrationBean xssPreventFilter() {
-	    FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-
-	    registrationBean.setFilter(new XSSFilter());
-	    registrationBean.addUrlPatterns("/*");
-
-	    return registrationBean;
-	}
+//	@Bean
+//	public FilterRegistrationBean xssPreventFilter() {
+//	    FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+//
+//	    registrationBean.setFilter(new XSSFilter());
+//	    registrationBean.addUrlPatterns("/*");
+//
+//	    return registrationBean;
+//	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {

@@ -102,9 +102,9 @@
 														
 															<div class="form-group">
 																<!--<form:label path="description" for="description">Example textarea</form:label>-->
-																<form:label path="messageReply" for="messageReply">Reply</form:label>
+																<form:label path="messageReply" for="messageReply">Reply<span style="color: red">*</span></form:label>
 																<form:textarea class="form-control" path="messageReply"
-																	id="messageReply" rows="10" placeholder="ENTER REPLY" />
+																	id="messageReply" rows="10" placeholder="ENTER REPLY" required="required" />
 
 																<button type="submit" class="btn btn-primary mt-3"
 																	formaction="saveMessageReply">Submit</button>

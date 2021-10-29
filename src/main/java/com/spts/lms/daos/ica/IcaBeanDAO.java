@@ -946,6 +946,12 @@ public class IcaBeanDAO extends BaseDAO<IcaBean> {
 		return findAllSQL(sql, new Object[] { username,username });
 	}
 
+	//Peter 25/10/2021
+	public IcaBean checkIfComponentIdExists(String componentId) {
+		String sql = " SELECT id from pre_def_ica_components where id=?";
+		return findOneSQL(sql, new Object[] { componentId });
+	}
+
 	
 
 }

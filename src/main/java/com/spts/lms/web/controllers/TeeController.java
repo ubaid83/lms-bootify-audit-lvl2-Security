@@ -34,7 +34,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.ValidationException;
+import com.spts.lms.web.utils.ValidationException;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.io.FileUtils;
@@ -108,6 +108,7 @@ import com.spts.lms.services.tee.TeeStudentBatchwiseService;
 import com.spts.lms.services.tee.TeeTotalMarksService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
 
 @Controller
@@ -254,6 +255,91 @@ public class TeeController extends BaseController {
 			RedirectAttributes redirectAttrs) {
 
 		try {
+			
+			logger.info("Validating /addTee...");
+			BusinessBypassRule.validateAlphaNumeric(teeBean.getTeeName());
+			Course acadYear = courseService.checkIfExistsInDB("acadYear", teeBean.getAcadYear());
+			if(acadYear == null) {
+				throw new ValidationException("Invalid Acad Year");
+			}
+			Course acadSession = courseService.checkIfExistsInDB("acadSession", teeBean.getAcadSession());
+			if(acadSession == null) {
+				throw new ValidationException("Invalid Acad Session");
+			}
+			Course campusId = courseService.checkIfExistsInDB("campusId", teeBean.getCampusId());
+			if(campusId == null) {
+				throw new ValidationException("Invalid Campus");
+			}
+			Course moduleId = courseService.checkIfExistsInDB("moduleId", teeBean.getModuleId());
+			if(moduleId == null) {
+				throw new ValidationException("Invalid Module");
+			}
+			logger.info("create Tee selected programs are " + teeBean.getProgramId());
+			List<String> progIds = null;
+			if(teeBean.getProgramId().contains(",")) {
+				progIds = Arrays.asList(teeBean.getProgramId().split(","));
+				for(String programId : progIds) {
+					Course progId = courseService.checkIfExistsInDB("programId", programId);			
+					if(progId == null) {
+						throw new ValidationException("Invalid Program");
+					}
+				}
+			} else {
+				Course progId = courseService.checkIfExistsInDB("programId", teeBean.getProgramId());
+				if(progId == null) {
+					throw new ValidationException("Invalid Program");
+				}
+			}
+			
+			List<String> assignedFaculties = null;
+			if(teeBean.getAssignedFaculty().contains(",")) {
+				assignedFaculties = Arrays.asList(teeBean.getAssignedFaculty().split(","));
+				for(String assignedFaculty : assignedFaculties) {
+					UserCourse courseId = userCourseService.getFacultyCourseId(assignedFaculty,teeBean.getModuleId());
+					logger.info("courseID is " + courseId);
+					UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(assignedFaculty, String.valueOf(courseId.getCourseId()));
+		            if(null == userccourse) {
+		                  throw new ValidationException("Invalid faculty selected.");
+		            }
+				}
+			} else {
+				UserCourse courseId = userCourseService.getFacultyCourseId(teeBean.getAssignedFaculty(),teeBean.getModuleId());
+				UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(teeBean.getAssignedFaculty(), String.valueOf(courseId.getCourseId()));
+	            if(null == userccourse) {
+	                  throw new ValidationException("Invalid faculty selected.");
+	            }
+			}
+			
+			
+            
+			BusinessBypassRule.validateNumeric(teeBean.getExternalMarks());
+			BusinessBypassRule.validateNumeric(teeBean.getExternalPassMarks());
+			if(!teeBean.getInternalMarks().isEmpty()) {
+				BusinessBypassRule.validateNumeric(teeBean.getInternalMarks());
+			}
+			if(!teeBean.getInternalPassMarks().isEmpty()) {
+				BusinessBypassRule.validateNumeric(teeBean.getInternalPassMarks());
+			}
+			if(!teeBean.getTotalMarks().isEmpty()) {
+				BusinessBypassRule.validateNumeric(teeBean.getTotalMarks());
+			}
+			
+			Utils.validateStartAndEndDates(teeBean.getStartDate(), teeBean.getEndDate());
+			logger.info("Scaled Req is " + teeBean.getScaledReq());
+			
+			BusinessBypassRule.validateYesOrNo(teeBean.getAutoAssignMarks());
+			
+			if (teeBean.getScaledReq() == null || teeBean.getScaledReq().equals("N")) {
+				teeBean.setScaledReq("N");
+				teeBean.setScaledMarks(null);
+			} else {
+				BusinessBypassRule.validateNumeric(teeBean.getScaledMarks());
+			}
+			if(!teeBean.getTeeDesc().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(teeBean.getTeeDesc());
+			}
+			logger.info("Validation Done");
+			
 			String username = principal.getName();
 
 			teeBean.setCreatedBy(username);
@@ -267,10 +353,10 @@ public class TeeController extends BaseController {
 			}
 
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(teeBean.getStartDate(), teeBean.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addTeeForm";
-			}
+//			if(!Utils.validateStartAndEndDates(teeBean.getStartDate(), teeBean.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addTeeForm";
+//			}
 			/* New Audit changes end */
 			List<TeeBean> teeDBList = teeBeanService.checkAlreadyExistICAList(teeBean.getModuleId(),
 					teeBean.getAcadYear(), teeBean.getCampusId(), teeBean.getAcadSession());
@@ -1092,7 +1178,8 @@ public class TeeController extends BaseController {
 	}
 
 	public TeeTotalMarks createTeeTotalMarks(String[] splitKey, Map<String, String> allRequestParams,
-			String draftOrFinalSubmit, String sapId, String loggedInUser) {
+			String draftOrFinalSubmit, String sapId, String loggedInUser) throws ValidationException {
+		logger.info("allRequestParams is " + allRequestParams);
 		String totalKey = "total" + splitKey[0];
 		String scaleKey = "scale" + splitKey[0];
 
@@ -1110,15 +1197,24 @@ public class TeeController extends BaseController {
 
 		}
 		if (allRequestParams.containsKey(totalKey)) {
+			BusinessBypassRule.validateNumeric(allRequestParams.get(totalKey));
 			teeTotalMarks.setTeeTotalMarks(allRequestParams.get(totalKey));
 		}
 		if (allRequestParams.containsKey(scaleKey)) {
+			logger.info("checking scaleKey --->" + allRequestParams.get(scaleKey));
+			BusinessBypassRule.validateNumeric(allRequestParams.get(scaleKey));
 			teeTotalMarks.setTeeScaledMarks(allRequestParams.get(scaleKey));
 		}
-
-		teeTotalMarks.setRemarks(allRequestParams.get(remarkKey));
+		if (allRequestParams.containsKey(remarkKey) && !allRequestParams.get(remarkKey).isEmpty()) {
+			BusinessBypassRule.validateAlphaNumeric(allRequestParams.get(remarkKey));
+			teeTotalMarks.setRemarks(allRequestParams.get(remarkKey));
+		}
+		if (!isAbsent.isEmpty()) {
+			BusinessBypassRule.validateYesOrNo(isAbsent);
+			teeTotalMarks.setIsAbsent(isAbsent);
+		}
+		
 		teeTotalMarks.setActive("Y");
-		teeTotalMarks.setIsAbsent(isAbsent);
 
 		if ("DRAFT".equals(draftOrFinalSubmit)) {
 			teeTotalMarks.setSaveAsDraft("Y");
@@ -1292,6 +1388,8 @@ public class TeeController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String username = principal.getName();
 		try {
+			
+			BusinessBypassRule.validateAlphaNumeric(query);
 			int updated = teeTotalMarksService.updateRaiseQuery(id, username, query);
 
 			TeeQueries teeQ = new TeeQueries();
@@ -1326,7 +1424,15 @@ public class TeeController extends BaseController {
 				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 			}
 			return "success";
-		} catch (Exception ex) {
+		} catch (ValidationException ve) {
+//			logger.error(ve.getMessage(), ve);
+//			setError(redirectAttrs, ve.getMessage());
+//			return "redirect:/showInternalMarks";
+			logger.info("INSIDE ValidationException");
+			logger.error("ValidationException", ve);
+			return "validationError";
+		} 
+		catch (Exception ex) {
 
 			logger.error("Exception", ex);
 			return "error";
@@ -1769,6 +1875,59 @@ public class TeeController extends BaseController {
 			RedirectAttributes redirectAttrs) {
 
 		try {
+
+			logger.info("Validating /addTeeForDivision...");
+			BusinessBypassRule.validateAlphaNumeric(teeBean.getTeeName());
+			Course acadYear = courseService.checkIfExistsInDB("acadYear", teeBean.getAcadYear());
+			if(acadYear == null) {
+				throw new ValidationException("Invalid Acad Year");
+			}
+			Course acadSession = courseService.checkIfExistsInDB("acadSession", teeBean.getAcadSession());
+			if(acadSession == null) {
+				throw new ValidationException("Invalid Acad Session");
+			}
+			Course campusId = courseService.checkIfExistsInDB("campusId", teeBean.getCampusId());
+			if(campusId == null) {
+				throw new ValidationException("Invalid Campus");
+			}
+			Course moduleId = courseService.checkIfExistsInDB("moduleId", teeBean.getModuleId());
+			if(moduleId == null) {
+				throw new ValidationException("Invalid Module");
+			}
+			logger.info("create Tee selected programs are " + teeBean.getProgramId());
+			Course progId = courseService.checkIfExistsInDB("programId", teeBean.getProgramId());			
+			if(progId == null) {
+					throw new ValidationException("Invalid Program");
+				}
+			            
+			BusinessBypassRule.validateNumeric(teeBean.getExternalMarks());
+			BusinessBypassRule.validateNumeric(teeBean.getExternalPassMarks());
+			if(!teeBean.getInternalMarks().isEmpty()) {
+				BusinessBypassRule.validateNumeric(teeBean.getInternalMarks());
+			}
+			if(!teeBean.getInternalPassMarks().isEmpty()) {
+				BusinessBypassRule.validateNumeric(teeBean.getInternalPassMarks());
+			}
+			if(!teeBean.getTotalMarks().isEmpty()) {
+				BusinessBypassRule.validateNumeric(teeBean.getTotalMarks());
+			}
+			
+			Utils.validateStartAndEndDates(teeBean.getStartDate(), teeBean.getEndDate());
+			logger.info("Scaled Req is " + teeBean.getScaledReq());
+			
+			BusinessBypassRule.validateYesOrNo(teeBean.getAutoAssignMarks());
+			
+			if (teeBean.getScaledReq() == null || teeBean.getScaledReq().equals("N")) {
+				teeBean.setScaledReq("N");
+				teeBean.setScaledMarks(null);
+			} else {
+				BusinessBypassRule.validateNumeric(teeBean.getScaledMarks());
+			}
+			if(!teeBean.getTeeDesc().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(teeBean.getTeeDesc());
+			}
+			logger.info("Validation Done");
+			
 			String username = principal.getName();
 
 			teeBean.setCreatedBy(username);
@@ -1782,10 +1941,10 @@ public class TeeController extends BaseController {
 				teeBean.setScaledMarks(null);
 			}
 			/* New Audit changes start */
-			if(!Utils.validateStartAndEndDates(teeBean.getStartDate(), teeBean.getEndDate())) {
-				setError(redirectAttrs, "Invalid Start date and End date");
-				return "redirect:/addTeeForm";
-			}
+//			if(!Utils.validateStartAndEndDates(teeBean.getStartDate(), teeBean.getEndDate())) {
+//				setError(redirectAttrs, "Invalid Start date and End date");
+//				return "redirect:/addTeeForm";
+//			}
 			/* New Audit changes end */
 			teeBean.setAssignedFaculty(null);
 			List<TeeBean> teeDBList = teeBeanService.checkAlreadyExistTEEAList(teeBean.getModuleId(),
@@ -2337,7 +2496,13 @@ public class TeeController extends BaseController {
 				setError(redirectAttributes, "Error in Sending Email to Student");
 			}
 			return "redirect:/showEvaluatedTeeMarks";
-		} catch (Exception ex) {
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttributes, ve.getMessage());
+			return "redirect:/evaluateTee";
+			
+		} 
+		catch (Exception ex) {
 			setError(redirectAttributes, "Error in Submitting TEE Marks");
 			logger.error("Exception", ex);
 
@@ -3525,7 +3690,7 @@ public class TeeController extends BaseController {
 				setSuccess(redirectAttrs, "Tee Date Updated Successfully");
 				return "redirect:/teeListBySupportAdmin";
 			}
-		} catch (ValidationException ex) {
+		} catch (Exception ex) {
 			setError(redirectAttrs, "Error While Updating Tee Date");
 			return "redirect:/teeListBySupportAdmin";
 
@@ -3576,7 +3741,7 @@ public class TeeController extends BaseController {
 				setSuccess(redirectAttrs, "Tee Date Updated Successfully");
 				return "redirect:/teeListBySupportAdmin";
 			}
-		} catch (ValidationException ex) {
+		} catch (Exception ex) {
 			setError(redirectAttrs, "Error While Updating Tee Date");
 			return "redirect:/teeListBySupportAdmin";
 

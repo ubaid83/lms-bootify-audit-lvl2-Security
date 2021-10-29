@@ -46,7 +46,7 @@ public class NsBean extends BaseBean{
 		return showToStudents;
 	}
 	public void setShowToStudents(String showToStudents) {
-		this.showToStudents = showToStudents;
+		this.showToStudents = showToStudents != null ? showToStudents : "N";
 	}
 	public String getIsSubmitted() {
 		return isSubmitted;
