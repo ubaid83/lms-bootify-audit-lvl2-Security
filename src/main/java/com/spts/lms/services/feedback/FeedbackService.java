@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.spts.lms.auth.Token;
 import com.spts.lms.beans.feedback.Feedback;
 import com.spts.lms.daos.BaseDAO;
 import com.spts.lms.daos.feedback.FeedbackDAO;
@@ -29,8 +30,9 @@ public class FeedbackService extends BaseService<Feedback> {
 		return feedbackDAO.findAllActiveWithCourse();
 	}
 
-	public List<Feedback> findAllValidFeedback() {
-		return feedbackDAO.findAllValidFeedback();
+	//Peter 28/10/2021 - Changed - Added parameter
+	public List<Feedback> findAllValidFeedback(String username) {
+		return feedbackDAO.findAllValidFeedback(username);
 	}
 
 	public List<Feedback> findByUser(String username, String acadMonth,
@@ -116,6 +118,11 @@ public class FeedbackService extends BaseService<Feedback> {
 			String acadYear1, String acadYear2, String username, String feedbackType) {
 		return feedbackDAO.findAllActiveByUsernameAndFeedbackType(campusId, acadYear1, acadYear2, 
 				username, feedbackType);
+	}
+
+	//Peter 28/10/2021
+	public Feedback checkIfFeedbackExists(String username, Long feedbackId) {
+		return feedbackDAO.checkIfFeedbackExists(username,feedbackId);
 	}
 
 }

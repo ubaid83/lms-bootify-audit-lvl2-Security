@@ -1,5 +1,6 @@
 package com.spts.lms.web.utils;
 
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -95,4 +96,14 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Input number should be a positive number.");
 	     }  
 	 }
+	
+	public static void validateUrl(String url) throws ValidationException{
+		System.out.println("link is "  + url);
+	        try {
+	            new URL(url).toURI();
+	        }
+	        catch (Exception e) {
+	        	 throw new ValidationException("Invalid Url");
+	        }
+	    }
 }

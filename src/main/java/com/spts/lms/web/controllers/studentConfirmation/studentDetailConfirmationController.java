@@ -60,7 +60,9 @@ import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSD;
 import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSDFEQ;
 import com.spts.lms.studentms.sap.ZmessageLogTt;
 import com.spts.lms.web.controllers.BaseController;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 import sun.misc.BASE64Decoder;
 
@@ -122,6 +124,35 @@ public class studentDetailConfirmationController extends BaseController {
 		logger.info("User Sec Answer Master------------->"
 				+ user.getSecAnswer());
 		logger.info("file1----------------->" + file.getName());
+		Response response = null;
+		String jsonResponse = null;
+		try {
+			BusinessBypassRule.validateAlphaNumeric(user.getEmail());
+			BusinessBypassRule.validateNumeric(user.getMobile());
+			BusinessBypassRule.validateAlphaNumeric(user.getSecAnswer());
+			
+			String json = "{\"secQuestion\":\" " + user.getSecquestion() + " \"}";
+			
+			WebTarget webTarget3 = client.target(URIUtil
+					.encodeQuery(userRoleMgmtCrudUrl
+							+ "/checkIfSecurityQuestionExists"));
+			Invocation.Builder invocationBuilder3 = webTarget3.request(MediaType.APPLICATION_JSON);
+			Response response1 = invocationBuilder3.post(Entity.entity(json.toString(), MediaType.APPLICATION_JSON));
+			jsonResponse = response1.readEntity(String.class);
+			logger.info("jsonResponse is " + jsonResponse);
+			if(jsonResponse!="true") {
+				throw new ValidationException("Invalid Security Question");				
+			}
+			
+		} catch (ValidationException ve) {
+			ve.printStackTrace();
+			setError(r, ve.getMessage());
+			return "redirect:/homepage";
+		}
+		
+		
+		
+		
 		String originalfileName = file.getOriginalFilename();
 		//Audit change start
 		Tika tika = new Tika();
@@ -239,66 +270,66 @@ public class studentDetailConfirmationController extends BaseController {
 		String wsdlresponse = "";
 
 		User userBean2 = userService.findStudentObjectId(username);
-		ZCHANGESTMOBILEEMAILWSDFEQ ws = new ZCHANGESTMOBILEEMAILWSDFEQ();
+//		ZCHANGESTMOBILEEMAILWSDFEQ ws = new ZCHANGESTMOBILEEMAILWSDFEQ();
 
-		Holder<ZmessageLogTt> lst = new Holder<ZmessageLogTt>();
+//		Holder<ZmessageLogTt> lst = new Holder<ZmessageLogTt>();
 
-		ZCHANGESTMOBILEEMAILWSD ws1 = ws.getZCHANGESTMOBILEEMAILBINDFEQ();
-		logger.info("ws.getZCHANGESTMOBILEEMAILBIND()--->"+ws.getZCHANGESTMOBILEEMAILBINDFEQ());
-		BindingProvider prov = (BindingProvider)ws1;
+//		ZCHANGESTMOBILEEMAILWSD ws1 = ws.getZCHANGESTMOBILEEMAILBINDFEQ();
+//		logger.info("ws.getZCHANGESTMOBILEEMAILBIND()--->"+ws.getZCHANGESTMOBILEEMAILBINDFEQ());
+//		BindingProvider prov = (BindingProvider)ws1;
 		
-		prov.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "basissp");
-		prov.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "india@123");
-		logger.info("ws2--->"+prov.getRequestContext());
-		
-		logger.info("ref--->"+prov.getEndpointReference());
-		try {
-			logger.info("studentObjId--->"+studentObjId);
-			String sha256hex = DigestUtils.sha256Hex(studentObjId);
-			logger.info("sha256hex--->"+sha256hex);
-			if (userBean2 == null) {
-				WebTarget webTarget12 = client.target(URIUtil
-						.encodeQuery(userRoleMgmtCrudUrl
-								+ "/getStudentObjIdByUsername?username="
-								+ username));
-				Invocation.Builder invocationBuilder12 = webTarget12
-						.request(MediaType.APPLICATION_JSON);
-				studentObjId = invocationBuilder12.get(String.class);
+//		prov.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "basissp");
+//		prov.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "india@123");
+//		logger.info("ws2--->"+prov.getRequestContext());
+//		
+//		logger.info("ref--->"+prov.getEndpointReference());
+//		try {  //try was here
+//			logger.info("studentObjId--->"+studentObjId);
+//			String sha256hex = DigestUtils.sha256Hex(studentObjId);
+//			logger.info("sha256hex--->"+sha256hex);
+//			if (userBean2 == null) {
+//				WebTarget webTarget12 = client.target(URIUtil
+//						.encodeQuery(userRoleMgmtCrudUrl
+//								+ "/getStudentObjIdByUsername?username="
+//								+ username));
+//				Invocation.Builder invocationBuilder12 = webTarget12
+//						.request(MediaType.APPLICATION_JSON);
+//				studentObjId = invocationBuilder12.get(String.class);
+//
+//				// Code for inserting student in student_mapping table
+//				// if("")
+//				User newUserForScoolMap = new User();
+//				newUserForScoolMap.setUsername(username);
+//				newUserForScoolMap.setStudentObjectId(studentObjId);
+//				if (!studentObjId.equals("null")) {
+//					userService.insertStudentMapping(newUserForScoolMap);
+//				}
+//
+//			} else {
+//				studentObjId = userBean2.getStudentObjectId();
+//			}
+//
+//			if (!studentObjId.equals("null")) {
+//
+////				wsdlresponse = ws1.zchangeStMobileEmail(user.getEmail(), 
+////						user.getMobile(), encodedString, username, sha256hex, lst);
+//				logger.info("resp----------<><>< " + wsdlresponse);
+//
+////				logger.info("ZmessageProfileStudMSLog----->" + lst.value);
+//			}else{
+//				setError(r, "Student id is not found in SAP");
+//				return "redirect:/homepage";
+//			}
+//
+//		} catch (Exception ex) {
+//
+//			logger.error("Exception while calling a webservice", ex);
+//		}
 
-				// Code for inserting student in student_mapping table
-				// if("")
-				User newUserForScoolMap = new User();
-				newUserForScoolMap.setUsername(username);
-				newUserForScoolMap.setStudentObjectId(studentObjId);
-				if (!studentObjId.equals("null")) {
-					userService.insertStudentMapping(newUserForScoolMap);
-				}
-
-			} else {
-				studentObjId = userBean2.getStudentObjectId();
-			}
-
-			if (!studentObjId.equals("null")) {
-
-				wsdlresponse = ws1.zchangeStMobileEmail(user.getEmail(), 
-						user.getMobile(), encodedString, username, sha256hex, lst);
-				logger.info("resp----------<><>< " + wsdlresponse);
-
-				logger.info("ZmessageProfileStudMSLog----->" + lst.value);
-			}else{
-				setError(r, "Student id is not found in SAP");
-				return "redirect:/homepage";
-			}
-
-		} catch (Exception ex) {
-
-			logger.error("Exception while calling a webservice", ex);
-		}
-
-		if (wsdlresponse.equalsIgnoreCase("SUCCESS")) {
+//		if (wsdlresponse.equalsIgnoreCase("SUCCESS")) {
 			if(userDB.getEmail() != null && userDB.getMobile() != null){
 				userService.updateProfile(userDB);
-			}
+//			}
 			
 
 			User userDBSec = userService.findByUserName(username);
@@ -346,7 +377,8 @@ public class studentDetailConfirmationController extends BaseController {
 				
 
 				Invocation.Builder invocationBuilder2 = webTarget2.request();
-				Response response = invocationBuilder2.post(Entity.entity(
+//				Response 
+				response = invocationBuilder2.post(Entity.entity(
 						json1.toString(), MediaType.APPLICATION_JSON));
 
 				logger.info("response---->" + response);
@@ -384,6 +416,16 @@ public class studentDetailConfirmationController extends BaseController {
 
 		logger.info("AGREEE VALUE PRINTING 1------------------>"
 				+ studentdetails.getMothernamedisagr());
+		
+		try {
+			BusinessBypassRule.validateAlphaNumeric(studentdetails.getFirstname());
+			BusinessBypassRule.validateAlphaNumeric(studentdetails.getFathername());
+			BusinessBypassRule.validateAlphaNumeric(studentdetails.getMothername());
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(r, ve.getMessage());
+			return "redirect:/homepage";
+		}
 
 		if (studentdetails.getFirstnamedisagr() == null
 				|| !studentdetails.getFirstnamedisagr().equalsIgnoreCase(

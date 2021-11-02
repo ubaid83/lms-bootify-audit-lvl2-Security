@@ -2,6 +2,7 @@ package com.spts.lms.web.controllers;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +45,9 @@ import com.spts.lms.services.programCampus.ProgramCampusService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 //@Secured("ROLE_ADMIN")
 @Controller
@@ -121,36 +124,31 @@ public class StudentFeedbackController extends BaseController {
 	 * return feedbackService.findAllActive(); }
 	 */
 	@ModelAttribute("feedbackList")
-	public List<Feedback> getFeedbackList() {
-		return feedbackService.findAllValidFeedback();
+	public List<Feedback> getFeedbackList(Principal principal) {
+		logger.info("here...");
+		return feedbackService.findAllValidFeedback(principal.getName());
 	}
+	
+	
 	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/addStudentFeedbackForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String addStudentFeedbackForm(@ModelAttribute Feedback feedback,
 			Model m, Principal principal,
 			@RequestParam(required = false, defaultValue = "1") int pageNo) {
-		
+		logger.info("INSIDE /addStudentFeedbackForm");
 		m.addAttribute("webPage", new WebPage("addStudentFeedback",
 				"Create Feedback", true, false));
 
 		// ----------------
 
 		if (feedback.getId() != null) {
-
-			
 			List<StudentFeedback> studentFeedbackDuplicates = studentFeedbackService
 					.checkStudentFeedbackDuplicates(String.valueOf(feedback
 							.getId()));
-			
 			if (studentFeedbackDuplicates.size() > 0) {
-				
-
 				studentFeedbackService.deleteDuplicateStudentFeedback(String
 						.valueOf(feedback.getId()));
-
-				
-
 			}
 		}
 
@@ -185,6 +183,8 @@ public class StudentFeedbackController extends BaseController {
 		// ---------------
 		return "feedback/addStudentFeedback";
 	}
+	
+	
 	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/viewEachStudentFeedbackForm", method = {
 			RequestMethod.GET, RequestMethod.POST })
@@ -224,6 +224,8 @@ public class StudentFeedbackController extends BaseController {
 		// ---------------
 		return "feedback/viewEachStudentFeedback";
 	}
+	
+	
 	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/StudentFeedbackAllocationCount", method = { RequestMethod.GET })
 	public @ResponseBody int StudentFeedbackAllocationCount(
@@ -235,6 +237,8 @@ public class StudentFeedbackController extends BaseController {
 
 		return count.size();
 	}
+	
+	
 	@Secured({"ROLE_ADMIN"})
 	@RequestMapping(value = "/saveStudentFeedback", method = {
 			RequestMethod.GET, RequestMethod.POST })
@@ -266,7 +270,8 @@ public class StudentFeedbackController extends BaseController {
 			studentFeedbackService.insertBatch(feedback.getStudentFeedbacks());
 			setSuccess(redirectAttr, "Students Allocated successfully");
 
-		} catch (Exception e) {
+		} 
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttr, "Error in allocating feedback");
 			return "redirect:/addStudentFeedbackForm";
@@ -294,7 +299,25 @@ public class StudentFeedbackController extends BaseController {
 		redirectAttr.addFlashAttribute("feedback", feedback);
 		
 		try {
-
+			logger.info("INSIDE /saveStudentFeedbackForProgram");
+			logger.info("feedback.getId() is " + feedback.getId());
+			Feedback isFeedbackExists = feedbackService.checkIfFeedbackExists(username,feedback.getId());
+			if(isFeedbackExists==null) {
+				throw new ValidationException("Invalid Feedback");
+			}
+			Utils.validateStartAndEndDates(feedback.getStartDate(), feedback.getEndDate());
+			ProgramCampus checkIfCampusExists = programCampusService.checkIfCampusExists(feedback.getCampusId());
+			if(checkIfCampusExists==null) {
+				throw new ValidationException("Invalid Campus");
+			}
+			boolean hasAcadYear = Arrays.asList(enrollmentYears).contains(feedback.getAcadYear().toString());
+			if(!hasAcadYear) {
+				throw new ValidationException("Invalid Acad Year");
+			}
+			Course checkIfAcadYearExists = courseService.checkIfExistsInDB("acadMonth", feedback.getAcadMonth());
+			if(checkIfAcadYearExists==null) {
+				throw new ValidationException("Invalid Acad Month");
+			}
 			Token t = (Token) principal;
 			
 
@@ -378,7 +401,14 @@ public class StudentFeedbackController extends BaseController {
 								+ feedback.getAcadSession());
 			}
 
-		} catch (Exception e) {
+		}
+			catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttr, ve.getMessage());
+			return "redirect:/addStudentFeedbackForm";
+		}		
+		
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttr, "Error in allocating feedback");
 			return "redirect:/addStudentFeedbackForm";
@@ -399,6 +429,30 @@ public class StudentFeedbackController extends BaseController {
 		redirectAttr.addFlashAttribute("feedback", feedback);
 		
 		try {
+			
+			logger.info("INSIDE /saveStudentFeedbackForAcadSession");
+			logger.info("feedback.getId() is " + feedback.getId());
+			Feedback isFeedbackExists = feedbackService.checkIfFeedbackExists(username,feedback.getId());
+			if(isFeedbackExists==null) {
+				throw new ValidationException("Invalid Feedback");
+			}
+			Utils.validateStartAndEndDates(feedback.getStartDate(), feedback.getEndDate());
+			ProgramCampus checkIfCampusExists = programCampusService.checkIfCampusExists(feedback.getCampusId());
+			if(checkIfCampusExists==null) {
+				throw new ValidationException("Invalid Campus");
+			}
+			boolean hasAcadYear = Arrays.asList(enrollmentYears).contains(feedback.getAcadYear().toString());
+			if(!hasAcadYear) {
+				throw new ValidationException("Invalid Acad Year");
+			}
+			Course checkIfAcadYearExists = courseService.checkIfExistsInDB("acadMonth", feedback.getAcadMonth());
+			if(checkIfAcadYearExists==null) {
+				throw new ValidationException("Invalid Acad Month");
+			}
+			Course checkIfAcadSessionInDB = courseService.checkIfExistsInDB("acadSession", feedback.getAcadSession());
+			if(checkIfAcadSessionInDB==null) {
+				throw new ValidationException("Invalid Semester");
+			}
 
 			List<StudentFeedback> allocationStatus = studentFeedbackService
 					.getAllocatedStudentFeedback(String.valueOf(feedback
@@ -468,7 +522,16 @@ public class StudentFeedbackController extends BaseController {
 								+ feedback.getAcadSession());
 			}
 
-		} catch (Exception e) {
+		} 
+
+		catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttr, ve.getMessage());
+			return "redirect:/addStudentFeedbackForm";
+			
+		} 
+		
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttr, "Error in allocating feedback");
 			return "redirect:/addStudentFeedbackForm";
