@@ -328,6 +328,7 @@
 			$('span[id="errMessage"]').text("");
 		 } else {
 		    console.log("Invalid");
+		    $('#submit').attr('disabled',true);
 			$('span[id="errMessage"]').text("Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
 		 }
 	 })
@@ -340,6 +341,7 @@
 			$('span[id="errMessage"]').text("");
 		 } else {
 		    console.log("Invalid");
+		    $('#submit').attr('disabled',true);
 			$('span[id="errMessage"]').text("Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
 		 }
 	 })
@@ -358,11 +360,13 @@
 				$('span[id="errMessage"]').text("");
 			} else {
 			    console.log("Invalid");
+			    $('#submit').attr('disabled',true);
 				$('span[id="errMessage"]').text("Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
 				
 			}
 			} else {
 				console.log("Invalid Pass");
+				$('#submit').attr('disabled',true);
 				$('span[id="errMessage"]').text("Password didn't Match!");
 				
 			}
@@ -383,11 +387,13 @@
 				$('span[id="errMessage"]').text("");
 			} else {
 			    console.log("Invalid");
+			    $('#submit').attr('disabled',true);
 				$('span[id="errMessage"]').text("Unable to change the password. Password should have atleast 1 digit, 1 upper case alphabet, 1 lower case alphabet, 1 special character & atleast 8 characters and at most 20 characters!");
 				
 			}
 			} else {
 				console.log("Invalid Pass");
+				$('#submit').attr('disabled',true);
 				$('span[id="errMessage"]').text("Password didn't Match!");
 				
 			}
