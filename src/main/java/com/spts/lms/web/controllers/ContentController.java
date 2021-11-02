@@ -87,8 +87,10 @@ import com.spts.lms.services.test.TestService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.SortByCreatedDate;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.UnzipUtil;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 
 @Controller
@@ -109,7 +111,9 @@ public class ContentController extends BaseController {
 
 	@Autowired
 	Notifier notifier;
-
+	
+	@Autowired
+	Utils utils;
 	@Autowired
 	UserCourseService userCourseService;
 
@@ -140,6 +144,8 @@ public class ContentController extends BaseController {
 	@Autowired
 	ProgramService programService;
 	
+	@Autowired
+	BusinessBypassRule businessBypassRule;
 	@Autowired
 	ProgramCampusService programCampusService;
 
@@ -782,7 +788,15 @@ public class ContentController extends BaseController {
 		}
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
-
+	public void validateAccessType(String s) throws ValidationException{
+		if (s == null || s.trim().isEmpty()) {
+			 throw new ValidationException("Input field cannot be empty");
+		 }
+		if(!s.equals("Public") && !s.equals("Private") && !s.equals("Everyone")  ) {
+			throw new ValidationException("Invalid Access Type.");
+		}
+	}
+	
 	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addFolderForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
@@ -797,6 +811,31 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		File file = null;
 		try {
+			
+			
+			
+				businessBypassRule.validateAlphaNumeric(content.getContentName());
+				businessBypassRule.validateNumeric(idForCourse);
+				Course course=courseService.findByID(Long.valueOf(idForCourse));
+				if(course.toString().isEmpty() || null==course)
+				{
+
+		
+					setError(redirectAttrs, "Invalid Course While creating folder");
+					if (file != null && file.list().length == 0) {
+						file.delete();
+					}
+					return "redirect:/addContentForm";
+				
+				}
+				validateAccessType(content.getAccessType());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+		
+			
 			String username = p.getName();
 			if (idForModule != null && !idForModule.isEmpty()) {
 				content.setModuleId(idForModule);
@@ -924,7 +963,20 @@ public class ContentController extends BaseController {
 				return "redirect:/addContentForm";
 			}
 
-		} catch (Exception e) {
+		} catch (ValidationException e) {
+
+			
+			setError(redirectAttrs, e.getMessage());
+			if (file != null && file.list().length == 0) {
+				file.delete();
+			}
+			return "redirect:/addContentForm";
+		
+		}
+		
+		
+		
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating folder");
 			if (file != null && file.list().length == 0) {
@@ -1087,6 +1139,8 @@ public class ContentController extends BaseController {
 		m.addAttribute("AcadSession", acadSession);
 
 		try {
+			
+			
 			performFolderPathCheck(content);
 			Course c = null;
 			String completFolderPath = content.getFolderPath()+ content.getContentName()+"/";
@@ -1235,6 +1289,25 @@ public class ContentController extends BaseController {
 
 		try {
 
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			businessBypassRule.validateNumeric(idForModule);
+			Course course=courseService.findByID(Long.valueOf(idForModule));
+			if(course.toString().isEmpty() || null==course)
+			{
+				setError(redirectAttrs, "Invalid Course While creating folder");
+				redirectAttrs.addFlashAttribute("edit", "true");
+				return "redirect:/addContentForm";
+			}
+			validateAccessType(content.getAccessType());
+		
+		utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+		businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+		businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+		businessBypassRule.validateYesOrNo(content.getExamViewType());
+	
+			
+			
+			
 			performFolderPathCheckForModule(content);
 			String completFolderPath = content.getFolderPath()+ content.getContentName()+"/";
 			if(completFolderPath.startsWith("/")) {
@@ -1331,7 +1404,16 @@ public class ContentController extends BaseController {
 				}
 			}
 			setSuccess(redirectAttrs, "Folder Details updated successfully");
-		} catch (Exception e) {
+		}catch (ValidationException e) {
+
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			redirectAttrs.addFlashAttribute("edit", "true");
+			return "redirect:/addContentForm";
+		
+		} 
+		
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating folder");
 			redirectAttrs.addFlashAttribute("edit", "true");

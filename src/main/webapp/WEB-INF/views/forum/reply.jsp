@@ -18,9 +18,9 @@
 
 <div class="d-flex dataTableBottom" id="facultyAssignmentPage">
 	<sec:authorize access="hasRole('ROLE_FACULTY')">
-		<jsp:include page="../common/newLeftNavBarFaculty.jsp"/>
-		<jsp:include page="../common/newLeftSidebarFaculty.jsp"/>
-		<jsp:include page="../common/rightSidebarFaculty.jsp"/>
+		<jsp:include page="../common/newLeftNavBarFaculty.jsp" />
+		<jsp:include page="../common/newLeftSidebarFaculty.jsp" />
+		<jsp:include page="../common/rightSidebarFaculty.jsp" />
 	</sec:authorize>
 	<sec:authorize access="hasRole('ROLE_STUDENT')">
 		<jsp:include page="../common/newLeftNavbar.jsp" />
@@ -41,11 +41,10 @@
 
 
 		<%
-			String courseRecord = request.getParameter("courseRecord");
+		String courseRecord = request.getParameter("courseRecord");
 		%>
 		<%
-			boolean isEdit = "true".equals((String) request
-					.getAttribute("edit"));
+		boolean isEdit = "true".equals((String) request.getAttribute("edit"));
 		%>
 
 		<div class="container mt-5">
@@ -65,7 +64,8 @@
 							<sec:authorize access="hasRole('ROLE_STUDENT')">
 								<c:out value="${AcadSession}" />
 							</sec:authorize>
-							<li class="breadcrumb-item active" aria-current="page">View Forum</li>
+							<li class="breadcrumb-item active" aria-current="page">View
+								Forum</li>
 						</ol>
 					</nav>
 
@@ -80,7 +80,7 @@
 
 									<div class="x_title">
 										<h5 style="font-size: 24px; font-family: sans-serif;">${forum.topic}</h5>
-										
+
 									</div>
 
 									<div class="x_content">
@@ -149,7 +149,7 @@
 								<div class="x_panel">
 									<div class="x_title">
 										<h5>Answers | ${fn:length(allReplies)} Records found</h5>
-										
+
 									</div>
 									<div class="x_itemCount" style="display: none;">
 										<div class="image_not_found">
@@ -171,23 +171,27 @@
 
 												<div class="form-group">
 
-													<form:label path="reply" for="editor">Enter Your Reply</form:label>
+													<form:label path="reply" for="editor">Enter Your Reply<span
+															style="color: red">*</span>
+													</form:label>
 													<%-- <form:textarea class="form-group" path="reply" id="editor"
 														style="margin-top: 30px;margin-bottom:10px; white-space: pre-wrap;" /> --%>
 													<form:textarea class="form-group" path="reply"
-														name="editor1" id="editor1" rows="10" cols="80" />
+														name="editor1" id="editor1" rows="10" cols="80"
+														required="required" />
 
 
 
 												</div>
 											</div>
 
-												<div class="col-12">
-													<button id="submit" class="btn btn-large btn-primary"
-														formaction="replyToQuestion?questionId=${forum.id}">Reply</button>
-<!-- 													<button id="reset" type="reset" class="btn btn-danger">Reset</button>
- -->												</div>
-											
+											<div class="col-12">
+												<button id="submit" class="btn btn-large btn-primary"
+													formaction="replyToQuestion?questionId=${forum.id}">Reply</button>
+												<!-- 													<button id="reset" type="reset" class="btn btn-danger">Reset</button>
+ -->
+											</div>
+
 											<!-- <hr style="height: 1px; border: none; color: #333; background-color: #333;"> -->
 											<!-- <div id="llc_comments" class="well"
 												style="outline: 0; box-sizing: border-box; display: block; background-color: white;"> -->

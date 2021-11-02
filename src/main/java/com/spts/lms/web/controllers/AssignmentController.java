@@ -112,6 +112,7 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -364,6 +365,7 @@ public class AssignmentController extends BaseController {
 //				setError(redirectAttributes, "Invalid Start date and End date");
 //				return "redirect:/createAssignmentFromMenu";
 //			}
+			HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
 			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -372,7 +374,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -523,6 +528,7 @@ public class AssignmentController extends BaseController {
 				m.addAttribute("allCourses",courseService.findByUserActive(username,userdetails1.getProgramName()));
 			}
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
 			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -531,7 +537,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -1137,6 +1146,7 @@ public class AssignmentController extends BaseController {
 			assignment.setCourseId(courseId);
 		}
 		/* New Audit changes start */
+		HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
 		Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 		BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 		BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -1145,7 +1155,10 @@ public class AssignmentController extends BaseController {
 		if(null == course) {
 			throw new ValidationException("Invalid Course selected.");
 		}
-		BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+		if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+			throw new ValidationException("Invalid Input.");
+		}
+//		BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 		BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 		BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 		if(!multipleAssignmentErrorMsg.equals("Success")) {
@@ -3386,6 +3399,7 @@ public class AssignmentController extends BaseController {
 								}
 							}
 							String multipleAssignmentErrorMsg = "Success";
+							HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
 							multipleAssignmentErrorMsg = saveGroupAssignment(assignment, mapper.get(i), m, p,redirectAttrs,multipleAssignmentErrorMsg);
 							logger.info("multipleAssignmentErrorMsg---->"+multipleAssignmentErrorMsg);
 							if(!multipleAssignmentErrorMsg.equals("Success")) {
@@ -3524,6 +3538,7 @@ public class AssignmentController extends BaseController {
 				assignmentService.update(assignment);
 			} else {
 				/* New Audit changes start */
+				HtmlValidation.validateHtml(assignment,Arrays.asList("assignmentText"));
 				Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 				BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 				BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -3532,7 +3547,10 @@ public class AssignmentController extends BaseController {
 				if(null == course) {
 					throw new ValidationException("Invalid Course selected.");
 				}
-				BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+				if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+					throw new ValidationException("Invalid Input.");
+				}
+//				BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 				BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 				BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 				BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -4265,6 +4283,7 @@ public class AssignmentController extends BaseController {
 			userdetails1.getProgramName()));
 			
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(assignment,Arrays.asList("assignmentText"));
 			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -4273,7 +4292,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -4863,6 +4885,7 @@ public class AssignmentController extends BaseController {
 //				setError(redirectAttributes, "Invalid total score");
 //				return "redirect:/createAssignmentByAdmin";
 //			}
+			HtmlValidation.validateHtml(assignment,Arrays.asList("assignmentText"));
 			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -4871,7 +4894,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());

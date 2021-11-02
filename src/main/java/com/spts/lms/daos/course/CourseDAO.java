@@ -1360,6 +1360,7 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 		return findAllSQL(sql, new Object[] { username });
 	}
 
+
 	public Course findAcadYear(String acadYear) {
 		String sql = "select acadYear from course where acadYear=? limit 1";
 //		return getJdbcTemplate().queryForObject(sql, new Object[] {acadYear}, String.class);

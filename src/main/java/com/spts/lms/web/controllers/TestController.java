@@ -106,6 +106,7 @@ import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.utils.MultipleDBConnection;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -399,6 +400,7 @@ public class TestController extends BaseController {
 		m.addAttribute("username", username);
 		try {
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(test, Arrays.asList("testDescription"));
 			BusinessBypassRule.validateAlphaNumeric(test.getTestName());
 			Course course = courseService.findByID(test.getCourseId());
 			if(null == course) {
@@ -797,6 +799,7 @@ public class TestController extends BaseController {
 		Test oldTest = testService.findByID(test.getId());
 		try {
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(test, Arrays.asList("testDescription"));
 			BusinessBypassRule.validateAlphaNumeric(test.getTestName());
 			Course course = courseService.findByID(test.getCourseId());
 			if(null == course) {
@@ -2604,6 +2607,7 @@ public class TestController extends BaseController {
 		double sumOfQuestionMarks = 0.0;
 		try {
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(testQuestion, Arrays.asList("description","option1","option2","option3","option4","option5","option6","option7","option8"));
 			if(testQuestion.getDescription() == null || testQuestion.getDescription().isEmpty()) {
 				throw new ValidationException("Input field cannot be empty");
 			}
@@ -2733,6 +2737,7 @@ public class TestController extends BaseController {
 		double sumOfQuestionMarks = 0.0;
 		try {
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(testQuestion, Arrays.asList("description","option1","option2","option3","option4","option5","option6","option7","option8"));
 			if(testQuestion.getDescription() == null || testQuestion.getDescription().isEmpty()) {
 				throw new ValidationException("Input field cannot be empty");
 			}
@@ -2867,6 +2872,8 @@ public class TestController extends BaseController {
 			int id = testQuestionFromDb.getTestId().intValue();
 			redirectAttrs.addAttribute("id", testQuestionFromDb.getTestId());
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(testQuestion, Arrays.asList("description","option1","option2","option3","option4","option5","option6","option7","option8"));
+	
 			if(testQuestion.getDescription() == null || testQuestion.getDescription().isEmpty()) {
 				throw new ValidationException("Input field cannot be empty");
 			}
@@ -3583,6 +3590,7 @@ public class TestController extends BaseController {
 		try {
 			String username = principal.getName();
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(testPool, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(testPool.getTestPoolName());
 			/* New Audit changes end */
 			Token userdetails1 = (Token) principal;
@@ -3897,6 +3905,7 @@ public class TestController extends BaseController {
 		redirectAttrs.addAttribute("testPoolId", testQuestionPools.getTestPoolId());
 		try {
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(testQuestionPools, Arrays.asList("description","option1","option2","option3","option4","option5","option6","option7","option8"));
 			if(testQuestionPools.getDescription() == null || testQuestionPools.getDescription().isEmpty()) {
 				throw new ValidationException("Input field cannot be empty");
 			}
@@ -5022,6 +5031,7 @@ public class TestController extends BaseController {
 		logger.info("testquestionpool" + testQuestionPool);
 		try {
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(testQuestionPool, Arrays.asList("description","option1","option2","option3","option4","option5","option6","option7","option8"));
 			if(testQuestionPool.getDescription() == null || testQuestionPool.getDescription().isEmpty()) {
 				throw new ValidationException("Input field cannot be empty");
 			}
@@ -5156,6 +5166,7 @@ public class TestController extends BaseController {
 		try {
 
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(testPool, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(testPool.getTestPoolName());
 			/* New Audit changes end */
 			TestPool testPoolFromDb = testPoolService.findByID(testPool.getId());
@@ -6814,6 +6825,7 @@ public class TestController extends BaseController {
 		m.addAttribute("username", username);
 		try {
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(test, Arrays.asList("testDescription"));
 			BusinessBypassRule.validateAlphaNumeric(test.getTestName());
 			Course course = courseService.findByID(test.getCourseId());
 			if(null == course) {
@@ -7182,6 +7194,7 @@ public class TestController extends BaseController {
 		try {
 			String username = principal.getName();
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(testPool, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(testPool.getTestPoolName());
 			/* New Audit changes end */
 			Token userdetails1 = (Token) principal;
@@ -7265,6 +7278,8 @@ public class TestController extends BaseController {
 		Test oldTest = testService.findByID(test.getId());
 		try {
 			/* New Audit changes start */
+			
+			HtmlValidation.validateHtml(test, Arrays.asList("testDescription"));
 			BusinessBypassRule.validateAlphaNumeric(test.getTestName());
 			Course course = courseService.findByID(test.getCourseId());
 			if(null == course) {

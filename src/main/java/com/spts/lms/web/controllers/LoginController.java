@@ -1070,9 +1070,13 @@ public class LoginController extends BaseController {
 		 * } catch (ValidationException ex) { setError(redirectAttrs, ex.getMessage());
 		 * return "redirect:/changePasswordForm"; }
 		 */
-		userService.changePassword(user); 
+		try { 
+		userService.changePassword(user);
+		} catch (ValidationException ex) { 
+			setError(redirectAttrs, ex.getMessage());
+		 return "redirect:/changePasswordForm"; 
+		 }
 		String json = new Gson().toJson(user);
-
 		// logger.info("passed json--->" + json);
 		try {
 			WebTarget webTarget = client

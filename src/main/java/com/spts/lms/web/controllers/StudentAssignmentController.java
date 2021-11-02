@@ -104,6 +104,7 @@ import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.web.helper.CopyCaseHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -2387,6 +2388,9 @@ public class StudentAssignmentController extends BaseController {
 			Principal principal) {
 		String username = principal.getName();
 		try {
+			HtmlValidation.checkHtmlCode(value);
+			HtmlValidation.checkHtmlCode(String.valueOf(pk));
+			
 			BusinessBypassRule.validateAlphaNumeric(value);
 			studentAssignmentService.saveAssignmentRemarks(value, pk, username);
 			return "{\"status\": \"success\", \"msg\": \"Remarks saved successfully!\"}";

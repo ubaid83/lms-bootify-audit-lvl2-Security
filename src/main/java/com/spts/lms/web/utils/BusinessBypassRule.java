@@ -13,10 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.spts.lms.beans.course.Course;
 import com.spts.lms.services.course.CourseService;
+
 @Component
 public class BusinessBypassRule {
 	
 	private static final Logger logger = Logger.getLogger(BusinessBypassRule.class);
+	
+	
 	
 	public static void validateAlphaNumeric(String s) throws ValidationException{
 		//Allows Only Alpha Numeric values except _ and -
@@ -24,7 +27,8 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
 
-	     Pattern p = Pattern.compile("[^A-Za-z0-9\\S\\-,_&]");
+	     Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-]");
+
 
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
