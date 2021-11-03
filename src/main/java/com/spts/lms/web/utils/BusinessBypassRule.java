@@ -27,7 +27,7 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
 
-	     Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-]");
+	     Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-.]");
 
 
 	     Matcher m = p.matcher(s);
@@ -38,6 +38,47 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Special characters are not allowed to enter except underscore(_) and hyphen(-).");
 	     }
 	 }
+	//add new method to validate name
+	public static void validateString(String s) throws ValidationException{
+		//Allows Only Alpha Numeric values except _ and -
+		System.out.println("<<<<<<<<<<<<<<<<<<INSIDE VALIDATE STRING METHOD>>>>>>>>>>>>>");
+	     if (s == null || s.trim().isEmpty()) {
+	    	 throw new ValidationException("Special characters are not allowed to enter except space");
+	     }
+
+	     Pattern p = Pattern.compile("[^A-Za-z\\s]");
+
+
+	     Matcher m = p.matcher(s);
+	     System.out.println("inside validate String :S:>>>>>>>>>>>>>>>>>"+s);
+	     boolean b = m.find();
+	     System.out.println("b--"+b);
+	     
+	     if(b) {
+	    	 throw new ValidationException("Special characters are not allowed to enter except space");
+	     }
+	 }
+	
+	//add new method to validate email
+//	public static void validateEmail(String s) throws ValidationException{
+//		//Allows Only Alpha Numeric values except _ and -
+//		System.out.println("<<<<<<<<<<<<<<<<<<INSIDE VALIDATE Email METHOD>>>>>>>>>>>>>");
+//	  /*   if (s == null || s.trim().isEmpty()) {
+//	    	 throw new ValidationException("Special characters are not allowed to enter except (@) and (.).");
+//	     }
+//        */
+//	     Pattern p = Pattern.compile("([A-Za-z0-9-_.]+@[A-Za-z0-9-_]+(?:\\.[A-Za-z0-9]+)+)");
+//
+//	     Matcher m = p.matcher(s);
+//	     System.out.println(" inside validate Email :S:>>>>>>>>>>>>"+s);
+//	     System.out.println(" inside  Email :M:>>>>>>>>>>>>"+m);
+//	     boolean b = m.find();
+//	     System.out.println("b--"+b);
+//	     
+//	     if(b) {
+//	    	 throw new ValidationException("Special characters are not allowed to enter except (@) and (.).");
+//	     }
+//	 }
 	public static void validateYesOrNo(String s) throws ValidationException{
 		logger.info("String is " + s);
 		if (s == null || s.trim().isEmpty()) {
@@ -65,14 +106,16 @@ public class BusinessBypassRule {
 	 }
 	public static void validateNumeric(String s) throws ValidationException{
 		//Allows Only Double Positive Numbers as String, Zero allowed
+		System.out.println("<<<<<<<<<<<<<<<<<<INSIDE VALIDATE NUMERIC>>>>>>>>>>>>>");
 		if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
 		Pattern p = Pattern.compile("[^0-9.]");
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
+	     System.out.println("inside validate Numeric :S:>>>>>>>>>>>>."+s);
 	     if(b || Double.valueOf(s) < 0.0) {
-	    	 throw new ValidationException("Input number should be a positive number.");
+	    	throw new ValidationException("Input number should be a positive number.");
 	     }  
 	 }
 
@@ -101,6 +144,7 @@ public class BusinessBypassRule {
 	     }  
 	 }
 	
+
 	public static void validateUrl(String url) throws ValidationException{
 		System.out.println("link is "  + url);
 	        try {
@@ -111,3 +155,4 @@ public class BusinessBypassRule {
 	        }
 	    }
 }
+
