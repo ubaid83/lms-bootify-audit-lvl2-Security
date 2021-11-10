@@ -1,6 +1,8 @@
 package com.spts.lms.web.controllers;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -782,7 +784,46 @@ public class AnnouncementController extends BaseController {
 
 								return "redirect:/addAnnouncementForm";
 							}else {
-								uploadAnnouncementFileForS3(announcement, file);
+								byte [] byteArr=file.getBytes();
+								if ((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x89
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x50)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x25
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x50)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x42
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x4D)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x47
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x49)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x49
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x49)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x38
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x42)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x50
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x4B)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x1F
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x8B)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x75
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x73)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x52
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x61)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0xD0
+												&& Byte.toUnsignedInt(byteArr[1]) == 0xCF)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x50
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+									uploadAnnouncementFileForS3(announcement, file);
+								} else {
+									setError(redirectAttrs, "File uploaded is invalid!");
+									if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY")) {
+										return "redirect:/addAnnouncementFormLibrary";
+									}
+									if (typeOfAnn != null) {
+										if ("PROGRAM".equals(typeOfAnn)) {
+											return "redirect:/addAnnouncementFormProgram";
+										}
+									}
+
+									return "redirect:/addAnnouncementForm";
+								}
 							}
 						}
 					}else {
@@ -1421,7 +1462,35 @@ public class AnnouncementController extends BaseController {
 								}
 								return "redirect:/addAnnouncementForm";
 							}else {
-								uploadAnnouncementFileForS3(announcement, file);
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+									uploadAnnouncementFileForS3(announcement, file);
+								} else {
+									setError(redirectAttrs, "File uploaded is invalid!");
+									if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY") || userdetails1.getAuthorities().contains(
+											Role.ROLE_LIBRARIAN)) {
+										redirectAttrs.addAttribute("id", announcement.getId());
+										return "redirect:/addAnnouncementFormLibrary";
+									}
+									if (typeOfAnn != null) {
+										if ("PROGRAM".equals(typeOfAnn)) {
+											return "redirect:/addAnnouncementFormProgram";
+										}
+									}
+									return "redirect:/addAnnouncementForm";
+								}
 							}
 						}
 					}else {
@@ -2698,7 +2767,7 @@ public class AnnouncementController extends BaseController {
 		try {
 		Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
 			
-			if(semdata.toString().isEmpty() || null==semdata)
+			if(null==semdata || semdata.toString().isEmpty())
 			{
 
 		
@@ -2755,7 +2824,7 @@ public class AnnouncementController extends BaseController {
 			}
 			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
-			businessBypassRule.validateNumeric(announcement.getAcadSession());
+			businessBypassRule.validateAlphaNumeric(announcement.getAcadSession());
 			Course acadYear=courseService.checkIfExistsInDB("acadYear", announcement.getAcadSession());
 			if(acadYear.toString().isEmpty() || null==acadYear)
 			{
@@ -2819,7 +2888,51 @@ public class AnnouncementController extends BaseController {
 								}
 								return "redirect:/addAnnouncementForm";
 							}else {
-								uploadAnnouncementFileForS3(announcement, file);
+								byte [] byteArr=file.getBytes();
+								logger.info("ins.hex0--->"+Integer.toHexString(Byte.toUnsignedInt(byteArr[0])));
+								logger.info("ins.hex1--->"+Integer.toHexString(Byte.toUnsignedInt(byteArr[1])));
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+									uploadAnnouncementFileForS3(announcement, file);
+								} else {
+						        	setError(redirectAttrs, "File Uploaded is not valid");
+									if (typeOfAnn != null) {
+										if ("PROGRAM".equals(typeOfAnn)) {
+											return "redirect:/addAnnouncementFormMultiProgram";
+										}
+									}
+						        }
+								
+//								DataInputStream ins = new DataInputStream(new BufferedInputStream(file.getInputStream()));
+//							    try {
+//							    	logger.info("ins.hex1--->"+Integer.toHexString(ins.readUnsignedByte()));
+//							    	
+//							    	
+//							        if (ins.readInt() == 0xffd8ffe0) {
+//							        	
+//							        } else {
+//							        	setError(redirectAttrs, "File Uploaded is not valid");
+//										if (typeOfAnn != null) {
+//											if ("PROGRAM".equals(typeOfAnn)) {
+//												return "redirect:/addAnnouncementFormMultiProgram";
+//											}
+//										}
+//							        }
+//							    } finally {
+//							        ins.close();
+//							    }
+								
 							}
 						}
 					}else {
@@ -3212,7 +3325,30 @@ public class AnnouncementController extends BaseController {
 								}
 								return "redirect:/addAnnouncementForm";
 							}else {
-								errorMessage = uploadAnnouncementFileForS3(announcement, file);
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+									errorMessage = uploadAnnouncementFileForS3(announcement, file);
+								} else {
+									setError(redirectAttrs, "File Uploaded is not valid");
+									if (typeOfAnn != null) {
+										if ("PROGRAM".equals(typeOfAnn)) {
+											return "redirect:/addAnnouncementFormMultiProgram";
+										}
+									}
+									return "redirect:/addAnnouncementForm";
+								}
 							}
 						}
 					}else {
@@ -3693,7 +3829,30 @@ public class AnnouncementController extends BaseController {
 								}
 								return "redirect:/addAnnouncementForm";
 							}else {
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 								uploadAnnouncementFileForS3(announcement, file);
+								} else {
+									setError(redirectAttrs, "File uploaded is invalid!");
+									if(typeOfAnn!=null){
+										if("PROGRAM".equals(typeOfAnn)){
+											return "redirect:/addTimeTableForm";
+										}
+									}
+									return "redirect:/addAnnouncementForm";
+								}
 							}
 						}
 					}else {
