@@ -743,8 +743,36 @@ window.submitForm = function submitForm(formId, feedbackId, btnId) {
 		
 	 	$.post('addStudentFeedbackCommentsForCourse?feedbackId='+feedbackId,$('#' + formId).serialize()).then(
 				function(response) {
+					if(response.errorMessage=="success"){
+						$('.alertWrapper').removeClass('d-none');
+					    $('.alert-text').html('Your Feedback Is Completed!');
+					    $('.alert-ok').html('Ok');
+					    $('.alert-close').addClass('d-none');
+					    
+					     $('.alert-ok').click(function(){
+					    	console.log('alert ok clicked'); 
+					    	window.location = "${pageContext.request.contextPath}/viewFeedbackDetails";
+					    });
+	 					
+						$("#feedbackSuccess").show(100);
+						$("#feedbackError").hide();
+					} else {
+							$('.alertWrapper').removeClass('d-none');
+						    $('.alert-text').html(response.errorMessage);
+						    $('.alert-ok').html('Ok');
+						    $('.alert-close').addClass('d-none');
+						    
+						     $('.alert-ok').click(function(){
+						    	console.log('alert ok clicked'); 
+						    });
+		 					
+							$("#feedbackSuccess").hide();
+							$("#feedbackError").show(100);
+					}
 					
-				}).done(function(response) {
+				})
+				/* .done(function(response) {
+					console.log("response 2 is " + response);
 					//swal('SUCCESS!',' Your Feedback Is Completed', 'success');
 					
 					 
@@ -754,7 +782,7 @@ window.submitForm = function submitForm(formId, feedbackId, btnId) {
 					    type: "success"
 					}).then(function() {
 					    window.location = "${pageContext.request.contextPath}/viewFeedbackDetails";
-					}); */
+					}); 
 					
 					
 					$('.alertWrapper').removeClass('d-none');
@@ -772,7 +800,8 @@ window.submitForm = function submitForm(formId, feedbackId, btnId) {
 			if (response){
 				location.reload();
 			}
-		}).fail(function(xhr, status, error) {
+		}) */
+		.fail(function(xhr, status, error) {
 			$("#feedbackError").show(100);
 			$("#feedbackSuccess").hide();
 		}).always(function() {
@@ -789,21 +818,28 @@ window.submitForm = function submitForm(formId, feedbackId, btnId) {
 						//{ courseId: courseId, feedbackId : feedbackId}
 					 	$.post('addStudentFeedbackResponseForCourse?feedbackId='+feedbackId,$('#' + formId).serialize()).then(
 								function(response) {
+									if(response.errorMessage=="success"){
+									    myfunction();
+									}
+									else {
+										$('.alertWrapper').removeClass('d-none');
+									    $('.alert-text').html(response.errorMessage);
+									    $('.alert-ok').html('Ok');
+									    $('.alert-close').addClass('d-none');
+									}
 									
 								}).done(function(response) {
 									
 									$("#feedbackSuccess").show(100);
 									$("#feedbackError").hide();
-							if (response){
+							/* if (response){
 								location.reload();
-							}
+							} */
 						}).fail(function(xhr, status, error) {
 							$("#feedbackError").show(100);
 							$("#feedbackSuccess").hide();
 						}).always(function() {
 						});
-				   
-					 	myfunction();
 		  }
 		 else {  
 			 

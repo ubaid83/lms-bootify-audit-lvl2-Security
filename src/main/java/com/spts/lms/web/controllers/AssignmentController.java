@@ -374,7 +374,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -553,7 +556,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -1189,7 +1195,10 @@ public class AssignmentController extends BaseController {
 		if(null == course) {
 			throw new ValidationException("Invalid Course selected.");
 		}
-		BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+		if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+			throw new ValidationException("Invalid Input.");
+		}
+//		BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 		BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 		BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 		if(!multipleAssignmentErrorMsg.equals("Success")) {
@@ -3617,7 +3626,10 @@ public class AssignmentController extends BaseController {
 				if(null == course) {
 					throw new ValidationException("Invalid Course selected.");
 				}
-				BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+				if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+					throw new ValidationException("Invalid Input.");
+				}
+//				BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 				BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 				BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 				BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -4377,7 +4389,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -4994,7 +5009,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());

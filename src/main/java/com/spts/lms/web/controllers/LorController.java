@@ -82,6 +82,9 @@ import com.spts.lms.services.notification.Notifier;
 import com.spts.lms.services.program.ProgramService;
 import com.spts.lms.services.user.UserRoleService;
 import com.spts.lms.services.user.UserService;
+import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 @Controller
 public class LorController extends BaseController {
@@ -127,6 +130,12 @@ public class LorController extends BaseController {
 
 	@Autowired
 	Notifier notifier;
+	
+	@Autowired
+	BusinessBypassRule businessBypassRule;
+	
+	@Autowired
+	Utils Utils;
 
 	Client client = ClientBuilder.newClient();
 	private static final Logger logger = Logger.getLogger(LorController.class);
@@ -864,8 +873,8 @@ public class LorController extends BaseController {
 	@RequestMapping(value = "/lorApplicationForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String lorApplicationForm(@ModelAttribute LorRegDetails lorRegDetails,
 			@ModelAttribute LorRegStaff lorRegStaff, Model m, Principal principal) {
-
-		String username = principal.getName();
+            System.out.println("INSIDE LOR APPLICATION>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");	
+         String username = principal.getName();
 
 		User u = userService.findByUserName(username);
 		m.addAttribute("userdetails", u);
@@ -888,11 +897,42 @@ public class LorController extends BaseController {
 			@ModelAttribute LorRegStaff lorRegStaff, @RequestParam(name = "file1") MultipartFile examMarksheet,
 			@RequestParam(name = "file2") MultipartFile toeflOrIeltsMarksheet, RedirectAttributes redirect,
 			Principal principal) {
+		 String username = principal.getName();
 		try {
+			
 			logger.info("lorRegDetails--->" + lorRegDetails);
 			logger.info("lorRegStaff--->" + lorRegStaff);
+		    
+			if(lorRegDetails.getUsername() == null ||lorRegDetails.getUsername().isEmpty() )
+		    {
+				 throw new ValidationException("Input field cannot be empty");	
+			}
+	    	//  BusinessBypassRule.validateNumeric(lorRegDetails.getUsername());
+	    	//  BusinessBypassRule.validateString(lorRegDetails.getName());
+	    	//  BusinessBypassRule.validateEmail(lorRegDetails.getEmail());
+	    	//  BusinessBypassRule.validateNumeric(lorRegDetails.getMobile());
+			
+			 User u = userService.findByUserName(username);
+			 
+			 System.out.println("Users>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:U:"+u);
+			 lorRegDetails.setUsername(username);
+			 lorRegDetails.setEmail(u.getEmail());
+			 lorRegDetails.setMobile(u.getMobile());
+			 lorRegDetails.setName(u.getFirstname()+" "+u.getLastname());
+		      BusinessBypassRule.validateNumeric(lorRegDetails.getProgramEnrolledId());
+		      
+	    	  BusinessBypassRule.validateString(lorRegDetails.getCountryForHigherStudy());
+	    	  BusinessBypassRule.validateString(lorRegDetails.getUniversityName());
+	    	  System.out.println("Program :>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+lorRegDetails.getProgramToEnroll());
+	          BusinessBypassRule.validateAlphaNumeric(lorRegDetails.getProgramToEnroll());
+	          
+	          System.out.println("Tentative Date Of Joining :>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+lorRegDetails.getTentativeDOJ());
+	          Utils.validateDate(lorRegDetails.getTentativeDOJ());
+	          BusinessBypassRule.validateYesOrNo(lorRegDetails.getIsNmimsPartnerUniversity());
+	    	  
+	    	
 			List<String> userList = new ArrayList<String>();
-			String username = principal.getName();
+			String uname = principal.getName();    //rename username to uname 
 			String errorMessage = "";
 			String examMarksheetFilePath = "";
 			String toeflOrIeltsMarksheetFilePath = "";
@@ -932,11 +972,12 @@ public class LorController extends BaseController {
 					return "redirect:/viewAppliedApplicationStudentsForStaff";
 				}
 			}
-
+         
 			lorRegDetails.setExamMarksheet(examMarksheetFilePath);
 			lorRegDetails.setToeflOrIeltsMarksheet(toeflOrIeltsMarksheetFilePath);
-			lorRegDetails.setCreatedBy(username);
-			lorRegDetails.setLastModifiedBy(username);
+			lorRegDetails.setCreatedBy(uname);
+			lorRegDetails.setLastModifiedBy(uname);//here 
+            System.out.println("LORREGISTRATIONDETAILS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+lorRegDetails);
 			lorRegDetailsService.insertWithIdReturn(lorRegDetails);
 			Long lorId = lorRegDetails.getId();
 			String[] staffIds = lorRegStaff.getStaffId().split(",");
@@ -954,13 +995,13 @@ public class LorController extends BaseController {
 				lorRegStaffs.setDepartment(lorRegStaff.getDepartment());
 				lorRegStaffs.setLorRegId(lorId);
 				lorRegStaffs.setStaffId(staffIdStr);
-				lorRegStaffs.setCreatedBy(username);
-				lorRegStaffs.setLastModifiedBy(username);
-				lorRegStaffService.insert(lorRegStaffs);
+				lorRegStaffs.setCreatedBy(uname);
+				lorRegStaffs.setLastModifiedBy(uname);
+				lorRegStaffService.insert(lorRegStaffs);//here
 				userList.add(staffIdStr.replace("_STAFF", ""));
 			}
 		//	User user = userService.findByUserName(username);
-			User user = userService.findByUserName(username);
+			User user = userService.findByUserName(uname);
 			String subject = " LOR APPLICATION ";
 			StringBuffer notificationEmailMessage = new StringBuffer("");
 
@@ -995,11 +1036,18 @@ public class LorController extends BaseController {
 
 					Map<String, String> mobiles = new HashMap();
 					// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
+				    notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 				}
 			}
 
-		} catch (Exception e) {
+		} 
+		catch (ValidationException e) {
+			logger.error(e);
+			setError(redirect,e.getMessage() );
+			return "redirect:/lorApplicationForm";
+		}
+		
+		catch (Exception e) {
 			logger.error(e);
 			setError(redirect, "Error in Submitting form");
 			return "redirect:/lorApplicationForm";

@@ -7,7 +7,7 @@
        
             <div class="modal-content modal-content-marksheet">
                <div class="">
-       
+       <jsp:include page="../common/alert.jsp" />
         <button type="button" class="close text-dark" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>

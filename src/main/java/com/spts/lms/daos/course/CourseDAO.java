@@ -1384,6 +1384,9 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 		if(columnName.equals("programId")) {
 			sql = "select * from course where programId=? limit 1";
 		}
+		if(columnName.equals("acadMonth")) {
+			sql = "select * from course where acadMonth=? limit 1";
+		}
 		return findOneSQL(sql, new Object[] {value});
 	}
 

@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -97,7 +98,9 @@ import com.spts.lms.services.studentConfirmation.studentDetailConfirmationServic
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.controllers.BaseController;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 import java.io.*;
 
@@ -233,6 +236,25 @@ public class studentDetailConfirmationPeriodController extends BaseController {
 		logger.info("sendEmailAlert---------->" + sendEmailAlert);
 		logger.info("semester---------->" + acadSession);
 		
+		
+		try {
+		Utils.validateDate(endDate + " 00:00:00");
+		Course checkIfProgramExistsInDB = courseService.checkIfExistsInDB("programId", programId);
+		if(checkIfProgramExistsInDB==null) {
+			throw new ValidationException("Invalid Program");
+		}
+		if(sendEmailAlert==null) {
+			sendEmailAlert="N";
+		}
+		BusinessBypassRule.validateYesOrNo(sendEmailAlert);
+		Course checkIfCampusExistsInDB = courseService.checkIfExistsInDB("campusId", campusId);
+		if(checkIfCampusExistsInDB==null) {
+			throw new ValidationException("Invalid Campus");
+		}
+		Course checkIfAcadSessionExistsInDB = courseService.checkIfExistsInDB("acadSession", acadSession);
+		if(checkIfAcadSessionExistsInDB==null) {
+			throw new ValidationException("Invalid Semester");
+		}
 		
 	
 		
@@ -375,7 +397,7 @@ public class studentDetailConfirmationPeriodController extends BaseController {
 		
 		// Email For Program wise
 
-		try {
+		 //try was here
 
 			// For Date Wise And Program Wise
 		
@@ -439,7 +461,15 @@ public class studentDetailConfirmationPeriodController extends BaseController {
 				}
 			}
 
-		} catch (Exception e) {
+		}
+		catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(r, ve.getMessage());
+			return "redirect:/createStudentDetails";
+			
+		}
+		
+		catch (Exception e) {
 			logger.error("Exception", e);
 		}
 

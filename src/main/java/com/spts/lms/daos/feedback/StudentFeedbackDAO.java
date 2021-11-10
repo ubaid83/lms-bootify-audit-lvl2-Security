@@ -465,7 +465,7 @@ public class StudentFeedbackDAO extends BaseDAO<StudentFeedback> {
 			String acadMonth) {
 		final String sql = "select uc.username, u.firstname, u.lastname,uc.acadMonth,uc.acadYear,uc.courseId,auc.username as facultyId "
 				+ " from course c ,user_course uc ,user_course auc, users u, program p where c.id = uc.courseId and uc.username = u.username and auc.courseId =uc.courseId  "
-				+ " and uc.role ='ROLE_STUDENT' and auc.role='ROLE_FACULTY' and auc.active='Y' and uc.active='Y' and u.active='Y' and u.enabled = 1 and  "
+				+ " and u.campusId = c.campusId and uc.role ='ROLE_STUDENT' and auc.role='ROLE_FACULTY' and auc.active='Y' and uc.active='Y' and u.active='Y' and u.enabled = 1 and  "
 				+ " c.programId= p.id and p.id=? and u.campusId = ? and c.acadYear = ? and c.acadMonth = ? ";
 
 		return findAllSQL(sql, new Object[] { programId, campusId, acadYear,
@@ -784,7 +784,7 @@ public class StudentFeedbackDAO extends BaseDAO<StudentFeedback> {
 			String acadMonth, String campusId) {
 		final String sql = " select uc.username, u.firstname, u.lastname,uc.acadMonth,uc.acadYear,uc.courseId,auc.username as facultyId "
 				+ " from course c ,user_course uc ,user_course auc, users u,program p where c.id = uc.courseId and uc.username = u.username "
-				+ " and auc.courseId =uc.courseId  and uc.role ='ROLE_STUDENT' and  c.acadYear=uc.acadYear and c.acadMonth=uc.acadMonth and  "
+				+ " and auc.courseId =uc.courseId  and u.campusId = c.campusId and uc.role ='ROLE_STUDENT' and  c.acadYear=uc.acadYear and c.acadMonth=uc.acadMonth and  "
 				+ " c.programId=p.id and p.id= ? and auc.role='ROLE_FACULTY' AND auc.active = 'Y' and uc.active ='Y' and u.active ='Y' "
 				+ " and u.enabled = 1 and uc.acadSession= ? and uc.acadYear = ? and uc.acadMonth = ? "
 				+ " and u.campusId = ? and (c.moduleCategoryName <> 'Coursera' or c.moduleCategoryName is NULL) ";
