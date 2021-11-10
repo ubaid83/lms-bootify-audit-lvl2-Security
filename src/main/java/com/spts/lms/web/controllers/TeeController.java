@@ -34,6 +34,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.spts.lms.web.utils.ValidationException;
 
 import org.apache.commons.httpclient.URIException;
@@ -109,6 +110,7 @@ import com.spts.lms.services.tee.TeeTotalMarksService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 
 @Controller
@@ -257,6 +259,7 @@ public class TeeController extends BaseController {
 		try {
 			
 			logger.info("Validating /addTee...");
+			HtmlValidation.validateHtml(teeBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(teeBean.getTeeName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", teeBean.getAcadYear());
 			if(acadYear == null) {
@@ -1388,6 +1391,8 @@ public class TeeController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String username = principal.getName();
 		try {
+			HtmlValidation.checkHtmlCode(id);
+			HtmlValidation.checkHtmlCode(query);
 			
 			BusinessBypassRule.validateAlphaNumeric(query);
 			int updated = teeTotalMarksService.updateRaiseQuery(id, username, query);
@@ -1877,6 +1882,7 @@ public class TeeController extends BaseController {
 		try {
 
 			logger.info("Validating /addTeeForDivision...");
+			HtmlValidation.validateHtml(teeBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(teeBean.getTeeName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", teeBean.getAcadYear());
 			if(acadYear == null) {

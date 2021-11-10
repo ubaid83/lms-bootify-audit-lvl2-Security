@@ -88,6 +88,7 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.SortByCreatedDate;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.UnzipUtil;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
@@ -812,8 +813,8 @@ public class ContentController extends BaseController {
 		File file = null;
 		try {
 			
-			
-			
+				
+				HtmlValidation.validateHtml(content, new ArrayList<>());
 				businessBypassRule.validateAlphaNumeric(content.getContentName());
 				businessBypassRule.validateNumeric(idForCourse);
 				Course course=courseService.findByID(Long.valueOf(idForCourse));
@@ -1288,7 +1289,7 @@ public class ContentController extends BaseController {
 		logger.info("ModuleID---->" + content.getModuleId());
 
 		try {
-
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			businessBypassRule.validateAlphaNumeric(content.getContentName());
 			businessBypassRule.validateNumeric(idForModule);
 			Course course=courseService.findByID(Long.valueOf(idForModule));
@@ -1440,7 +1441,7 @@ public class ContentController extends BaseController {
 //				return "redirect:/addContentForm";
 //			}
 			/* New Audit changes end */
-
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			if (content.getCourseId() == null) {
 				content.setCourseId(Long.valueOf(idForCourse));
 			}
@@ -1544,6 +1545,7 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		File file1 = null;
 		try {
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			String username = p.getName();
 			performFolderPathCheckForModule(content);
 			/* New Audit changes start */
@@ -1702,6 +1704,7 @@ public class ContentController extends BaseController {
 			@RequestParam(name = "idForCourse", required = false, defaultValue = "") String idForCourse) {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			performFolderPathCheck(content);
 
 			if (file != null && !file.isEmpty()) {
@@ -1815,6 +1818,7 @@ public class ContentController extends BaseController {
 			@RequestParam(name = "idForCourse", required = false, defaultValue = "") String idForCourse) {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			performFolderPathCheck(content);
 			Content contentDB = contentService.findByID(content.getId());
 			if (file != null && !file.isEmpty()) {
@@ -1938,7 +1942,7 @@ public class ContentController extends BaseController {
 			@RequestParam(name = "idForCourse", required = false, defaultValue = "") String idForCourse) {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
-
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			logger.info("Contnet idForCourse--------------><" + idForCourse);
 			if (sendAlertsToParents.equalsIgnoreCase("Y")) {
 				content.setSendEmailAlertToParents("Y");
@@ -2005,6 +2009,7 @@ public class ContentController extends BaseController {
 			@RequestParam(name = "acadYear", required = false, defaultValue = "") String acadYear) {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			String username = p.getName();
 			/* New Audit changes start */
 //			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
@@ -2109,6 +2114,7 @@ public class ContentController extends BaseController {
 
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			performFolderPathCheck(content);
 			Course c = null;
 			content.setLastModifiedBy(p.getName());
@@ -2168,6 +2174,7 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 
 		try {
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			String username = p.getName();
 			Content contentForModule = new Content();
 
@@ -3461,6 +3468,7 @@ public String studentContentList(@ModelAttribute Content content, Model m,
 		File file = null;
 		try {
 
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			String courseName = (courseService.findByID(content.getCourseId()))
 					.getCourseName();
 			content.setContentName(courseName + " "

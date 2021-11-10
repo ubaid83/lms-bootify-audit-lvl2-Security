@@ -133,6 +133,7 @@ import com.spts.lms.services.test.TestService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -328,6 +329,7 @@ public class IcaController extends BaseController {
 		
 		try {
 			logger.info("Validating /addIca...");
+			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
@@ -533,6 +535,7 @@ public class IcaController extends BaseController {
 		try {
 			
 			logger.info("Validating /updateIca...");
+			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
@@ -4832,6 +4835,7 @@ public class IcaController extends BaseController {
 		try {
 			/* New Audit changes start */
 			logger.info("Validating /addIcaForDivision...");
+			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
@@ -5737,6 +5741,7 @@ public class IcaController extends BaseController {
 
 		try {
 			logger.info("Validating /addIcaForNonEventModules...");
+			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
@@ -6228,6 +6233,7 @@ public class IcaController extends BaseController {
 
 		try {
 			logger.info("Validating /addNonCreditIca...");
+			HtmlValidation.validateHtml(nsBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(nsBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", nsBean.getAcadYear());
 			if(acadYear == null) {
@@ -8345,6 +8351,7 @@ public class IcaController extends BaseController {
 		try {
 			/* New Audit changes start */
 			logger.info("Validating /addIcaCoursera...");
+			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
@@ -10407,6 +10414,11 @@ public class IcaController extends BaseController {
 		}
 		try {
 			logger.info("Raising Query...");
+			HtmlValidation.checkHtmlCode(id);
+			HtmlValidation.checkHtmlCode(compId);
+			HtmlValidation.checkHtmlCode(query);
+			
+			
 			BusinessBypassRule.validateAlphaNumeric(query);
 			
 			IcaBean icaBean = icaBeanService.findByID(Long.valueOf(id));

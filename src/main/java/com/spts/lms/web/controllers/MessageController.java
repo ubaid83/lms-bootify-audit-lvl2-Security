@@ -2,6 +2,7 @@ package com.spts.lms.web.controllers;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -36,6 +37,7 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -144,7 +146,7 @@ public class MessageController extends BaseController {
 		
 		//changes 25-10-2021 for create msg
 		try {
-
+			HtmlValidation.validateHtml(message, Arrays.asList("description"));
 			message.setCreatedBy(username);
 			message.setLastModifiedBy(username);
 			message.setFacultyId(username);
@@ -215,6 +217,7 @@ public class MessageController extends BaseController {
 		m.addAttribute("webPage", new WebPage("updateMessage",
 				"Message Details", false, false));
 		try {
+			HtmlValidation.validateHtml(message, Arrays.asList("description"));
 			String username = principal.getName();
 			Message messageDb = messageService.findByID(message.getId());
 			messageDb = LMSHelper.copyNonNullFields(messageDb, message);
@@ -293,7 +296,7 @@ public class MessageController extends BaseController {
 		String username = principal.getName();
 		ArrayList<StudentMessage> studentMessageMappingList = new ArrayList<StudentMessage>();
 		try {
-			
+			HtmlValidation.validateHtml(message, Arrays.asList("description"));
 			List<String> msg = message.getStudents();
 			if (msg != null && msg.size() > 0) {
 				for (String studentname : message.getStudents()) {
@@ -512,7 +515,7 @@ public class MessageController extends BaseController {
 	     String reply =	message.getMessageReply();
 		System.out.println("<<<<<<<<<<<<<<<<<<Reply to message>>>>>>>>>>>>>>"+reply);
 		try {
-			
+			HtmlValidation.validateHtml(message, Arrays.asList("description"));
 		 if(subject == null ||subject.isEmpty()) {
 		    	 throw new ValidationException("Subject Can't be blank");
 		     }

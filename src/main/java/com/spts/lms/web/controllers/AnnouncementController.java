@@ -2662,7 +2662,7 @@ public class AnnouncementController extends BaseController {
 			@RequestParam(name="admincourseId",required = false) String admincourseId,
 			@RequestParam(required = false) String typeOfAnn) {
 
-		logger.info("Announcemnet---" + announcement.getProgramIds());
+		
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
@@ -2696,7 +2696,8 @@ public class AnnouncementController extends BaseController {
 		List<String> parentList = new ArrayList<String>();
 		
 		try {
-		Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
+			HtmlValidation.validateHtml(announcement, Arrays.asList("description"));
+			Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
 			
 			if(semdata.toString().isEmpty() || null==semdata)
 			{
@@ -2715,6 +2716,7 @@ public class AnnouncementController extends BaseController {
 			}
 			for(String programId:announcement.getProgramIds())
 			{
+				HtmlValidation.checkHtmlCode(programId);
 				businessBypassRule.validateNumeric(programId.toString());
 				Course Programdata=courseService.checkIfExistsInDB("programId", programId);
 				if(Programdata.toString().isEmpty() || null==Programdata)
@@ -2736,6 +2738,7 @@ public class AnnouncementController extends BaseController {
 
 			for(String courseId:courseList)
 			{
+				HtmlValidation.checkHtmlCode(courseId);
 				businessBypassRule.validateNumeric(courseId);
 				Course course=courseService.findByID(Long.valueOf(courseId));
 				if(course.toString().isEmpty() || null==course)
