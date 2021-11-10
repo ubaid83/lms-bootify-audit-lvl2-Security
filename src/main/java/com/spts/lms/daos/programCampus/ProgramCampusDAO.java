@@ -158,5 +158,10 @@ public class ProgramCampusDAO extends BaseDAO<ProgramCampus> {
 
 		return findAllSQL(sql, new Object[] {});
 	}
+
+	public ProgramCampus checkIfCampusExists(Long campusId) {
+		String sql = " SELECT distinct campusId from program_campus where campusId=?";
+		return findOneSQL(sql, new Object[] {campusId});
+	}
 	
 }

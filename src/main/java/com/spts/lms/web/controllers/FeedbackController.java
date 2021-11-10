@@ -73,7 +73,9 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 
 @Controller
@@ -180,6 +182,12 @@ public class FeedbackController extends BaseController {
 
 			Token userdetails1 = (Token) principal;
 			String ProgramName = userdetails1.getProgramName();
+			
+			logger.info("INSIDE /addFeedback");
+			BusinessBypassRule.validateAlphaNumeric(feedback.getFeedbackName());
+			logger.info("AFTER business By pass");
+			logger.info("feedback.getFeedbackType() is " + feedback.getFeedbackType());
+			validateFeedbackType(feedback.getFeedbackType());
 			User u = userService.findByUserName(username);
 
 			String acadSession = u.getAcadSession();
@@ -223,12 +231,27 @@ public class FeedbackController extends BaseController {
 			 * uploadFinalFeedbackQuestion(feedback, feedbackQuestionFile, m, redirectAttrs,
 			 * principal);
 			 */
-		} catch (Exception e) {
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addFeedbackForm";
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in adding Feedback");
 			return "redirect:/addFeedbackForm";
 		}
 		return "redirect:/viewFeedbackDetails";
+	}
+	
+	//Peter 27/10/2021
+	public void validateFeedbackType(String s) throws ValidationException{
+		if (s == null || s.trim().isEmpty()) {
+			 throw new ValidationException("Input field cannot be empty");
+		 }
+		if(!s.equalsIgnoreCase("Mid-Term") && !s.equalsIgnoreCase("End-Term") && !s.equalsIgnoreCase("IT Feedback")) {
+			throw new ValidationException("Invalid Assignment Type.");
+		}
 	}
 
 	@Secured("ROLE_ADMIN")
@@ -342,6 +365,9 @@ public class FeedbackController extends BaseController {
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		try {
+			
+			BusinessBypassRule.validateAlphaNumeric(feedback.getFeedbackName());
+			validateFeedbackType(feedback.getFeedbackType());
 
 			Feedback feedbackFromDb = feedbackService.findByID(feedback.getId());
 			String oldFeedType = feedbackFromDb.getFeedbackType();
@@ -688,13 +714,16 @@ public class FeedbackController extends BaseController {
 			// studentFeedbackService.getStudentFeedbackIdByCourseAndFeedbackId(courseId,feedbackId,username);
 
 			List<FeedbackQuestion> feedbackQuestion = feedback.getFeedbackQuestions();
+			
 
 			List<StudentFeedbackResponse> sfrList = new ArrayList<>();
 			feedback.setId(Long.valueOf(feedbackId));
 			logger.info("feedback questions size---" + feedbackQuestion.size());
 			StudentFeedbackResponse studentFeedbackResponse = new StudentFeedbackResponse();
 			for (FeedbackQuestion fq : feedbackQuestion) {
-
+				logger.info("fq.getStudentFeedbackResponse() is " + fq.getStudentFeedbackResponse());
+				logger.info("fq.getStudentFeedbackResponse().getAnswer(); is " + fq.getStudentFeedbackResponse().getAnswer());
+				BusinessBypassRule.validateNumeric(fq.getStudentFeedbackResponse().getAnswer());
 				studentFeedbackResponse = fq.getStudentFeedbackResponse();
 				studentFeedbackResponse.setUsername(username);
 
@@ -719,7 +748,7 @@ public class FeedbackController extends BaseController {
 				}
 
 			}
-
+			studentFeedbackResponse.setErrorMessage("success");
 			setSuccess(redirectAttrs, "feedback saved successfully");
 			//
 			// return "redirect:/giveStudentFeedback?feedbackId=" +
@@ -727,7 +756,14 @@ public class FeedbackController extends BaseController {
 
 			return studentFeedbackResponse;
 
-		} catch (Exception e) {
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			StudentFeedbackResponse studentFeedbackResponse = new StudentFeedbackResponse();
+			studentFeedbackResponse.setErrorMessage(ve.getMessage());
+			return studentFeedbackResponse;
+		} 
+		
+		catch (Exception e) {
 			logger.info("error" + e);
 			setError(m, "Error in saving question");
 			return null;
@@ -1645,7 +1681,12 @@ public class FeedbackController extends BaseController {
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		try {
-
+			logger.info("feedbackQuestion.getDescription() is " + feedbackQuestion.getDescription());
+			BusinessBypassRule.validateAlphaNumeric(feedbackQuestion.getDescription());
+			boolean typeIsValid = feedbackQuestion.getType().equals("SINGLESELECT");
+			if(!typeIsValid) {
+				throw new ValidationException("Invalid Type Selected");
+			}
 			feedbackQuestion.setCreatedBy(username);
 			feedbackQuestion.setLastModifiedBy(username);
 
@@ -1661,6 +1702,11 @@ public class FeedbackController extends BaseController {
 
 			setSuccess(redirectAttrs, "Question added successfully");
 
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addFeedbackQuestionForm";
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in adding Question");
@@ -1671,7 +1717,7 @@ public class FeedbackController extends BaseController {
 
 	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = "/updateFeedbackQuestion", method = RequestMethod.POST)
-	public String updateFeedbackQuestion(@ModelAttribute Feedback feedback, RedirectAttributes redirectAttrs,
+	public String updateFeedbackQuestion(@ModelAttribute Feedback feedback, @RequestParam String feedbackId, RedirectAttributes redirectAttrs,
 			Principal principal, Model m) {
 		FeedbackQuestion feedbackQuestion = feedback.getFeedbackQuestions()
 				.get(feedback.getFeedbackQuestions().size() - 1);
@@ -1686,6 +1732,15 @@ public class FeedbackController extends BaseController {
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		try {
+			logger.info("feedbackQuestion.getDescription() is " + feedbackQuestion.getDescription());
+			logger.info("feedbackQuestion.getType() is " + feedbackQuestion.getType());
+			
+			BusinessBypassRule.validateAlphaNumeric(feedbackQuestion.getDescription());
+//			BusinessBypassRule.validateAlphaNumeric("");
+			boolean typeIsValid = feedbackQuestion.getType().equals("SINGLESELECT");
+			if(!typeIsValid) {
+				throw new ValidationException("Invalid Type Selected");
+			}
 			FeedbackQuestion feedbackQuestionFromDb = feedbackQuestionService.findByID(feedbackQuestion.getId());
 			redirectAttrs.addAttribute("feedbackId", feedbackQuestionFromDb.getFeedbackId());
 
@@ -1704,7 +1759,14 @@ public class FeedbackController extends BaseController {
 			else
 				setError(redirectAttrs, "Feedback Question cannot be updated");
 
-		} catch (Exception e) {
+		}	catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			redirectAttrs.addAttribute("feedbackId", feedbackId);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addFeedbackQuestionForm";
+		} 
+		
+		catch (Exception e) {
 
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating Feedback Question");
@@ -1726,6 +1788,9 @@ public class FeedbackController extends BaseController {
 
 			for (FeedbackQuestion fq : feedbackQuestion) {
 
+				if(!fq.getStudentFeedbackResponse().getComments().isEmpty()) {
+					BusinessBypassRule.validateAlphaNumeric(fq.getStudentFeedbackResponse().getComments());
+				}
 				studentFeedbackResponse = fq.getStudentFeedbackResponse();
 
 				StudentFeedback studFeedback = studentFeedbackService.findByID(
@@ -1737,12 +1802,20 @@ public class FeedbackController extends BaseController {
 				studentFeedbackService.upsert(studFeedback);
 
 			}
-
+			studentFeedbackResponse.setErrorMessage("success");
 			setSuccess(redirectAttrs, "feedback saved successfully");
+			
 
 			return studentFeedbackResponse;
 
-		} catch (Exception e) {
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			StudentFeedbackResponse studentFeedbackResponse = new StudentFeedbackResponse();
+			studentFeedbackResponse.setErrorMessage(ve.getMessage());
+			return studentFeedbackResponse;
+		} 
+		
+		catch (Exception e) {
 			logger.info("error" + e);
 			setError(m, "Error in saving question");
 			return null;

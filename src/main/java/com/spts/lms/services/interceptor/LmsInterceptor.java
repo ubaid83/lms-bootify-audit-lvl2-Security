@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.spts.lms.beans.UserLog;
-import com.spts.lms.daos.MongoDAO;
 import com.spts.lms.web.utils.Utils;
 
 public class LmsInterceptor extends HandlerInterceptorAdapter{
@@ -53,7 +51,7 @@ public class LmsInterceptor extends HandlerInterceptorAdapter{
 	            modelMap.put(parameterName, request.getParameter(parameterName));
 	        }
 			System.out.println("Parameter--->"+modelMap);
-			UserLog userLog = new UserLog();
+//			UserLog userLog = new UserLog();
 			String currDate = Utils.formatDate("dd-MM-yyyy HH:mm:ss", Utils.getInIST());
 //			try {
 //				String username = request.getUserPrincipal().getName();
