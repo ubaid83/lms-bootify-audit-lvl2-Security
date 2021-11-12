@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,7 @@ public class BusinessBypassRule {
 
 	     Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-.]");
 
-
+	     
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
 	     System.out.println("b--"+b);
@@ -40,9 +42,10 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Special characters are not allowed to enter except underscore(_) and hyphen(-).");
 	     }
 	 }
-	
+
 	public static void validateYesOrNo(String s) throws ValidationException{
 		logger.info("String is " + s);
+
 		if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
@@ -72,7 +75,9 @@ public class BusinessBypassRule {
 		if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
+
 		Pattern p = Pattern.compile("[^0-9.]");
+
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
 	     if(b || Double.valueOf(s) < 0.0) {
@@ -132,5 +137,33 @@ public class BusinessBypassRule {
 		throw new ValidationException("Invalid date selected.");
 		}
 		}
+
+	/*******By sandip 25/10/2021*******/
+
+	public void validateFile(MultipartFile file) throws ValidationException {
+		// TODO Auto-generated method stub
+		if (file == null || file.isEmpty()) {
+	    	 throw new ValidationException("Input field cannot be empty");
+	     }
+	}
+	
+
+	public static void validateRemarks(String s) throws ValidationException{
+	     if (s == null || s.trim().isEmpty()) {
+	    	 throw new ValidationException("Input field cannot be empty");
+	     }
+	     s = s.replaceAll("-", "");
+	     s = s.replaceAll("_", "");
+	     s = s.replaceAll("\\+", "");
+	     Pattern p = Pattern.compile("[^A-Za-z0-9-+ ]");
+	     Matcher m = p.matcher(s);
+	     boolean b = m.find();
+	     if(b) {
+	    	 throw new ValidationException("Special characters are not allowed.");
+	     }
+	 }
+	
+	/*******By sandip 25/10/2021*******/
+
 }
 

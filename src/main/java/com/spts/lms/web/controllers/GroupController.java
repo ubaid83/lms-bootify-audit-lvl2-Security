@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.amazonaws.services.applicationautoscaling.model.ValidationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spts.lms.auth.Token;
@@ -45,6 +46,7 @@ import com.spts.lms.services.group.StudentGroupService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 
 @Controller
 @SessionAttributes("userId")
@@ -73,6 +75,9 @@ public class GroupController extends BaseController {
 	@Autowired
 	GroupCourseService groupCourseService;
 
+	@Autowired
+	BusinessBypassRule businessBypassRule;
+
 	protected static final int BUFFER_SIZE = 4096;
 
 	private static final Logger logger = Logger
@@ -94,10 +99,9 @@ public class GroupController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		if (courseId == null) {
@@ -105,11 +109,12 @@ public class GroupController extends BaseController {
 			if (request.getSession().getAttribute("courseRecord") == null
 					|| request.getSession().getAttribute("courseRecord")
 							.equals("")) {
-				
+
 			} else {
 				request.getSession().removeAttribute("courseRecord");
 			}
 		}
+
 		List<String> students = new ArrayList<String>();
 		List<Course> courses = new ArrayList<Course>();
 
@@ -135,10 +140,10 @@ public class GroupController extends BaseController {
 						&& (students.size() == studentList.size())) {
 					students.removeAll(studentList);
 					if (students.isEmpty()) {
-						
+
 						courses.add(c);
 					} else {
-						
+
 					}
 				}
 
@@ -190,7 +195,7 @@ public class GroupController extends BaseController {
 	 * 
 	 * return "redirect:/searchFacultyGroups?courseId=" + courseId; }
 	 */
-	
+
 	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/deleteGroup", method = { RequestMethod.GET,
 			RequestMethod.POST })
@@ -237,8 +242,18 @@ public class GroupController extends BaseController {
 			groups.setFacultyId(username);
 			groups.setActive("Y");
 
-			String idForCourse = groups.getIdForCourse();
+            /*by sandip(22/10/2021)*/
+	        
+			String grouptitle = groups.getGroupName();
+			BusinessBypassRule.validateAlphaNumeric(grouptitle);
 			
+			String noOfstudent = groups.getNoOfStudents();
+			BusinessBypassRule.validateNumeric(noOfstudent);
+			
+			/*by sandip(22/10/2021)*/
+			
+			String idForCourse = groups.getIdForCourse();
+
 			if (idForCourse != null) {
 				groups.setCourse(courseService.findByID(Long
 						.valueOf(idForCourse)));
@@ -265,17 +280,32 @@ public class GroupController extends BaseController {
 			m.addAttribute("students", students);
 			myId = groups.getMyId();
 			groups.setMyId(groups.getId());
-			
+
 			redirectAttrs.addAttribute("id", groups.getMyId());
 			m.addAttribute("id", groups.getMyId());
 
-		} catch (Exception e) {
+		}
+
+        /*by sandip(22/10/2021)*/
+		catch (ValidationException er) { 
+			// print the stack trace
+			logger.error(er.getMessage(), er);
+			setError(m,er.getMessage());
+			m.addAttribute("webPage", new WebPage("groups", "Create Group", false, false));
+			return "group/createGroup";
+			//String json = "{\"Status\":\"Fail\", \"msg\":\""+er.getMessage()+"\"}";
+			//return json;
+		}
+	  /*by sandip(23/10/2021)*/
+		
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in creating group");
 			m.addAttribute("webPage", new WebPage("groups", "Create Group",
 					false, false));
 			return "group/createGroup";
 		}
+
 		return "redirect:/viewGroup";
 	}
 
@@ -319,7 +349,7 @@ public class GroupController extends BaseController {
 	 * "Error in updating group"); return "redirect:/createGroupForm"; } return
 	 * "group/group"; }
 	 */
-	
+
 	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/updateGroup", method = { RequestMethod.GET,
 			RequestMethod.POST })
@@ -329,16 +359,15 @@ public class GroupController extends BaseController {
 		m.addAttribute("webPage", new WebPage("viewGroup", "Group Details",
 				true, false));
 		try {
-			
+
 			String username = principal.getName();
 
 			Token userdetails1 = (Token) principal;
 			String ProgramName = userdetails1.getProgramName();
 			User u = userService.findByUserName(username);
-			
 
 			String acadSession = u.getAcadSession();
-			
+
 			m.addAttribute("Program_Name", ProgramName);
 			m.addAttribute("AcadSession", acadSession);
 
@@ -358,7 +387,7 @@ public class GroupController extends BaseController {
 			for (String s : courseIDsLsit) {
 				if (groupCourseService.findbyGroupIdAndCourseId(groups.getId(),
 						s) == null) {
-					
+
 					GroupCourse gc = new GroupCourse();
 					gc.setGroupId(groups.getId());
 					gc.setCourseId(s);
@@ -400,22 +429,21 @@ public class GroupController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
 		Groups grpDB = new Groups();
 		grpDB = groupService.findByID(groups.getId());
-		
+
 		List<String> allocatestudents = new ArrayList<String>();
 		ArrayList<StudentGroup> studentGroupMappingList = new ArrayList<StudentGroup>();
 		try {
 			List<StudentGroup> stu = studentGroupService
 					.getStudentsForGroup(groups.getCourseId());
-			
+
 			for (StudentGroup sg : stu) {
 				allocatestudents.add(sg.getUsername());
 			}
@@ -433,7 +461,6 @@ public class GroupController extends BaseController {
 					bean.setLastModifiedBy(username);
 					studentGroupMappingList.add(bean);
 				}
-				
 
 				return viewGroup(groups.getId(), m, null, principal);
 			}
@@ -461,20 +488,19 @@ public class GroupController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
 		Groups grpDB = new Groups();
 		grpDB = groupService.findByID(groups.getId());
-		
+
 		ArrayList<StudentGroup> studentGroupMappingList = new ArrayList<StudentGroup>();
 		try {
 			List<String> stu = groups.getStudents();
-			
+
 			if (stu != null && stu.size() > 0) {
 				for (String studentUsername : groups.getStudents()) {
 					StudentGroup bean = new StudentGroup();
@@ -487,13 +513,13 @@ public class GroupController extends BaseController {
 					bean.setLastModifiedBy(username);
 					studentGroupMappingList.add(bean);
 				}
-				
+
 				int noOfStudentsAllocated = studentGroupService
 						.getNoOfStudentsAllocated(grpDB.getId());
 				int noOfStudentSelected = stu.size();
 				int noOfStudent = Integer.parseInt(grpDB.getNoOfStudents());
 				int totalLimit = noOfStudent - noOfStudentsAllocated;
-				
+
 				if (totalLimit >= noOfStudentSelected) {
 					studentGroupService.insertBatch(studentGroupMappingList);
 					setSuccess(m, "Group created for "
@@ -577,10 +603,9 @@ public class GroupController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
@@ -589,7 +614,7 @@ public class GroupController extends BaseController {
 		if (id != null) {
 
 			groups = groupService.findByID(id);
-			
+
 			m.addAttribute("noOfStudents", groups.getNoOfStudents());
 			m.addAttribute("noOfStudentAllocated",
 					studentGroupService.getNoOfStudentsAllocated(id));
@@ -599,10 +624,10 @@ public class GroupController extends BaseController {
 			if (campusId != null) {
 				groups.setCampusId(campusId);
 				students = studentGroupService.getStudentsForGroupAndCampusId(
-						 groups.getCourseId(), campusId);
+						groups.getCourseId(), campusId);
 			} else {
-				students = studentGroupService.getStudentsForGroupAndCourseId(
-						 groups.getCourseId());
+				students = studentGroupService
+						.getStudentsForGroupAndCourseId(groups.getCourseId());
 			}
 
 			for (StudentGroup uc : students) {
@@ -631,10 +656,9 @@ public class GroupController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		return "group/searchGroup";
@@ -646,7 +670,7 @@ public class GroupController extends BaseController {
 	public String searchGroup(
 			@RequestParam(required = false, defaultValue = "1") int pageNo,
 			Model m, @ModelAttribute Groups groups) {
-		
+
 		m.addAttribute("webPage", new WebPage("groupList", "Search Groups",
 				true, false));
 
@@ -725,7 +749,7 @@ public class GroupController extends BaseController {
 	 * logger.error(e.getMessage(), e); setError(m,
 	 * "Error in getting Group List"); } return "group/facultyGroupList"; }
 	 */
-	
+
 	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/searchFacultyGroups", method = {
 			RequestMethod.GET, RequestMethod.POST })
@@ -735,25 +759,22 @@ public class GroupController extends BaseController {
 			@ModelAttribute Groups groups) {
 		m.addAttribute("webPage", new WebPage("viewGroup", "View Groups", true,
 				false));
-		logger.info("groupCourse ---------->"+ groups.getCourseId());
+		logger.info("groupCourse ---------->" + groups.getCourseId());
 		String username = principal.getName();
 		Token userDetails = (Token) principal;
 
 		String ProgramName = userDetails.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
-
-		
 
 		List<Groups> groupList = new ArrayList<Groups>();
 		if (userDetails.getAuthorities().contains(Role.ROLE_FACULTY)) {
 			groups.setFacultyId(principal.getName());
-			
+
 		}
 		if (courseId == null || courseId.isEmpty()) {
 			if (request.getSession().getAttribute("courseRecord") == null
@@ -761,12 +782,11 @@ public class GroupController extends BaseController {
 							.equals("")) {
 				groupList = groupService.findAllGroupsByFaculty(username,
 						Long.parseLong(userDetails.getProgramId()));
-				
+
 			} else {
 				groupList = groupService.findAllGroupsByFaculty(username,
 						Long.parseLong(userDetails.getProgramId()));
 
-				
 				request.getSession().removeAttribute("courseRecord");
 			}
 
@@ -775,15 +795,13 @@ public class GroupController extends BaseController {
 					principal.getName(), Long.parseLong(courseId));
 		}
 
-		
 		if (groupList == null || groupList.size() == 0) {
 			setNote(m, "No Groups found");
 		}
 		for (Groups g : groupList) {
-			logger.info("CourseID ------------>"+g.getCourseId());
+			logger.info("CourseID ------------>" + g.getCourseId());
 			Long cId = g.getCourseId();
-			
-			
+
 			Course course = courseService.findByID(cId);
 			String courseName = course.getCourseName();
 
@@ -832,10 +850,9 @@ public class GroupController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
@@ -875,10 +892,9 @@ public class GroupController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
@@ -888,7 +904,7 @@ public class GroupController extends BaseController {
 		m.addAttribute("allFaculty", userService.findAllFaculty());
 		List<Groups> list1 = new ArrayList<Groups>();
 		list1.add(groups);
-		
+
 		if (list1 != null && list1.size() > 0) {
 			m.addAttribute("list1", list1);
 			m.addAttribute("rowCount", list1.size());
@@ -913,14 +929,12 @@ public class GroupController extends BaseController {
 		String username = principal.getName();
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
-		
 		List<User> listOfFaculty = new ArrayList<User>();
 		listOfFaculty = userService.findAllFaculty();
 		m.addAttribute("listOfFaculty", listOfFaculty);
@@ -983,16 +997,14 @@ public class GroupController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
-	
 		m.addAttribute("totalStudentsList", totalStudentsList);
-		
+
 		m.addAttribute("totalStudents", totalStudentsList.size());
 		groups.setCourse(courseService.findByID(courseId));
 		List<Groups> groupList = groupService.findByFacultyAndCourse(username,
@@ -1026,30 +1038,29 @@ public class GroupController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
 		List<UserCourse> totalStudentsList = userCourseService
 				.findStudentsForFaculty(courseId);
-		
+
 		Integer noOfStudents = Integer.valueOf(groups.getNoOfStudents());
-		
+
 		Integer totalStudents = totalStudentsList.size();
-		
+
 		Integer noOfGroups = totalStudents / noOfStudents;
-		
+
 		Integer studentLeft = totalStudents % noOfStudents;
-		
+
 		Integer index = 0;
 		Boolean flag = false;
 		try {
 			if (noOfGroups == 1 && studentLeft >= (totalStudents / 2)) {
 				noOfGroups = noOfGroups + 1;
-			
+
 				flag = true;
 			}
 			for (int i = 1; i <= noOfGroups; i++) {
@@ -1073,16 +1084,15 @@ public class GroupController extends BaseController {
 
 				List<StudentGroup> randomStudents = new ArrayList<StudentGroup>();
 
-				
 				index = index + noOfStudents;
-				
+
 				if (allstudents.size() - index == studentLeft && flag == false) {
 					// if(allstudents.size() - index == studentLeft){
 					Integer index1 = index + studentLeft;
-					
+
 					randomStudents = allstudents.subList(index - noOfStudents,
 							index1);
-					
+
 					groups.setNoOfStudents(String.valueOf(noOfStudents
 							+ studentLeft));
 					groupService.update(groups);
@@ -1095,7 +1105,7 @@ public class GroupController extends BaseController {
 					} else {
 						randomStudents = allstudents.subList(index
 								- noOfStudents, index);
-						
+
 					}
 				}
 				List<String> students = new ArrayList<String>();
@@ -1136,10 +1146,9 @@ public class GroupController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		List<StudentGroup> students = studentGroupService
@@ -1165,8 +1174,8 @@ public class GroupController extends BaseController {
 			@RequestParam Long courseId, RedirectAttributes redirectAttributes) {
 		m.addAttribute("webPage", new WebPage("groups", "Create Groups", true,
 				false));
-		
-		logger.info("courseId---->"+  String.valueOf(courseId));
+
+		logger.info("courseId---->" + String.valueOf(courseId));
 		String username = principal.getName();
 		List<UserCourse> totalStudentsList = userCourseService
 				.findStudentsForFaculty(courseId);
@@ -1176,12 +1185,12 @@ public class GroupController extends BaseController {
 
 		String json = "";
 		Integer noOfStudents = Integer.valueOf(groups.getNoOfStudents());
-		
+
 		Integer totalStudents = totalStudentsList.size();
-		
+
 		Integer noOfGroups = totalStudents / noOfStudents;
-		logger.info("noOfStudents---->"+  String.valueOf(noOfStudents));
-		
+		logger.info("noOfStudents---->" + String.valueOf(noOfStudents));
+
 		Integer studentLeft = totalStudents % noOfStudents;
 		Integer index = 0;
 		Boolean flag = false;
@@ -1214,7 +1223,7 @@ public class GroupController extends BaseController {
 				List<StudentGroup> randomStudents = new ArrayList<StudentGroup>();
 
 				index = index + noOfStudents;
-				
+
 				if (allstudents.size() - index == studentLeft/* && flag==false */) {
 					Integer index1 = index + studentLeft;
 					randomStudents = allstudents.subList(index - noOfStudents,
@@ -1231,7 +1240,7 @@ public class GroupController extends BaseController {
 					} else {
 						randomStudents = allstudents.subList(index
 								- noOfStudents, index);
-						
+
 					}
 				}
 				List<String> students = new ArrayList<String>();
@@ -1250,7 +1259,6 @@ public class GroupController extends BaseController {
 
 			res.add(map);
 
-			
 			ObjectMapper mapper = new ObjectMapper();
 			try {
 				json = mapper.writeValueAsString(res);
@@ -1303,7 +1311,6 @@ public class GroupController extends BaseController {
 					bean.setLastModifiedBy(username);
 					studentGroupMappingList.add(bean);
 				}
-			
 
 				studentGroupService.insertBatch(studentGroupMappingList);
 				setSuccess(m, "Group created for "
@@ -1311,7 +1318,7 @@ public class GroupController extends BaseController {
 						+ " students successfully");
 				// return
 				// "redirect:/createAssignmentFromGroup?courseId="+courseId;
-				
+
 				return createdGroups;
 
 			}
@@ -1347,17 +1354,16 @@ public class GroupController extends BaseController {
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		if (courseId == null || courseId.isEmpty()) {
 			if (request.getSession().getAttribute("courseRecord") == null
 					|| request.getSession().getAttribute("courseRecord")
 							.equals("")) {
-				
+
 			} else {
 				request.getSession().removeAttribute("courseRecord");
 			}
@@ -1390,15 +1396,15 @@ public class GroupController extends BaseController {
 			Model m, Principal principal, @RequestParam String id) {
 		m.addAttribute("webPage", new WebPage("groups", "Create Group", true,
 				false));
-		
+
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
-		
+
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
@@ -1433,7 +1439,7 @@ public class GroupController extends BaseController {
 			RequestMethod.POST })
 	public @ResponseBody String removeStudents(@RequestParam("id") Long id,
 			Model m, Principal principal, @ModelAttribute StudentGroup groups) {
-		
+
 		StudentGroup sg = studentGroupService.findByID(id);
 		String username = principal.getName();
 		try {
@@ -1461,7 +1467,7 @@ public class GroupController extends BaseController {
 			Principal principal) {
 		String json = "";
 		String username = principal.getName();
-		
+
 		List<Groups> groups = groupService.findByFacultyAndCourse(username,
 				Long.valueOf(courseId));
 

@@ -63,6 +63,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+
+
+
+
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spts.lms.auth.Token;
@@ -119,21 +124,24 @@ public class LorController extends BaseController {
 
 	@Autowired
 	AmazonS3ClientService amazonS3ClientService;
+	
+	@Autowired
+	BusinessBypassRule businessBypassRule;
 
 	@Value("${userMgmtCrudUrl}")
 	private String userRoleMgmtCrudUrl;
 
 	@Autowired
 	ProgramService programService;
+	
+	@Autowired
+	Utils utils;
 
 	@Value("${app}")
 	private String app;
 
 	@Autowired
 	Notifier notifier;
-	
-	@Autowired
-	BusinessBypassRule businessBypassRule;
 	
 	@Autowired
 	Utils Utils;
@@ -181,7 +189,7 @@ public class LorController extends BaseController {
 			for (MultipartFile file : files) {
 				if (null == file || file.isEmpty()) {
 					setError(ra, "Selected File is empty!");
-					return "redirect:/lorApplicationForm";
+					return "redirect:/viewAppliedApplicationStudentsForStaff";
 				}
 				Tika tika = new Tika();
 				  String detectedType = tika.detect(file.getBytes());
@@ -315,10 +323,13 @@ public class LorController extends BaseController {
 		try {
 			String errorMessage = "";
 			String filepath = "";
-
+            logger.info("inside upload file" + files.size()); 
+			
 			if (files.size() <= 0) {
 				setError(ra, "No File selected.");
 //				return "redirect:/viewAppliedApplicationStudentsForStaff";
+				logger.info("inside upload file2");
+				
 				if(userdetails.getAuthorities().contains(Role.ROLE_STAFF)) {
 					return "redirect:/viewAppliedApplicationStudentsForDepartment";
 				}else {
@@ -326,6 +337,7 @@ public class LorController extends BaseController {
 				}
 			}
 			for (MultipartFile file : files) {
+				logger.info("inside upload file3");
 				if (!file.isEmpty()) {
 					logger.info("file---->");
 					Tika tika = new Tika();
@@ -397,9 +409,11 @@ public class LorController extends BaseController {
 						if(userdetails.getAuthorities().contains(Role.ROLE_STAFF)) {
 							return "redirect:/viewAppliedApplicationStudentsForDepartment";
 						}else {
-							return "redirect:/viewAppliedApplicationStudentsForAdmin";
+							return "redirect:/viewAppliedApplicationStudentsForDepartment";
 						}
 					}
+				}else{
+					 throw new ValidationException("Input field cannot be empty");
 				}
 			}
 			logger.info("errorMessage=--------" + errorMessage);
@@ -454,7 +468,12 @@ public class LorController extends BaseController {
 			// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
 			notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 
-		} catch (Exception e) {
+		}catch (ValidationException ex) {
+			logger.error("Error---->" + ex.getMessage());
+			setError(ra, ex.getMessage());
+		}
+		
+		catch (Exception e) {
 			logger.error("Error---->" + e);
 			setError(ra, "Error in uploading file");
 		}
@@ -509,24 +528,36 @@ public class LorController extends BaseController {
 	@Secured({ "ROLE_FACULTY", "ROLE_STAFF" })
 	@RequestMapping(value = "/saveExpectedDate", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String saveExpectedDate(@RequestParam String expectedDate, @RequestParam String id,
-			Principal principal) {
+			Principal principal, HttpServletRequest httpServletRequest) {
 		String username = principal.getName();
 		try {
 			Date date = new Date();
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			date = dateFormat.parse(expectedDate);
+			
+			/***by sandip****/
+			Utils.validateOnlyDate(expectedDate);
+			/***by sandip****/
+			
 			LorRegStaff lorRegStaff = new LorRegStaff();
 			lorRegStaff.setExpectedDate(date);
 			lorRegStaff.setLastModifiedBy(username);
 			lorRegStaff.setId(Long.valueOf(id));
 			logger.info("LorRegStaff--->" + lorRegStaff);
 			lorRegStaffService.saveExpectedDate(lorRegStaff);
-			return "{\"status\": \"success\", \"msg\": \"Date updated!\"}";
-		} catch (Exception e) {
+			return "{\"status\": \"success\", \"msg\": \"Date updated\"}";
+		}
+		catch (ValidationException er) { 
+			logger.error(er.getMessage(), er);
+			String json = "{\"status\":\"error\", \"msg\":\""+er.getMessage()+"\"}";
+			return json;
+		}
+		catch (Exception e) {
 			logger.error("Exception", e);
-			return "{\"status\": \"error\", \"msg\": \"Error in updating Date!\"}";
+			return "{\"status\": \"error\", \"msg\": \"Error in updating Date\"}";
 		}
 	}
+
 
 	@Secured({ "ROLE_FACULTY", "ROLE_STAFF", "ROLE_INTL" })
 	@RequestMapping(value = "/getStudentLorDetailsByLorRegId", method = { RequestMethod.GET, RequestMethod.POST })
@@ -1117,6 +1148,9 @@ public class LorController extends BaseController {
 			lorRegStaffDB.setAppRejectionReason(lorRegStaff.getAppRejectionReason());
 			lorRegStaffDB.setLastModifiedBy(username);
 			logger.info("LorRegStaff--->" + lorRegStaff);
+			
+			
+			
 			lorRegStaffService.saveApplicationApprovalStatus(lorRegStaffDB);
 			if (lorRegStaffDB.getAppApproval().equals("Approve")) {
 				User user = userService.findByUserName(lorRegStaffDB.getUsername());
@@ -1408,9 +1442,11 @@ public class LorController extends BaseController {
 				// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
 				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 			}
-			return "{\"status\": \"success\", \"msg\": \"LOR approval updated successfully!\"}";
-
-		} catch (Exception e) {
+		  return "{\"status\": \"success\", \"msg\": \"LOR approval updated successfully!\"}";
+			
+		}
+		
+		catch (Exception e) {
 			logger.error("Exception", e);
 			return "{\"status\": \"error\", \"msg\": \"Error in updating LOR Status!\"}";
 		}
