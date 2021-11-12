@@ -66,6 +66,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spts.lms.auth.Token;
+
 import com.spts.lms.beans.Status;
 import com.spts.lms.beans.StudentService.LorRegDetails;
 import com.spts.lms.beans.StudentService.LorRegStaff;
@@ -136,10 +137,12 @@ public class LorController extends BaseController {
 	
 	@Autowired
 	Utils Utils;
+	
 
 	Client client = ClientBuilder.newClient();
 	private static final Logger logger = Logger.getLogger(LorController.class);
 
+	
 	@Secured({ "ROLE_FACULTY", "ROLE_STAFF" })
 	@RequestMapping(value = "/viewAppliedApplicationStudentsForStaff", method = { RequestMethod.GET,
 			RequestMethod.POST })
@@ -873,14 +876,18 @@ public class LorController extends BaseController {
 	@RequestMapping(value = "/lorApplicationForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String lorApplicationForm(@ModelAttribute LorRegDetails lorRegDetails,
 			@ModelAttribute LorRegStaff lorRegStaff, Model m, Principal principal) {
-            System.out.println("INSIDE LOR APPLICATION>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");	
+          
          String username = principal.getName();
 
 		User u = userService.findByUserName(username);
 		m.addAttribute("userdetails", u);
-
+  
 		List<String> deptlist = lorRegStaffService.getAlldept();
 		m.addAttribute("deptlist", deptlist);
+		
+		List<String> countrylist = lorRegStaffService.getAllCountryList();
+		m.addAttribute("countrylist", countrylist);
+		
 
 		Program programName = programService.findByID(u.getProgramId());
 		m.addAttribute("programName", programName);
@@ -900,38 +907,52 @@ public class LorController extends BaseController {
 		 String username = principal.getName();
 		try {
 			
-			logger.info("lorRegDetails--->" + lorRegDetails);
-			logger.info("lorRegStaff--->" + lorRegStaff);
-		    
-			if(lorRegDetails.getUsername() == null ||lorRegDetails.getUsername().isEmpty() )
-		    {
-				 throw new ValidationException("Input field cannot be empty");	
-			}
-	    	//  BusinessBypassRule.validateNumeric(lorRegDetails.getUsername());
-	    	//  BusinessBypassRule.validateString(lorRegDetails.getName());
-	    	//  BusinessBypassRule.validateEmail(lorRegDetails.getEmail());
-	    	//  BusinessBypassRule.validateNumeric(lorRegDetails.getMobile());
-			
+			logger.info("lorRegDetails--->" + lorRegDetails.getNoOfCopies());
+			logger.info("lorRegStaff--->" + lorRegStaff.getNoOfCopies());
+	    	
 			 User u = userService.findByUserName(username);
-			 
-			 System.out.println("Users>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:U:"+u);
 			 lorRegDetails.setUsername(username);
 			 lorRegDetails.setEmail(u.getEmail());
 			 lorRegDetails.setMobile(u.getMobile());
 			 lorRegDetails.setName(u.getFirstname()+" "+u.getLastname());
-		      BusinessBypassRule.validateNumeric(lorRegDetails.getProgramEnrolledId());
+		     lorRegDetails.setProgramEnrolledId(String.valueOf(u.getProgramId()));
 		      
-	    	  BusinessBypassRule.validateString(lorRegDetails.getCountryForHigherStudy());
-	    	  BusinessBypassRule.validateString(lorRegDetails.getUniversityName());
-	    	  System.out.println("Program :>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+lorRegDetails.getProgramToEnroll());
+		    
+		      String[] res = lorRegDetails.getCountryForHigherStudy().split(",");
+		       for(String myStr: res) 
+		       {
+		          System.out.println(myStr);
+		          LorRegDetails LorRegDetailscountry = lorRegDetailsService.findByCountryName(myStr);
+			     if( null ==LorRegDetailscountry)
+	            {
+	    	      logger.info("inside if:" + LorRegDetailscountry);
+	    	      throw new ValidationException("Invalid Country Selected");
+	             }
+		     } 
+		      
+		       String[] university = lorRegDetails.getCountryForHigherStudy().split(",");
+		       for(String str: university) 
+		       {
+		    	   System.out.println(str);
+		           BusinessBypassRule.validateAlphaNumeric(lorRegDetails.getUniversityName());
+		       }
+		      
 	          BusinessBypassRule.validateAlphaNumeric(lorRegDetails.getProgramToEnroll());
-	          
-	          System.out.println("Tentative Date Of Joining :>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+lorRegDetails.getTentativeDOJ());
-	          Utils.validateDate(lorRegDetails.getTentativeDOJ());
-	          BusinessBypassRule.validateYesOrNo(lorRegDetails.getIsNmimsPartnerUniversity());
-	    	  
-	    	
-			List<String> userList = new ArrayList<String>();
+	   
+	          BusinessBypassRule.validateOnlyDate(lorRegDetails.getTentativeDOJ());
+	         
+	          if(!lorRegDetails.getIsNmimsPartnerUniversity().equals("Yes") && !lorRegDetails.getIsNmimsPartnerUniversity().equals("No")) {
+					throw new ValidationException("Invalid Input.");
+	          }
+	    
+	         LorRegStaff lorRegDepartment  = lorRegStaffService.findByDepartment(lorRegStaff.getDepartment());
+	         if( null ==lorRegDepartment)
+	            {
+	    	      logger.info("inside if:" + lorRegDepartment);
+	    	      throw new ValidationException("Invalid Department Selected");
+	            }      
+	    
+	        List<String> userList = new ArrayList<String>();
 			String uname = principal.getName();    //rename username to uname 
 			String errorMessage = "";
 			String examMarksheetFilePath = "";
@@ -976,8 +997,7 @@ public class LorController extends BaseController {
 			lorRegDetails.setExamMarksheet(examMarksheetFilePath);
 			lorRegDetails.setToeflOrIeltsMarksheet(toeflOrIeltsMarksheetFilePath);
 			lorRegDetails.setCreatedBy(uname);
-			lorRegDetails.setLastModifiedBy(uname);//here 
-            System.out.println("LORREGISTRATIONDETAILS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+lorRegDetails);
+			lorRegDetails.setLastModifiedBy(uname);
 			lorRegDetailsService.insertWithIdReturn(lorRegDetails);
 			Long lorId = lorRegDetails.getId();
 			String[] staffIds = lorRegStaff.getStaffId().split(",");
@@ -985,7 +1005,18 @@ public class LorController extends BaseController {
 			for (int i = 0; i <= staffId.size() - 1; i++) {
 				LorRegStaff lorRegStaffs = new LorRegStaff();
 				String staffIdStr = "";
-				if (!staffId.get(i).split("-")[0].endsWith("_STAFF")) {
+				String str = staffId.get(i).split("-")[0];
+				System.out.println(str); //changes
+			    LorRegStaff LorstaffId  =  lorRegStaffService.findByUserName(str);
+			    if(LorstaffId == null)
+			    {
+			    	 throw new ValidationException("Invalid Faculty Selected" +str);
+			    }
+                String noOfCopies = staffId.get(i).split("-")[1];
+    
+                BusinessBypassRule.validateNumeric(noOfCopies);
+                
+				if (!str.endsWith("_STAFF")) {
 					staffIdStr = staffId.get(i).split("-")[0] + "_STAFF";
 				} else {
 					staffIdStr = staffId.get(i).split("-")[0];
@@ -1042,6 +1073,7 @@ public class LorController extends BaseController {
 
 		} 
 		catch (ValidationException e) {
+			logger.info("iside validate exception>>>>>>>>>>>>>>>>>>");
 			logger.error(e);
 			setError(redirect,e.getMessage() );
 			return "redirect:/lorApplicationForm";
@@ -1049,6 +1081,7 @@ public class LorController extends BaseController {
 		
 		catch (Exception e) {
 			logger.error(e);
+			logger.info("iside validate exception--------");
 			setError(redirect, "Error in Submitting form");
 			return "redirect:/lorApplicationForm";
 		}
