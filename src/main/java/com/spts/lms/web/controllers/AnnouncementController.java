@@ -394,6 +394,7 @@ public class AnnouncementController extends BaseController {
 								.getProgramId()));
 		}
 		m.addAttribute("announcement", announcement);
+		
 		if (sendAlertsToParents.equalsIgnoreCase("Y")) {
 			m.addAttribute("sendAlertsToParents", true);
 		} else {
@@ -401,12 +402,15 @@ public class AnnouncementController extends BaseController {
 		}
 
 		if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
+			
 			return "announcement/addAnnouncementAdmin";
+			
 		} else {
 			return "announcement/addAnnouncement";
 		}
 	}
 
+	
 	/*
 	 * @RequestMapping(value = "/viewUserAnnouncementsSearch", method = {
 	 * RequestMethod.GET, RequestMethod.POST }) public String
@@ -661,7 +665,7 @@ public class AnnouncementController extends BaseController {
 	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/addAnnouncement", method = { RequestMethod.GET,
 			RequestMethod.POST })
-	public String addAnnouncement(@ModelAttribute Announcement announcement,
+	public String addAnnouncement(@ModelAttribute  Announcement announcement ,
 			RedirectAttributes redirectAttrs, Model m, Principal principal,
 			@RequestParam("file") List<MultipartFile> files,
 			@RequestParam(required = false) String typeOfAnn)  {
@@ -709,9 +713,9 @@ public class AnnouncementController extends BaseController {
 //				return "redirect:/addAnnouncementForm";
 //			} 
 			/* New Audit changes end */
-			logger.info("a--"+announcement.getSubject());
 			
-			if(null!=announcement.getAnnouncementSubType() || !announcement.getAnnouncementSubType().isEmpty())
+			
+			if(null!=announcement.getAnnouncementSubType() && !announcement.getAnnouncementSubType().isEmpty())
 			{
 				validateAnnouncementSubType(announcement.getAnnouncementSubType());
 			}
@@ -719,27 +723,30 @@ public class AnnouncementController extends BaseController {
 			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
 			
 	
-			if(null!=announcement.getCampusId())
+//			/*
+//			 * if(null!=announcement.getCampusId() ||
+//			 * !announcement.getCampusId().toString().isEmpty() ) {
+//			 */
+			logger.info("announcement.getCampusId()"+announcement.getCampusId());
+			if(null!=announcement.getCampusId() && !announcement.getCampusId().toString().isEmpty())
 			{
-			businessBypassRule.validateNumeric(announcement.getCampusId().toString());
+			businessBypassRule.validateNumericNotAZero(announcement.getCampusId());
 			Course coursedata=courseService.checkIfExistsInDB("campusId", announcement.getCampusId().toString());
-			
-			if(null==coursedata ||coursedata.equals(" "))
+			logger.info("coursedata"+coursedata);
+			if(null==coursedata || coursedata.equals(" "))
 			{
-				setError(redirectAttrs, " Invalid Campus");
-
-				if (typeOfAnn != null) {
-					if ("PROGRAM".equals(typeOfAnn)) {
-						return "redirect:/addAnnouncementFormProgram";
-					}
-				}
-
-				return "redirect:/addAnnouncementForm";
+		    	 throw new ValidationException("Invalid Campus");
 			
 			}
 			}
+		
+			logger.info("email alert---"+announcement.getSendEmailAlert());
+			logger.info("sms alert ---"+announcement.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
+			
+			//businessBypassRule.validateYOrN(announcement.getSendSmsAlert());
+			
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					Tika tika = new Tika();
@@ -1375,8 +1382,46 @@ public class AnnouncementController extends BaseController {
 		userList.add(username);
 		String defaultMsg = "\\r\\n\\r\\nNote: This Announcement is updated by : ?? \\r\\nTo view any attached files to this mail kindly login to \\r\\nUrl: https://portal.svkm.ac.in/usermgmt/login ";
 
+		
+		
+		
+		
+		
 		List<String> parentList = new ArrayList<String>();
 		try {
+			
+			
+
+			if(null!=announcement.getAnnouncementSubType() || !announcement.getAnnouncementSubType().isEmpty())
+			{
+				validateAnnouncementSubType(announcement.getAnnouncementSubType());
+			}
+			businessBypassRule.validateAlphaNumeric(announcement.getSubject());
+			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
+			
+	
+//			/*
+//			 * if(null!=announcement.getCampusId() ||
+//			 * !announcement.getCampusId().toString().isEmpty() ) {
+//			 */
+			if(null!=announcement.getCampusId() && !announcement.getCampusId().equals(" ") && !announcement.getCampusId().toString().isEmpty())
+			{
+			businessBypassRule.validateNumeric(announcement.getCampusId().toString());
+			Course coursedata=courseService.checkIfExistsInDB("campusId", announcement.getCampusId().toString());
+			
+			if(null==coursedata ||coursedata.equals(" "))
+			{
+		    	 throw new ValidationException("Invalid Campus");
+			
+			}
+			}
+		
+			logger.info("email alert---"+announcement.getSendEmailAlert());
+			logger.info("sms alert ---"+announcement.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
+			
+			
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					//Audit change start
@@ -1616,7 +1661,21 @@ public class AnnouncementController extends BaseController {
 			}
 			m.addAttribute("announcement", announcement);
 			redirectAttrs.addFlashAttribute("announcement", announcement);
-		} catch (Exception e) {
+		}catch(ValidationException e)
+		{
+
+			logger.error("Exception", e);
+			setError(redirectAttrs, e.getMessage());
+			if (typeOfAnn != null) {
+				if ("PROGRAM".equals(typeOfAnn)) {
+					return "redirect:/addAnnouncementFormProgram";
+				}
+			}
+			return "redirect:/addAnnouncementForm";
+		
+			
+		}
+		catch (Exception e) {
 
 			logger.error("Exception", e);
 			setError(redirectAttrs, "Error in updating Announcement");
@@ -2583,6 +2642,8 @@ public class AnnouncementController extends BaseController {
 			@RequestParam(required = false) Long id,
 			@ModelAttribute Announcement announcement, Model m,
 			Principal principal, HttpServletRequest request) {
+		
+		
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
@@ -2690,79 +2751,61 @@ public class AnnouncementController extends BaseController {
 		List<String> parentList = new ArrayList<String>();
 		
 		try {
+			
+			if(null!=announcement.getAcadSession() && !announcement.getAcadSession().isEmpty())
+			{
 		Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
 			
-			if(semdata.toString().isEmpty() || null==semdata)
+			if(null==semdata || semdata.toString().isEmpty())
 			{
-
-		
-				setError(redirectAttrs, "Invalid Semester ");
-
-				if (typeOfAnn != null) {
-					if ("PROGRAM".equals(typeOfAnn)) {
-						return "redirect:/addAnnouncementFormMultiProgram";
-					}
-				}
-
-				return "redirect:/addAnnouncementForm";
-			
+				
+				 throw new ValidationException("Invalid Semester");
 			}
+		}
+			if(null!=announcement.getAcadSession() && !announcement.getAcadSession().isEmpty())
+			{
+		Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
+			
+			if(null==semdata || semdata.toString().isEmpty())
+			{
+				
+				 throw new ValidationException("Invalid Semester");
+			}
+		}
 			for(String programId:announcement.getProgramIds())
 			{
-				businessBypassRule.validateNumeric(programId.toString());
+				//businessBypassRule.validateNumeric(programId.toString());
 				Course Programdata=courseService.checkIfExistsInDB("programId", programId);
 				if(Programdata.toString().isEmpty() || null==Programdata)
-				{
-		
-					setError(redirectAttrs, "Invalid program Id");
-
-					if (typeOfAnn != null) {
-						if ("PROGRAM".equals(typeOfAnn)) {
-							return "redirect:/addAnnouncementFormMultiProgram";
-						}
-					}
-
-					return "redirect:/addAnnouncementForm";
+				{ 
+					throw new ValidationException("Invalid Program Id");
 				
 				}
 			}
+			if(null !=admincourseId && !admincourseId.isEmpty())
+			{
+				
+			
 			List<String> courseList = new ArrayList<String>(Arrays.asList(admincourseId.split(",")));
 
 			for(String courseId:courseList)
 			{
-				businessBypassRule.validateNumeric(courseId);
+				//businessBypassRule.validateNumeric(courseId);
 				Course course=courseService.findByID(Long.valueOf(courseId));
 				if(course.toString().isEmpty() || null==course)
 				{
-		
-					setError(redirectAttrs, "Invalid Course Id");
-
-					if (typeOfAnn != null) {
-						if ("PROGRAM".equals(typeOfAnn)) {
-							return "redirect:/addAnnouncementFormMultiProgram";
-						}
-					}
-
-					return "redirect:/addAnnouncementForm";
+					throw new ValidationException("Invalid Course Id");
 				
 				}
 			}
+			}
 			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
-			businessBypassRule.validateNumeric(announcement.getAcadSession());
-			Course acadYear=courseService.checkIfExistsInDB("acadYear", announcement.getAcadSession());
-			if(acadYear.toString().isEmpty() || null==acadYear)
+		//	businessBypassRule.validateNumeric(announcement.getAcadYear());
+			Course acadYear=courseService.checkIfExistsInDB("acadYear", announcement.getAcadYear().toString());
+			if( null==acadYear || acadYear.toString().isEmpty() )
 			{
-	
-				setError(redirectAttrs, "Invalid AcadYear Id");
-
-				if (typeOfAnn != null) {
-					if ("PROGRAM".equals(typeOfAnn)) {
-						return "redirect:/addAnnouncementFormMultiProgram";
-					}
-				}
-
-				return "redirect:/addAnnouncementForm";
+				throw new ValidationException("Invalid acad Year");	
 			
 			}
 			

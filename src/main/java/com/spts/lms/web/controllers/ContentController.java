@@ -99,7 +99,8 @@ public class ContentController extends BaseController {
 
 	@Autowired
 	ApplicationContext act;
-
+	
+	
 	@Autowired
 	ContentService contentService;
 
@@ -397,6 +398,25 @@ public class ContentController extends BaseController {
 			Course c = new Course();
 			String username = p.getName();
 
+
+
+
+			
+			
+			Course course= courseService.findByID(Long.parseLong(idForCourse));
+			if(null==course || course.equals(""))
+			{
+				 throw new ValidationException("Input number should be a positive number.");
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			
+			
 			Content contentd = new Content();
 			if (content.getCourseId() == null) {
 				content.setCourseId(Long.valueOf(idForCourse));
@@ -489,6 +509,10 @@ public class ContentController extends BaseController {
 				}
 			}
 
+		}catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			return "redirect:/addContentForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating file");
@@ -511,6 +535,37 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
 
+			
+
+			
+			businessBypassRule.validateNumeric(acadYear);
+		
+				Course course=new Course();
+				if(null!=idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course=courseService.findByID(Long.valueOf(idForCourse));
+				}
+				if(null!=idForModule && !idForModule.isEmpty()) {
+					businessBypassRule.validateNumeric(idForModule);
+					course=courseService.findByID(Long.valueOf(idForModule));
+					}
+				
+				
+			
+				if(null==course || course.toString().isEmpty()  )
+				{
+					
+					throw new ValidationException("Error in creating Folder");
+				
+				}
+				
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+		
 			String username = p.getName();
 			List<Course> courseIdList = new ArrayList<>();
 			courseIdList = courseService.findCoursesByModuleId(
@@ -685,7 +740,14 @@ public class ContentController extends BaseController {
 				}
 			}
 			
-		} catch (Exception e) {
+			
+		}
+		catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, "Error in creating file");
+			return "redirect:/addContentForm";
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating file");
 			return "redirect:/addContentForm";
@@ -707,12 +769,29 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		File file = null;
 		try {
+			
+			
+			
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			
+			Course course= courseService.findByID(Long.parseLong(idForCourse));
+			if(null==course || course.equals(""))
+			{
+				 throw new ValidationException("Input number should be a positive number.");
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
 			String username = p.getName();
 			if (content.getCourseId() == null) {
 				content.setCourseId(Long.valueOf(idForCourse));
 			}
 			performFolderPathCheck(content);
-
+			
 			Token userdetails1 = (Token) p;
 			String ProgramName = userdetails1.getProgramName();
 			User u = userService.findByUserName(username);
@@ -778,7 +857,20 @@ public class ContentController extends BaseController {
 					return "redirect:/addContentForm";
 				}
 
-		} catch (Exception e) {
+		}catch(ValidationException e) {
+			
+
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			if (file != null && file.list().length == 0) {
+				file.delete();
+			}
+			return "redirect:/addContentForm";
+		
+		}
+		
+		
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating folder");
 			if (file != null && file.list().length == 0) {
@@ -788,14 +880,9 @@ public class ContentController extends BaseController {
 		}
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
-	public void validateAccessType(String s) throws ValidationException{
-		if (s == null || s.trim().isEmpty()) {
-			 throw new ValidationException("Input field cannot be empty");
-		 }
-		if(!s.equals("Public") && !s.equals("Private") && !s.equals("Everyone")  ) {
-			throw new ValidationException("Invalid Access Type.");
-		}
-	}
+
+	
+	
 	
 	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addFolderForModule", method = {
@@ -813,22 +900,42 @@ public class ContentController extends BaseController {
 		try {
 			
 			
-			
+				logger.info("temp---1"+idForCourse);
+				logger.info("temp---idForModule"+idForModule);
+				businessBypassRule.validateNumeric(acadYear);
 				businessBypassRule.validateAlphaNumeric(content.getContentName());
-				businessBypassRule.validateNumeric(idForCourse);
-				Course course=courseService.findByID(Long.valueOf(idForCourse));
+				Course course=new Course();
+				logger.info("temp---idForCourse2"+null!=idForCourse);
+				logger.info("!idForCourse.trim().isEmpty()--"+!idForCourse.trim().isEmpty());
+				if(null!=idForCourse && !idForCourse.isEmpty()) {
+					logger.info("temp---2"+idForCourse);
+					businessBypassRule.validateNumeric(idForCourse);
+					
+					
+					course=courseService.checkIfExistsInDB("moduleId",idForCourse);
+				}
+				if(null!=idForModule && !idForModule.isEmpty() ) {
+					
+					logger.info("temp---3"+idForModule);
+					businessBypassRule.validateNumeric(idForModule);
+					course=courseService.checkIfExistsInDB("moduleId",idForModule);
+					}
+				
+				logger.info("temp---4"+course);
+			
 				if(course.toString().isEmpty() || null==course)
 				{
-
-		
-					setError(redirectAttrs, "Invalid Course While creating folder");
+					
+					
 					if (file != null && file.list().length == 0) {
 						file.delete();
 					}
-					return "redirect:/addContentForm";
+					
+					throw new ValidationException("Error in creating Folder");
 				
 				}
-				validateAccessType(content.getAccessType());
+				
+				businessBypassRule.validateaccesstype(content.getAccessType());
 			
 			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
 			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
@@ -1298,7 +1405,7 @@ public class ContentController extends BaseController {
 				redirectAttrs.addFlashAttribute("edit", "true");
 				return "redirect:/addContentForm";
 			}
-			validateAccessType(content.getAccessType());
+			businessBypassRule.validateaccesstype(content.getAccessType());
 		
 		utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
 		businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
@@ -1434,6 +1541,27 @@ public class ContentController extends BaseController {
 			@RequestParam(name = "idForCourse", required = false, defaultValue = "") String idForCourse) {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
+			
+
+
+
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			
+			Course course= courseService.findByID(Long.parseLong(idForCourse));
+			if(null==course || course.equals(""))
+			{
+				 throw new ValidationException("Input number should be a positive number.");
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			
+			
+			
 			/* New Audit changes start */
 //			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
 //				setError(redirectAttrs, "Invalid Start date and End date");
@@ -1522,7 +1650,13 @@ public class ContentController extends BaseController {
 				return "redirect:/addContentForm";
 			}
 
-		} catch (Exception e) {
+		}
+		catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs,e.getMessage());
+			return "redirect:/addContentForm";
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating file");
 			return "redirect:/addContentForm";
@@ -1546,6 +1680,38 @@ public class ContentController extends BaseController {
 		try {
 			String username = p.getName();
 			performFolderPathCheckForModule(content);
+			
+			
+			
+
+			businessBypassRule.validateNumeric(acadYear);
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course=new Course();
+			if(null!=idForCourse) {
+			businessBypassRule.validateNumeric(idForCourse);
+			course=courseService.findByID(Long.valueOf(idForCourse));
+			}
+			if(null!=idForModule) {
+				businessBypassRule.validateNumeric(idForModule);
+				course=courseService.findByID(Long.valueOf(idForModule));
+				}
+			
+			
+		
+			if(course.toString().isEmpty() || null==course)
+			{
+				throw new ValidationException("Error in creating Folder");
+			
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			
 			/* New Audit changes start */
 //			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
 //				setError(redirectAttrs, "Invalid Start date and End date");
@@ -1682,7 +1848,14 @@ public class ContentController extends BaseController {
 				return "redirect:/addContentForm";
 			}
 
-		} catch (Exception e) {
+		}catch (ValidationException e) {
+
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			return "redirect:/addContentForm";
+		
+		} 
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating file");
 			return "redirect:/addContentForm";
@@ -1939,6 +2112,25 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
 
+			
+
+
+
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			
+			Course course= courseService.findByID(Long.parseLong(idForCourse));
+			if(null==course || course.equals(""))
+			{
+				 throw new ValidationException("Input number should be a positive number.");
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			
 			logger.info("Contnet idForCourse--------------><" + idForCourse);
 			if (sendAlertsToParents.equalsIgnoreCase("Y")) {
 				content.setSendEmailAlertToParents("Y");
@@ -2005,6 +2197,36 @@ public class ContentController extends BaseController {
 			@RequestParam(name = "acadYear", required = false, defaultValue = "") String acadYear) {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
+
+
+
+			
+			businessBypassRule.validateNumeric(acadYear);
+				businessBypassRule.validateAlphaNumeric(content.getContentName());
+				Course course=new Course();
+				
+					businessBypassRule.validateNumeric(idForModule);
+					course=courseService.findByID(Long.valueOf(idForModule));
+					
+				
+				
+			
+				if(course.toString().isEmpty() || null==course)
+				{
+					
+					
+					
+					throw new ValidationException("Error in creating linq");
+				
+				}
+				
+				businessBypassRule.validateaccesstype(content.getAccessType());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+		
 			String username = p.getName();
 			/* New Audit changes start */
 //			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
@@ -2089,6 +2311,10 @@ public class ContentController extends BaseController {
 			}
 
 
+		} catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, "Error in creating Link");
+			return "redirect:/addContentForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating Link");

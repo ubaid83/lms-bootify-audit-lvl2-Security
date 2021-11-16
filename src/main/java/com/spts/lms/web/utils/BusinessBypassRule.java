@@ -29,12 +29,23 @@ public class BusinessBypassRule {
 
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
-	     System.out.println("b--"+b);
+	     
 	     
 	     if(b) {
 	    	 throw new ValidationException("Special characters are not allowed to enter except underscore(_) and hyphen(-).");
 	     }
 	 }
+	public static void validateYOrN(String flag) throws ValidationException {
+		logger.info("flag-"+flag);
+	logger.info(!flag.equals("Yes"));
+	logger.info(!flag.equals("No"));
+	
+	if(!flag.equals("Yes") && !flag.equals("No") )
+	{
+		throw new ValidationException("Input should be Yes or No");
+	}
+	
+	}
 	public static void validateYesOrNo(String s) throws ValidationException{
 		logger.info("String is " + s);
 		if (s == null || s.trim().isEmpty()) {
@@ -63,6 +74,7 @@ public class BusinessBypassRule {
 	public static void validateNumeric(String s) throws ValidationException{
 		//Allows Only Double Positive Numbers as String, Zero allowed
 		if (s == null || s.trim().isEmpty()) {
+			logger.info("empty------");
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
 		Pattern p = Pattern.compile("[^0-9.]");
@@ -70,7 +82,8 @@ public class BusinessBypassRule {
 	     boolean b = m.find();
 	     if(b || Double.valueOf(s) < 0.0) {
 	    	 throw new ValidationException("Input number should be a positive number.");
-	     }  
+	     }
+	     System.out.println("b---"+b);
 	 }
 
 	public static void validateNumericNotAZero(double d) throws ValidationException{
@@ -97,4 +110,15 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Input number should be a positive number.");
 	     }  
 	 }
+	
+	
+	public void validateaccesstype(String s) throws ValidationException{
+		if (s == null || s.trim().isEmpty()) {
+			 throw new ValidationException("Input field cannot be empty");
+		 }
+		if(!s.equals("Public") && !s.equals("Private") && !s.equals("Everyone")  ) 
+		{
+			throw new ValidationException("Invalid Announcement SubType.");
+		}
+	}
 }
