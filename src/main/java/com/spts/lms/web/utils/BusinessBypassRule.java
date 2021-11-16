@@ -7,16 +7,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
+//import org.springframework.web.multipart.MultipartFile;
 
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+//import org.springframework.stereotype.Component;
+//import org.springframework.stereotype.Service;
+//import org.springframework.transaction.annotation.Transactional;
 
-import com.spts.lms.beans.course.Course;
-import com.spts.lms.services.course.CourseService;
+//import com.spts.lms.beans.course.Course;
+//import com.spts.lms.services.course.CourseService;
 
 @Component
 public class BusinessBypassRule {
@@ -161,31 +161,6 @@ public class BusinessBypassRule {
 		}
 		}
 
-	/*******By sandip 25/10/2021*******/
 
-	public void validateFile(MultipartFile file) throws ValidationException {
-		// TODO Auto-generated method stub
-		if (file == null || file.isEmpty()) {
-	    	 throw new ValidationException("Input field cannot be empty");
-	     }
-	}
-	
-
-	public static void validateRemarks(String s) throws ValidationException{
-	     if (s == null || s.trim().isEmpty()) {
-	    	 throw new ValidationException("Input field cannot be empty");
-	     }
-	     s = s.replaceAll("-", "");
-	     s = s.replaceAll("_", "");
-	     s = s.replaceAll("\\+", "");
-	     Pattern p = Pattern.compile("[^A-Za-z0-9-+ ]");
-	     Matcher m = p.matcher(s);
-	     boolean b = m.find();
-	     if(b) {
-	    	 throw new ValidationException("Special characters are not allowed.");
-	     }
-	 }
-	
-	
 }
 

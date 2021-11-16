@@ -387,13 +387,6 @@ public class FAQController extends BaseController {
 			System.out.println("mapsmapsmaps--------12222"+maps.get(0));
 			System.out.println("mapsmapsmaps--------12222"+maps.get(1));
 			
-			 
-			  /*****By sandip 25/10/2021******/
-			  
-			  businessBypassRule.validateFile(classParticipation.getFile());
-			 
-	          /*****By sandip 25/10/2021******/
-
 			if (maps.size() == 0) {
 				setNote(m, "Excel File is empty");
 			} 
@@ -500,9 +493,10 @@ public class FAQController extends BaseController {
 			
 			/*****By sandip 25/10/2021******/
 			
+			 
+			BusinessBypassRule.validateAlphaNumeric(classParticipation.getRemarks());
+			
 			//System.out.println("remark : "+classParticipation.getRemarks());
-			  
-			BusinessBypassRule.validateRemarks(classParticipation.getRemarks());
 			
 			String s=String.valueOf(classParticipation.getScore());
 				
