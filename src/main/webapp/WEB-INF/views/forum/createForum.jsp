@@ -132,11 +132,11 @@
 
 
 
-													<form:label path="question" for="editor">Add Your Question</form:label>
+													<form:label path="question" for="editor">Add Your Question<span style="color:red">*</span></form:label>
 
 
 													<form:textarea class="form-group testDesc" path="question"
-														name="editor1" id="editor1" rows="10" cols="80" />
+														name="editor1" id="editor1" rows="10" cols="80" required="required"/>
 
 													<%-- <form:label path="question" for="question">Add Your Question</form:label>
 													<form:textarea class="form-control" path="question"

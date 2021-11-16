@@ -73,5 +73,10 @@ public class ProgramCampusService extends BaseService<ProgramCampus> {
 		public List<ProgramCampus> getCampusNameSupportAdmin() {
 			return programCampusDAO.getCampusNameSupportAdmin();
 		}
+
+		//Peter 28/10/2021
+		public ProgramCampus checkIfCampusExists(Long campusId) {
+			return programCampusDAO.checkIfCampusExists(campusId);
+		}
 		
 }

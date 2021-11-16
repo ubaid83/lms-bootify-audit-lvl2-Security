@@ -31,6 +31,7 @@ public class Utils {
 	private static final Logger logger = Logger.getLogger(Utils.class);
 
 	public static String getBlankIfNull(Object object) {
+		
 		return (object == null) ? "" : object.toString();
 	}
 
@@ -337,6 +338,28 @@ public class Utils {
 			throw new ValidationException("Invalid date selected.");
 		}
 	}
+	
+	//sandip
+	public static void validateOnlyDate(String date) throws ValidationException {
+		
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Date d1 = null;
+		Date d2 = Utils.getInIST();
+		String date2 = format.format(d2);
+	
+		try {
+			d1 = format.parse(date);
+			d2 = format.parse(date2);
+			if(d1.before(d2)) {
+				throw new ValidationException("Invalid date selected.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ValidationException("Invalid date selected.");
+		}
+		
+	}
+	
 
 	/* New Audit changes end */
 }

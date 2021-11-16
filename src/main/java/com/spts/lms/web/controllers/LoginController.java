@@ -1070,9 +1070,13 @@ public class LoginController extends BaseController {
 		 * } catch (ValidationException ex) { setError(redirectAttrs, ex.getMessage());
 		 * return "redirect:/changePasswordForm"; }
 		 */
-		userService.changePassword(user); 
+		try { 
+		userService.changePassword(user);
+		} catch (ValidationException ex) { 
+			setError(redirectAttrs, ex.getMessage());
+		 return "redirect:/changePasswordForm"; 
+		 }
 		String json = new Gson().toJson(user);
-
 		// logger.info("passed json--->" + json);
 		try {
 			WebTarget webTarget = client
@@ -3684,6 +3688,23 @@ public class LoginController extends BaseController {
 						logger.info(assignmentSubmission.getAssignmentError());
 						assignmentSubmission.setAssignmentStatus("Pending");
 					}else if (fileNameCheckArr.length == 2 && whiteList.contains(fileNameCheckArr[1].trim().toLowerCase())) {
+						
+						try {
+							byte [] byteArr = file.getBytes();
+						
+						if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 						Date date = new Date();
 						String errorMessage = studentAssignmentController
 								.uploadAssignmentSubmissionFile(assignmentSubmission, file);
@@ -3877,6 +3898,14 @@ public class LoginController extends BaseController {
 							logger.info(assignmentSubmission.getAssignmentError());
 							assignmentSubmission.setAssignmentStatus("Pending");
 						}
+					} else {
+						assignmentSubmission.setAssignmentError("improper file found, please upload correct file.");
+						logger.info(assignmentSubmission.getAssignmentError());
+						assignmentSubmission.setAssignmentStatus("Pending");
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 					}
 					else {
 						assignmentSubmission.setAssignmentError("improper file found, please upload correct file.");

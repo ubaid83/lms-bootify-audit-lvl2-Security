@@ -81,11 +81,11 @@ public class FeedbackDAO extends BaseDAO<Feedback> {
 						BeanPropertyRowMapper.newInstance(genericType));
 	}
 
-	public List<Feedback> findAllValidFeedback() {
+	public List<Feedback> findAllValidFeedback(String username) {
 		final String sql = "select distinct (f.id),f.feedbackName from "
 				+ getTableName()
-				+ " f inner join feedback_question fq on f.id = fq.feedbackId where f.active = 'Y'  order by f.createdDate desc ";
-		return findAllSQL(sql, new Object[] {});
+				+ " f inner join feedback_question fq on f.id = fq.feedbackId where f.active = 'Y' and f.createdBy=?  order by f.createdDate desc ";
+		return findAllSQL(sql, new Object[] {username});
 	}
 
 	public List<Feedback> findByUserAndCourse(String username, Long courseId,
@@ -297,6 +297,12 @@ public class FeedbackDAO extends BaseDAO<Feedback> {
 			}
 		}
 		
+	}
+
+	//Peter 28/10/2021
+	public Feedback checkIfFeedbackExists(String username, Long feedbackId) {
+		String sql = "select id from feedback f where f.id=? and f.active = 'Y' and f.createdBy=?";
+		return findOneSQL(sql,new Object[] {feedbackId, username});
 	}
 
 }

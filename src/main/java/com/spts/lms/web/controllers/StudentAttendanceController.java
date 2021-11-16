@@ -140,7 +140,7 @@ public class StudentAttendanceController extends BaseController {
 
 			DriverManagerDataSource dataSourceTimetable = multipleDBConnection
 
-					.createConnectionByDS("jdbc:mysql://10.25.10.50:3307/", defaultUsername, defaultPassword,
+					.createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword,
 							"timetable_metadata");
 
 			timetableDAO.setDS(dataSourceTimetable);
@@ -301,29 +301,9 @@ public class StudentAttendanceController extends BaseController {
                       "Mark Attendance", true, false));
           StudentCourseAttendance attendance = new StudentCourseAttendance();
 
-          MultipleDBConnection multipleDBConnection = new MultipleDBConnection();
 
-          DriverManagerDataSource dataSourceDefaultLms = multipleDBConnection
 
-          .createDefaultConnectionByDS(defaultUrl, defaultUsername,
-
-          defaultPassword);
-
-          DriverManagerDataSource dataSourceTimetable = multipleDBConnection
-
-          .createConnectionByDS("jdbc:mysql://localhost:3306/", defaultUsername,
-                      defaultPassword, "timetable_metadata");
-
-          timetableDAO.setDS(dataSourceTimetable);
-
-          Date dt = Utils.getInIST();
-          SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-          String curDate = "%" + dateFormat.format(dt) + "%";
-          logger.info("username ------->" + username);
-          logger.info("current Date ------->" + curDate);
-
-          List<Timetable> tt1 = timetableDAO.getTimetableByUsernameAndDate(
-                      username, curDate);
+          List<Timetable> tt1 = getFacultyLectures(username);
           List<Timetable> tt = new ArrayList<>();
           for (Timetable tmtl : tt1) {
   			int check=0;
@@ -564,10 +544,6 @@ public class StudentAttendanceController extends BaseController {
                 m.addAttribute("flags", tt);
 
           }
-
-          timetableDAO.setDS(dataSourceDefaultLms);
-
-          
           List<String> facultyIdList = new ArrayList<String>();
           if(null != facultyId) {
   		  	facultyId =  facultyId.replaceAll(" ","");
@@ -929,21 +905,16 @@ public String saveStudentCourseAttendance(
 		String lectureDetails = attendance.getLecture();
 		logger.info("lectureDetails--->" + lectureDetails);
 		logger.info("CourseId--->" + attendance.getCourseId());
-		String tmpCourseId = lectureDetails.substring(
-				lectureDetails.indexOf("[") + 1,
-				lectureDetails.indexOf("]"));
+		String tmpCourseId = lectureDetails.substring(lectureDetails.indexOf("[") + 1,lectureDetails.indexOf("]"));
+		String startDateTime = attendance.getLecture().split(" To ")[0];
+		String endDateTime = attendance.getLecture().split(" To ")[1].split(",")[0];
 		String[] courseidsStrings = tmpCourseId.split(", ");
+		String flag = attendance.getLecture().split(" To ")[1].split(",")[1];
 		try {
 		List<Long> courseIdList = new ArrayList<>();
 		for (int i = 0; i < courseidsStrings.length; i++) {
 			courseIdList.add(Long.valueOf(courseidsStrings[i]));
-			Course courseData=courseService.findByID(Long.valueOf(courseidsStrings[i]));
 			
-			 if(null ==courseData)
-			 {
-					throw new ValidationException("Invalid Course selected.");
-
-			 }
 			MultipleDBConnection multipleDBConnection = new MultipleDBConnection();
 
 		       DriverManagerDataSource dataSourceDefaultLms = multipleDBConnection
@@ -965,6 +936,22 @@ public String saveStudentCourseAttendance(
 			
 				//timetableDAO.setDS(dataSourceDefaultLms);
 		}
+		/* New Audit changes start */
+		List<Timetable> tt1 = getFacultyLectures(username);
+		if(tt1.size() == 0) {
+			throw new ValidationException("No lectures found.");
+		}else if(tt1.size() > 0) {
+			int i=0;
+			for(Timetable t: tt1) {
+				if(t.getStart_time().equals(startDateTime) && t.getEnd_time().equals(endDateTime)) {
+					i++;
+				}
+			}
+			if(i==0) {
+				throw new ValidationException("Invalid Lecture selected.");
+			}
+		}
+		/* New Audit changes end */
 		List<Course> students = courseService
 				.findStudentsByMultipleCourseId(courseIdList);
 		List<Course> studentCount = courseService
@@ -974,52 +961,15 @@ public String saveStudentCourseAttendance(
 		List<String> statusList = new ArrayList<String>(
 				Arrays.asList(attendance.getStatus().split(",")));
 		
-		String flag = attendance.getLecture().split(" To ")[1].split(",")[1];
-		SimpleDateFormat format = new SimpleDateFormat(
-				"dd-MM-yyyy HH:mm:ss");
+	
+		
 		String acadYear = "";
 		String studAcadSession = "";
-		//
-			Date dt = format
-					.parse(attendance.getLecture().split(" To ")[0]);
-			Date dt1 = format
-					.parse(attendance.getLecture().split(" To ")[1]
-							.split(",")[0]);
-			SimpleDateFormat formatter = new SimpleDateFormat(
-					"yyyy-MM-dd HH:mm:ss");
-			
-			Date d1 = null;
-			Date d3 = null;
-			Date d2 = Utils.getInIST();
-			String date2 = formatter.format(d2);
-			date2 = date2.split(" ")[0].concat(" 00:00:00");
-			
-				
-				d1 = formatter.parse(attendance.getLecture().split(" To ")[0]);
-				d3 = formatter.parse(attendance.getLecture().split(" To ")[1].split(",")[0]);
-				
-				
-				if(d1.before(d2)) {
-//					System.out.println("False - date before currentDate");
-					throw new ValidationException("Invalid date selected.");
-				}
-				if(d1.after(d2)) {
-//					System.out.println("False - date before currentDate");
-					throw new ValidationException("Invalid date selected.");
-				}
-				
-				if(d3.before(d2)) {
-//					System.out.println("False - date before currentDate");
-					throw new ValidationException("Invalid date selected.");
-				}
-				if(d3.after(d2)) {
-//					System.out.println("False - date before currentDate");
-					throw new ValidationException("Invalid date selected.");
-				}
-			
-				
-			
-			
+		
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date dt = format.parse(startDateTime);
+		Date dt1 = format.parse(endDateTime);
 			/*Map<String, List<String>> presentStudentMap = new HashMap<String, List<String>>();*/
 			List<String> absentCourseIds = new ArrayList<>();
 			Map<String,String> suc = new HashMap<String,String>();
@@ -1079,9 +1029,6 @@ public String saveStudentCourseAttendance(
 					bean.setUsername(statusArray[1]);
 					bean.setCourseId(statusArray[2]);*/
 					
-					logger.info("flag---->"
-							+ attendance.getLecture().split(" To ")[1]
-									.split(",")[1]);
 					bean.setFlag(flag);
 					
 					bean.setActive("Y");
@@ -1107,21 +1054,6 @@ public String saveStudentCourseAttendance(
 						}
 					}
 				}
-
-				/*logger.info("presentStudentMap--->"
-						+ presentStudentMap.get("5146163850713770"));
-				logger.info("presentStudentMap1--->"
-						+ presentStudentMap.get("5146163850713378"));*/
-				logger.info("studentCountList--->" + studentCount);
-				for (Course sc : studentCount) {
-					logger.info("courseId: " + sc.getId() + " Count:"
-							+ sc.getCount());
-				}
-				logger.info("studentCount----->" + students.size());
-				logger.info("statusCount----->" + statusList.size());
-				
-				logger.info("count--->" + count);
-				logger.info("absentCourseIds--->" + absentCourseIds);
 				if (count == 0) {
 					
 					logger.info("All present--->");
@@ -1140,9 +1072,6 @@ public String saveStudentCourseAttendance(
 						bean.setEndTime(formatter.format(dt1));
 						
 						bean.setStatus("Present");
-						logger.info("flag---->"
-								+ attendance.getLecture().split(" To ")[1]
-										.split(",")[1]);
 						bean.setFlag(flag);
 						bean.setActive("Y");
 						bean.setDelFlag("N");
@@ -1152,7 +1081,6 @@ public String saveStudentCourseAttendance(
                                 .getAllPresentRecord(bean.getCourseId(),
                                             formatter.format(dt), formatter.format(dt1),
                                             username);
-                    logger.info("checkExist--->"+s);
                     if(null == s){
                           studentCourseAttendanceService.insert(bean);
                     }
@@ -1163,8 +1091,6 @@ public String saveStudentCourseAttendance(
 				} else if (count > 0) {
 					for (Long cid : courseIdList) {
 						if (!absentCourseIds.contains(String.valueOf(cid))) {
-							logger.info("cid--->" + cid + "absentId"
-									+ absentCourseIds);
 							StudentCourseAttendance bean = new StudentCourseAttendance();
 							bean.setCourseId(String.valueOf(cid));
 						
@@ -1180,9 +1106,6 @@ public String saveStudentCourseAttendance(
 							
 
 							bean.setStatus("Present");
-							logger.info("flag---->"
-									+ attendance.getLecture().split(" To ")[1]
-											.split(",")[1]);
 							bean.setFlag(flag);
 							bean.setActive("Y");
 							bean.setDelFlag("N");
@@ -1192,7 +1115,6 @@ public String saveStudentCourseAttendance(
                                     .getAllPresentRecord(bean.getCourseId(),
                                                 formatter.format(dt), formatter.format(dt1),
                                                 username);
-                        logger.info("checkExist--->"+s);
                         if(null == s){
                               studentCourseAttendanceService.insert(bean);
                         }
@@ -1694,20 +1616,8 @@ public String saveStudentCourseAttendance(
 
 		List<Timetable> tt = new ArrayList<>();
 		try {
-			MultipleDBConnection multipleDBConnection = new MultipleDBConnection();
-			DriverManagerDataSource dataSourceDefaultLms = multipleDBConnection.createDefaultConnectionByDS(defaultUrl,
-					defaultUsername, defaultPassword);
-
-			DriverManagerDataSource dataSourceTimetable = multipleDBConnection.createConnectionByDS(
-					"jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword, "timetable_metadata");
-			timetableDAO.setDS(dataSourceTimetable);
-
-			Date dt = Utils.getInIST();
-			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-			String curDate = "%" + dateFormat.format(dt) + "%";
-
-			List<Timetable> tt1 = timetableDAO.getTimetableByUsernameAndDate(username, curDate);
-			timetableDAO.setDS(dataSourceDefaultLms);
+		
+			List<Timetable> tt1 = getFacultyLectures(username);
 
 			for (Timetable tmtl : tt1) {
 				int check = 0;
@@ -1808,4 +1718,27 @@ public String saveStudentCourseAttendance(
 		return tt;
 	}
 
+	public List<Timetable> getFacultyLectures(String username) {
+		List<Timetable> tt = new ArrayList<>();
+		try {
+			MultipleDBConnection multipleDBConnection = new MultipleDBConnection();
+			DriverManagerDataSource dataSourceDefaultLms = multipleDBConnection.createDefaultConnectionByDS(defaultUrl,
+					defaultUsername, defaultPassword);
+
+			DriverManagerDataSource dataSourceTimetable = multipleDBConnection.createConnectionByDS(
+					"jdbc:mysql://localhost:3306/", defaultUsername, defaultPassword, "timetable_metadata");
+			timetableDAO.setDS(dataSourceTimetable);
+
+			Date dt = Utils.getInIST();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+			String curDate = "%" + dateFormat.format(dt) + "%";
+
+			tt = timetableDAO.getTimetableByUsernameAndDate(username, curDate);
+			
+			timetableDAO.setDS(dataSourceDefaultLms);
+		} catch (Exception e) {
+			logger.error("Error-->" + e.getMessage());
+		}
+		return tt;
+	}
 }

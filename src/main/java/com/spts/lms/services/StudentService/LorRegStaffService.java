@@ -55,7 +55,17 @@ public class LorRegStaffService extends BaseService<LorRegStaff> {
 	public List<String> getAlldept() {
 		return lorRegStaffDAO.getAllDept();
 	}
-
+	
+	public List<String> getAllCountryList() {
+		return lorRegStaffDAO.getAllCountryList();
+	}
+    
+	public LorRegStaff findByDepartment(final String department) {
+		return lorRegStaffDAO.findByDepartment(department);
+		
+	}
+	
+	
 	public List<LorRegStaff> getfaculty(String department) {
 		return lorRegStaffDAO.getfaculty(department);
 	}

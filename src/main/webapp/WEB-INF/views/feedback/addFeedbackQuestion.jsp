@@ -116,7 +116,7 @@
 
 																						<button id="submit"
 																							class="btn btn-large btn-success"
-																							formaction="updateFeedbackQuestion">Update
+																							formaction="updateFeedbackQuestion?feedbackId=${feedback.id}">Update
 																							Question</button>
 																					</div>
 																				</div>
@@ -150,7 +150,7 @@
 														<form:input type="hidden" path="feedbackId"
 															value="${feedback.id}" />
 														<div class="form-group">
-															<form:label path="description" for="description">Description <span style="color: red">*</span></form:label>
+															<form:label path="description" for="description">Description<span style="color: red">*</span></form:label>
 															<form:input id="description" path="description"
 																type="textarea" required="required"
 																placeholder="Description" class="form-control" />

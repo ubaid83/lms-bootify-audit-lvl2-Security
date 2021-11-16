@@ -2,10 +2,14 @@ package com.spts.lms.daos.StudentService;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
 
 import com.spts.lms.beans.StudentService.LorRegDetails;
 import com.spts.lms.beans.StudentService.LorRegStaff;
+import com.spts.lms.beans.user.User;
 import com.spts.lms.daos.BaseDAO;
 
 @Repository
@@ -15,6 +19,9 @@ public class LorRegStaffDAO extends BaseDAO<LorRegStaff> {
 	protected String getTableName() {
 		return "lor_reg_staff";
 	}
+	
+	@Autowired
+	public JdbcTemplate JdbcTemplate;
 
 	@Override
 	protected String getInsertSql() {
@@ -102,11 +109,22 @@ public class LorRegStaffDAO extends BaseDAO<LorRegStaff> {
 	}
 
 	public List<String> getAllDept() {
-
-		String sql = "select distinct department from  lor_department_faculty";
+        String sql = "select distinct department from  lor_department_faculty";
 		return listOfStringParameter(sql, new Object[] {});
 	}
-
+  
+	//Arti 
+	public List<String> getAllCountryList() {
+        String sql = "select distinct countryForHigherStudy from  country";
+		return listOfStringParameter(sql, new Object[] {});
+	}
+	
+	//Arti
+	public LorRegStaff findByDepartment(final String department) {
+	     String sql = "Select distinct(department) from lor_reg_staff where department = ?";
+		 return findOneSQL(sql, new Object[] { department});
+	}
+	
 	public List<LorRegStaff> getfaculty(String department) {
 		String sql = "select distinct ldept.facultyId as username,CONCAT(u.firstname,' ',u.lastname) as name, ldept.department  from lor_department_faculty ldept LEFT JOIN users u ON u.username = ldept.facultyId where ldept.department=? ";
 		return findAllSQL(sql, new Object[] { department });

@@ -4,6 +4,7 @@ import java.security.Principal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.spts.lms.auth.Token;
+import com.spts.lms.beans.course.Course;
 import com.spts.lms.beans.forum.Forum;
 import com.spts.lms.beans.forum.ForumReply;
 import com.spts.lms.beans.forum.ForumReplyDisLike;
@@ -39,6 +41,9 @@ import com.spts.lms.services.user.UserRoleService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+
+import com.spts.lms.web.utils.HtmlValidation;
+
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -74,9 +79,9 @@ public class ForumController extends BaseController {
 
 	@Autowired
 	ForumCounterReplyService forumCounterReplyService;
-
 	
-	BusinessBypassRule businessBypassRule = new BusinessBypassRule ();
+	@Autowired
+	BusinessBypassRule BusinessBypassRule;
 	
 	private static final Logger logger = Logger
 			.getLogger(ForumController.class);
@@ -148,7 +153,8 @@ public class ForumController extends BaseController {
 		return "forum/createForum";
 
 	}
-
+	
+   // 22-10-2021 change
 	@Secured({ "ROLE_USER" })
 	@RequestMapping(value = "/createForum", method = { RequestMethod.POST })
 	public String createForum(@ModelAttribute Forum forum, Model m,
@@ -158,25 +164,50 @@ public class ForumController extends BaseController {
 		m.addAttribute("webPage", new WebPage("forum", "Create Forum", true,
 				false));
 		String username = principal.getName();
+		System.out.println("COURSEID>>>>>>>>>>>>>>>>"+courseId);
+	//	String topic = forum.getTopic();
+	//	System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<TOPIC>>>>>>>>>>>>>>>>"+topic);
+		
+		String question = forum.getQuestion();
+
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
+
+	
+		
 		User u = userService.findByUserName(username);
 	
 		try {
 	
-		
-		BusinessBypassRule.validateAlphaNumeric("^%&");
+		HtmlValidation.validateHtml(forum, Arrays.asList("description"));
+
+//		BusinessBypassRule.validateAlphaNumeric("^%&");
+
+
 
 		String acadSession = u.getAcadSession();
 		
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		
-
+		Course c = courseService.findByID(courseId);
+		
+         if(c == null) {
+	    	 throw new ValidationException("Invalid Course Selected");
+	     }
+	         
+	       //  BusinessBypassRule.validateNumericForLong(courseId); 
+	         BusinessBypassRule.validateAlphaNumeric(forum.getTopic());
+	     
+	         if(question == null || question.isEmpty())
+	         {
+	        	 throw new ValidationException("Question can not be empty.");	 
+	         }
 	
 			forum.setCreatedBy(username);
 			forum.setLastModifiedBy(username);
-			// forum.setCourseId(courseId);
+			
+			
 			
 			if (id == null) {
 				forumService.insertWithIdReturn(forum);
@@ -195,12 +226,12 @@ public class ForumController extends BaseController {
 					courseService.findByID(forum.getCourseId()));
 			m.addAttribute("id", forum.getId());
 
-		} 
+
+		}
 		catch (ValidationException e) {
+			
 			logger.error(e.getMessage(), e);
-			logger.info(e.getMessage());
-			logger.info(e.getLocalizedMessage());
-			setError(m, e.getMessage());
+			setError(m,e.getMessage());
 			m.addAttribute("webPage", new WebPage("forum", "Create Forum",
 					false, false));
 			m.addAttribute(
@@ -209,6 +240,8 @@ public class ForumController extends BaseController {
 							userdetails1.getProgramName()));
 			return "forum/createForum";
 		}
+		
+	
 		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			
@@ -223,16 +256,20 @@ public class ForumController extends BaseController {
 		}
 		redirectAttributes.addAttribute("id", forum.getId());
 		return "redirect:/replyToQuestionForm";
+	
+    
 	}
-
+	
 	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
-	@RequestMapping(value = "/replyToQuestionForm", method = {
-			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/replyToQuestionForm", method = {RequestMethod.GET, RequestMethod.POST})
 	public String replyToQuestionForm(@ModelAttribute ForumReply forumReply,
 			Model m, @RequestParam(required = false) Long id, Long courseId,
 			RedirectAttributes redirectAttributes, Principal principal) {
 		m.addAttribute("webPage", new WebPage("forum", "Reply to Question",
 				true, false));
+		
+   	System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Faculty Side >>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+	
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
@@ -248,6 +285,8 @@ public class ForumController extends BaseController {
 
 		DateFormat df = new SimpleDateFormat("E, MMM dd yyyy");
 		try {
+			
+			
 			if (id != null) {
 				List<ForumReply> forumReplyList = forumReplyService
 						.getRepliesFromQuestion(id);
@@ -370,25 +409,41 @@ public class ForumController extends BaseController {
 
 	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/replyToQuestion", method = { RequestMethod.POST })
-	public String replyToQuestion(@ModelAttribute ForumReply forumreply,
-			RedirectAttributes redirectAttributes, Model m,
-			@RequestParam(required = false) Long questionId, Long courseId,
-			Principal principal) {
-		m.addAttribute("webPage", new WebPage("forum", "Reply to Question",
-				true, false));
+	public String replyToQuestion(@ModelAttribute ForumReply forumreply, RedirectAttributes redirectAttributes, Model m,
+			@RequestParam(required = false) Long questionId, Long courseId, Principal principal) {
+		m.addAttribute("webPage", new WebPage("forum", "Reply to Question", true, false));
+		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<INSIDE FORUM REPLY  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<INSIDE FORUM Faculty REPLY >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+				+ forumreply.getReply());
+
 		String username = principal.getName();
-		
+
+		String reply = forumreply.getReply();
+
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
+
+//			//reply validation
 		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
 		try {
+			
+			if (reply == null || reply.isEmpty()) {
+				throw new ValidationException("Reply can't be blank");
+			}
+			
+			// if(reply == null ||reply.isEmpty())
+			// {
+			// throw new ValidationException("Invalid Reply to Forum");
+			// }
+
 			if (questionId != null) {
 
 				Forum forum = forumService.findByID(questionId);
@@ -400,11 +455,9 @@ public class ForumController extends BaseController {
 				forumreply.setLastModifiedBy(username);
 				forumReplyService.insertWithIdReturn(forumreply);
 				m.addAttribute("allForums", forumService.findAll());
-				List<ForumReply> allReplies = forumReplyService
-						.getRepliesFromQuestion(questionId);
+				List<ForumReply> allReplies = forumReplyService.getRepliesFromQuestion(questionId);
 				for (ForumReply fr : allReplies) {
-					List<ForumReply> counterReplies = forumCounterReplyService
-							.findCounterReplies(fr.getId());
+					List<ForumReply> counterReplies = forumCounterReplyService.findCounterReplies(fr.getId());
 
 					if (counterReplies.size() > 0) {
 						fr.setCounterReplyList(counterReplies);
@@ -413,20 +466,20 @@ public class ForumController extends BaseController {
 					}
 
 				}
+
 				m.addAttribute("allReplies", allReplies);
-				
 
 				setSuccess(redirectAttributes, "Replied Successfully!");
 
 			} else {
 				setError(m, "Error");
+
 			}
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in creating forum");
-			m.addAttribute("webPage", new WebPage("forum", "Create Forum",
-					false, false));
+			m.addAttribute("webPage", new WebPage("forum", "Create Forum", false, false));
 			return "forum/reply";
 		}
 		redirectAttributes.addAttribute("id", questionId);
@@ -579,6 +632,8 @@ public class ForumController extends BaseController {
 			Model m, Principal principal) {
 		m.addAttribute("webPage", new WebPage("forum", "Create Forum", true,
 				false));
+		
+		//System.out.println("<<<<<<<<<<<<<<<Inside Reply to question>>>>>>>>>>");
 
 		String username = principal.getName();
 

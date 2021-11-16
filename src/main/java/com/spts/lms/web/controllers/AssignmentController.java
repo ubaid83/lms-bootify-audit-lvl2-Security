@@ -112,6 +112,7 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -364,6 +365,7 @@ public class AssignmentController extends BaseController {
 //				setError(redirectAttributes, "Invalid Start date and End date");
 //				return "redirect:/createAssignmentFromMenu";
 //			}
+			HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
 			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -372,7 +374,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -406,7 +411,26 @@ public class AssignmentController extends BaseController {
 									redirectAttributes.addAttribute("courseId", assignment.getCourseId());
 									return "redirect:/createAssignmentFromMenu";
 								}else {
+									byte [] byteArr=file.getBytes();
+									if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 									String errorMessage = uploadAssignmentFileForS3(assignment, file);
+									} else {
+										setError(redirectAttributes, "File uploaded is invalid!");
+										redirectAttributes.addAttribute("courseId", assignment.getCourseId());
+										return "redirect:/createAssignmentFromMenu";
+									}
 								}
 							}
 						}else {
@@ -523,6 +547,7 @@ public class AssignmentController extends BaseController {
 				m.addAttribute("allCourses",courseService.findByUserActive(username,userdetails1.getProgramName()));
 			}
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
 			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -531,7 +556,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -566,7 +594,28 @@ public class AssignmentController extends BaseController {
 								}
 								return "assignment/createAssignment";
 							}else {
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 								errorMessage = uploadAssignmentFileForS3(assignment, file);
+								} else {
+									setError(m, "File uploaded is invalid!");
+									if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
+										return "assignment/createAssignmentForAdmin";
+									}
+									return "assignment/createAssignment";
+								}
 							}
 						}
 					}else {
@@ -1137,6 +1186,7 @@ public class AssignmentController extends BaseController {
 			assignment.setCourseId(courseId);
 		}
 		/* New Audit changes start */
+		HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
 		Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 		BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 		BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -1145,7 +1195,10 @@ public class AssignmentController extends BaseController {
 		if(null == course) {
 			throw new ValidationException("Invalid Course selected.");
 		}
-		BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+		if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+			throw new ValidationException("Invalid Input.");
+		}
+//		BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 		BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 		BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 		if(!multipleAssignmentErrorMsg.equals("Success")) {
@@ -1184,7 +1237,25 @@ public class AssignmentController extends BaseController {
 							//redirectAttrs.addAttribute("courseId", assignment.getCourseId());
 							return "assignment/createAssignmentFromGroupFinal";
 						}else {
+							byte [] byteArr=file.getBytes();
+							if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 							String errorMessage = uploadAssignmentFileForS3(assignment, file);
+							} else {
+								setError(m, "File uploaded is invalid!");
+								return "assignment/createAssignmentFromGroupFinal";
+							}
 						}
 					}
 				}else {
@@ -3376,6 +3447,27 @@ public class AssignmentController extends BaseController {
 												setError(redirectAttrs, "File uploaded is invalid!");
 												redirectAttrs.addAttribute("courseId", assignment.getCourseId());
 												return "redirect:/createGroupAssignmentsForm";
+											} else {
+												byte [] byteArr=file.getBytes();
+												if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+													logger.info("file is valid--->");
+												}else {
+													setError(redirectAttrs, "File uploaded is invalid!");
+													redirectAttrs.addAttribute("courseId", assignment.getCourseId());
+													return "redirect:/createGroupAssignmentsForm";
+												}
 											}
 										}
 									}else {
@@ -3386,6 +3478,7 @@ public class AssignmentController extends BaseController {
 								}
 							}
 							String multipleAssignmentErrorMsg = "Success";
+							HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
 							multipleAssignmentErrorMsg = saveGroupAssignment(assignment, mapper.get(i), m, p,redirectAttrs,multipleAssignmentErrorMsg);
 							logger.info("multipleAssignmentErrorMsg---->"+multipleAssignmentErrorMsg);
 							if(!multipleAssignmentErrorMsg.equals("Success")) {
@@ -3524,6 +3617,7 @@ public class AssignmentController extends BaseController {
 				assignmentService.update(assignment);
 			} else {
 				/* New Audit changes start */
+				HtmlValidation.validateHtml(assignment,Arrays.asList("assignmentText"));
 				Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 				BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 				BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -3532,7 +3626,10 @@ public class AssignmentController extends BaseController {
 				if(null == course) {
 					throw new ValidationException("Invalid Course selected.");
 				}
-				BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+				if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+					throw new ValidationException("Invalid Input.");
+				}
+//				BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 				BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 				BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 				BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -3566,7 +3663,25 @@ public class AssignmentController extends BaseController {
 									setError(redirectAttributes, "File uploaded is invalid!");
 									return "redirect:/createAssignmentModuleForm";
 								} else {
+									byte [] byteArr=file.getBytes();
+									if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 									String errorMessage = uploadAssignmentFileForS3(assignment, file);
+									} else {
+										setError(redirectAttributes, "File uploaded is invalid!");
+										return "redirect:/createAssignmentModuleForm";
+									}
 								}
 							}
 						}else {
@@ -4265,6 +4380,7 @@ public class AssignmentController extends BaseController {
 			userdetails1.getProgramName()));
 			
 			/* New Audit changes start */
+			HtmlValidation.validateHtml(assignment,Arrays.asList("assignmentText"));
 			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -4273,7 +4389,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -4306,8 +4425,26 @@ public class AssignmentController extends BaseController {
 								setError(m, "File uploaded is invalid!");
 								return "assignment/createAssignmentForModule";
 							}else {
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 								errorMessage = uploadAssignmentFileForS3(assignment, file);
 								logger.info("New File---->" + assignment.getFilePath());
+								} else {
+									setError(m, "File uploaded is invalid!");
+									return "assignment/createAssignmentForModule";
+								}
 							}
 						}
 					}else {
@@ -4863,6 +5000,7 @@ public class AssignmentController extends BaseController {
 //				setError(redirectAttributes, "Invalid total score");
 //				return "redirect:/createAssignmentByAdmin";
 //			}
+			HtmlValidation.validateHtml(assignment,Arrays.asList("assignmentText"));
 			Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
 			BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 			BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
@@ -4871,7 +5009,10 @@ public class AssignmentController extends BaseController {
 			if(null == course) {
 				throw new ValidationException("Invalid Course selected.");
 			}
-			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+			if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+				throw new ValidationException("Invalid Input.");
+			}
+//			BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
 			BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
 			BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
 			BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
@@ -4899,7 +5040,25 @@ public class AssignmentController extends BaseController {
 									setError(redirectAttributes, "File uploaded is invalid!");
 									return "redirect:/createAssignmentByAdmin";
 								}else {
+									byte [] byteArr=file.getBytes();
+									if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 									String errorMessage = uploadAssignmentFileForS3(assignment, file);
+									} else {
+										setError(redirectAttributes, "File uploaded is invalid!");
+										return "redirect:/createAssignmentByAdmin";
+									}
 								}
 							}
 						}else {

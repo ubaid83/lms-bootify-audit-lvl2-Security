@@ -80,7 +80,9 @@ import com.spts.lms.web.helper.ExtractZipFileWithSubdirectories;
 import com.spts.lms.web.helper.InsertLibrary;
 import com.spts.lms.web.helper.UnzipFiles;
 import com.spts.lms.web.helper.WebPage;
+import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 
 
 @Controller
@@ -155,9 +157,9 @@ public class LibraryController extends BaseController {
 	private static final Logger logger = Logger.getLogger(LibraryController.class);
 	private static final String FILE_SEPARATOR = "/";
 
-	private static final String serverURL = "http://192.168.2.116:8443/"; // "http://localhost:8085/"
+	private static final String serverURL = "http://localhost:8085/"; // "http://localhost:8085/"
 																		// "http://192.168.2.116:8443/"
-	private static final String serverCrudURL = "http://192.168.2.116:8443/usermgmtcrud/"; // "http://localhost:8082/"
+	private static final String serverCrudURL = "http://localhost:8082/"; // "http://localhost:8082/"
 																						// "http://192.168.2.116:8443/usermgmtcrud/"
 
 	@Secured({ "ROLE_FACULTY" })
@@ -539,7 +541,25 @@ public class LibraryController extends BaseController {
 							setError(redirectAttributes, "File uploaded is invalid!");
 							return "redirect:/viewLibraryAnnouncements";
 						}else {
+							byte [] byteArr=file.getBytes();
+							if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 							String errorMessage = uploadWebpageFile(webpages, file);
+							} else {
+								setError(redirectAttributes, "File uploaded is invalid!");
+								return "redirect:/viewLibraryAnnouncements";
+							}
 						}
 					}
 				}else {
@@ -635,7 +655,25 @@ public class LibraryController extends BaseController {
 							setError(redirectAttributes, "File uploaded is invalid!");
 							return "redirect:/viewLibraryAnnouncements";
 						}else {
+							byte [] byteArr=file.getBytes();
+							if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 							String errorMessage = uploadWebpageFile(webpages, file);
+							} else {
+								setError(redirectAttributes, "File uploaded is invalid!");
+								return "redirect:/viewLibraryAnnouncements";
+							}
 						}
 					}
 				}else {
@@ -1066,6 +1104,22 @@ public class LibraryController extends BaseController {
 	public String addLibraryZip(@ModelAttribute Library library, Principal principal,
 			@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttrs, Model m) {
 		String username = principal.getName();
+		
+		try {
+			if(!library.getContentType().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(library.getContentType());
+			}
+			if(library.getParentId() != null) {
+				BusinessBypassRule.validateNumeric(library.getParentId());
+			}
+			if(!library.getContentDescription().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(library.getContentDescription());
+			}
+		} catch (ValidationException ve) {
+			ve.printStackTrace();
+			setError(redirectAttrs,ve.getMessage());
+			return "redirect:/viewLibraryAnnouncements";
+		}
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
@@ -1104,6 +1158,26 @@ public class LibraryController extends BaseController {
 						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/addLibraryItemForm";
+						}else {
+							byte [] byteArr=file.getBytes();
+							if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+								logger.info("file is valid--->");
+							} else {
+								setError(redirectAttrs, "File uploaded is invalid!");
+								return "redirect:/addLibraryItemForm";
+							}
 						}
 					}
 				}else {
@@ -1423,6 +1497,25 @@ public class LibraryController extends BaseController {
 	@RequestMapping(value = "/addLibraryFolder", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addLibraryFolder(@ModelAttribute Library library, RedirectAttributes redirectAttrs,
 			Principal principal, Model m) {
+		
+		try {
+			if(!library.getContentType().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(library.getContentType());
+			}
+			if(library.getParentId() != null) {
+				BusinessBypassRule.validateNumeric(library.getParentId());
+			}
+			BusinessBypassRule.validateAlphaNumeric(library.getContentName());
+			if(!library.getContentDescription().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(library.getContentDescription());
+			}
+		} catch (ValidationException ve) {
+			ve.printStackTrace();
+			setError(redirectAttrs,ve.getMessage());
+			return "redirect:/addLibraryItemForm";
+		}
+		
+		
 		String username = principal.getName();
 		redirectAttrs.addFlashAttribute("content", library);
 
@@ -2178,6 +2271,22 @@ public class LibraryController extends BaseController {
 	public String addLibraryFile(@ModelAttribute Library library, Principal principal,
 			@RequestParam("file") List<MultipartFile> files, RedirectAttributes redirectAttrs, Model m) {
 		String username = principal.getName();
+		
+		try {
+			if(!library.getContentType().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(library.getContentType());
+			}
+			if(library.getParentId() != null) {
+				BusinessBypassRule.validateNumeric(library.getParentId());
+			}
+			if(!library.getContentDescription().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(library.getContentDescription());
+			}
+		} catch (ValidationException ve) {
+			ve.printStackTrace();
+			setError(redirectAttrs,ve.getMessage());
+			return "redirect:/viewLibraryAnnouncements";
+		}
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
@@ -2217,7 +2326,25 @@ public class LibraryController extends BaseController {
 								setError(redirectAttrs, "File uploaded is invalid!");
 								return "redirect:/addLibraryItemForm";
 							}else {
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 								errorMessage = uploadLibraryFile(library, library.getFolderPath(), file);
+								} else {
+									setError(redirectAttrs, "File uploaded is invalid!");
+									return "redirect:/addLibraryItemForm";
+								}
 							}
 						}
 					}else {
@@ -2403,7 +2530,28 @@ public class LibraryController extends BaseController {
 							redirectAttrs.addFlashAttribute("edit", "true");
 							return "redirect:/addLibraryItemForm";
 						}else {
-							errorMessage = uploadLibraryFile(library, library.getFolderPath(), file);
+							byte [] byteArr=file.getBytes();
+							if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+								errorMessage = uploadLibraryFile(library, library.getFolderPath(), file);
+							} else {
+								setError(redirectAttrs, "File uploaded is invalid!");
+								redirectAttrs.addAttribute("id", library.getId());
+								redirectAttrs.addAttribute("contentType", library.getContentType());
+								redirectAttrs.addFlashAttribute("edit", "true");
+								return "redirect:/addLibraryItemForm";
+							}
 						}
 					}
 				}else {
@@ -2567,7 +2715,27 @@ public class LibraryController extends BaseController {
 	public String addLibraryLink(@ModelAttribute Library library, RedirectAttributes redirectAttrs,
 			Principal principal) {
 		String username = principal.getName();
+		
 		redirectAttrs.addFlashAttribute("library", library);
+		
+		try {
+			if(!library.getContentType().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(library.getContentType());
+			}
+			if(library.getParentId() != null) {
+				BusinessBypassRule.validateNumeric(library.getParentId());
+			}
+			BusinessBypassRule.validateAlphaNumeric(library.getContentName());
+			if(!library.getContentDescription().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(library.getContentDescription());
+			}
+			
+			BusinessBypassRule.validateUrl(library.getLinkUrl());
+		} catch (ValidationException ve) {
+			ve.printStackTrace();
+			setError(redirectAttrs,ve.getMessage());
+			return "redirect:/viewLibraryAnnouncements";
+		}
 
 		Long parentId = library.getParentId();
 		String folderPath = library.getFolderPath();
