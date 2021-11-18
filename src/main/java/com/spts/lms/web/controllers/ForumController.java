@@ -180,7 +180,9 @@ public class ForumController extends BaseController {
 		try {
 	
 		HtmlValidation.validateHtml(forum, Arrays.asList("description"));
+
 //		BusinessBypassRule.validateAlphaNumeric("^%&");
+
 
 
 		String acadSession = u.getAcadSession();
@@ -407,41 +409,42 @@ public class ForumController extends BaseController {
 
 	@Secured({ "ROLE_STUDENT", "ROLE_FACULTY" })
 	@RequestMapping(value = "/replyToQuestion", method = { RequestMethod.POST })
-	public String replyToQuestion(@ModelAttribute ForumReply forumreply,
-			RedirectAttributes redirectAttributes, Model m,
-			@RequestParam(required = false) Long questionId, Long courseId,
-			Principal principal) {
-		m.addAttribute("webPage", new WebPage("forum", "Reply to Question",
-				true, false));
+	public String replyToQuestion(@ModelAttribute ForumReply forumreply, RedirectAttributes redirectAttributes, Model m,
+			@RequestParam(required = false) Long questionId, Long courseId, Principal principal) {
+		m.addAttribute("webPage", new WebPage("forum", "Reply to Question", true, false));
 		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<INSIDE FORUM REPLY  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-		
-		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<INSIDE FORUM Faculty REPLY >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+forumreply.getReply());
-		
+
+		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<INSIDE FORUM Faculty REPLY >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+				+ forumreply.getReply());
+
 		String username = principal.getName();
-		
+
 		String reply = forumreply.getReply();
-		
+
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
+
+//			//reply validation
 		
 
 		String acadSession = u.getAcadSession();
-		
+
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 
 		try {
 			
-//			//reply validation
-			if(reply == null ||reply.isEmpty())
-		    {
-				 throw new ValidationException("Reply can't be blank");
+			if (reply == null || reply.isEmpty()) {
+				throw new ValidationException("Reply can't be blank");
 			}
 			
+			// if(reply == null ||reply.isEmpty())
+			// {
+			// throw new ValidationException("Invalid Reply to Forum");
+			// }
+
 			if (questionId != null) {
-				
-				
 
 				Forum forum = forumService.findByID(questionId);
 				forumreply.setCourseId(forum.getCourseId());
@@ -452,11 +455,9 @@ public class ForumController extends BaseController {
 				forumreply.setLastModifiedBy(username);
 				forumReplyService.insertWithIdReturn(forumreply);
 				m.addAttribute("allForums", forumService.findAll());
-				List<ForumReply> allReplies = forumReplyService
-						.getRepliesFromQuestion(questionId);
+				List<ForumReply> allReplies = forumReplyService.getRepliesFromQuestion(questionId);
 				for (ForumReply fr : allReplies) {
-					List<ForumReply> counterReplies = forumCounterReplyService
-							.findCounterReplies(fr.getId());
+					List<ForumReply> counterReplies = forumCounterReplyService.findCounterReplies(fr.getId());
 
 					if (counterReplies.size() > 0) {
 						fr.setCounterReplyList(counterReplies);
@@ -465,31 +466,20 @@ public class ForumController extends BaseController {
 					}
 
 				}
-				
+
 				m.addAttribute("allReplies", allReplies);
-				
 
 				setSuccess(redirectAttributes, "Replied Successfully!");
 
 			} else {
 				setError(m, "Error");
+
 			}
 
-		} 
-		
-		catch (ValidationException e) {
-			logger.error(e.getMessage(), e);
-			setError(m, e.getMessage());
-			m.addAttribute("webPage", new WebPage("forum", "Create Forum",
-					false, false));
-			return "forum/reply";
-		}
-	
-		catch (Exception e) {
+		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in creating forum");
-			m.addAttribute("webPage", new WebPage("forum", "Create Forum",
-					false, false));
+			m.addAttribute("webPage", new WebPage("forum", "Create Forum", false, false));
 			return "forum/reply";
 		}
 		redirectAttributes.addAttribute("id", questionId);

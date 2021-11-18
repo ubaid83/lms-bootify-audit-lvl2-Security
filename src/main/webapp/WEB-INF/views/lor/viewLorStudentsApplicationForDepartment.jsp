@@ -222,18 +222,24 @@
 </div>	
 
 
-<<script>
+<script>
+	
+
+$('.lorFormatFileUploadData').bind('click',
 	
 	
+        
+		 function () {
+		var lorFileUploadModal = $('#lorFormatFileUploadModal');
 	
-	$('.lorFormatFileUploadData').on('click', function () {
-        var lorFileUploadModal = $('#lorFormatFileUploadModal');
         var lorRegStaffId =  $(this).attr("data-lorRegStaffId");
         //alert(lorRegId+"   "+stUsername);
         $('#lorRegStaffId').val(lorRegStaffId);
+        console.log('lorRegStaffId',lorRegStaffId)
         
         
-    });
+    }
+	);
     $('.lorFormatFileUploadModal').on('hidden.bs.modal', function(e) {
     	$('#lorRegStaffId').val("");
     	$('#finalLorFile').val("");

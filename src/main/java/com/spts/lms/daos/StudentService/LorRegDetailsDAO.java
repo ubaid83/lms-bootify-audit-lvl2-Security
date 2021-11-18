@@ -67,4 +67,12 @@ public class LorRegDetailsDAO extends BaseDAO<LorRegDetails> {
 		return findOneSQL(sql, new Object[] {lorRegId, staffId+"%" });
 	}
 
+	public LorRegDetails findByCountryName(final String country_name) {
+		
+		 String sql = "Select * from country where countryForHigherStudy = ?";
+			return findOneSQL(sql, new Object[] { country_name});
+			
+		
+	}
+
 }

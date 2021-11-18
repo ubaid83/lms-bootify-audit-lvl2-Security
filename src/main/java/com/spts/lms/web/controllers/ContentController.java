@@ -99,7 +99,8 @@ public class ContentController extends BaseController {
 
 	@Autowired
 	ApplicationContext act;
-
+	
+	
 	@Autowired
 	ContentService contentService;
 
@@ -397,6 +398,25 @@ public class ContentController extends BaseController {
 			Course c = new Course();
 			String username = p.getName();
 
+
+
+
+			
+			
+			Course course= courseService.findByID(Long.parseLong(idForCourse));
+			if(null==course || course.equals(""))
+			{
+				 throw new ValidationException("Input number should be a positive number.");
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			
+			
 			Content contentd = new Content();
 			if (content.getCourseId() == null) {
 				content.setCourseId(Long.valueOf(idForCourse));
@@ -438,8 +458,25 @@ public class ContentController extends BaseController {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/addContentForm";
 						}else {
-							errorMessage = uploadContentFileForS3(content,
-					content.getFolderPath(), file);
+							byte [] byteArr=file.getBytes();
+							if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+							errorMessage = uploadContentFileForS3(content, content.getFolderPath(), file);
+							} else {
+								setError(redirectAttrs, "File uploaded is invalid!");
+								return "redirect:/addContentForm";
+							}
 						}
 					}
 				}else {
@@ -489,6 +526,10 @@ public class ContentController extends BaseController {
 				}
 			}
 
+		}catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			return "redirect:/addContentForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating file");
@@ -511,6 +552,37 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
 
+			
+
+			
+			businessBypassRule.validateNumeric(acadYear);
+		
+				Course course=new Course();
+				if(null!=idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course=courseService.findByID(Long.valueOf(idForCourse));
+				}
+				if(null!=idForModule && !idForModule.isEmpty()) {
+					businessBypassRule.validateNumeric(idForModule);
+					course=courseService.findByID(Long.valueOf(idForModule));
+					}
+				
+				
+			
+				if(null==course || course.toString().isEmpty()  )
+				{
+					
+					throw new ValidationException("Error in creating Folder");
+				
+				}
+				
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+		
 			String username = p.getName();
 			List<Course> courseIdList = new ArrayList<>();
 			courseIdList = courseService.findCoursesByModuleId(
@@ -604,8 +676,26 @@ public class ContentController extends BaseController {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/addContentForm";
 						}else {
+							byte [] byteArr=file.getBytes();
+							if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 							errorMessage = uploadContentFileForS3(content,
 										content.getFolderPath(), file);
+							} else {
+								setError(redirectAttrs, "File uploaded is invalid!");
+								return "redirect:/addContentForm";
+							}
 						}
 					}
 				}else {
@@ -685,7 +775,14 @@ public class ContentController extends BaseController {
 				}
 			}
 			
-		} catch (Exception e) {
+			
+		}
+		catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, "Error in creating file");
+			return "redirect:/addContentForm";
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating file");
 			return "redirect:/addContentForm";
@@ -707,12 +804,29 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		File file = null;
 		try {
+			
+			
+			
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			
+			Course course= courseService.findByID(Long.parseLong(idForCourse));
+			if(null==course || course.equals(""))
+			{
+				 throw new ValidationException("Input number should be a positive number.");
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
 			String username = p.getName();
 			if (content.getCourseId() == null) {
 				content.setCourseId(Long.valueOf(idForCourse));
 			}
 			performFolderPathCheck(content);
-
+			
 			Token userdetails1 = (Token) p;
 			String ProgramName = userdetails1.getProgramName();
 			User u = userService.findByUserName(username);
@@ -778,7 +892,20 @@ public class ContentController extends BaseController {
 					return "redirect:/addContentForm";
 				}
 
-		} catch (Exception e) {
+		}catch(ValidationException e) {
+			
+
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			if (file != null && file.list().length == 0) {
+				file.delete();
+			}
+			return "redirect:/addContentForm";
+		
+		}
+		
+		
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating folder");
 			if (file != null && file.list().length == 0) {
@@ -788,14 +915,9 @@ public class ContentController extends BaseController {
 		}
 		return "redirect:/getContentUnderAPathForFacultyForModule";
 	}
-	public void validateAccessType(String s) throws ValidationException{
-		if (s == null || s.trim().isEmpty()) {
-			 throw new ValidationException("Input field cannot be empty");
-		 }
-		if(!s.equals("Public") && !s.equals("Private") && !s.equals("Everyone")  ) {
-			throw new ValidationException("Invalid Access Type.");
-		}
-	}
+
+	
+	
 	
 	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addFolderForModule", method = {
@@ -812,28 +934,54 @@ public class ContentController extends BaseController {
 		File file = null;
 		try {
 			
+
+				businessBypassRule.validateNumeric(acadYear);
+				Course acadyear=courseService.checkIfExistsInDB("acadYear",acadYear);
+				
+				if(null==acadyear || acadyear.equals(" ") ) {
+					
+					
+					if (file != null && file.list().length == 0) {
+						file.delete();
+					}
+					
+					throw new ValidationException("Error in creating Folder Invalid Acad Year Selected");
+				}
+				
+				businessBypassRule.validateAlphaNumeric(content.getContentName());
+				Course course=new Course();
+				if(null!=idForCourse && !idForCourse.isEmpty()) {
+					businessBypassRule.validateNumeric(idForCourse);
+					
+					
+					course=courseService.checkIfExistsInDB("moduleId",idForCourse);
+				}
+				if(null!=idForModule && !idForModule.isEmpty() ) {
+					
+					businessBypassRule.validateNumeric(idForModule);
+					course=courseService.checkIfExistsInDB("moduleId",idForModule);
+					}
+				
 			
+				if(course.toString().isEmpty() || null==course)
+				{
+					
+					
+					if (file != null && file.list().length == 0) {
+						file.delete();
+					}
+					
+					throw new ValidationException("Error in creating Folder Invalid Module Selected");
+				
+				}
+				
+				businessBypassRule.validateaccesstype(content.getAccessType());
 			
-//				businessBypassRule.validateAlphaNumeric(content.getContentName());
-//				businessBypassRule.validateNumeric(idForCourse);
-//				Course course=courseService.findByID(Long.valueOf(idForCourse));
-//				if(course.toString().isEmpty() || null==course)
-//				{
-//
-//		
-//					setError(redirectAttrs, "Invalid Course While creating folder");
-//					if (file != null && file.list().length == 0) {
-//						file.delete();
-//					}
-//					return "redirect:/addContentForm";
-//				
-//				}
-//				validateAccessType(content.getAccessType());
-//			
-//			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
-//			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
-//			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
-//			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+
 		
 			
 			String username = p.getName();
@@ -1299,7 +1447,7 @@ public class ContentController extends BaseController {
 				redirectAttrs.addFlashAttribute("edit", "true");
 				return "redirect:/addContentForm";
 			}
-			validateAccessType(content.getAccessType());
+			businessBypassRule.validateaccesstype(content.getAccessType());
 		
 		utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
 		businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
@@ -1435,6 +1583,27 @@ public class ContentController extends BaseController {
 			@RequestParam(name = "idForCourse", required = false, defaultValue = "") String idForCourse) {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
+			
+
+
+
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			
+			Course course= courseService.findByID(Long.parseLong(idForCourse));
+			if(null==course || course.equals(""))
+			{
+				 throw new ValidationException("Input number should be a positive number.");
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			
+			
+			
 			/* New Audit changes start */
 //			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
 //				setError(redirectAttrs, "Invalid Start date and End date");
@@ -1470,7 +1639,25 @@ public class ContentController extends BaseController {
 						setError(redirectAttrs, "File uploaded is invalid!");
 						return "redirect:/addContentForm";
 					}else {
+						byte [] byteArr=file.getBytes();
+						if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 						errorMessage = uploadContentFileForS3(content, content.getFolderPath(), file);
+						} else {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							return "redirect:/addContentForm";
+						}
 					}
 				}
 			}else {
@@ -1523,7 +1710,13 @@ public class ContentController extends BaseController {
 				return "redirect:/addContentForm";
 			}
 
-		} catch (Exception e) {
+		}
+		catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs,e.getMessage());
+			return "redirect:/addContentForm";
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating file");
 			return "redirect:/addContentForm";
@@ -1547,6 +1740,38 @@ public class ContentController extends BaseController {
 		try {
 			String username = p.getName();
 			performFolderPathCheckForModule(content);
+			
+			
+			
+
+			businessBypassRule.validateNumeric(acadYear);
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course=new Course();
+			if(null!=idForCourse) {
+			businessBypassRule.validateNumeric(idForCourse);
+			course=courseService.findByID(Long.valueOf(idForCourse));
+			}
+			if(null!=idForModule) {
+				businessBypassRule.validateNumeric(idForModule);
+				course=courseService.findByID(Long.valueOf(idForModule));
+				}
+			
+			
+		
+			if(course.toString().isEmpty() || null==course)
+			{
+				throw new ValidationException("Error in creating Folder");
+			
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			
 			/* New Audit changes start */
 //			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
 //				setError(redirectAttrs, "Invalid Start date and End date");
@@ -1625,7 +1850,25 @@ public class ContentController extends BaseController {
 						setError(redirectAttrs, "File uploaded is invalid!");
 						return "redirect:/addContentForm";
 					}else {
+						byte [] byteArr=file.getBytes();
+						if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+															(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 						errorMessage = uploadContentFileForS3(content, content.getFolderPath(), file);
+						} else {
+							setError(redirectAttrs, "File uploaded is invalid!");
+							return "redirect:/addContentForm";
+						}
 					}
 				}
 			}else {
@@ -1683,7 +1926,14 @@ public class ContentController extends BaseController {
 				return "redirect:/addContentForm";
 			}
 
-		} catch (Exception e) {
+		}catch (ValidationException e) {
+
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			return "redirect:/addContentForm";
+		
+		} 
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating file");
 			return "redirect:/addContentForm";
@@ -1727,8 +1977,27 @@ public class ContentController extends BaseController {
 							redirectAttrs.addFlashAttribute("edit", "true");
 							return "redirect:/addContentForm";
 						}else {
+							byte [] byteArr=file.getBytes();
+							if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 							errorMessage = uploadContentFileForS3(content,
 								content.getFolderPath(), file);
+							} else {
+								setError(redirectAttrs, "File uploaded is invalid!");
+								redirectAttrs.addFlashAttribute("edit", "true");
+								return "redirect:/addContentForm";
+							}
 						}
 					}
 				}else {
@@ -1840,8 +2109,27 @@ public class ContentController extends BaseController {
 							redirectAttrs.addFlashAttribute("edit", "true");
 							return "redirect:/addContentForm";
 						}else {
+							byte [] byteArr=file.getBytes();
+							if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 							errorMessage = uploadContentFileForS3(content,
 									content.getFolderPath(), file);
+							} else {
+								setError(redirectAttrs, "File uploaded is invalid!");
+								redirectAttrs.addFlashAttribute("edit", "true");
+								return "redirect:/addContentForm";
+							}
 						}
 					}
 				}else {
@@ -1940,6 +2228,25 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
 
+			
+
+
+
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			
+			Course course= courseService.findByID(Long.parseLong(idForCourse));
+			if(null==course || course.equals(""))
+			{
+				 throw new ValidationException("Input number should be a positive number.");
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			
 			logger.info("Contnet idForCourse--------------><" + idForCourse);
 			if (sendAlertsToParents.equalsIgnoreCase("Y")) {
 				content.setSendEmailAlertToParents("Y");
@@ -2006,6 +2313,36 @@ public class ContentController extends BaseController {
 			@RequestParam(name = "acadYear", required = false, defaultValue = "") String acadYear) {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
+
+
+
+			
+			businessBypassRule.validateNumeric(acadYear);
+				businessBypassRule.validateAlphaNumeric(content.getContentName());
+				Course course=new Course();
+				
+					businessBypassRule.validateNumeric(idForModule);
+					course=courseService.findByID(Long.valueOf(idForModule));
+					
+				
+				
+			
+				if(course.toString().isEmpty() || null==course)
+				{
+					
+					
+					
+					throw new ValidationException("Error in creating linq");
+				
+				}
+				
+				businessBypassRule.validateaccesstype(content.getAccessType());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+		
 			String username = p.getName();
 			/* New Audit changes start */
 //			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
@@ -2090,6 +2427,10 @@ public class ContentController extends BaseController {
 			}
 
 
+		} catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, "Error in creating Link");
+			return "redirect:/addContentForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating Link");
