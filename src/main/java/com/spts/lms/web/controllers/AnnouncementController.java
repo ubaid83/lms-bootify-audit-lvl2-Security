@@ -1017,6 +1017,8 @@ public class AnnouncementController extends BaseController {
 
 		} 
 		catch (ValidationException e) {
+			logger.info("Exception---->"+e.getMessage());
+			
 			logger.error("Exception", e);
 			setError(redirectAttrs, e.getMessage().toString());
 
@@ -1029,6 +1031,7 @@ public class AnnouncementController extends BaseController {
 			return "redirect:/addAnnouncementForm";
 		}
 		catch (Exception e) {
+			logger.info("Exception---->"+e.getMessage());
 			logger.error("Exception", e);
 			setError(redirectAttrs, "Error in creating Announcement");
 

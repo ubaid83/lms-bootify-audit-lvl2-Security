@@ -814,26 +814,26 @@ public class ContentController extends BaseController {
 			
 			
 			
-				businessBypassRule.validateAlphaNumeric(content.getContentName());
-				businessBypassRule.validateNumeric(idForCourse);
-				Course course=courseService.findByID(Long.valueOf(idForCourse));
-				if(course.toString().isEmpty() || null==course)
-				{
-
-		
-					setError(redirectAttrs, "Invalid Course While creating folder");
-					if (file != null && file.list().length == 0) {
-						file.delete();
-					}
-					return "redirect:/addContentForm";
-				
-				}
-				validateAccessType(content.getAccessType());
-			
-			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
-			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
-			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
-			businessBypassRule.validateYesOrNo(content.getExamViewType());
+//				businessBypassRule.validateAlphaNumeric(content.getContentName());
+//				businessBypassRule.validateNumeric(idForCourse);
+//				Course course=courseService.findByID(Long.valueOf(idForCourse));
+//				if(course.toString().isEmpty() || null==course)
+//				{
+//
+//		
+//					setError(redirectAttrs, "Invalid Course While creating folder");
+//					if (file != null && file.list().length == 0) {
+//						file.delete();
+//					}
+//					return "redirect:/addContentForm";
+//				
+//				}
+//				validateAccessType(content.getAccessType());
+//			
+//			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+//			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+//			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+//			businessBypassRule.validateYesOrNo(content.getExamViewType());
 		
 			
 			String username = p.getName();
@@ -963,16 +963,17 @@ public class ContentController extends BaseController {
 				return "redirect:/addContentForm";
 			}
 
-		} catch (ValidationException e) {
-
-			
-			setError(redirectAttrs, e.getMessage());
-			if (file != null && file.list().length == 0) {
-				file.delete();
-			}
-			return "redirect:/addContentForm";
-		
 		}
+//		catch (ValidationException e) {
+//
+//			
+//			setError(redirectAttrs, e.getMessage());
+//			if (file != null && file.list().length == 0) {
+//				file.delete();
+//			}
+//			return "redirect:/addContentForm";
+//		
+//		}
 		
 		
 		

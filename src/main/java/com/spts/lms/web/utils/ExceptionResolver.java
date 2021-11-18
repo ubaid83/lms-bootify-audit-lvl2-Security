@@ -2,7 +2,10 @@ package com.spts.lms.web.utils;
 
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,6 +21,9 @@ public class ExceptionResolver {
 
 	@Value("#{'${aes.saltKey}'}")
 	String salt;
+	
+	@Value("${app}")
+	String app;
 
     @ExceptionHandler(Exception.class)
     public String handleException(HttpServletRequest request, Exception e) {
@@ -44,6 +50,15 @@ public class ExceptionResolver {
         String json = new Gson().toJson(response);
 		json = encryptResponseBody(json);
         return json;
+    }
+    
+    @ExceptionHandler(BindException.class)
+    public String handleException(HttpServletRequest request,BindException e,HttpServletResponse response) 
+    {
+         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+         return "<h3 style=\"text-align:center\">Error-"+response.getStatus()+"</h3><br>"
+        		 +"<center><a href=\"http://localhost:8085/"+app+"/homepage\">Back to home</a></center>";
+
     }
     
     private String encryptResponseBody(String json) {

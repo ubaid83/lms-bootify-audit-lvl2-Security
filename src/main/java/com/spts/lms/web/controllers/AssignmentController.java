@@ -505,7 +505,9 @@ public class AssignmentController extends BaseController {
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
+		m.addAttribute("assignment", assignment);
 
+		m.addAttribute("edit", "true");
 		try {
 
 			Assignment assignDB = assignmentService.findByID(assignment.getId());
@@ -735,7 +737,6 @@ public class AssignmentController extends BaseController {
 			}
 			return "assignment/createAssignment";
 		} catch (Exception e) {
-
 			logger.error(e.getMessage(), e);
 
 			setError(m, "Error in updating assignment");
@@ -1344,6 +1345,7 @@ public class AssignmentController extends BaseController {
 			}
 		}catch (ValidationException ve) {
 			logger.error(ve.getMessage(), ve);
+			logger.info("Error----->"+ve.getMessage());
 			setError(redirectAttributes, ve.getMessage());
 			if(multipleAssignmentErrorMsg.equals("Success")) {
 				return ve.getMessage();
