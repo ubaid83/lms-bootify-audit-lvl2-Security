@@ -129,7 +129,7 @@ public class BusinessBypassRule {
 		 }
 		if(!s.equals("Public") && !s.equals("Private") && !s.equals("Everyone")  ) 
 		{
-			throw new ValidationException("Invalid Announcement SubType.");
+			throw new ValidationException("Invalid Announcement  Access type.");
 		}
 	}
 

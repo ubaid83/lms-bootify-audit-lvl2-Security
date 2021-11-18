@@ -935,15 +935,22 @@ public class ContentController extends BaseController {
 		try {
 			
 			
-				logger.info("temp---1"+idForCourse);
-				logger.info("temp---idForModule"+idForModule);
 				businessBypassRule.validateNumeric(acadYear);
+				Course acadyear=courseService.checkIfExistsInDB("acadYear",acadYear);
+				
+				if(null==acadyear || acadyear.equals(" ") ) {
+					
+					
+					if (file != null && file.list().length == 0) {
+						file.delete();
+					}
+					
+					throw new ValidationException("Error in creating Folder Invalid Acad Year Selected");
+				}
+				
 				businessBypassRule.validateAlphaNumeric(content.getContentName());
 				Course course=new Course();
-				logger.info("temp---idForCourse2"+null!=idForCourse);
-				logger.info("!idForCourse.trim().isEmpty()--"+!idForCourse.trim().isEmpty());
 				if(null!=idForCourse && !idForCourse.isEmpty()) {
-					logger.info("temp---2"+idForCourse);
 					businessBypassRule.validateNumeric(idForCourse);
 					
 					
@@ -951,12 +958,10 @@ public class ContentController extends BaseController {
 				}
 				if(null!=idForModule && !idForModule.isEmpty() ) {
 					
-					logger.info("temp---3"+idForModule);
 					businessBypassRule.validateNumeric(idForModule);
 					course=courseService.checkIfExistsInDB("moduleId",idForModule);
 					}
 				
-				logger.info("temp---4"+course);
 			
 				if(course.toString().isEmpty() || null==course)
 				{
@@ -966,7 +971,7 @@ public class ContentController extends BaseController {
 						file.delete();
 					}
 					
-					throw new ValidationException("Error in creating Folder");
+					throw new ValidationException("Error in creating Folder Invalid Module Selected");
 				
 				}
 				
