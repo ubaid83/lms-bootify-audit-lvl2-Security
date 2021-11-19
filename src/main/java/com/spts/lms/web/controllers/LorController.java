@@ -83,6 +83,7 @@ import com.spts.lms.services.program.ProgramService;
 import com.spts.lms.services.user.UserRoleService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -844,6 +845,9 @@ public class LorController extends BaseController {
 			
 			logger.info("lorRegDetails--->" + lorRegDetails);
 			logger.info("lorRegStaff--->" + lorRegStaff);
+		    HtmlValidation.validateHtml(lorRegDetails,new ArrayList<>());
+		    HtmlValidation.validateHtml(lorRegStaff,new ArrayList<>());
+		    
 		    
 			if(lorRegDetails.getUsername() == null ||lorRegDetails.getUsername().isEmpty() )
 		    {

@@ -2716,6 +2716,7 @@ public class AnnouncementController extends BaseController {
 			}
 			for(String programId:announcement.getProgramIds())
 			{
+				
 				HtmlValidation.checkHtmlCode(programId);
 				businessBypassRule.validateNumeric(programId.toString());
 				Course Programdata=courseService.checkIfExistsInDB("programId", programId);

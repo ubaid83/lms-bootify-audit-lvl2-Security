@@ -74,6 +74,7 @@ import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -184,6 +185,7 @@ public class FeedbackController extends BaseController {
 			String ProgramName = userdetails1.getProgramName();
 			
 			logger.info("INSIDE /addFeedback");
+			HtmlValidation.validateHtml(feedback, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(feedback.getFeedbackName());
 			logger.info("AFTER business By pass");
 			logger.info("feedback.getFeedbackType() is " + feedback.getFeedbackType());
@@ -365,7 +367,7 @@ public class FeedbackController extends BaseController {
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		try {
-			
+			HtmlValidation.validateHtml(feedback, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(feedback.getFeedbackName());
 			validateFeedbackType(feedback.getFeedbackType());
 
@@ -723,6 +725,7 @@ public class FeedbackController extends BaseController {
 			for (FeedbackQuestion fq : feedbackQuestion) {
 				logger.info("fq.getStudentFeedbackResponse() is " + fq.getStudentFeedbackResponse());
 				logger.info("fq.getStudentFeedbackResponse().getAnswer(); is " + fq.getStudentFeedbackResponse().getAnswer());
+				HtmlValidation.validateHtml(fq, new ArrayList<>());
 				BusinessBypassRule.validateNumeric(fq.getStudentFeedbackResponse().getAnswer());
 				studentFeedbackResponse = fq.getStudentFeedbackResponse();
 				studentFeedbackResponse.setUsername(username);
@@ -1682,6 +1685,7 @@ public class FeedbackController extends BaseController {
 		m.addAttribute("AcadSession", acadSession);
 		try {
 			logger.info("feedbackQuestion.getDescription() is " + feedbackQuestion.getDescription());
+			HtmlValidation.validateHtml(feedbackQuestion, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(feedbackQuestion.getDescription());
 			boolean typeIsValid = feedbackQuestion.getType().equals("SINGLESELECT");
 			if(!typeIsValid) {
@@ -1734,7 +1738,7 @@ public class FeedbackController extends BaseController {
 		try {
 			logger.info("feedbackQuestion.getDescription() is " + feedbackQuestion.getDescription());
 			logger.info("feedbackQuestion.getType() is " + feedbackQuestion.getType());
-			
+			HtmlValidation.validateHtml(feedbackQuestion, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(feedbackQuestion.getDescription());
 //			BusinessBypassRule.validateAlphaNumeric("");
 			boolean typeIsValid = feedbackQuestion.getType().equals("SINGLESELECT");
@@ -1787,8 +1791,9 @@ public class FeedbackController extends BaseController {
 			StudentFeedbackResponse studentFeedbackResponse = new StudentFeedbackResponse();
 
 			for (FeedbackQuestion fq : feedbackQuestion) {
-
+				HtmlValidation.validateHtml(fq,new ArrayList<>());
 				if(!fq.getStudentFeedbackResponse().getComments().isEmpty()) {
+					HtmlValidation.checkHtmlCode(fq.getStudentFeedbackResponse().getComments());
 					BusinessBypassRule.validateAlphaNumeric(fq.getStudentFeedbackResponse().getComments());
 				}
 				studentFeedbackResponse = fq.getStudentFeedbackResponse();
