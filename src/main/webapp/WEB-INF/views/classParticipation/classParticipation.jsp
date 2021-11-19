@@ -275,10 +275,26 @@
 										var str2 = "saveRemarks"
 												.concat(username);
 										console.log("str2" + str2);
-										var remarks = $('#' + str2).val();
+										
+										
+										/*****By sandip 26/10/2021*****/
+										
+										var value = $('#' + str2).val();
+										
+										var remarks = value.replaceAll('+', '%2B');
+									
+										console.log("value replaced " + remarks);
+										
+										/*****By sandip 26/10/2021*****/
+										
+										//var remarks = $('#' + str2).val();
+										
+										
 										console.log("Remarks " + remarks);
-
-										var courseid = ${courseId};
+                                        
+										var courseid = $('#courseId').val();
+										
+										console.log("courseid " + courseid);
 										//var maxScore = ${cpWieghtage};
 
 										//	alert(courseid);
@@ -290,8 +306,8 @@
 										//if ((score > 0) && (score<=maxScore)) {
 											if ((score > 0)) {
 											
-											$
-													.ajax({
+											
+													$.ajax({
 														type : 'GET',
 														url : '${pageContext.request.contextPath}/saveClassParticipation?'
 																+ 'studentUsername='
@@ -307,8 +323,25 @@
 															console
 																	.log("sucess messsgae e like "
 																			+ likeId)
-															alert("Marks Saved!");
-														}
+															console.log(data);
+															const obj = JSON.parse(data);
+															
+															if(obj.Status === "Success"){
+																
+																alert("Saved");
+															}else{
+																alert(obj.msg);
+															}
+															     
+														},
+														
+														/***By sandip 26/10/2021****/
+														
+														error: function(data){
+															alert("Something went wrong!");
+														 }
+													    
+														/***By sandip 26/10/2021****/
 
 													});
 										} else {

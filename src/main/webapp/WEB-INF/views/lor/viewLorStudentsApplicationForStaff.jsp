@@ -756,10 +756,33 @@ $('.lorDetailsModal').on('hidden.bs.modal', function(e) {
 							if (data.status = 'success') {
 								$("#expectedDate" + lorRegStaffId)
 										.val(expectedDate);
+								alert("Date Saved!");
+							}else{
+								alert(data.msg);
 							}
 						}
-					})
+						
+						//sandip
+						/*success : function(data) {
+								console
+										.log("Message "
+												+ lorRegStaffId)
+								console.log(data);
+								//const ob = JSON.parse(data);
+								//console.log(ob);
+								if(data.Status === "Success"){
+									console.log('success');
+									$("#expectedDate" + lorRegStaffId)
+									.val(expectedDate);
+									alert("Date Saved!");
+								}else{
+									alert(data.msg);
+								}
+								     
+							}*/
 
+					})
+					
 		});
 
 /* approval toggle btns */
@@ -831,6 +854,8 @@ $('.lorDetailsModal').on('hidden.bs.modal', function(e) {
 		let lorApprovalText = $('#lorApproval').val();
 		let lorReason = $('#lorRejectionReason').val();
 		console.log("appReason--->"+appReason)
+		
+		console.log(approval);
 		
 		if(approval == "application"){
 			if((appApprovalText == "Reject" && !appReason)){

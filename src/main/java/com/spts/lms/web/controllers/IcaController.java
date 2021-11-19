@@ -2723,67 +2723,67 @@ public class IcaController extends BaseController {
 			}
 		}
 
-//		if (remainingIcaIds.size() > 0) {
-//
-//			logger.info("only comp evaluation exists:" + remainingIcaIds);
-//			for (String id : remainingIcaIds) {
-//				IcaBean icaBeanDB = icaBeanService.findByID(Long.valueOf(id));
-//				String courseName = "";
-//				Course courseDB = courseService.findByModuleIdAndAcadYear(icaBeanDB.getModuleId(),
-//						icaBeanDB.getAcadYear());
-//				if (courseDB == null) {
-//					courseDB = courseService.findByModuleIdAndAcadYearCode(icaBeanDB.getModuleId(),
-//							icaBeanDB.getAcadYear());
-//					if (courseDB != null) {
-//						courseName = courseDB.getModuleName();
-//					}
-//				}
-//				if (courseDB != null) {
-//					courseName = courseDB.getModuleName();
-//				} else {
-//					courseName = courseService.getModuleNameForNonEvent(icaBeanDB.getModuleId());
-//				}
-//				Map<String, String> getCompMap = mapOfComponentsMarksByIcaId.get(id);
-//				// for (String mulId : getCompMap.keySet()) {
-//				IcaTotalMarks itmIds = new IcaTotalMarks();
-//				itmIds.setIcaId(id);
-//				if (!icaBeanDB.getAcadSession().contains(",")) {
-//					itmIds.setAcadSession(icaBeanDB.getAcadSession());
-//				} else {
-//					UserCourse uc = userCourseService.getMappingByUsernameAndModule(username, icaBeanDB.getModuleId());
-//					itmIds.setAcadSession(uc.getAcadSession());
-//				}
-//
-//				itmIds.setAcadYear(icaBeanDB.getAcadYear());
-//				itmIds.setModuleName(courseName);
-//
-//				IcaComponent icomp = icaComponentService.getSubmittedIcaComponent(Long.valueOf(id));
-//				String pageKey = id + "-" + icomp.getComponentId();
-//				IcaComponentMarks icm = icaComponentMarksService.getIcaCompMarksByUsername(id, icomp.getComponentId(),
-//						username);
-//				// IcaComponent icomp = icaComponentService.getCompBean(Long.valueOf(id),
-//				// Long.valueOf(mulId));
-//				String publishedDate = icomp.getPublishedDate();
-//				itmIds.setPublishedDate(publishedDate);
-//				itmIds.setDueDate(Utils.addDaysToDate(publishedDate, 3));
-//				itmIds.setIsComponentMark("Y");
-//				itmIds.setCompId(icomp.getComponentId());
-//				itmIds.setIsQueryRaise(icm.getIsQueryRaise());
-//				itmIds.setPageKey(pageKey);
-//				itmIds.setRemarks(icm.getRemarks());
-//				itmIds.setQuery(icm.getQuery());
-//				String raiseButton = itmIds.getDueDate().compareTo(currentDate) >= 0 ? "showButton" : "disableButton";
-//				dateSpanMap.put(pageKey, raiseButton);
-//				icaTotalMarksForStudent.add(itmIds);
-//				IcaQueries raiseQryStatus = icaQueriesService.findByIcaIdAndCompId(id, icomp.getComponentId());
-//				if (null != raiseQryStatus) {
-//
-//					raiseQueryStatus.put(pageKey, raiseQryStatus);
-//				}
-//				// }
-//
-//			}
-//		}
+		if (remainingIcaIds.size() > 0) {
+
+			logger.info("only comp evaluation exists:" + remainingIcaIds);
+			for (String id : remainingIcaIds) {
+				IcaBean icaBeanDB = icaBeanService.findByID(Long.valueOf(id));
+				String courseName = "";
+				Course courseDB = courseService.findByModuleIdAndAcadYear(icaBeanDB.getModuleId(),
+						icaBeanDB.getAcadYear());
+				if (courseDB == null) {
+					courseDB = courseService.findByModuleIdAndAcadYearCode(icaBeanDB.getModuleId(),
+							icaBeanDB.getAcadYear());
+					if (courseDB != null) {
+						courseName = courseDB.getModuleName();
+					}
+				}
+				if (courseDB != null) {
+					courseName = courseDB.getModuleName();
+				} else {
+					courseName = courseService.getModuleNameForNonEvent(icaBeanDB.getModuleId());
+				}
+				Map<String, String> getCompMap = mapOfComponentsMarksByIcaId.get(id);
+				// for (String mulId : getCompMap.keySet()) {
+				IcaTotalMarks itmIds = new IcaTotalMarks();
+				itmIds.setIcaId(id);
+				if (!icaBeanDB.getAcadSession().contains(",")) {
+					itmIds.setAcadSession(icaBeanDB.getAcadSession());
+				} else {
+					UserCourse uc = userCourseService.getMappingByUsernameAndModule(username, icaBeanDB.getModuleId());
+					itmIds.setAcadSession(uc.getAcadSession());
+				}
+
+				itmIds.setAcadYear(icaBeanDB.getAcadYear());
+				itmIds.setModuleName(courseName);
+
+				IcaComponent icomp = icaComponentService.getSubmittedIcaComponent(Long.valueOf(id));
+				String pageKey = id + "-" + icomp.getComponentId();
+				IcaComponentMarks icm = icaComponentMarksService.getIcaCompMarksByUsername(id, icomp.getComponentId(),
+						username);
+				// IcaComponent icomp = icaComponentService.getCompBean(Long.valueOf(id),
+				// Long.valueOf(mulId));
+				String publishedDate = icomp.getPublishedDate();
+				itmIds.setPublishedDate(publishedDate);
+				itmIds.setDueDate(Utils.addDaysToDate(publishedDate, 3));
+				itmIds.setIsComponentMark("Y");
+				itmIds.setCompId(icomp.getComponentId());
+				itmIds.setIsQueryRaise(icm.getIsQueryRaise());
+				itmIds.setPageKey(pageKey);
+				itmIds.setRemarks(icm.getRemarks());
+				itmIds.setQuery(icm.getQuery());
+				String raiseButton = itmIds.getDueDate().compareTo(currentDate) >= 0 ? "showButton" : "disableButton";
+				dateSpanMap.put(pageKey, raiseButton);
+				icaTotalMarksForStudent.add(itmIds);
+				IcaQueries raiseQryStatus = icaQueriesService.findByIcaIdAndCompId(id, icomp.getComponentId());
+				if (null != raiseQryStatus) {
+
+					raiseQueryStatus.put(pageKey, raiseQryStatus);
+				}
+				// }
+
+			}
+		}
 		m.addAttribute("raiseQueryStatus", raiseQueryStatus);
 
 		logger.info("Check 1----------------loop" + mapOfComponentsMarksByIcaId);
@@ -2888,6 +2888,20 @@ public class IcaController extends BaseController {
 								setError(redirectAttributes, "File uploaded is invalid!");
 								return "redirect:/showIcaQueries";
 							}else {
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 								String filePath = baseDirS3 + "/" + "ICAUploads";
 					Map<String, String> returnMap = amazonS3ClientService.uploadFileToS3BucketWithRandomString(file,
 							filePath);
@@ -2905,6 +2919,10 @@ public class IcaController extends BaseController {
 					} else {
 						errCount++;
 					}
+								} else {
+									setError(redirectAttributes, "File uploaded is invalid!");
+									return "redirect:/showIcaQueries";
+								}
 							}
 						}
 					}else {
@@ -3028,6 +3046,20 @@ public class IcaController extends BaseController {
 							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								errCount++;
 							}else {
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 								String filePath = baseDirS3 + "/" + "ICAUploads";
 								Map<String, String> returnMap = amazonS3ClientService.uploadFileToS3BucketWithRandomString(file,
 										filePath);
@@ -3042,6 +3074,9 @@ public class IcaController extends BaseController {
 											multipleFilePath = multipleFilePath + "," + filePath + "/" + returnMap.get("SUCCESS");
 										}
 									}
+								} else {
+									errCount++;
+								}
 								} else {
 									errCount++;
 								}

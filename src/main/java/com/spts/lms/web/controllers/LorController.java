@@ -63,9 +63,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+
+
+
+
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spts.lms.auth.Token;
+
 import com.spts.lms.beans.Status;
 import com.spts.lms.beans.StudentService.LorRegDetails;
 import com.spts.lms.beans.StudentService.LorRegStaff;
@@ -119,12 +125,18 @@ public class LorController extends BaseController {
 
 	@Autowired
 	AmazonS3ClientService amazonS3ClientService;
+	
+	@Autowired
+	BusinessBypassRule businessBypassRule;
 
 	@Value("${userMgmtCrudUrl}")
 	private String userRoleMgmtCrudUrl;
 
 	@Autowired
 	ProgramService programService;
+	
+	@Autowired
+	Utils utils;
 
 	@Value("${app}")
 	private String app;
@@ -133,14 +145,13 @@ public class LorController extends BaseController {
 	Notifier notifier;
 	
 	@Autowired
-	BusinessBypassRule businessBypassRule;
-	
-	@Autowired
 	Utils Utils;
+	
 
 	Client client = ClientBuilder.newClient();
 	private static final Logger logger = Logger.getLogger(LorController.class);
 
+	
 	@Secured({ "ROLE_FACULTY", "ROLE_STAFF" })
 	@RequestMapping(value = "/viewAppliedApplicationStudentsForStaff", method = { RequestMethod.GET,
 			RequestMethod.POST })
@@ -179,7 +190,7 @@ public class LorController extends BaseController {
 			for (MultipartFile file : files) {
 				if (null == file || file.isEmpty()) {
 					setError(ra, "Selected File is empty!");
-					return "redirect:/lorApplicationForm";
+					return "redirect:/viewAppliedApplicationStudentsForStaff";
 				}
 				Tika tika = new Tika();
 				  String detectedType = tika.detect(file.getBytes());
@@ -196,7 +207,25 @@ public class LorController extends BaseController {
 							setError(ra, "File uploaded is invalid!");
 							return "redirect:/viewAppliedApplicationStudentsForStaff";
 						}else {
+							byte [] byteArr=file.getBytes();
+							if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 							errorMessage = uploadFileForS3(file, userdetails);
+							} else {
+								setError(ra, "File uploaded is invalid!");
+								return "redirect:/viewAppliedApplicationStudentsForStaff";
+							}
 						}
 					}
 				}else {
@@ -295,10 +324,13 @@ public class LorController extends BaseController {
 		try {
 			String errorMessage = "";
 			String filepath = "";
-
+            logger.info("inside upload file" + files.size()); 
+			
 			if (files.size() <= 0) {
 				setError(ra, "No File selected.");
 //				return "redirect:/viewAppliedApplicationStudentsForStaff";
+				logger.info("inside upload file2");
+				
 				if(userdetails.getAuthorities().contains(Role.ROLE_STAFF)) {
 					return "redirect:/viewAppliedApplicationStudentsForDepartment";
 				}else {
@@ -306,6 +338,7 @@ public class LorController extends BaseController {
 				}
 			}
 			for (MultipartFile file : files) {
+				logger.info("inside upload file3");
 				if (!file.isEmpty()) {
 					logger.info("file---->");
 					Tika tika = new Tika();
@@ -331,7 +364,29 @@ public class LorController extends BaseController {
 									return "redirect:/viewAppliedApplicationStudentsForAdmin";
 								}
 							}else {
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 								errorMessage = uploadFileForS3(file, userdetails);
+								} else {
+									setError(ra, "File uploaded is invalid!");
+									if(userdetails.getAuthorities().contains(Role.ROLE_STAFF)) {
+										return "redirect:/viewAppliedApplicationStudentsForDepartment";
+									}else {
+										return "redirect:/viewAppliedApplicationStudentsForAdmin";
+									}
+								}
 							}
 						}
 					}else {
@@ -355,9 +410,11 @@ public class LorController extends BaseController {
 						if(userdetails.getAuthorities().contains(Role.ROLE_STAFF)) {
 							return "redirect:/viewAppliedApplicationStudentsForDepartment";
 						}else {
-							return "redirect:/viewAppliedApplicationStudentsForAdmin";
+							return "redirect:/viewAppliedApplicationStudentsForDepartment";
 						}
 					}
+				}else{
+					 throw new ValidationException("Input field cannot be empty");
 				}
 			}
 			logger.info("errorMessage=--------" + errorMessage);
@@ -412,7 +469,12 @@ public class LorController extends BaseController {
 			// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
 			notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 
-		} catch (Exception e) {
+		}catch (ValidationException ex) {
+			logger.error("Error---->" + ex.getMessage());
+			setError(ra, ex.getMessage());
+		}
+		
+		catch (Exception e) {
 			logger.error("Error---->" + e);
 			setError(ra, "Error in uploading file");
 		}
@@ -467,24 +529,36 @@ public class LorController extends BaseController {
 	@Secured({ "ROLE_FACULTY", "ROLE_STAFF" })
 	@RequestMapping(value = "/saveExpectedDate", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody String saveExpectedDate(@RequestParam String expectedDate, @RequestParam String id,
-			Principal principal) {
+			Principal principal, HttpServletRequest httpServletRequest) {
 		String username = principal.getName();
 		try {
 			Date date = new Date();
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			date = dateFormat.parse(expectedDate);
+			
+			/***by sandip****/
+			Utils.validateOnlyDate(expectedDate);
+			/***by sandip****/
+			
 			LorRegStaff lorRegStaff = new LorRegStaff();
 			lorRegStaff.setExpectedDate(date);
 			lorRegStaff.setLastModifiedBy(username);
 			lorRegStaff.setId(Long.valueOf(id));
 			logger.info("LorRegStaff--->" + lorRegStaff);
 			lorRegStaffService.saveExpectedDate(lorRegStaff);
-			return "{\"status\": \"success\", \"msg\": \"Date updated!\"}";
-		} catch (Exception e) {
+			return "{\"status\": \"success\", \"msg\": \"Date updated\"}";
+		}
+		catch (ValidationException er) { 
+			logger.error(er.getMessage(), er);
+			String json = "{\"status\":\"error\", \"msg\":\""+er.getMessage()+"\"}";
+			return json;
+		}
+		catch (Exception e) {
 			logger.error("Exception", e);
-			return "{\"status\": \"error\", \"msg\": \"Error in updating Date!\"}";
+			return "{\"status\": \"error\", \"msg\": \"Error in updating Date\"}";
 		}
 	}
+
 
 	@Secured({ "ROLE_FACULTY", "ROLE_STAFF", "ROLE_INTL" })
 	@RequestMapping(value = "/getStudentLorDetailsByLorRegId", method = { RequestMethod.GET, RequestMethod.POST })
@@ -680,6 +754,20 @@ public class LorController extends BaseController {
 								setError(redirect, "File uploaded is invalid!");
 								return"redirect:/viewLor";
 							}else {
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 								errorMessage = uploadStudentFileForS3(file);
 								if (!errorMessage.contains("Error in uploading file")) {
 									if (filepath.isEmpty() || filepath == null) {
@@ -692,6 +780,10 @@ public class LorController extends BaseController {
 									return "redirect:/viewLor";
 								}
 								logger.info("filepath-----"+filepath);
+								} else {
+									setError(redirect, "File uploaded is invalid!");
+									return"redirect:/viewLor";
+								}
 							}
 						}
 					}else {
@@ -816,14 +908,18 @@ public class LorController extends BaseController {
 	@RequestMapping(value = "/lorApplicationForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String lorApplicationForm(@ModelAttribute LorRegDetails lorRegDetails,
 			@ModelAttribute LorRegStaff lorRegStaff, Model m, Principal principal) {
-            System.out.println("INSIDE LOR APPLICATION>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");	
+          
          String username = principal.getName();
 
 		User u = userService.findByUserName(username);
 		m.addAttribute("userdetails", u);
-
+  
 		List<String> deptlist = lorRegStaffService.getAlldept();
 		m.addAttribute("deptlist", deptlist);
+		
+		List<String> countrylist = lorRegStaffService.getAllCountryList();
+		m.addAttribute("countrylist", countrylist);
+		
 
 		Program programName = programService.findByID(u.getProgramId());
 		m.addAttribute("programName", programName);
@@ -843,6 +939,7 @@ public class LorController extends BaseController {
 		 String username = principal.getName();
 		try {
 			
+
 			logger.info("lorRegDetails--->" + lorRegDetails);
 			logger.info("lorRegStaff--->" + lorRegStaff);
 		    HtmlValidation.validateHtml(lorRegDetails,new ArrayList<>());
@@ -858,26 +955,54 @@ public class LorController extends BaseController {
 	    	//  BusinessBypassRule.validateEmail(lorRegDetails.getEmail());
 	    	//  BusinessBypassRule.validateNumeric(lorRegDetails.getMobile());
 			
+
+			logger.info("lorRegDetails--->" + lorRegDetails.getNoOfCopies());
+			logger.info("lorRegStaff--->" + lorRegStaff.getNoOfCopies());
+	    	
+
 			 User u = userService.findByUserName(username);
-			 
-			 System.out.println("Users>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:U:"+u);
 			 lorRegDetails.setUsername(username);
 			 lorRegDetails.setEmail(u.getEmail());
 			 lorRegDetails.setMobile(u.getMobile());
 			 lorRegDetails.setName(u.getFirstname()+" "+u.getLastname());
-		      BusinessBypassRule.validateNumeric(lorRegDetails.getProgramEnrolledId());
+		     lorRegDetails.setProgramEnrolledId(String.valueOf(u.getProgramId()));
 		      
-	    	  BusinessBypassRule.validateString(lorRegDetails.getCountryForHigherStudy());
-	    	  BusinessBypassRule.validateString(lorRegDetails.getUniversityName());
-	    	  System.out.println("Program :>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+lorRegDetails.getProgramToEnroll());
+		    
+		      String[] res = lorRegDetails.getCountryForHigherStudy().split(",");
+		       for(String myStr: res) 
+		       {
+		          System.out.println(myStr);
+		          LorRegDetails LorRegDetailscountry = lorRegDetailsService.findByCountryName(myStr);
+			     if( null ==LorRegDetailscountry)
+	            {
+	    	      logger.info("inside if:" + LorRegDetailscountry);
+	    	      throw new ValidationException("Invalid Country Selected");
+	             }
+		     } 
+		      
+		       String[] university = lorRegDetails.getCountryForHigherStudy().split(",");
+		       for(String str: university) 
+		       {
+		    	   System.out.println(str);
+		           BusinessBypassRule.validateAlphaNumeric(lorRegDetails.getUniversityName());
+		       }
+		      
 	          BusinessBypassRule.validateAlphaNumeric(lorRegDetails.getProgramToEnroll());
-	          
-	          System.out.println("Tentative Date Of Joining :>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+lorRegDetails.getTentativeDOJ());
-	          Utils.validateDate(lorRegDetails.getTentativeDOJ());
-	          BusinessBypassRule.validateYesOrNo(lorRegDetails.getIsNmimsPartnerUniversity());
-	    	  
-	    	
-			List<String> userList = new ArrayList<String>();
+	   
+	          BusinessBypassRule.validateOnlyDate(lorRegDetails.getTentativeDOJ());
+	         
+	          if(!lorRegDetails.getIsNmimsPartnerUniversity().equals("Yes") && !lorRegDetails.getIsNmimsPartnerUniversity().equals("No")) {
+					throw new ValidationException("Invalid Input.");
+	          }
+	    
+	         LorRegStaff lorRegDepartment  = lorRegStaffService.findByDepartment(lorRegStaff.getDepartment());
+	         if( null ==lorRegDepartment)
+	            {
+	    	      logger.info("inside if:" + lorRegDepartment);
+	    	      throw new ValidationException("Invalid Department Selected");
+	            }      
+	    
+	        List<String> userList = new ArrayList<String>();
 			String uname = principal.getName();    //rename username to uname 
 			String errorMessage = "";
 			String examMarksheetFilePath = "";
@@ -922,8 +1047,7 @@ public class LorController extends BaseController {
 			lorRegDetails.setExamMarksheet(examMarksheetFilePath);
 			lorRegDetails.setToeflOrIeltsMarksheet(toeflOrIeltsMarksheetFilePath);
 			lorRegDetails.setCreatedBy(uname);
-			lorRegDetails.setLastModifiedBy(uname);//here 
-            System.out.println("LORREGISTRATIONDETAILS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+lorRegDetails);
+			lorRegDetails.setLastModifiedBy(uname);
 			lorRegDetailsService.insertWithIdReturn(lorRegDetails);
 			Long lorId = lorRegDetails.getId();
 			String[] staffIds = lorRegStaff.getStaffId().split(",");
@@ -931,7 +1055,18 @@ public class LorController extends BaseController {
 			for (int i = 0; i <= staffId.size() - 1; i++) {
 				LorRegStaff lorRegStaffs = new LorRegStaff();
 				String staffIdStr = "";
-				if (!staffId.get(i).split("-")[0].endsWith("_STAFF")) {
+				String str = staffId.get(i).split("-")[0];
+				System.out.println(str); //changes
+			    LorRegStaff LorstaffId  =  lorRegStaffService.findByUserName(str);
+			    if(LorstaffId == null)
+			    {
+			    	 throw new ValidationException("Invalid Faculty Selected" +str);
+			    }
+                String noOfCopies = staffId.get(i).split("-")[1];
+    
+                BusinessBypassRule.validateNumeric(noOfCopies);
+                
+				if (!str.endsWith("_STAFF")) {
 					staffIdStr = staffId.get(i).split("-")[0] + "_STAFF";
 				} else {
 					staffIdStr = staffId.get(i).split("-")[0];
@@ -988,6 +1123,7 @@ public class LorController extends BaseController {
 
 		} 
 		catch (ValidationException e) {
+			logger.info("iside validate exception>>>>>>>>>>>>>>>>>>");
 			logger.error(e);
 			setError(redirect,e.getMessage() );
 			return "redirect:/lorApplicationForm";
@@ -995,6 +1131,7 @@ public class LorController extends BaseController {
 		
 		catch (Exception e) {
 			logger.error(e);
+			logger.info("iside validate exception--------");
 			setError(redirect, "Error in Submitting form");
 			return "redirect:/lorApplicationForm";
 		}
@@ -1030,6 +1167,9 @@ public class LorController extends BaseController {
 			lorRegStaffDB.setAppRejectionReason(lorRegStaff.getAppRejectionReason());
 			lorRegStaffDB.setLastModifiedBy(username);
 			logger.info("LorRegStaff--->" + lorRegStaff);
+			
+			
+			
 			lorRegStaffService.saveApplicationApprovalStatus(lorRegStaffDB);
 			if (lorRegStaffDB.getAppApproval().equals("Approve")) {
 				User user = userService.findByUserName(lorRegStaffDB.getUsername());
@@ -1321,9 +1461,11 @@ public class LorController extends BaseController {
 				// logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
 				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage.toString());
 			}
-			return "{\"status\": \"success\", \"msg\": \"LOR approval updated successfully!\"}";
-
-		} catch (Exception e) {
+		  return "{\"status\": \"success\", \"msg\": \"LOR approval updated successfully!\"}";
+			
+		}
+		
+		catch (Exception e) {
 			logger.error("Exception", e);
 			return "{\"status\": \"error\", \"msg\": \"Error in updating LOR Status!\"}";
 		}

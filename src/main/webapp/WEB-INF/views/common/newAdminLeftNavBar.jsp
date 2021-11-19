@@ -21,7 +21,7 @@
                     <a href="<c:url value="showMyCourseStudents" />" title="My Program">
                         <li><i class="fas fa-file-powerpoint f-22 text-danger"></i></li>
                     </a>
-                    <a href="https://portal.svkm.ac.in/usermgmt" title="Change Program">
+                    <a href="https://dev-portal.svkm.ac.in/usermgmt" title="Change Program">
                         <li><i class="fas fa-exchange-alt f-22 text-success"></i></li>
                     </a>
                     <%-- <a href="my-courses.html" title="My Courses">

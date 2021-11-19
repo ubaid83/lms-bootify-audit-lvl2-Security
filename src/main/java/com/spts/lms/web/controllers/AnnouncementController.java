@@ -1,6 +1,8 @@
 package com.spts.lms.web.controllers;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -395,6 +397,7 @@ public class AnnouncementController extends BaseController {
 								.getProgramId()));
 		}
 		m.addAttribute("announcement", announcement);
+		
 		if (sendAlertsToParents.equalsIgnoreCase("Y")) {
 			m.addAttribute("sendAlertsToParents", true);
 		} else {
@@ -402,12 +405,15 @@ public class AnnouncementController extends BaseController {
 		}
 
 		if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
+			
 			return "announcement/addAnnouncementAdmin";
+			
 		} else {
 			return "announcement/addAnnouncement";
 		}
 	}
 
+	
 	/*
 	 * @RequestMapping(value = "/viewUserAnnouncementsSearch", method = {
 	 * RequestMethod.GET, RequestMethod.POST }) public String
@@ -662,7 +668,7 @@ public class AnnouncementController extends BaseController {
 	@Secured({"ROLE_ADMIN","ROLE_FACULTY","ROLE_EXAM","ROLE_LIBRARIAN","ROLE_COUNSELOR"})
 	@RequestMapping(value = "/addAnnouncement", method = { RequestMethod.GET,
 			RequestMethod.POST })
-	public String addAnnouncement(@ModelAttribute Announcement announcement,
+	public String addAnnouncement(@ModelAttribute  Announcement announcement ,
 			RedirectAttributes redirectAttrs, Model m, Principal principal,
 			@RequestParam("file") List<MultipartFile> files,
 			@RequestParam(required = false) String typeOfAnn)  {
@@ -710,13 +716,16 @@ public class AnnouncementController extends BaseController {
 //				return "redirect:/addAnnouncementForm";
 //			} 
 			/* New Audit changes end */
-			logger.info("a--"+announcement.getSubject());
+			
+
 			
 
 			HtmlValidation.validateHtml(announcement, Arrays.asList("description"));
 			
 
-			if(null!=announcement.getAnnouncementSubType() || !announcement.getAnnouncementSubType().isEmpty())
+
+			if(null!=announcement.getAnnouncementSubType() && !announcement.getAnnouncementSubType().isEmpty())
+
 			{
 				validateAnnouncementSubType(announcement.getAnnouncementSubType());
 			}
@@ -725,27 +734,30 @@ public class AnnouncementController extends BaseController {
 			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
 			
 	
-			if(null!=announcement.getCampusId())
+//			/*
+//			 * if(null!=announcement.getCampusId() ||
+//			 * !announcement.getCampusId().toString().isEmpty() ) {
+//			 */
+			logger.info("announcement.getCampusId()"+announcement.getCampusId());
+			if(null!=announcement.getCampusId() && !announcement.getCampusId().toString().isEmpty())
 			{
-			businessBypassRule.validateNumeric(announcement.getCampusId().toString());
+			businessBypassRule.validateNumericNotAZero(announcement.getCampusId());
 			Course coursedata=courseService.checkIfExistsInDB("campusId", announcement.getCampusId().toString());
-			
-			if(null==coursedata ||coursedata.equals(" "))
+			logger.info("coursedata"+coursedata);
+			if(null==coursedata || coursedata.equals(" "))
 			{
-				setError(redirectAttrs, " Invalid Campus");
-
-				if (typeOfAnn != null) {
-					if ("PROGRAM".equals(typeOfAnn)) {
-						return "redirect:/addAnnouncementFormProgram";
-					}
-				}
-
-				return "redirect:/addAnnouncementForm";
+		    	 throw new ValidationException("Invalid Campus");
 			
 			}
 			}
+		
+			logger.info("email alert---"+announcement.getSendEmailAlert());
+			logger.info("sms alert ---"+announcement.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
+			
+			//businessBypassRule.validateYOrN(announcement.getSendSmsAlert());
+			
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					Tika tika = new Tika();
@@ -782,7 +794,46 @@ public class AnnouncementController extends BaseController {
 
 								return "redirect:/addAnnouncementForm";
 							}else {
-								uploadAnnouncementFileForS3(announcement, file);
+								byte [] byteArr=file.getBytes();
+								if ((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x89
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x50)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x25
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x50)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x42
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x4D)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x47
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x49)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x49
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x49)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x38
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x42)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x50
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x4B)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x1F
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x8B)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x75
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x73)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x52
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x61)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0xD0
+												&& Byte.toUnsignedInt(byteArr[1]) == 0xCF)
+										|| (Byte.toUnsignedInt(byteArr[0]) == 0x50
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+									uploadAnnouncementFileForS3(announcement, file);
+								} else {
+									setError(redirectAttrs, "File uploaded is invalid!");
+									if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY")) {
+										return "redirect:/addAnnouncementFormLibrary";
+									}
+									if (typeOfAnn != null) {
+										if ("PROGRAM".equals(typeOfAnn)) {
+											return "redirect:/addAnnouncementFormProgram";
+										}
+									}
+
+									return "redirect:/addAnnouncementForm";
+								}
 							}
 						}
 					}else {
@@ -1017,6 +1068,8 @@ public class AnnouncementController extends BaseController {
 
 		} 
 		catch (ValidationException e) {
+			logger.info("Exception---->"+e.getMessage());
+			
 			logger.error("Exception", e);
 			setError(redirectAttrs, e.getMessage().toString());
 
@@ -1029,6 +1082,7 @@ public class AnnouncementController extends BaseController {
 			return "redirect:/addAnnouncementForm";
 		}
 		catch (Exception e) {
+			logger.info("Exception---->"+e.getMessage());
 			logger.error("Exception", e);
 			setError(redirectAttrs, "Error in creating Announcement");
 
@@ -1381,8 +1435,46 @@ public class AnnouncementController extends BaseController {
 		userList.add(username);
 		String defaultMsg = "\\r\\n\\r\\nNote: This Announcement is updated by : ?? \\r\\nTo view any attached files to this mail kindly login to \\r\\nUrl: https://portal.svkm.ac.in/usermgmt/login ";
 
+		
+		
+		
+		
+		
 		List<String> parentList = new ArrayList<String>();
 		try {
+			
+			
+
+			if(null!=announcement.getAnnouncementSubType() || !announcement.getAnnouncementSubType().isEmpty())
+			{
+				validateAnnouncementSubType(announcement.getAnnouncementSubType());
+			}
+			businessBypassRule.validateAlphaNumeric(announcement.getSubject());
+			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
+			
+	
+//			/*
+//			 * if(null!=announcement.getCampusId() ||
+//			 * !announcement.getCampusId().toString().isEmpty() ) {
+//			 */
+			if(null!=announcement.getCampusId() && !announcement.getCampusId().equals(" ") && !announcement.getCampusId().toString().isEmpty())
+			{
+			businessBypassRule.validateNumeric(announcement.getCampusId().toString());
+			Course coursedata=courseService.checkIfExistsInDB("campusId", announcement.getCampusId().toString());
+			
+			if(null==coursedata ||coursedata.equals(" "))
+			{
+		    	 throw new ValidationException("Invalid Campus");
+			
+			}
+			}
+		
+			logger.info("email alert---"+announcement.getSendEmailAlert());
+			logger.info("sms alert ---"+announcement.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
+			
+			
 			for (MultipartFile file : files) {
 				if (!file.isEmpty()) {
 					//Audit change start
@@ -1421,7 +1513,35 @@ public class AnnouncementController extends BaseController {
 								}
 								return "redirect:/addAnnouncementForm";
 							}else {
-								uploadAnnouncementFileForS3(announcement, file);
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+									uploadAnnouncementFileForS3(announcement, file);
+								} else {
+									setError(redirectAttrs, "File uploaded is invalid!");
+									if (announcement.getAnnouncementType().equalsIgnoreCase("LIBRARY") || userdetails1.getAuthorities().contains(
+											Role.ROLE_LIBRARIAN)) {
+										redirectAttrs.addAttribute("id", announcement.getId());
+										return "redirect:/addAnnouncementFormLibrary";
+									}
+									if (typeOfAnn != null) {
+										if ("PROGRAM".equals(typeOfAnn)) {
+											return "redirect:/addAnnouncementFormProgram";
+										}
+									}
+									return "redirect:/addAnnouncementForm";
+								}
 							}
 						}
 					}else {
@@ -1622,7 +1742,21 @@ public class AnnouncementController extends BaseController {
 			}
 			m.addAttribute("announcement", announcement);
 			redirectAttrs.addFlashAttribute("announcement", announcement);
-		} catch (Exception e) {
+		}catch(ValidationException e)
+		{
+
+			logger.error("Exception", e);
+			setError(redirectAttrs, e.getMessage());
+			if (typeOfAnn != null) {
+				if ("PROGRAM".equals(typeOfAnn)) {
+					return "redirect:/addAnnouncementFormProgram";
+				}
+			}
+			return "redirect:/addAnnouncementForm";
+		
+			
+		}
+		catch (Exception e) {
 
 			logger.error("Exception", e);
 			setError(redirectAttrs, "Error in updating Announcement");
@@ -2589,6 +2723,8 @@ public class AnnouncementController extends BaseController {
 			@RequestParam(required = false) Long id,
 			@ModelAttribute Announcement announcement, Model m,
 			Principal principal, HttpServletRequest request) {
+		
+		
 		String username = principal.getName();
 
 		Token userdetails1 = (Token) principal;
@@ -2696,83 +2832,73 @@ public class AnnouncementController extends BaseController {
 		List<String> parentList = new ArrayList<String>();
 		
 		try {
+
 			HtmlValidation.validateHtml(announcement, Arrays.asList("description"));
 			Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
+
 			
-			if(semdata.toString().isEmpty() || null==semdata)
+			if(null!=announcement.getAcadSession() && !announcement.getAcadSession().isEmpty())
 			{
+	//	Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
 
-		
-				setError(redirectAttrs, "Invalid Semester ");
-
-				if (typeOfAnn != null) {
-					if ("PROGRAM".equals(typeOfAnn)) {
-						return "redirect:/addAnnouncementFormMultiProgram";
-					}
-				}
-
-				return "redirect:/addAnnouncementForm";
 			
+			if(null==semdata || semdata.toString().isEmpty())
+			{
+				
+				 throw new ValidationException("Invalid Semester");
 			}
+		}
+			
 			for(String programId:announcement.getProgramIds())
 			{
+
 				
 				HtmlValidation.checkHtmlCode(programId);
 				businessBypassRule.validateNumeric(programId.toString());
+
+				//businessBypassRule.validateNumeric(programId.toString());
+
 				Course Programdata=courseService.checkIfExistsInDB("programId", programId);
 				if(Programdata.toString().isEmpty() || null==Programdata)
-				{
-		
-					setError(redirectAttrs, "Invalid program Id");
-
-					if (typeOfAnn != null) {
-						if ("PROGRAM".equals(typeOfAnn)) {
-							return "redirect:/addAnnouncementFormMultiProgram";
-						}
-					}
-
-					return "redirect:/addAnnouncementForm";
+				{ 
+					throw new ValidationException("Invalid Program Id");
 				
 				}
 			}
+			if(null !=admincourseId && !admincourseId.isEmpty())
+			{
+				
+			
 			List<String> courseList = new ArrayList<String>(Arrays.asList(admincourseId.split(",")));
 
 			for(String courseId:courseList)
 			{
+
 				HtmlValidation.checkHtmlCode(courseId);
 				businessBypassRule.validateNumeric(courseId);
+
+				//businessBypassRule.validateNumeric(courseId);
+
 				Course course=courseService.findByID(Long.valueOf(courseId));
 				if(course.toString().isEmpty() || null==course)
 				{
-		
-					setError(redirectAttrs, "Invalid Course Id");
-
-					if (typeOfAnn != null) {
-						if ("PROGRAM".equals(typeOfAnn)) {
-							return "redirect:/addAnnouncementFormMultiProgram";
-						}
-					}
-
-					return "redirect:/addAnnouncementForm";
+					throw new ValidationException("Invalid Course Id");
 				
 				}
 			}
+			}
 			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
-			businessBypassRule.validateNumeric(announcement.getAcadSession());
-			Course acadYear=courseService.checkIfExistsInDB("acadYear", announcement.getAcadSession());
+
+		//	businessBypassRule.validateNumeric(announcement.getAcadYear());
+			Course acadYear=courseService.checkIfExistsInDB("acadYear", announcement.getAcadYear().toString());
+			if( null==acadYear || acadYear.toString().isEmpty() )
+
+		
 			if(acadYear.toString().isEmpty() || null==acadYear)
+
 			{
-	
-				setError(redirectAttrs, "Invalid AcadYear Id");
-
-				if (typeOfAnn != null) {
-					if ("PROGRAM".equals(typeOfAnn)) {
-						return "redirect:/addAnnouncementFormMultiProgram";
-					}
-				}
-
-				return "redirect:/addAnnouncementForm";
+				throw new ValidationException("Invalid acad Year");	
 			
 			}
 			
@@ -2823,7 +2949,51 @@ public class AnnouncementController extends BaseController {
 								}
 								return "redirect:/addAnnouncementForm";
 							}else {
-								uploadAnnouncementFileForS3(announcement, file);
+								byte [] byteArr=file.getBytes();
+								logger.info("ins.hex0--->"+Integer.toHexString(Byte.toUnsignedInt(byteArr[0])));
+								logger.info("ins.hex1--->"+Integer.toHexString(Byte.toUnsignedInt(byteArr[1])));
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+									(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+									uploadAnnouncementFileForS3(announcement, file);
+								} else {
+						        	setError(redirectAttrs, "File Uploaded is not valid");
+									if (typeOfAnn != null) {
+										if ("PROGRAM".equals(typeOfAnn)) {
+											return "redirect:/addAnnouncementFormMultiProgram";
+										}
+									}
+						        }
+								
+//								DataInputStream ins = new DataInputStream(new BufferedInputStream(file.getInputStream()));
+//							    try {
+//							    	logger.info("ins.hex1--->"+Integer.toHexString(ins.readUnsignedByte()));
+//							    	
+//							    	
+//							        if (ins.readInt() == 0xffd8ffe0) {
+//							        	
+//							        } else {
+//							        	setError(redirectAttrs, "File Uploaded is not valid");
+//										if (typeOfAnn != null) {
+//											if ("PROGRAM".equals(typeOfAnn)) {
+//												return "redirect:/addAnnouncementFormMultiProgram";
+//											}
+//										}
+//							        }
+//							    } finally {
+//							        ins.close();
+//							    }
+								
 							}
 						}
 					}else {
@@ -3216,7 +3386,30 @@ public class AnnouncementController extends BaseController {
 								}
 								return "redirect:/addAnnouncementForm";
 							}else {
-								errorMessage = uploadAnnouncementFileForS3(announcement, file);
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+									errorMessage = uploadAnnouncementFileForS3(announcement, file);
+								} else {
+									setError(redirectAttrs, "File Uploaded is not valid");
+									if (typeOfAnn != null) {
+										if ("PROGRAM".equals(typeOfAnn)) {
+											return "redirect:/addAnnouncementFormMultiProgram";
+										}
+									}
+									return "redirect:/addAnnouncementForm";
+								}
 							}
 						}
 					}else {
@@ -3697,7 +3890,30 @@ public class AnnouncementController extends BaseController {
 								}
 								return "redirect:/addAnnouncementForm";
 							}else {
+								byte [] byteArr=file.getBytes();
+								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 								uploadAnnouncementFileForS3(announcement, file);
+								} else {
+									setError(redirectAttrs, "File uploaded is invalid!");
+									if(typeOfAnn!=null){
+										if("PROGRAM".equals(typeOfAnn)){
+											return "redirect:/addTimeTableForm";
+										}
+									}
+									return "redirect:/addAnnouncementForm";
+								}
 							}
 						}
 					}else {

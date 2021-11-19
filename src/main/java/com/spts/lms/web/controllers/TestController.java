@@ -3589,6 +3589,7 @@ public class TestController extends BaseController {
 			Model m) {
 		try {
 			String username = principal.getName();
+			redirectAttrs.addFlashAttribute("testPool", testPool);
 			/* New Audit changes start */
 			HtmlValidation.validateHtml(testPool, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(testPool.getTestPoolName());
@@ -3606,7 +3607,7 @@ public class TestController extends BaseController {
 			testPool.setLastModifiedBy(username);
 
 			testPoolService.insertWithIdReturn(testPool);
-			redirectAttrs.addFlashAttribute("testPool", testPool);
+			
 			setSuccess(redirectAttrs, " Test Pool added successfully");
 
 		}catch (ValidationException ve) {

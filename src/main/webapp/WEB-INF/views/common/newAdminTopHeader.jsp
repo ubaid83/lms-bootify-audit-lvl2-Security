@@ -832,7 +832,7 @@
 				<!-- change program -->
 				<li id="changeProgram" class="nav-item active" data-toggle="tooltip"
 					data-placement="bottom" title="Change Program"><a
-					class="nav-link" href="https://portal.svkm.ac.in/usermgmt"> <i
+					class="nav-link" href="https://dev-portal.svkm.ac.in/usermgmt"> <i
 						class="fas fa-exchange-alt"></i> <span class="mobNavbar">Change
 							Program</span>
 

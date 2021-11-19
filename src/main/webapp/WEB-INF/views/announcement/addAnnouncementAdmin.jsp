@@ -96,9 +96,9 @@
                                                                               type="text" placeholder="Assignment Name"
                                                                               class="form-control" required="required" /> --%>
 													<form:select id="announcementSubType"
-														path="announcementSubType"
+														path="announcementSubType" required="required"
 														placeholder="Announcement Subtype" class="form-control">
-														<form:option value="" >Select Announcement Subtype</form:option>
+														<form:option value="" disabled="disabled" selected="true">Select Announcement Subtype</form:option>
 														<form:option value="EXAM">EXAM</form:option>
 														<form:option value="EVENT">EVENT</form:option>
 														<form:option value="ASSIGNMENT">ASSIGNMENT</form:option>
@@ -139,6 +139,7 @@
 																<div class="form-group">
 
 																	<form:label path="startDate" for="startDate">Display From <span style="color: red">*</span></form:label>
+																	
 
 																	<div class='input-group date' id='datetimepicker1'>
 																		<form:input id="startDate" path="startDate"
@@ -321,7 +322,7 @@
         
         <script>
 		function myFunction(){
-			console.log("fdghdhyrfdhuytuytrutryutrruht");
+			
 			var dateinput = $('#startDate').val();
 			console.log(dateinput);
 		}
