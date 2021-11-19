@@ -28,7 +28,7 @@ public class MyErrorController implements ErrorController {
 		         statusCode = Integer.valueOf(status.toString());
 		 }
 		 m.addAttribute("status", String.valueOf(statusCode));
-		logger.info("error called--->");
+		logger.info("error 1 called--->");
 		return "error";
 	}
 

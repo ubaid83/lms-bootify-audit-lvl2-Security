@@ -30,6 +30,7 @@ public class ExceptionResolver {
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Seems like request body/param has been hampered.");
         String json = new Gson().toJson(response);
+        System.out.println("ExceptionResolver--->"+response);
 		json = encryptResponseBody(json);
         return json;
     }
@@ -39,6 +40,7 @@ public class ExceptionResolver {
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Required path variable is missing in this request. Please add it to your request.");
         String json = new Gson().toJson(response);
+        System.out.println("ExceptionResolver--->"+response);
 		json = encryptResponseBody(json);
         return json;
     }
@@ -48,18 +50,11 @@ public class ExceptionResolver {
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Requested resource wasn't found on the server.");
         String json = new Gson().toJson(response);
+        System.out.println("ExceptionResolver--->"+response);
 		json = encryptResponseBody(json);
         return json;
     }
-    
-    @ExceptionHandler(BindException.class)
-    public String handleException(HttpServletRequest request,BindException e,HttpServletResponse response) 
-    {
-         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-         return "<h3 style=\"text-align:center\">Error-"+response.getStatus()+"</h3><br>"
-        		 +"<center><a href=\"http://localhost:8085/"+app+"/homepage\">Back to home</a></center>";
-
-    }
+ 
     
     private String encryptResponseBody(String json) {
 		String encryptedStr = "";

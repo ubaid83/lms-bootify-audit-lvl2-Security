@@ -165,8 +165,8 @@ public class ContentController extends BaseController {
 	Client client = ClientBuilder.newClient();
 	ObjectMapper mapper = new ObjectMapper();
 
-	private static final String serverURL = "http://localhost:8085/"; // "http://localhost:8085/" "http://192.168.2.116:8443/" "http://192.168.2.139:8443/"
-	private static final String serverCrudURL = "http://localhost:8082/"; // "http://192.168.2.139:8443/usermgmtcrud/"
+	private static final String serverURL = "http://192.168.2.116:8443/"; // "http://localhost:8085/" "http://192.168.2.116:8443/" "http://192.168.2.139:8443/"
+	private static final String serverCrudURL = "http://192.168.2.139:8443/usermgmtcrud/"; // "http://192.168.2.139:8443/usermgmtcrud/"
 
 	
 	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })

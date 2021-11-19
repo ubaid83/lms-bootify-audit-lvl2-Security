@@ -188,17 +188,18 @@ label {
 				</div>
 
 				<div class="col-lg-12 text-center error-text">
+				<h3>Error-${status}</h3>
 					<%-- <h3>Congrats You Have Found Error ${status}</h3> --%>
-					<c:choose>
+					<%-- <c:choose>
 
 
 						<c:when test="${status==0}">
 							<h3>Error!!!</h3>
 						</c:when>
 						<c:otherwise>
-							<h3>Error-${status}</h3>
+							
 						</c:otherwise>
-					</c:choose>
+					</c:choose> --%>
 
 
 				</div>

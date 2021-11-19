@@ -333,7 +333,7 @@ public class AssignmentController extends BaseController {
 
 	public void validateAssignmentType(String s) throws ValidationException{
 		if (s == null || s.trim().isEmpty()) {
-			 throw new ValidationException("Input field cannot be empty");
+			 throw new ValidationException("Assignment Type field cannot be empty");
 		 }
 		if(!s.equals("Presentation") && !s.equals("WrittenAssignment") && !s.equals("Viva") && !s.equals("ReportWriting")) {
 			throw new ValidationException("Invalid Assignment Type.");
@@ -1166,7 +1166,9 @@ public class AssignmentController extends BaseController {
 				"Create Assignment", true, false));
 
 		String username = principal.getName();
-
+		if(null == multipleAssignmentErrorMsg) {
+			multipleAssignmentErrorMsg = "";
+		}
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
@@ -1227,16 +1229,16 @@ public class AssignmentController extends BaseController {
 					Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
 					logger.info("length--->"+count);
 					if (count > 1 || count == 0) {
-						setError(m, "File uploaded is invalid!");
+						setError(redirectAttributes, "File uploaded is invalid!");
 						//redirectAttrs.addAttribute("courseId", assignment.getCourseId());
-						return "assignment/createAssignmentFromGroupFinal";
+						return "redirect:/createAssignmentFromGroup";
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
 						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
-							setError(m, "File uploaded is invalid!");
+							setError(redirectAttributes, "File uploaded is invalid!");
 							//redirectAttrs.addAttribute("courseId", assignment.getCourseId());
-							return "assignment/createAssignmentFromGroupFinal";
+							return "redirect:/createAssignmentFromGroup";
 						}else {
 							byte [] byteArr=file.getBytes();
 							if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
@@ -1254,21 +1256,21 @@ public class AssignmentController extends BaseController {
 																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
 							String errorMessage = uploadAssignmentFileForS3(assignment, file);
 							} else {
-								setError(m, "File uploaded is invalid!");
-								return "assignment/createAssignmentFromGroupFinal";
+								setError(redirectAttributes, "File uploaded is invalid!");
+								return "redirect:/createAssignmentFromGroup";
 							}
 						}
 					}
 				}else {
-					setError(m, "File uploaded is invalid!");
+					setError(redirectAttributes, "File uploaded is invalid!");
 					//redirectAttrs.addAttribute("courseId", assignment.getCourseId());
-					return "assignment/createAssignmentFromGroupFinal";
+					return "redirect:/createAssignmentFromGroup";
 				}
 				//Audit change end
 				} catch (Exception e) {
 					logger.error("Exception while uploading file assign",e);
-					setError(m, "Error occurred  while uploading file!");
-					return "assignment/createAssignmentFromGroupFinal";
+					setError(redirectAttributes, "Error occurred  while uploading file!");
+					return "redirect:/createAssignmentFromGroup";
 				}
 			}
 		}
@@ -3484,7 +3486,7 @@ public class AssignmentController extends BaseController {
 							multipleAssignmentErrorMsg = saveGroupAssignment(assignment, mapper.get(i), m, p,redirectAttrs,multipleAssignmentErrorMsg);
 							logger.info("multipleAssignmentErrorMsg---->"+multipleAssignmentErrorMsg);
 							if(!multipleAssignmentErrorMsg.equals("Success")) {
-								throw new ValidationException("Invalid argument.");
+								throw new ValidationException(multipleAssignmentErrorMsg);
 							}
 							//Audit change end
 						} else {
@@ -3624,9 +3626,13 @@ public class AssignmentController extends BaseController {
 				BusinessBypassRule.validateNumeric(assignment.getMaxScore());
 				BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
 				validateAssignmentType(assignment.getAssignmentType());
-				Course course = courseService.findByID(assignment.getCourseId());
+				Course course = courseService.checkIfExistsInDB("moduleId",String.valueOf(assignment.getModuleId()));
 				if(null == course) {
-					throw new ValidationException("Invalid Course selected.");
+					throw new ValidationException("Invalid Module selected.");
+				}
+				Course acadYear = courseService.checkIfExistsInDB("acadYear",String.valueOf(assignment.getAcadYear()));
+				if(null == acadYear) {
+					throw new ValidationException("Invalid acadYear selected.");
 				}
 				if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
 					throw new ValidationException("Invalid Input.");
