@@ -809,7 +809,8 @@ public class AnnouncementController extends BaseController {
 										|| (Byte.toUnsignedInt(byteArr[0]) == 0xD0
 												&& Byte.toUnsignedInt(byteArr[1]) == 0xCF)
 										|| (Byte.toUnsignedInt(byteArr[0]) == 0x50
-												&& Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+												&& Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+										("text/plain").equals(detectedType)) {
 									uploadAnnouncementFileForS3(announcement, file);
 								} else {
 									setError(redirectAttrs, "File uploaded is invalid!");
@@ -1475,7 +1476,8 @@ public class AnnouncementController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	("text/plain").equals(detectedType)) {
 									uploadAnnouncementFileForS3(announcement, file);
 								} else {
 									setError(redirectAttrs, "File uploaded is invalid!");
@@ -2825,21 +2827,21 @@ public class AnnouncementController extends BaseController {
 			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
 			businessBypassRule.validateAlphaNumeric(announcement.getAcadSession());
-			Course acadYear=courseService.checkIfExistsInDB("acadYear", announcement.getAcadSession());
-			if(acadYear.toString().isEmpty() || null==acadYear)
-			{
-	
-				setError(redirectAttrs, "Invalid AcadYear Id");
-
-				if (typeOfAnn != null) {
-					if ("PROGRAM".equals(typeOfAnn)) {
-						return "redirect:/addAnnouncementFormMultiProgram";
-					}
-				}
-
-				return "redirect:/addAnnouncementForm";
-			
-			}
+//			Course acadYear=courseService.checkIfExistsInDB("acadYear", announcement.getAcadSession());
+//			if(acadYear.toString().isEmpty() || null==acadYear)
+//			{
+//	
+//				setError(redirectAttrs, "Invalid AcadYear Id");
+//
+//				if (typeOfAnn != null) {
+//					if ("PROGRAM".equals(typeOfAnn)) {
+//						return "redirect:/addAnnouncementFormMultiProgram";
+//					}
+//				}
+//
+//				return "redirect:/addAnnouncementForm";
+//			
+//			}
 			
 			
 			validateAnnouncementSubType(announcement.getAnnouncementSubType());
@@ -2888,31 +2890,33 @@ public class AnnouncementController extends BaseController {
 								}
 								return "redirect:/addAnnouncementForm";
 							}else {
-								byte [] byteArr=file.getBytes();
-								logger.info("ins.hex0--->"+Integer.toHexString(Byte.toUnsignedInt(byteArr[0])));
-								logger.info("ins.hex1--->"+Integer.toHexString(Byte.toUnsignedInt(byteArr[1])));
-								if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-									(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
-									uploadAnnouncementFileForS3(announcement, file);
-								} else {
-						        	setError(redirectAttrs, "File Uploaded is not valid");
-									if (typeOfAnn != null) {
-										if ("PROGRAM".equals(typeOfAnn)) {
-											return "redirect:/addAnnouncementFormMultiProgram";
+									byte [] byteArr=file.getBytes();
+									logger.info("ins.hex0--->"+Integer.toHexString(Byte.toUnsignedInt(byteArr[0])));
+									logger.info("ins.hex1--->"+Integer.toHexString(Byte.toUnsignedInt(byteArr[1])));
+									if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+										(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+										("text/plain").equals(detectedType)) {
+										uploadAnnouncementFileForS3(announcement, file);
+									} else {
+							        	setError(redirectAttrs, "File Uploaded is not valid");
+										if (typeOfAnn != null) {
+											if ("PROGRAM".equals(typeOfAnn)) {
+												return "redirect:/addAnnouncementFormMultiProgram";
+											}
 										}
-									}
-						        }
+							        }
+								
 								
 //								DataInputStream ins = new DataInputStream(new BufferedInputStream(file.getInputStream()));
 //							    try {
@@ -3338,7 +3342,8 @@ public class AnnouncementController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	("text/plain").equals(detectedType)) {
 									errorMessage = uploadAnnouncementFileForS3(announcement, file);
 								} else {
 									setError(redirectAttrs, "File Uploaded is not valid");
@@ -3842,7 +3847,8 @@ public class AnnouncementController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	("text/plain").equals(detectedType)) {
 								uploadAnnouncementFileForS3(announcement, file);
 								} else {
 									setError(redirectAttrs, "File uploaded is invalid!");
