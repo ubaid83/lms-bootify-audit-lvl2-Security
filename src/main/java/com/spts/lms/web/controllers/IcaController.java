@@ -133,6 +133,7 @@ import com.spts.lms.services.test.TestService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -328,6 +329,7 @@ public class IcaController extends BaseController {
 		
 		try {
 			logger.info("Validating /addIca...");
+			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
@@ -533,6 +535,7 @@ public class IcaController extends BaseController {
 		try {
 			
 			logger.info("Validating /updateIca...");
+			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
@@ -2720,67 +2723,67 @@ public class IcaController extends BaseController {
 			}
 		}
 
-//		if (remainingIcaIds.size() > 0) {
-//
-//			logger.info("only comp evaluation exists:" + remainingIcaIds);
-//			for (String id : remainingIcaIds) {
-//				IcaBean icaBeanDB = icaBeanService.findByID(Long.valueOf(id));
-//				String courseName = "";
-//				Course courseDB = courseService.findByModuleIdAndAcadYear(icaBeanDB.getModuleId(),
-//						icaBeanDB.getAcadYear());
-//				if (courseDB == null) {
-//					courseDB = courseService.findByModuleIdAndAcadYearCode(icaBeanDB.getModuleId(),
-//							icaBeanDB.getAcadYear());
-//					if (courseDB != null) {
-//						courseName = courseDB.getModuleName();
-//					}
-//				}
-//				if (courseDB != null) {
-//					courseName = courseDB.getModuleName();
-//				} else {
-//					courseName = courseService.getModuleNameForNonEvent(icaBeanDB.getModuleId());
-//				}
-//				Map<String, String> getCompMap = mapOfComponentsMarksByIcaId.get(id);
-//				// for (String mulId : getCompMap.keySet()) {
-//				IcaTotalMarks itmIds = new IcaTotalMarks();
-//				itmIds.setIcaId(id);
-//				if (!icaBeanDB.getAcadSession().contains(",")) {
-//					itmIds.setAcadSession(icaBeanDB.getAcadSession());
-//				} else {
-//					UserCourse uc = userCourseService.getMappingByUsernameAndModule(username, icaBeanDB.getModuleId());
-//					itmIds.setAcadSession(uc.getAcadSession());
-//				}
-//
-//				itmIds.setAcadYear(icaBeanDB.getAcadYear());
-//				itmIds.setModuleName(courseName);
-//
-//				IcaComponent icomp = icaComponentService.getSubmittedIcaComponent(Long.valueOf(id));
-//				String pageKey = id + "-" + icomp.getComponentId();
-//				IcaComponentMarks icm = icaComponentMarksService.getIcaCompMarksByUsername(id, icomp.getComponentId(),
-//						username);
-//				// IcaComponent icomp = icaComponentService.getCompBean(Long.valueOf(id),
-//				// Long.valueOf(mulId));
-//				String publishedDate = icomp.getPublishedDate();
-//				itmIds.setPublishedDate(publishedDate);
-//				itmIds.setDueDate(Utils.addDaysToDate(publishedDate, 3));
-//				itmIds.setIsComponentMark("Y");
-//				itmIds.setCompId(icomp.getComponentId());
-//				itmIds.setIsQueryRaise(icm.getIsQueryRaise());
-//				itmIds.setPageKey(pageKey);
-//				itmIds.setRemarks(icm.getRemarks());
-//				itmIds.setQuery(icm.getQuery());
-//				String raiseButton = itmIds.getDueDate().compareTo(currentDate) >= 0 ? "showButton" : "disableButton";
-//				dateSpanMap.put(pageKey, raiseButton);
-//				icaTotalMarksForStudent.add(itmIds);
-//				IcaQueries raiseQryStatus = icaQueriesService.findByIcaIdAndCompId(id, icomp.getComponentId());
-//				if (null != raiseQryStatus) {
-//
-//					raiseQueryStatus.put(pageKey, raiseQryStatus);
-//				}
-//				// }
-//
-//			}
-//		}
+		if (remainingIcaIds.size() > 0) {
+
+			logger.info("only comp evaluation exists:" + remainingIcaIds);
+			for (String id : remainingIcaIds) {
+				IcaBean icaBeanDB = icaBeanService.findByID(Long.valueOf(id));
+				String courseName = "";
+				Course courseDB = courseService.findByModuleIdAndAcadYear(icaBeanDB.getModuleId(),
+						icaBeanDB.getAcadYear());
+				if (courseDB == null) {
+					courseDB = courseService.findByModuleIdAndAcadYearCode(icaBeanDB.getModuleId(),
+							icaBeanDB.getAcadYear());
+					if (courseDB != null) {
+						courseName = courseDB.getModuleName();
+					}
+				}
+				if (courseDB != null) {
+					courseName = courseDB.getModuleName();
+				} else {
+					courseName = courseService.getModuleNameForNonEvent(icaBeanDB.getModuleId());
+				}
+				Map<String, String> getCompMap = mapOfComponentsMarksByIcaId.get(id);
+				// for (String mulId : getCompMap.keySet()) {
+				IcaTotalMarks itmIds = new IcaTotalMarks();
+				itmIds.setIcaId(id);
+				if (!icaBeanDB.getAcadSession().contains(",")) {
+					itmIds.setAcadSession(icaBeanDB.getAcadSession());
+				} else {
+					UserCourse uc = userCourseService.getMappingByUsernameAndModule(username, icaBeanDB.getModuleId());
+					itmIds.setAcadSession(uc.getAcadSession());
+				}
+
+				itmIds.setAcadYear(icaBeanDB.getAcadYear());
+				itmIds.setModuleName(courseName);
+
+				IcaComponent icomp = icaComponentService.getSubmittedIcaComponent(Long.valueOf(id));
+				String pageKey = id + "-" + icomp.getComponentId();
+				IcaComponentMarks icm = icaComponentMarksService.getIcaCompMarksByUsername(id, icomp.getComponentId(),
+						username);
+				// IcaComponent icomp = icaComponentService.getCompBean(Long.valueOf(id),
+				// Long.valueOf(mulId));
+				String publishedDate = icomp.getPublishedDate();
+				itmIds.setPublishedDate(publishedDate);
+				itmIds.setDueDate(Utils.addDaysToDate(publishedDate, 3));
+				itmIds.setIsComponentMark("Y");
+				itmIds.setCompId(icomp.getComponentId());
+				itmIds.setIsQueryRaise(icm.getIsQueryRaise());
+				itmIds.setPageKey(pageKey);
+				itmIds.setRemarks(icm.getRemarks());
+				itmIds.setQuery(icm.getQuery());
+				String raiseButton = itmIds.getDueDate().compareTo(currentDate) >= 0 ? "showButton" : "disableButton";
+				dateSpanMap.put(pageKey, raiseButton);
+				icaTotalMarksForStudent.add(itmIds);
+				IcaQueries raiseQryStatus = icaQueriesService.findByIcaIdAndCompId(id, icomp.getComponentId());
+				if (null != raiseQryStatus) {
+
+					raiseQueryStatus.put(pageKey, raiseQryStatus);
+				}
+				// }
+
+			}
+		}
 		m.addAttribute("raiseQueryStatus", raiseQueryStatus);
 
 		logger.info("Check 1----------------loop" + mapOfComponentsMarksByIcaId);
@@ -4869,6 +4872,7 @@ public class IcaController extends BaseController {
 		try {
 			/* New Audit changes start */
 			logger.info("Validating /addIcaForDivision...");
+			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
@@ -5774,6 +5778,7 @@ public class IcaController extends BaseController {
 
 		try {
 			logger.info("Validating /addIcaForNonEventModules...");
+			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
@@ -6265,6 +6270,7 @@ public class IcaController extends BaseController {
 
 		try {
 			logger.info("Validating /addNonCreditIca...");
+			HtmlValidation.validateHtml(nsBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(nsBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", nsBean.getAcadYear());
 			if(acadYear == null) {
@@ -8382,6 +8388,7 @@ public class IcaController extends BaseController {
 		try {
 			/* New Audit changes start */
 			logger.info("Validating /addIcaCoursera...");
+			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
@@ -10444,6 +10451,11 @@ public class IcaController extends BaseController {
 		}
 		try {
 			logger.info("Raising Query...");
+			HtmlValidation.checkHtmlCode(id);
+			HtmlValidation.checkHtmlCode(compId);
+			HtmlValidation.checkHtmlCode(query);
+			
+			
 			BusinessBypassRule.validateAlphaNumeric(query);
 			
 			IcaBean icaBean = icaBeanService.findByID(Long.valueOf(id));

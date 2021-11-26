@@ -61,6 +61,7 @@ import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSDFEQ;
 import com.spts.lms.studentms.sap.ZmessageLogTt;
 import com.spts.lms.web.controllers.BaseController;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -127,6 +128,7 @@ public class studentDetailConfirmationController extends BaseController {
 		Response response = null;
 		String jsonResponse = null;
 		try {
+			HtmlValidation.validateHtml(user, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(user.getEmail());
 			BusinessBypassRule.validateNumeric(user.getMobile());
 			BusinessBypassRule.validateAlphaNumeric(user.getSecAnswer());
@@ -440,6 +442,7 @@ public class studentDetailConfirmationController extends BaseController {
 				+ studentdetails.getMothernamedisagr());
 		
 		try {
+			HtmlValidation.validateHtml(studentdetails, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(studentdetails.getFirstname());
 			BusinessBypassRule.validateAlphaNumeric(studentdetails.getFathername());
 			BusinessBypassRule.validateAlphaNumeric(studentdetails.getMothername());

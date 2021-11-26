@@ -435,9 +435,18 @@ public class ForumController extends BaseController {
 
 		try {
 			
+
+			
+			HtmlValidation.validateHtml(forumreply, new ArrayList<>());
+//			if(reply == null ||reply.isEmpty())
+//			{
+//				 throw new ValidationException("Invalid Reply to Forum");
+//			}
+
 			if (reply == null || reply.isEmpty()) {
 				throw new ValidationException("Reply can't be blank");
 			}
+
 			
 			// if(reply == null ||reply.isEmpty())
 			// {

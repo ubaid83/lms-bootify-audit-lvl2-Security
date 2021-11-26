@@ -37,4 +37,12 @@ public class LorRegDetailsService extends BaseService<LorRegDetails> {
 		return lorRegDetailsDAO.getLorDetailsById(lorRegId,staffId);
 	}
 	
+	public  LorRegDetails findByCountryName(final String country_name) {
+		return lorRegDetailsDAO.findByCountryName(country_name);
+		
+	}
+	
+	
+
+	
 }

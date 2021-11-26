@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -81,6 +82,7 @@ import com.spts.lms.web.helper.InsertLibrary;
 import com.spts.lms.web.helper.UnzipFiles;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -1108,6 +1110,7 @@ public class LibraryController extends BaseController {
 		String username = principal.getName();
 		
 		try {
+			HtmlValidation.validateHtml(library, Arrays.asList("contentDescription"));
 			if(!library.getContentType().isEmpty()) {
 				BusinessBypassRule.validateAlphaNumeric(library.getContentType());
 			}
@@ -1502,6 +1505,7 @@ public class LibraryController extends BaseController {
 			Principal principal, Model m) {
 		
 		try {
+			HtmlValidation.validateHtml(library, Arrays.asList("contentDescription"));
 			if(!library.getContentType().isEmpty()) {
 				BusinessBypassRule.validateAlphaNumeric(library.getContentType());
 			}
@@ -2276,6 +2280,7 @@ public class LibraryController extends BaseController {
 		String username = principal.getName();
 		
 		try {
+			HtmlValidation.validateHtml(library, Arrays.asList("contentDescription"));
 			if(!library.getContentType().isEmpty()) {
 				BusinessBypassRule.validateAlphaNumeric(library.getContentType());
 			}
@@ -2724,6 +2729,7 @@ public class LibraryController extends BaseController {
 		redirectAttrs.addFlashAttribute("library", library);
 		
 		try {
+			HtmlValidation.validateHtml(library, Arrays.asList("contentDescription"));
 			if(!library.getContentType().isEmpty()) {
 				BusinessBypassRule.validateAlphaNumeric(library.getContentType());
 			}

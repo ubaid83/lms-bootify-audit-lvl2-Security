@@ -455,7 +455,7 @@
                                           
                                                                                
                                           <!-- Change Program -->
-                                          <a href="https://portal.svkm.ac.in/usermgmt">
+                                          <a href="https://dev-portal.svkm.ac.in/usermgmt">
                                            <li>
                                            <i class="fas fa-exchange-alt fa-lg"></i> Change Program
                                            </li>
