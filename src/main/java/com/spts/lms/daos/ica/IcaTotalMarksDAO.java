@@ -1278,4 +1278,8 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 		}
 
 	}
+	public int checkIfSavedAsDraft(Long icaId) {
+		String sql = "select count(*) from ica_total_marks where icaId=? and saveAsDraft='Y'";
+		return getJdbcTemplate().queryForObject(sql, Integer.class, new Object[] {icaId});
+	}
 }

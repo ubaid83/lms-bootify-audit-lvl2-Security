@@ -397,4 +397,9 @@ public class TeeTotalMarksDAO extends BaseDAO<TeeTotalMarks> {
 		String sql =" select count(*) from "+getTableName()+" where teeId = ? and active ='Y' and flagTcs='S' ";
 		return getJdbcTemplate().queryForObject(sql, Integer.class, new Object[] {icaId});
 	}
+
+	public int checkIfSavedAsDraft(Long teeId) {
+		String sql = "select count(*) from tee_total_marks where teeId=? and saveAsDraft='Y'";
+		return getJdbcTemplate().queryForObject(sql, Integer.class, new Object[] {teeId});
+	}
 }

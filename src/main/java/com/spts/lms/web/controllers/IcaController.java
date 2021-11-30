@@ -1416,6 +1416,16 @@ public class IcaController extends BaseController {
 				role = Role.ROLE_FACULTY.name();
 				icaList = icaBeanService.findIcaListByProgramForBatchWise(userdetails1.getProgramId(), role,
 						principal.getName());
+				
+				//Peter 25/11/2021 - SaveAsDraft Highlight Task
+				for(IcaBean i : icaList){
+					int checkIfSavedAsDraft = icaTotalMarksService.checkIfSavedAsDraft(i.getId());
+					logger.info("got saveAsDraft");
+					if(checkIfSavedAsDraft>0){
+						logger.info("setting saveAsDraft Y");
+						i.setSaveAsDraft("Y");
+					}
+				}
 
 			} else {
 				role = Role.ROLE_ADMIN.name();

@@ -468,6 +468,16 @@ public class TeeController extends BaseController {
 				role = Role.ROLE_FACULTY.name();
 				teeList = teeBeanService.findTeeListByProgramAndUsername(userdetails1.getProgramId(), role,
 						principal.getName());
+				
+				//Peter 25/11/2021 - SaveAsDraft Highlight Task
+				for(TeeBean t : teeList){
+					int checkIfSavedAsDraft = teeTotalMarksService.checkIfSavedAsDraft(t.getId());
+					logger.info("got saveAsDraft");
+					if(checkIfSavedAsDraft>0){
+						logger.info("setting saveAsDraft Y");
+						t.setSaveAsDraft("Y");
+					}
+				}
 
 			} else {
 				role = Role.ROLE_ADMIN.name();
