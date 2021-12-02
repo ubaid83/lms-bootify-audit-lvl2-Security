@@ -150,4 +150,7 @@ public class IcaTotalMarksService extends BaseService<IcaTotalMarks> {
 	public List<IcaTotalMarks> getFacultyEvaluationStatus(String icaId){
 		return icaTotalMarksDAO.getFacultyEvaluationStatus(icaId);
 	}
+	public int checkIfSavedAsDraft(Long icaId) {
+		return icaTotalMarksDAO.checkIfSavedAsDraft(icaId);
+	}
 }

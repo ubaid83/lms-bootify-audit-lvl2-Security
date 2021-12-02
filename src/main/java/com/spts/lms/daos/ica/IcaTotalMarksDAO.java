@@ -1278,11 +1278,15 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 		}
 
 	}
-	
+
 	public List<IcaTotalMarks> getFacultyEvaluationStatus(String icaId){
 		String sql ="select itm.icaId,isb.facultyId,itm.saveAsDraft,itm.finalSubmit,GROUP_CONCAT(DISTINCT concat(u.firstName,' ',u.lastName,' (',u.username,')')) as assignedFaculty from "
 				+ "ica_student_batchwise isb join users u on u.username=isb.facultyId left join ica_total_marks itm on itm.icaId=isb.icaId and isb.username=itm.username "
 				+ "where isb.icaid = ? group by isb.facultyId,itm.saveAsDraft,itm.finalSubmit";
 		return findAllSQL(sql, new Object[] { icaId });
+	}
+	public int checkIfSavedAsDraft(Long icaId) {
+		String sql = "select count(*) from ica_total_marks where icaId=? and saveAsDraft='Y'";
+		return getJdbcTemplate().queryForObject(sql, Integer.class, new Object[] {icaId});
 	}
 }

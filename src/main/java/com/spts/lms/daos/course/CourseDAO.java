@@ -1392,19 +1392,19 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 
 	//Peter 25/10/2021
 	public Course checkIfAcadSessionExists(String acadSession) {
-		String sql="SELECT sapSessionText FROM session_master WHERE sapSessionText=?";
+		String sql="SELECT sapSessionText FROM session_master WHERE sapSessionText=? limit 1";
 		return findOneSQL(sql, new Object[] {acadSession});
 	}
 
 	//Peter 25/10/2021
 	public Course checkIfModuleExists(String moduleId) {
-		String sql="SELECT module_id FROM module WHERE module_id=?";
+		String sql="SELECT module_id FROM module WHERE module_id=? limit 1";
 		return findOneSQL(sql, new Object[] {moduleId});
 	}
 
 	//Peter 25/10/2021
 	public Course checkIfCampusExists(String campusId) {
-		String sql="SELECT campusId FROM program_campus WHERE campusId=?";
+		String sql="SELECT campusId FROM program_campus WHERE campusId=? limit 1";
 		return findOneSQL(sql, new Object[] {campusId});
 	}
 }

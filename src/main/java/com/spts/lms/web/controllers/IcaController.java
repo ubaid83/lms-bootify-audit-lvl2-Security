@@ -333,34 +333,38 @@ public class IcaController extends BaseController {
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course acadSession = courseService.checkIfExistsInDB("acadSession", icaBean.getAcadSession());
 			if(acadSession == null) {
-				throw new ValidationException("Invalid Acad Session");
+				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+			if(icaBean.getCampusId() != null){
+				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			Course moduleId = courseService.checkIfExistsInDB("moduleId", icaBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
 			logger.info("create ica selected programs are " + icaBean.getProgramId());
 			List<String> progIds = null;
 			if(icaBean.getProgramId().contains(",")) {
+				logger.info("inside multiple programs");
 				progIds = Arrays.asList(icaBean.getProgramId().split(","));
 				for(String programId : progIds) {
 					Course progId = courseService.checkIfExistsInDB("programId", programId);			
 					if(progId == null) {
-						throw new ValidationException("Invalid Program");
+						throw new ValidationException("Invalid Program Selected");
 					}
 				}
 			} else {
+				logger.info("inside single program");
 				Course progId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());
 				if(progId == null) {
-					throw new ValidationException("Invalid Program");
+					throw new ValidationException("Invalid Program Selected");
 				}
 			}
 			
@@ -372,7 +376,7 @@ public class IcaController extends BaseController {
 					logger.info("courseID is " + courseId);
 					UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(assignedFaculty, String.valueOf(courseId.getCourseId()));
 		            if(null == userccourse) {
-		                  throw new ValidationException("Invalid faculty selected.");
+		                  throw new ValidationException("Invalid Faculty Selected.");
 		            }
 				}
 			} else {
@@ -539,29 +543,32 @@ public class IcaController extends BaseController {
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course acadSession = courseService.checkIfExistsInDB("acadSession", icaBean.getAcadSession());
 			if(acadSession == null) {
-				throw new ValidationException("Invalid Acad Session");
+				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+			if(icaBean.getCampusId() != null){
+				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
+			
 			Course moduleId = courseService.checkIfExistsInDB("moduleId", icaBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
 			Course programId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());
 			if(programId == null) {
-				throw new ValidationException("Invalid Program");
+				throw new ValidationException("Invalid Program Selected");
 			}
 			UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getAssignedFaculty(),icaBean.getModuleId());
 			logger.info("courseId is " + courseId);
 			UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(icaBean.getAssignedFaculty(), String.valueOf(courseId.getCourseId()));
             if(null == userccourse) {
-                  throw new ValidationException("Invalid faculty selected.");
+                  throw new ValidationException("Invalid faculty selected");
             }
             
 			BusinessBypassRule.validateNumeric(icaBean.getInternalMarks());
@@ -1415,6 +1422,16 @@ public class IcaController extends BaseController {
 				role = Role.ROLE_FACULTY.name();
 				icaList = icaBeanService.findIcaListByProgramForBatchWise(userdetails1.getProgramId(), role,
 						principal.getName());
+				
+				//Peter 25/11/2021 - SaveAsDraft Highlight Task
+				for(IcaBean i : icaList){
+					int checkIfSavedAsDraft = icaTotalMarksService.checkIfSavedAsDraft(i.getId());
+					logger.info("got saveAsDraft");
+					if(checkIfSavedAsDraft>0){
+						logger.info("setting saveAsDraft Y");
+						i.setSaveAsDraft("Y");
+					}
+				}
 
 			} else {
 				role = Role.ROLE_ADMIN.name();
@@ -4874,25 +4891,27 @@ public class IcaController extends BaseController {
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course acadSession = courseService.checkIfExistsInDB("acadSession", icaBean.getAcadSession());
 			if(acadSession == null) {
-				throw new ValidationException("Invalid Acad Session");
+				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+			if(icaBean.getCampusId() != null) {
+				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			Course moduleId = courseService.checkIfExistsInDB("moduleId", icaBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
 			logger.info("create ica selected programs are " + icaBean.getProgramId());
 			
 			Course progId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());			
 			if(progId == null) {
-				throw new ValidationException("Invalid Program");
+				throw new ValidationException("Invalid Program Selected");
 			}
 //			
 //			UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getModuleId(),icaBean.getModuleId());
@@ -6272,19 +6291,21 @@ public class IcaController extends BaseController {
 			BusinessBypassRule.validateAlphaNumeric(nsBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", nsBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course acadSession = courseService.checkIfAcadSessionExists(nsBean.getAcadSession());
 			if(acadSession == null) {
-				throw new ValidationException("Invalid Acad Session");
+				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			Course campusId = courseService.checkIfCampusExists(nsBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+			if(nsBean.getCampusId() != null){
+				Course campusId = courseService.checkIfCampusExists(nsBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			Course moduleId = courseService.checkIfModuleExists(nsBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
 			List<String> progIds = null;
 			if(nsBean.getProgramId().contains(",")) {
@@ -6292,13 +6313,13 @@ public class IcaController extends BaseController {
 				for(String programId : progIds) {
 					Course progId = courseService.checkIfExistsInDB("programId", programId);			
 					if(progId == null) {
-						throw new ValidationException("Invalid Program");
+						throw new ValidationException("Invalid Program Selected");
 					}
 				}
 			} else {
 				Course progId = courseService.checkIfExistsInDB("programId", nsBean.getProgramId());
 				if(progId == null) {
-					throw new ValidationException("Invalid Program");
+					throw new ValidationException("Invalid Program Selected");
 				}
 			}
 			logger.info("above show to students");
@@ -6332,6 +6353,7 @@ public class IcaController extends BaseController {
 
 			// redirectAttrs.addFlashAttribute("nsBean", nsBean);
 			redirectAttrs.addAttribute("ncIcaId", nsBean.getId());
+			logger.info("redirect uploadNS");
 			return "redirect:/uploadNS";
 
 		}

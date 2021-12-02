@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.spts.lms.beans.ica.IcaTotalMarks;
 import com.spts.lms.beans.tee.TeeTotalMarks;
 import com.spts.lms.daos.BaseDAO;
-
 import com.spts.lms.daos.tee.TeeTotalMarksDAO;
 import com.spts.lms.services.BaseService;
 @Service("teeTotalMarksService")
@@ -106,5 +105,9 @@ public class TeeTotalMarksService extends BaseService<TeeTotalMarks>{
 	
 	public List<TeeTotalMarks> getFacultyEvaluationStatus(String teeId){
 		return teeTotalMarksDAO.getFacultyEvaluationStatus(teeId);
+	}
+
+	public int checkIfSavedAsDraft(Long teeId) {
+		return teeTotalMarksDAO.checkIfSavedAsDraft(teeId);
 	}
 }
