@@ -139,6 +139,7 @@ public class GroupController extends BaseController {
 			for (Course c : courseList) {
 				List<String> studentList = userCourseService
 						.findStudentUsernamesForFaculty(c.getId());
+				
 				/*
 				 * if (studentList.containsAll(students)) {
 				 * logger.info("course - " + c.getCourseName() +
@@ -146,6 +147,7 @@ public class GroupController extends BaseController {
 				 * 
 				 * }
 				 */
+				
 
 				if (students != null && studentList != null
 						&& (students.size() == studentList.size())) {
