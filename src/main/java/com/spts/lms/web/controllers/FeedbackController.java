@@ -249,10 +249,10 @@ public class FeedbackController extends BaseController {
 	//Peter 27/10/2021
 	public void validateFeedbackType(String s) throws ValidationException{
 		if (s == null || s.trim().isEmpty()) {
-			 throw new ValidationException("Input field cannot be empty");
+			 throw new ValidationException("Input field cannot be blank");
 		 }
 		if(!s.equalsIgnoreCase("Mid-Term") && !s.equalsIgnoreCase("End-Term") && !s.equalsIgnoreCase("IT Feedback")) {
-			throw new ValidationException("Invalid Assignment Type.");
+			throw new ValidationException("Invalid Feedback Type.");
 		}
 	}
 
@@ -455,7 +455,12 @@ public class FeedbackController extends BaseController {
 					setError(redirectAttrs, "Feedback cannot be updated");
 			}
 
-		} catch (Exception e) {
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addFeedbackForm?id=" + feedback.getId();
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating Feedback");
 			return "redirect:/addFeedbackForm";
