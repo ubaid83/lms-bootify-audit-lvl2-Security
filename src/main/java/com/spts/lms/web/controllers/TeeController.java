@@ -86,6 +86,7 @@ import com.spts.lms.beans.assignment.Assignment;
 import com.spts.lms.beans.assignment.StudentAssignment;
 import com.spts.lms.beans.course.Course;
 import com.spts.lms.beans.course.UserCourse;
+import com.spts.lms.beans.ica.IcaTotalMarks;
 import com.spts.lms.beans.program.Program;
 import com.spts.lms.beans.programCampus.ProgramCampus;
 import com.spts.lms.beans.tee.TeeBean;
@@ -3653,17 +3654,29 @@ public class TeeController extends BaseController {
 				teeList = teeBeanService.findTeeListByProgramForSupportAdmin();
 			}
 
-			// New Changes on 09-04-2021 to check tcs flag
+//			// New Changes on 09-04-2021 to check tcs flag
+//			for (TeeBean tee : teeList) {
+//				boolean checkTcsFlagForIca = isTeeMarksSentToTcs(tee);
+//				if (checkTcsFlagForIca == false) {
+//					tee.setFlagTcs("F");
+//				} else {
+//					tee.setFlagTcs("S");
+//				}
+//			}
+//			//
+			//New Changes on 08-10-2020 to check tcs flag
+			List<TeeBean> teeFinalList = new ArrayList<>();
 			for (TeeBean tee : teeList) {
+
 				boolean checkTcsFlagForIca = isTeeMarksSentToTcs(tee);
 				if (checkTcsFlagForIca == false) {
-					tee.setFlagTcs("F");
-				} else {
-					tee.setFlagTcs("S");
+					teeFinalList.add(tee);
 				}
 			}
-			//
 
+			teeList.clear();
+			teeList.addAll(teeFinalList);
+			//
 		}
 		m.addAttribute("Program_Name", userdetails1.getProgramName());
 		m.addAttribute("teeList", teeList);
@@ -4446,4 +4459,20 @@ public class TeeController extends BaseController {
 		}
 	}
 
+	
+	@RequestMapping(value = "/getEvaluationStatusOfTEEByFaculty", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String getEvaluationStatusOfTEEByFaculty(@RequestParam(name = "id") String id, Principal principal) {
+
+		ObjectMapper mapper = new ObjectMapper();
+		String json = "";
+		try {
+			Token userdetails1 = (Token) principal;
+			List<TeeTotalMarks> facultyStatus =  teeTotalMarksService.getFacultyEvaluationStatus(id);
+			json = mapper.writeValueAsString(facultyStatus);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			logger.error("Exception", e);
+		}
+		return json;
+	}
 }

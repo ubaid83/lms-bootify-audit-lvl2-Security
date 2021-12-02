@@ -103,4 +103,8 @@ public class TeeTotalMarksService extends BaseService<TeeTotalMarks>{
 	public int getCountOfTcsFlagSentForTee(Long teeId) {
 		return teeTotalMarksDAO.getCountOfTcsFlagSentForTee(teeId);
 	}
+	
+	public List<TeeTotalMarks> getFacultyEvaluationStatus(String teeId){
+		return teeTotalMarksDAO.getFacultyEvaluationStatus(teeId);
+	}
 }

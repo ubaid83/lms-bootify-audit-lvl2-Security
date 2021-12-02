@@ -498,7 +498,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 
@@ -1147,7 +1147,6 @@ public class IcaController extends BaseController {
 		for (UserCourse ass : faculty) {
 			Map<String, String> returnMap = new HashMap();
 			returnMap.put(ass.getUsername(), ass.getFacultyName() + "(" + ass.getUsername() + ")");
-
 			res.add(returnMap);
 		}
 
@@ -1457,7 +1456,6 @@ public class IcaController extends BaseController {
 		for (IcaBean ica : icaList) {
 
 			boolean checkTcsFlagForIca = isIcaMarksSentToTcs(ica);
-			logger.info("ica id 0" + ica.getId() + " bools" + checkTcsFlagForIca);
 			if (checkTcsFlagForIca == false) {
 				icaFinalList.add(ica);
 			}
@@ -2271,7 +2269,7 @@ public class IcaController extends BaseController {
 							logger.info("mobile -----> " + mobiles);
 							logger.info("subject -----> " + subject);
 							logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-							notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+							//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 						}
 					}
 
@@ -2298,7 +2296,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 			} catch (Exception e) {
@@ -2429,7 +2427,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 
@@ -2467,7 +2465,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 			}
@@ -2534,7 +2532,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 
@@ -2571,7 +2569,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 			return "success";
@@ -3006,7 +3004,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 
@@ -3184,7 +3182,7 @@ public class IcaController extends BaseController {
 							logger.info("mobile -----> " + mobiles);
 							logger.info("subject -----> " + subject);
 							logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-							notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+							//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 						}
 					}
 				}
@@ -3902,7 +3900,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 			if ("submit".equals(saveAs)) {
@@ -5041,7 +5039,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 
 				setSuccess(redirectAttrs, "ICA Added For " + distinctCourseId.size() + " Divisions successfully ");
@@ -7404,16 +7402,28 @@ public class IcaController extends BaseController {
 					ica.setProgramName(programService.getProgramNamesForIca(ica.getProgramId()));
 				}
 			}
-			// New Changes on 09-04-2021 to check tcs flag
+//			// New Changes on 09-04-2021 to check tcs flag
+//			for (IcaBean ica : icaList) {
+//
+//				boolean checkTcsFlagForIca = isIcaMarksSentToTcs(ica);
+//				if (checkTcsFlagForIca == false) {
+//					ica.setFlagTcs("F");
+//				} else {
+//					ica.setFlagTcs("S");
+//				}
+//			}
+//			//
+			// New Changes to check tcs flag
+			List<IcaBean> icaFinalList = new ArrayList<>();
 			for (IcaBean ica : icaList) {
-
 				boolean checkTcsFlagForIca = isIcaMarksSentToTcs(ica);
 				if (checkTcsFlagForIca == false) {
-					ica.setFlagTcs("F");
-				} else {
-					ica.setFlagTcs("S");
+					icaFinalList.add(ica);
 				}
 			}
+
+			icaList.clear();
+			icaList.addAll(icaFinalList);
 			//
 		}
 		m.addAttribute("Program_Name", userdetails1.getProgramName());
@@ -8588,7 +8598,7 @@ public class IcaController extends BaseController {
 				logger.info("mobile -----> " + mobiles);
 				logger.info("subject -----> " + subject);
 				logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+				//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 			}
 
 			setSuccess(redirectAttrs, "Coursera ICA Added Successfully");
@@ -9619,7 +9629,7 @@ public class IcaController extends BaseController {
 							logger.info("mobile -----> " + mobiles);
 							logger.info("subject -----> " + subject);
 							logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-							notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+							//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 						}
 					}
 
@@ -9646,7 +9656,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 			} catch (Exception e) {
@@ -10037,7 +10047,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 			if ("submit".equals(saveAs)) {
@@ -10266,7 +10276,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 
@@ -10306,7 +10316,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 
@@ -10388,7 +10398,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 
@@ -10427,7 +10437,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 			return "success";
@@ -10532,7 +10542,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 			return "success";
@@ -10546,5 +10556,22 @@ public class IcaController extends BaseController {
 			return "error";
 		}
 
+	}
+	
+	
+	@RequestMapping(value = "/getEvaluationStatusOfICAByFaculty", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String getEvaluationStatusOfICAByFaculty(@RequestParam(name = "id") String id, Principal principal) {
+
+		ObjectMapper mapper = new ObjectMapper();
+		String json = "";
+		try {
+			Token userdetails1 = (Token) principal;
+			List<IcaTotalMarks> facultyStatus =  icaTotalMarksService.getFacultyEvaluationStatus(id);
+			json = mapper.writeValueAsString(facultyStatus);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			logger.error("Exception", e);
+		}
+		return json;
 	}
 }

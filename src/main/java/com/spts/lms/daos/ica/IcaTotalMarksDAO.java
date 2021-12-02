@@ -864,7 +864,7 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 
 	public void updateSaveAsDraftOrFinalSubmit(String flag, String icaId, String value) {
 		if (flag.equalsIgnoreCase("DRAFT")) {
-			String sql = "update " + getTableName() + " set saveAsDraft = ? where icaId = ?";
+			String sql = "update " + getTableName() + " set saveAsDraft = ? where icaId = ? and finalSubmit is null";
 			executeUpdateSql(sql, new Object[] { value, icaId });
 		} else {
 			if (value.equalsIgnoreCase("Y")) {
@@ -1277,5 +1277,12 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 			return new ArrayList<>();
 		}
 
+	}
+	
+	public List<IcaTotalMarks> getFacultyEvaluationStatus(String icaId){
+		String sql ="select itm.icaId,isb.facultyId,itm.saveAsDraft,itm.finalSubmit,GROUP_CONCAT(DISTINCT concat(u.firstName,' ',u.lastName,' (',u.username,')')) as assignedFaculty from "
+				+ "ica_student_batchwise isb join users u on u.username=isb.facultyId left join ica_total_marks itm on itm.icaId=isb.icaId and isb.username=itm.username "
+				+ "where isb.icaid = ? group by isb.facultyId,itm.saveAsDraft,itm.finalSubmit";
+		return findAllSQL(sql, new Object[] { icaId });
 	}
 }

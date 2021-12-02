@@ -439,6 +439,12 @@ public class TestController extends BaseController {
 				BusinessBypassRule.validateNumeric(test.getMaxMcqQueToShow());
 				BusinessBypassRule.validateNumeric(test.getMaxRngQueToShow());
 			}
+			if(test.getMaxScore() < test.getPassScore()) {
+				redirectAttrs.addAttribute("testId", test.getId());
+				redirectAttrs.addAttribute("courseId", test.getCourseId());
+				setError(redirectAttrs, "Passing score should not be greater than total score.");
+				return "redirect:/createTestForm";
+			}
 			/* New Audit changes end */
 			if ("Y".equals(test.getRandomQuestion()) && "Y".equals(test.getSameMarksQue())) {
 				double total = test.getMarksPerQue() * Double.valueOf(test.getMaxQuestnToShow());
@@ -832,6 +838,12 @@ public class TestController extends BaseController {
 				BusinessBypassRule.validateNumeric(test.getMaxMcqQueToShow());
 				BusinessBypassRule.validateNumeric(test.getMaxRngQueToShow());
 			}
+			if(test.getMaxScore() < test.getPassScore()) {
+				redirectAttrs.addAttribute("testId", test.getId());
+				redirectAttrs.addAttribute("courseId", test.getCourseId());
+				setError(redirectAttrs, "Passing score should not be greater than total score.");
+				return "redirect:/createTestForm";
+			}
 			/* New Audit changes end */
 			if ("Y".equals(test.getRandomQuestion()) && "Y".equals(test.getSameMarksQue())) {
 				double total = test.getMarksPerQue() * Double.valueOf(test.getMaxQuestnToShow());
@@ -974,12 +986,12 @@ public class TestController extends BaseController {
 			logger.error(ve.getMessage(), ve);
 			setError(redirectAttrs, ve.getMessage());
 			redirectAttrs.addFlashAttribute("test", test);
-			return "redirect:/addTestForm";
+			return "redirect:/createTestForm";
 		}  catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating Test");
 			redirectAttrs.addFlashAttribute("test", test);
-			return "redirect:/addTestForm";
+			return "redirect:/createTestForm";
 		}
 		return "redirect:/viewTestDetails";
 	}
@@ -2618,12 +2630,12 @@ public class TestController extends BaseController {
 			if(testQuestion.getQuestionType().equals("MCQ")) {
 				validateTestQuestionSubType(testQuestion.getType());
 				BusinessBypassRule.validateYesOrNo(testQuestion.getOptionShuffle());
-				if(testQuestion.getCorrectOption() == null && testQuestion.getCorrectOption().isEmpty()) {
+				if(testQuestion.getCorrectOption() == null || testQuestion.getCorrectOption().isEmpty()) {
 					throw new ValidationException("Please select correct Answer");
 				}
 			}
 			if(testQuestion.getQuestionType().equals("Numeric")) {
-				if(testQuestion.getCorrectAnswerNum() == null && testQuestion.getCorrectAnswerNum().isEmpty()) {
+				if(testQuestion.getCorrectAnswerNum() == null || testQuestion.getCorrectAnswerNum().isEmpty()) {
 					throw new ValidationException("Please select correct Answer");
 				}
 			}
