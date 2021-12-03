@@ -731,7 +731,7 @@ public class FeedbackController extends BaseController {
 				logger.info("fq.getStudentFeedbackResponse() is " + fq.getStudentFeedbackResponse());
 				logger.info("fq.getStudentFeedbackResponse().getAnswer(); is " + fq.getStudentFeedbackResponse().getAnswer());
 				HtmlValidation.validateHtml(fq, new ArrayList<>());
-				BusinessBypassRule.validateNumeric(fq.getStudentFeedbackResponse().getAnswer());
+				BusinessBypassRule.validateRatings(fq.getStudentFeedbackResponse().getAnswer());
 				studentFeedbackResponse = fq.getStudentFeedbackResponse();
 				studentFeedbackResponse.setUsername(username);
 
@@ -1691,7 +1691,7 @@ public class FeedbackController extends BaseController {
 		try {
 			logger.info("feedbackQuestion.getDescription() is " + feedbackQuestion.getDescription());
 			HtmlValidation.validateHtml(feedbackQuestion, new ArrayList<>());
-			BusinessBypassRule.validateAlphaNumeric(feedbackQuestion.getDescription());
+			BusinessBypassRule.validateQuestion(feedbackQuestion.getDescription());
 			boolean typeIsValid = feedbackQuestion.getType().equals("SINGLESELECT");
 			if(!typeIsValid) {
 				throw new ValidationException("Invalid Type Selected");
@@ -1950,7 +1950,10 @@ public class FeedbackController extends BaseController {
 				for (Map<String, Object> mapper : maps) {
 					if (mapper.get("Error") != null) {
 
-						setNote(m, "Error--->" + mapper.get("Error"));
+//						setNote(m, "Error--->" + mapper.get("Error"));
+						String errorMsg = (String)mapper.get("Error");
+						setError(redirectAttributes, errorMsg);
+						return "redirect:/UploadStudentsToDeallocateForm";
 					} else {
 						studentList.add(mapper.get("SAPID").toString().trim());
 

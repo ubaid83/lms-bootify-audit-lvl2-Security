@@ -182,13 +182,24 @@ public class BusinessBypassRule {
 	     if (s == null || s.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
-	     Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-.?\\(\\)]");
+	     Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-.?/\\(\\)]");
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
 	     if(b) {
-	    	 throw new ValidationException("Invalid Question");
+	    	 throw new ValidationException("Special characters are not allowed to enter except (),?,/");
 	     }
 	 }
+
+	public static void validateRatings(String s) throws ValidationException {
+		if (s == null || s.trim().isEmpty()) {
+	    	 throw new ValidationException("Input field cannot be empty");
+	    }
+		Integer rating = Integer.valueOf(s);
+		if(rating>7 || rating <0){
+			throw new ValidationException("Please Rate Between 1 to 7");
+		}
+		
+	}
 
 }
 
