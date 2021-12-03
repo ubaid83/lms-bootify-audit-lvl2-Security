@@ -2057,7 +2057,7 @@ public class RestApiController {
 				}
 				returnMsg = objectUrl;
 			} catch (Exception e) {
-				returnMsg = "Error in uploading file : " + e.getMessage();
+				returnMsg = "Error in uploading file";
 				logger.error("Exception", e);
 			}
 		}

@@ -127,6 +127,7 @@
 												<c:if test="${fn:contains(tee.assignedFaculty, ',')}">
 												<a href="${addStudentsFacultyWise}" title="Add Students FacultyWise"><i
 													class="fa fa-cog fa-lg"></i></a>
+												<a href="#" id="evaluationStatusOfFaculty" data-id="${tee.id}" title="Evaluation Status Of Faculty"><i class="fas fa-tasks"></i></a>
 												</c:if>
 												<c:if test="${tee.isTeeDivisionWise eq 'Y' && empty tee.parentTeeId}">
 												<a href="${teeListDivision}" title="Show All Divisions TEE"><i
@@ -204,4 +205,37 @@
 					$('#mark' + id).val('');
 				}
 			});
+			$("#evaluationStatusOfFaculty").on('click', function(){
+				let id = $(this).attr('data-id');
+				console.log("id--->"+id)
+				$.ajax({
+					type : 'GET',
+					url : "${pageContext.request.contextPath}/getEvaluationStatusOfTEEByFaculty?id="+id,
+					success : function(data) {
+						console.log("data-->"+data)
+						var json = JSON.parse(data);
+						let facultyStatusString = "";
+						for (var i = 0; i < json.length; i++) {
+							var obj = json[i];
+							console.log("obj--->"+obj.assignedFaculty)
+							facultyStatusString += obj.assignedFaculty + " - ";
+							if(obj.saveAsDraft != null){
+								facultyStatusString += "Draft Mode."
+							}else
+							if(obj.finalSubmit == "Y"){
+								facultyStatusString += "Evaluated."
+							}else
+							if(obj.saveAsDraft == null && obj.finalSubmit == null){
+								facultyStatusString += "Pending."
+							}
+							facultyStatusString += "\n"
+						}
+						console.log("facultyStatusString--->"+facultyStatusString)
+						swal('INFO!', facultyStatusString);
+
+					}
+				});
+					
+			});
+			
 		</script>

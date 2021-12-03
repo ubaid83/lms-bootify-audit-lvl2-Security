@@ -424,7 +424,8 @@ public class AssignmentController extends BaseController {
 																		(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																		(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																		(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																		("text/plain").equals(detectedType)) {
 									String errorMessage = uploadAssignmentFileForS3(assignment, file);
 									} else {
 										setError(redirectAttributes, "File uploaded is invalid!");
@@ -609,7 +610,8 @@ public class AssignmentController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	("text/plain").equals(detectedType)) {
 								errorMessage = uploadAssignmentFileForS3(assignment, file);
 								} else {
 									setError(m, "File uploaded is invalid!");
@@ -1253,7 +1255,8 @@ public class AssignmentController extends BaseController {
 																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																("text/plain").equals(detectedType)) {
 							String errorMessage = uploadAssignmentFileForS3(assignment, file);
 							} else {
 								setError(redirectAttributes, "File uploaded is invalid!");
@@ -1581,7 +1584,7 @@ public class AssignmentController extends BaseController {
 		Token userDetails = (Token) principal;
 
 		logger.info("courseList---->" + userDetails.getCourseList());
-
+		
 		HashMap<String, List<Course>> sessionWiseCourseList = new HashMap<String, List<Course>>();
 
 		for (Course c : userDetails.getCourseList()) {
@@ -1620,7 +1623,7 @@ public class AssignmentController extends BaseController {
 			} else {
 			}
 		}
-		
+		try {
 		Date currDate = Utils.getInIST();
 		for (Assignment a : assignments) {
 			Course c = courseService.findByID(a.getCourseId());
@@ -1642,7 +1645,7 @@ public class AssignmentController extends BaseController {
 			}else {
 				a.setStudentHashKey("Hash Key Not Generated");
 			}
-
+			
 				boolean remarkFileExist = false;
 				String remarkFilePath = amazonS3ClientService.existsFile(submissionFolder+"/"+a.getAssignmentName()+"-"+a.getId()+"/Remarks", username);
 				//logger.info("check for file--->"+remarkFileExist);
@@ -1674,6 +1677,10 @@ public class AssignmentController extends BaseController {
 		
 		if ((assignments.size() == 0 || assignments.isEmpty()) && courseId != null) {
 			setNote(m, "No Assignments Allocated to you!");
+		}
+		}catch(Exception e) {
+			logger.error(e.getMessage(), e);
+			setError(m, "Error in getting assignment.");
 		}
 		m.addAttribute("courseId", courseId);
 		m.addAttribute("assignments", assignments);
@@ -3465,7 +3472,8 @@ public class AssignmentController extends BaseController {
 																					(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																					(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																					(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																					(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																					(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																					("text/plain").equals(detectedType)) {
 													logger.info("file is valid--->");
 												}else {
 													setError(redirectAttrs, "File uploaded is invalid!");
@@ -3684,7 +3692,8 @@ public class AssignmentController extends BaseController {
 																		(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																		(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																		(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																		("text/plain").equals(detectedType)) {
 									String errorMessage = uploadAssignmentFileForS3(assignment, file);
 									} else {
 										setError(redirectAttributes, "File uploaded is invalid!");
@@ -4446,7 +4455,8 @@ public class AssignmentController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	("text/plain").equals(detectedType)) {
 								errorMessage = uploadAssignmentFileForS3(assignment, file);
 								logger.info("New File---->" + assignment.getFilePath());
 								} else {
@@ -5061,7 +5071,8 @@ public class AssignmentController extends BaseController {
 																		(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																		(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																		(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																		("text/plain").equals(detectedType)) {
 									String errorMessage = uploadAssignmentFileForS3(assignment, file);
 									} else {
 										setError(redirectAttributes, "File uploaded is invalid!");

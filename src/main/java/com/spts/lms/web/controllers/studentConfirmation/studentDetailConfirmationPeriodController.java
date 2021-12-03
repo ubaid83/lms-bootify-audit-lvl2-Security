@@ -247,9 +247,11 @@ public class studentDetailConfirmationPeriodController extends BaseController {
 			sendEmailAlert="N";
 		}
 		BusinessBypassRule.validateYesOrNo(sendEmailAlert);
-		Course checkIfCampusExistsInDB = courseService.checkIfExistsInDB("campusId", campusId);
-		if(checkIfCampusExistsInDB==null) {
-			throw new ValidationException("Invalid Campus");
+		if(campusId != null){
+			Course checkIfCampusExistsInDB = courseService.checkIfExistsInDB("campusId", campusId);
+			if(checkIfCampusExistsInDB==null) {
+				throw new ValidationException("Invalid Campus");
+			}
 		}
 		Course checkIfAcadSessionExistsInDB = courseService.checkIfExistsInDB("acadSession", acadSession);
 		if(checkIfAcadSessionExistsInDB==null) {

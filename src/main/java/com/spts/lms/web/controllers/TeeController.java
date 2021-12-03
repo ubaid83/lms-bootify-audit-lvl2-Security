@@ -86,6 +86,7 @@ import com.spts.lms.beans.assignment.Assignment;
 import com.spts.lms.beans.assignment.StudentAssignment;
 import com.spts.lms.beans.course.Course;
 import com.spts.lms.beans.course.UserCourse;
+import com.spts.lms.beans.ica.IcaTotalMarks;
 import com.spts.lms.beans.program.Program;
 import com.spts.lms.beans.programCampus.ProgramCampus;
 import com.spts.lms.beans.tee.TeeBean;
@@ -263,19 +264,21 @@ public class TeeController extends BaseController {
 			BusinessBypassRule.validateAlphaNumeric(teeBean.getTeeName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", teeBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course acadSession = courseService.checkIfExistsInDB("acadSession", teeBean.getAcadSession());
 			if(acadSession == null) {
-				throw new ValidationException("Invalid Acad Session");
+				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			Course campusId = courseService.checkIfExistsInDB("campusId", teeBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+			if(teeBean.getCampusId() != null){
+				Course campusId = courseService.checkIfExistsInDB("campusId", teeBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			Course moduleId = courseService.checkIfExistsInDB("moduleId", teeBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
 			logger.info("create Tee selected programs are " + teeBean.getProgramId());
 			List<String> progIds = null;
@@ -284,13 +287,13 @@ public class TeeController extends BaseController {
 				for(String programId : progIds) {
 					Course progId = courseService.checkIfExistsInDB("programId", programId);			
 					if(progId == null) {
-						throw new ValidationException("Invalid Program");
+						throw new ValidationException("Invalid Program Selected");
 					}
 				}
 			} else {
 				Course progId = courseService.checkIfExistsInDB("programId", teeBean.getProgramId());
 				if(progId == null) {
-					throw new ValidationException("Invalid Program");
+					throw new ValidationException("Invalid Program Selected");
 				}
 			}
 			
@@ -437,13 +440,18 @@ public class TeeController extends BaseController {
 				return "redirect:/searchTeeList";
 			}
 
+		} catch (ValidationException ve) {
+			logger.info("INSIDE Validation Exception");
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addTeeForm";
 		}
 
 		catch (Exception ex) {
 
-			logger.error("Excption while creating ICA", ex);
+			logger.error("Excption while creating TEE", ex);
 
-			setError(redirectAttrs, "Error While Creating TEE,TEE May have already created");
+			setError(redirectAttrs, "Error While Creating TEE, TEE May have already created");
 			return "redirect:/addTeeForm";
 		}
 
@@ -468,6 +476,16 @@ public class TeeController extends BaseController {
 				role = Role.ROLE_FACULTY.name();
 				teeList = teeBeanService.findTeeListByProgramAndUsername(userdetails1.getProgramId(), role,
 						principal.getName());
+				
+				//Peter 25/11/2021 - SaveAsDraft Highlight Task
+				for(TeeBean t : teeList){
+					int checkIfSavedAsDraft = teeTotalMarksService.checkIfSavedAsDraft(t.getId());
+					logger.info("got saveAsDraft");
+					if(checkIfSavedAsDraft>0){
+						logger.info("setting saveAsDraft Y");
+						t.setSaveAsDraft("Y");
+					}
+				}
 
 			} else {
 				role = Role.ROLE_ADMIN.name();
@@ -1886,24 +1904,26 @@ public class TeeController extends BaseController {
 			BusinessBypassRule.validateAlphaNumeric(teeBean.getTeeName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", teeBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course acadSession = courseService.checkIfExistsInDB("acadSession", teeBean.getAcadSession());
 			if(acadSession == null) {
-				throw new ValidationException("Invalid Acad Session");
+				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			Course campusId = courseService.checkIfExistsInDB("campusId", teeBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+			if(teeBean.getCampusId() != null){
+				Course campusId = courseService.checkIfExistsInDB("campusId", teeBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			Course moduleId = courseService.checkIfExistsInDB("moduleId", teeBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
 			logger.info("create Tee selected programs are " + teeBean.getProgramId());
 			Course progId = courseService.checkIfExistsInDB("programId", teeBean.getProgramId());			
 			if(progId == null) {
-					throw new ValidationException("Invalid Program");
+					throw new ValidationException("Invalid Program Selected");
 				}
 			            
 			BusinessBypassRule.validateNumeric(teeBean.getExternalMarks());
@@ -2041,11 +2061,16 @@ public class TeeController extends BaseController {
 				setError(redirectAttrs, "There is no event for selected module to create division TEE.");
 				return "redirect:/addTeeFormForDivision";
 			}
+		} catch (ValidationException ve) {
+			logger.info("INSIDE Validation Exception");
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addTeeFormForDivision";
 		}
 
 		catch (Exception ex) {
 
-			logger.error("Excption", ex);
+			logger.error("Exception", ex);
 
 			setError(redirectAttrs, "Error While Creating TEE");
 			return "redirect:/addTeeFormForDivision";
@@ -2131,7 +2156,8 @@ public class TeeController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	("text/plain").equals(detectedType)) {
 								String filePath = baseDirS3 + "/" + "TEEUploads";
 								Map<String, String> returnMap = amazonS3ClientService
 										.uploadFileToS3BucketWithRandomString(file, filePath);
@@ -2264,7 +2290,8 @@ public class TeeController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	("text/plain").equals(detectedType)) {
 								String filePath = baseDirS3 + "/" + "TEEUploads";
 								Map<String, String> returnMap = amazonS3ClientService
 										.uploadFileToS3BucketWithRandomString(file, filePath);
@@ -3651,17 +3678,29 @@ public class TeeController extends BaseController {
 				teeList = teeBeanService.findTeeListByProgramForSupportAdmin();
 			}
 
-			// New Changes on 09-04-2021 to check tcs flag
+//			// New Changes on 09-04-2021 to check tcs flag
+//			for (TeeBean tee : teeList) {
+//				boolean checkTcsFlagForIca = isTeeMarksSentToTcs(tee);
+//				if (checkTcsFlagForIca == false) {
+//					tee.setFlagTcs("F");
+//				} else {
+//					tee.setFlagTcs("S");
+//				}
+//			}
+//			//
+			//New Changes on 08-10-2020 to check tcs flag
+			List<TeeBean> teeFinalList = new ArrayList<>();
 			for (TeeBean tee : teeList) {
+
 				boolean checkTcsFlagForIca = isTeeMarksSentToTcs(tee);
 				if (checkTcsFlagForIca == false) {
-					tee.setFlagTcs("F");
-				} else {
-					tee.setFlagTcs("S");
+					teeFinalList.add(tee);
 				}
 			}
-			//
 
+			teeList.clear();
+			teeList.addAll(teeFinalList);
+			//
 		}
 		m.addAttribute("Program_Name", userdetails1.getProgramName());
 		m.addAttribute("teeList", teeList);
@@ -4444,4 +4483,20 @@ public class TeeController extends BaseController {
 		}
 	}
 
+	
+	@RequestMapping(value = "/getEvaluationStatusOfTEEByFaculty", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String getEvaluationStatusOfTEEByFaculty(@RequestParam(name = "id") String id, Principal principal) {
+
+		ObjectMapper mapper = new ObjectMapper();
+		String json = "";
+		try {
+			Token userdetails1 = (Token) principal;
+			List<TeeTotalMarks> facultyStatus =  teeTotalMarksService.getFacultyEvaluationStatus(id);
+			json = mapper.writeValueAsString(facultyStatus);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			logger.error("Exception", e);
+		}
+		return json;
+	}
 }

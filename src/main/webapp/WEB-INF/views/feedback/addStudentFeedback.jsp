@@ -487,13 +487,12 @@
 
 							});
 
-			/* $("#datetimepicker1").on("dp.change", function(e) {
+		/*	$("#datetimepicker1").on("dp.change", function(e) {
 
 				validDateTimepicks();
 
 			}).datetimepicker({
-
-				// minDate:new Date(),
+				minDate: new Date(),
 				useCurrent : false,
 				format : 'YYYY-MM-DD HH:mm:ss'
 
@@ -518,7 +517,7 @@
 
 			}).datetimepicker({
 
-				// minDate:new Date(),
+				minDate:new Date(),
 				useCurrent : false,
 				format : 'YYYY-MM-DD HH:mm:ss'
 

@@ -303,20 +303,22 @@ public class StudentFeedbackController extends BaseController {
 			logger.info("feedback.getId() is " + feedback.getId());
 			Feedback isFeedbackExists = feedbackService.checkIfFeedbackExists(username,feedback.getId());
 			if(isFeedbackExists==null) {
-				throw new ValidationException("Invalid Feedback");
+				throw new ValidationException("Invalid Feedback Selected");
 			}
 			Utils.validateStartAndEndDates(feedback.getStartDate(), feedback.getEndDate());
-			ProgramCampus checkIfCampusExists = programCampusService.checkIfCampusExists(feedback.getCampusId());
-			if(checkIfCampusExists==null) {
-				throw new ValidationException("Invalid Campus");
+			if(feedback.getCampusId() != null) {
+				ProgramCampus checkIfCampusExists = programCampusService.checkIfCampusExists(feedback.getCampusId());
+				if(checkIfCampusExists==null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			boolean hasAcadYear = Arrays.asList(enrollmentYears).contains(feedback.getAcadYear().toString());
 			if(!hasAcadYear) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course checkIfAcadYearExists = courseService.checkIfExistsInDB("acadMonth", feedback.getAcadMonth());
 			if(checkIfAcadYearExists==null) {
-				throw new ValidationException("Invalid Acad Month");
+				throw new ValidationException("Invalid Acad Month Selected");
 			}
 			Token t = (Token) principal;
 			
@@ -434,24 +436,26 @@ public class StudentFeedbackController extends BaseController {
 			logger.info("feedback.getId() is " + feedback.getId());
 			Feedback isFeedbackExists = feedbackService.checkIfFeedbackExists(username,feedback.getId());
 			if(isFeedbackExists==null) {
-				throw new ValidationException("Invalid Feedback");
+				throw new ValidationException("Invalid Feedback Selected");
 			}
 			Utils.validateStartAndEndDates(feedback.getStartDate(), feedback.getEndDate());
-			ProgramCampus checkIfCampusExists = programCampusService.checkIfCampusExists(feedback.getCampusId());
-			if(checkIfCampusExists==null) {
-				throw new ValidationException("Invalid Campus");
+			if(feedback.getCampusId() != null) {
+				ProgramCampus checkIfCampusExists = programCampusService.checkIfCampusExists(feedback.getCampusId());
+				if(checkIfCampusExists==null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			boolean hasAcadYear = Arrays.asList(enrollmentYears).contains(feedback.getAcadYear().toString());
 			if(!hasAcadYear) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course checkIfAcadYearExists = courseService.checkIfExistsInDB("acadMonth", feedback.getAcadMonth());
 			if(checkIfAcadYearExists==null) {
-				throw new ValidationException("Invalid Acad Month");
+				throw new ValidationException("Invalid Acad Month Selected");
 			}
 			Course checkIfAcadSessionInDB = courseService.checkIfExistsInDB("acadSession", feedback.getAcadSession());
 			if(checkIfAcadSessionInDB==null) {
-				throw new ValidationException("Invalid Semester");
+				throw new ValidationException("Invalid Acad Session Selected");
 			}
 
 			List<StudentFeedback> allocationStatus = studentFeedbackService
