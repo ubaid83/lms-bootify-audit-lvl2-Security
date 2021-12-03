@@ -2622,12 +2622,15 @@ public class TestController extends BaseController {
 		try {
 			/* New Audit changes start */
 			HtmlValidation.validateHtml(testQuestion, Arrays.asList("description","option1","option2","option3","option4","option5","option6","option7","option8"));
+			
 			if(testQuestion.getDescription() == null || testQuestion.getDescription().isEmpty()) {
 				throw new ValidationException("Input field cannot be empty");
 			}
 			BusinessBypassRule.validateNumericNotAZero(testQuestion.getMarks());
 			validateTestQuestionType(testQuestion.getQuestionType());
 			if(testQuestion.getQuestionType().equals("MCQ")) {
+				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption1());
+				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption2());
 				validateTestQuestionSubType(testQuestion.getType());
 				BusinessBypassRule.validateYesOrNo(testQuestion.getOptionShuffle());
 				if(testQuestion.getCorrectOption() == null || testQuestion.getCorrectOption().isEmpty()) {
@@ -2895,6 +2898,8 @@ public class TestController extends BaseController {
 			logger.info(testQuestion.getQuestionType());
 //			validateTestQuestionType(testQuestion.getQuestionType());
 			if(testQuestion.getQuestionType().equals("MCQ")) {
+				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption1());
+				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption2());
 				validateTestQuestionSubType(testQuestion.getType());
 				BusinessBypassRule.validateYesOrNo(testQuestion.getOptionShuffle());
 				if(testQuestion.getCorrectOption() == null && testQuestion.getCorrectOption().isEmpty()) {
@@ -3953,6 +3958,8 @@ public class TestController extends BaseController {
 			BusinessBypassRule.validateNumericNotAZero(testQuestionPools.getMarks());
 			validateTestQuestionType(testQuestionPools.getQuestionType());
 			if(testQuestionPools.getQuestionType().equals("MCQ")) {
+				BusinessBypassRule.validateAlphaNumeric(testQuestionPools.getOption1());
+				BusinessBypassRule.validateAlphaNumeric(testQuestionPools.getOption2());
 				validateTestQuestionSubType(testQuestionPools.getType());
 				BusinessBypassRule.validateYesOrNo(testQuestionPools.getOptionShuffle());
 				if(testQuestionPools.getCorrectOption() == null && testQuestionPools.getCorrectOption().isEmpty()) {
@@ -5079,6 +5086,8 @@ public class TestController extends BaseController {
 			BusinessBypassRule.validateNumericNotAZero(testQuestionPool.getMarks());
 			validateTestQuestionType(testQuestionPool.getQuestionType());
 			if(testQuestionPool.getQuestionType().equals("MCQ")) {
+				BusinessBypassRule.validateAlphaNumeric(testQuestionPool.getOption1());
+				BusinessBypassRule.validateAlphaNumeric(testQuestionPool.getOption2());
 				validateTestQuestionSubType(testQuestionPool.getType());
 				BusinessBypassRule.validateYesOrNo(testQuestionPool.getOptionShuffle());
 				if(testQuestionPool.getCorrectOption() == null && testQuestionPool.getCorrectOption().isEmpty()) {
