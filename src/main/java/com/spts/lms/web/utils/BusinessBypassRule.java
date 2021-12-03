@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 //import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 //import org.springframework.web.multipart.MultipartFile;
 
 //import org.springframework.stereotype.Component;
@@ -32,12 +33,8 @@ public class BusinessBypassRule {
 	     }
 
 	     Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-.]");
-
-	     
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
-	     
-	     
 	     if(b) {
 	    	 throw new ValidationException("Special characters are not allowed to enter except underscore(_) and hyphen(-).");
 	     }
@@ -91,8 +88,6 @@ public class BusinessBypassRule {
 
 	    	 throw new ValidationException("Input number should be a positive number.");
 	     }
-	    
-
 	    	
 	 }
 
@@ -108,12 +103,14 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Input number should be a positive number.");
 	     }  
 	 }
+	
 	public static void validateNumericNotAZero(long d) throws ValidationException{
 		//Allows Only long Positive Numbers as long, Zero not allowed
 		if(d <= 0) {
 	    	 throw new ValidationException("Input number should be a positive number and non zero number.");
 	     }  
 	 }
+	
 	public static void validateNumeric(long d) throws ValidationException{
 		//Allows Only Double Positive Numbers as long, Zero allowed
 		if(d < 0) {
@@ -150,16 +147,24 @@ public class BusinessBypassRule {
 		Date d2 = Utils.getInIST();
 		String date2 = format.format(d2);
 		try {
-		d1 = format.parse(date);
-		d2 = format.parse(date2);
-		if(d1.before(d2)) {
-		throw new ValidationException("Invalid date selected.");
-		}
+			d1 = format.parse(date);
+			d2 = format.parse(date2);
+			if (d1.before(d2)) {
+				throw new ValidationException("Invalid date selected.");
+			}
 		} catch (Exception e) {
-		e.printStackTrace();
-		throw new ValidationException("Invalid date selected.");
+			e.printStackTrace();
+			throw new ValidationException("Invalid date selected.");
 		}
-		}
+	}
+	
+	//update by sandip
+	public static void validateFile(MultipartFile file) throws ValidationException {
+		// TODO Auto-generated method stub
+		if (file == null || file.isEmpty()) {
+	    	 throw new ValidationException("File cannot be empty!");
+	     }
+	}
 
 	public static void validateEmail(String s) throws ValidationException{
 	     if (s == null || s.trim().isEmpty()) {
@@ -184,7 +189,6 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Invalid Question");
 	     }
 	 }
-	
-	
+
 }
 
