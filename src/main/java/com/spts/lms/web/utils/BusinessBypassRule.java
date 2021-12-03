@@ -161,7 +161,6 @@ public class BusinessBypassRule {
 	//update by sandip
 	public static void validateFile(MultipartFile file) throws ValidationException {
 		// TODO Auto-generated method stub
-
 		if (file == null || file.isEmpty()) {
 	    	 throw new ValidationException("File cannot be empty!");
 	     }

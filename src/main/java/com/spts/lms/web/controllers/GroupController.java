@@ -101,6 +101,7 @@ public class GroupController extends BaseController {
 		logger.info("info---"+studentGroupService.getNoOfStudentsAllocated(id));
 		System.out.println("Number of students allocated : "+studentGroupService.getNoOfStudentsAllocated(id));
 
+		
 		if(studentGroupService.getNoOfStudentsAllocated(id)>0){
 			setError(redirectAttrs, "This group is created you cannot edit!");
 			return "redirect:/viewGroup?id="+groups.getId();
