@@ -161,6 +161,30 @@ public class BusinessBypassRule {
 		}
 		}
 
-
+	public static void validateEmail(String s) throws ValidationException{
+	     if (s == null || s.trim().isEmpty()) {
+	    	 throw new ValidationException("Input field cannot be empty");
+	     }
+	     Pattern p = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$");
+	     Matcher m = p.matcher(s);
+	     boolean b = m.find();
+	     if(b) {
+	    	 throw new ValidationException("Invalid Email Address");
+	     }
+	 }
+	
+	public static void validateQuestion(String s) throws ValidationException{
+	     if (s == null || s.trim().isEmpty()) {
+	    	 throw new ValidationException("Input field cannot be empty");
+	     }
+	     Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-.?\\(\\)]");
+	     Matcher m = p.matcher(s);
+	     boolean b = m.find();
+	     if(b) {
+	    	 throw new ValidationException("Invalid Question");
+	     }
+	 }
+	
+	
 }
 
