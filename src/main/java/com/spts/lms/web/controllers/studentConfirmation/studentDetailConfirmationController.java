@@ -129,11 +129,11 @@ public class studentDetailConfirmationController extends BaseController {
 		String jsonResponse = null;
 		try {
 			HtmlValidation.validateHtml(user, new ArrayList<>());
-			BusinessBypassRule.validateAlphaNumeric(user.getEmail());
+			BusinessBypassRule.validateEmail(user.getEmail());
 			BusinessBypassRule.validateNumeric(user.getMobile());
 			BusinessBypassRule.validateAlphaNumeric(user.getSecAnswer());
 			
-			String json = "{\"secQuestion\":\" " + user.getSecquestion() + " \"}";
+			String json = "{\"secQuestion\":\""+ user.getSecquestion() +"\"}";
 			
 			WebTarget webTarget3 = client.target(URIUtil
 					.encodeQuery(userRoleMgmtCrudUrl
@@ -142,7 +142,7 @@ public class studentDetailConfirmationController extends BaseController {
 			Response response1 = invocationBuilder3.post(Entity.entity(json.toString(), MediaType.APPLICATION_JSON));
 			jsonResponse = response1.readEntity(String.class);
 			logger.info("jsonResponse is " + jsonResponse);
-			if(jsonResponse!="true") {
+			if(jsonResponse.equals("false")) {
 				throw new ValidationException("Invalid Security Question");				
 			}
 			

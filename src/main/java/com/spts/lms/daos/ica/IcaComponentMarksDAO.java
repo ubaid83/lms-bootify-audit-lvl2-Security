@@ -301,7 +301,7 @@ public class IcaComponentMarksDAO extends BaseDAO<IcaComponentMarks> {
 	
 	public void updateSaveAsDraftOrFinalSubmit(String flag, String icaId,String value) {
 		if(flag.equalsIgnoreCase("DRAFT")){
-			String sql = "update " + getTableName() + " set saveAsDraft = ? where icaId = ?";
+			String sql = "update " + getTableName() + " set saveAsDraft = ? where icaId = ? and finalSubmit is null ";
 			executeUpdateSql(sql, new Object[] { value, icaId });
 		}else{
 			if(value.equalsIgnoreCase("Y")){

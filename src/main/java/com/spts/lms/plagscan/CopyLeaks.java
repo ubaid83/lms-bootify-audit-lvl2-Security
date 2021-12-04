@@ -202,7 +202,7 @@ public class CopyLeaks {
 				JSONObject loginJsonObject = new JSONObject(loginJsonResponse);
 				accessToken = loginJsonObject.getString("access_token");
 				//cp.setAccess_token(loginJsonObject.getString("access_token"));
-			}else {
+			} else {
 				scanStatus.put("Error", "Error while scanning file.");
 				return scanStatus;
 			}

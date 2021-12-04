@@ -241,19 +241,21 @@ public class studentDetailConfirmationPeriodController extends BaseController {
 		Utils.validateDate(endDate + " 00:00:00");
 		Course checkIfProgramExistsInDB = courseService.checkIfExistsInDB("programId", programId);
 		if(checkIfProgramExistsInDB==null) {
-			throw new ValidationException("Invalid Program");
+			throw new ValidationException("Invalid Program Selected");
 		}
 		if(sendEmailAlert==null) {
 			sendEmailAlert="N";
 		}
 		BusinessBypassRule.validateYesOrNo(sendEmailAlert);
-		Course checkIfCampusExistsInDB = courseService.checkIfExistsInDB("campusId", campusId);
-		if(checkIfCampusExistsInDB==null) {
-			throw new ValidationException("Invalid Campus");
+		if(campusId != null){
+			Course checkIfCampusExistsInDB = courseService.checkIfExistsInDB("campusId", campusId);
+			if(checkIfCampusExistsInDB==null) {
+				throw new ValidationException("Invalid Campus Selected");
+			}
 		}
 		Course checkIfAcadSessionExistsInDB = courseService.checkIfExistsInDB("acadSession", acadSession);
 		if(checkIfAcadSessionExistsInDB==null) {
-			throw new ValidationException("Invalid Semester");
+			throw new ValidationException("Invalid Semester Selected");
 		}
 		
 	

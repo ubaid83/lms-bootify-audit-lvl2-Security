@@ -249,10 +249,10 @@ public class FeedbackController extends BaseController {
 	//Peter 27/10/2021
 	public void validateFeedbackType(String s) throws ValidationException{
 		if (s == null || s.trim().isEmpty()) {
-			 throw new ValidationException("Input field cannot be empty");
+			 throw new ValidationException("Input field cannot be blank");
 		 }
 		if(!s.equalsIgnoreCase("Mid-Term") && !s.equalsIgnoreCase("End-Term") && !s.equalsIgnoreCase("IT Feedback")) {
-			throw new ValidationException("Invalid Assignment Type.");
+			throw new ValidationException("Invalid Feedback Type.");
 		}
 	}
 
@@ -455,7 +455,12 @@ public class FeedbackController extends BaseController {
 					setError(redirectAttrs, "Feedback cannot be updated");
 			}
 
-		} catch (Exception e) {
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addFeedbackForm?id=" + feedback.getId();
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating Feedback");
 			return "redirect:/addFeedbackForm";
@@ -726,7 +731,7 @@ public class FeedbackController extends BaseController {
 				logger.info("fq.getStudentFeedbackResponse() is " + fq.getStudentFeedbackResponse());
 				logger.info("fq.getStudentFeedbackResponse().getAnswer(); is " + fq.getStudentFeedbackResponse().getAnswer());
 				HtmlValidation.validateHtml(fq, new ArrayList<>());
-				BusinessBypassRule.validateNumeric(fq.getStudentFeedbackResponse().getAnswer());
+				BusinessBypassRule.validateRatings(fq.getStudentFeedbackResponse().getAnswer());
 				studentFeedbackResponse = fq.getStudentFeedbackResponse();
 				studentFeedbackResponse.setUsername(username);
 
@@ -1686,7 +1691,7 @@ public class FeedbackController extends BaseController {
 		try {
 			logger.info("feedbackQuestion.getDescription() is " + feedbackQuestion.getDescription());
 			HtmlValidation.validateHtml(feedbackQuestion, new ArrayList<>());
-			BusinessBypassRule.validateAlphaNumeric(feedbackQuestion.getDescription());
+			BusinessBypassRule.validateQuestion(feedbackQuestion.getDescription());
 			boolean typeIsValid = feedbackQuestion.getType().equals("SINGLESELECT");
 			if(!typeIsValid) {
 				throw new ValidationException("Invalid Type Selected");
@@ -1945,7 +1950,10 @@ public class FeedbackController extends BaseController {
 				for (Map<String, Object> mapper : maps) {
 					if (mapper.get("Error") != null) {
 
-						setNote(m, "Error--->" + mapper.get("Error"));
+//						setNote(m, "Error--->" + mapper.get("Error"));
+						String errorMsg = (String)mapper.get("Error");
+						setError(redirectAttributes, errorMsg);
+						return "redirect:/UploadStudentsToDeallocateForm";
 					} else {
 						studentList.add(mapper.get("SAPID").toString().trim());
 

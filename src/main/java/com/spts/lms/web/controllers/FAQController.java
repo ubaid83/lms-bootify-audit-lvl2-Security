@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.impl.xb.xsdschema.impl.AttributeImpl.UseImpl;
+import org.jsoup.select.Evaluator.IsEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.annotation.Secured;
@@ -63,6 +64,7 @@ public class FAQController extends BaseController {
 	BusinessBypassRule businessBypassRule;
 
 	private static final Logger logger = Logger.getLogger(FAQController.class);
+	private static final String String = null;
 
 	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })
 	@RequestMapping(value = "/addFAQForm", method = { RequestMethod.GET,
@@ -262,9 +264,6 @@ public class FAQController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		logger.info("DownloadStudents");
 		
-
-		
-		
 		Date date = new Date();
 		File file = new File(downloadAllFolder + File.separator + "_" + date.getTime() + ".xlsx");
 		try {
@@ -369,7 +368,7 @@ public class FAQController extends BaseController {
 			RedirectAttributes redirectAttributes, Principal principal) {
 		m.addAttribute("webPage", new WebPage("test", "Upload FAQs", true,
 				false));
-		
+		logger.info("inside student marks : "+file.getOriginalFilename());
 		
 		System.out.println("classParticipationclassParticipationclassParticipationclassParticipation="+classParticipation.getCourseId());		
 		List<String> validateHeaders = null;
@@ -378,17 +377,23 @@ public class FAQController extends BaseController {
 		validateHeaders = new ArrayList<String>(Arrays.asList("SAP ID",
 				"STUDENT NAME", "ROLL NO","CAMPUS NAME","ASSIGNED SCORE","ASSIGN REMARKS"));
 
-		
-
 		ExcelReader excelReader = new ExcelReader();
-
+		
+		System.out.println("file uploaded");
+		
 		try {
+			
+			BusinessBypassRule.validateFile(classParticipation.getFile());
+			
 			List<Map<String, Object>> maps = excelReader.readExcelFileUsingColumnHeader(file, validateHeaders);
 			System.out.println("mapsmapsmaps--------12222"+maps.get(0));
 			System.out.println("mapsmapsmaps--------12222"+maps.get(1));
 			
+	
+			logger.info("inside student marks : "+file.getOriginalFilename());
 			if (maps.size() == 0) {
 				setNote(m, "Excel File is empty");
+				
 			} 
 			else {
 				
@@ -400,16 +405,14 @@ public class FAQController extends BaseController {
 					
 						setNote(m, "Error  " + mapper.get("Error"));
 					} else {
-						
+					
 						
 						if (null==mapper.get("ASSIGNED SCORE").toString() ||mapper.get("ASSIGNED SCORE").toString().equals(" ")  || mapper.get("ASSIGNED SCORE").toString().isEmpty() || mapper.get("ASSIGNED SCORE").toString().matches("[a-zA-Z_]+") || Integer.parseInt((String) mapper.get("ASSIGNED SCORE")) < 0 )
 						{
 
 							setError(redirectAttributes, " check the marks entered for student Id "+mapper.get("SAP ID").toString());
 							return "redirect:/classParticipation?courseId=" +classParticipation.getCourseId();
-													
-							
-							
+														
 						}
 						else {
 							
@@ -446,12 +449,8 @@ public class FAQController extends BaseController {
 								classparticipationsinList.add(classparticipations);
 								
 							}
-							
-							
-							
-						}
-						
-						
+									
+						}	
 					}
 				}
 			
@@ -464,14 +463,15 @@ public class FAQController extends BaseController {
 			}
 			
 		}
-		catch (ValidationException er) { 
-			logger.error(er.getMessage(), er);
-			setError(m,er.getMessage());
-			return "m";
-		}
+//		catch (ValidationException er) { 
+//			
+//			logger.info("inside ValidationException er"+er.getMessage());
+//			setError(redirectAttributes,er.getMessage());
+//		}
 		
 		catch (Exception ex) {
-			setError(m, "Error in uploading file");
+			logger.info("inside ValidationException er"+ex.getMessage());
+			setError(redirectAttributes, ex.getMessage());
 			ex.printStackTrace();
 		}
 		return "redirect:/classParticipation?courseId=" +classParticipation.getCourseId();
@@ -492,16 +492,12 @@ public class FAQController extends BaseController {
 		try {
 			
 			/*****By sandip 25/10/2021******/
-			
 			 
-			BusinessBypassRule.validateAlphaNumeric(classParticipation.getRemarks());
-			
-			//System.out.println("remark : "+classParticipation.getRemarks());
-			
 			String s=String.valueOf(classParticipation.getScore());
 				
-			BusinessBypassRule.validateNumeric(s);
+			BusinessBypassRule.validateAlphaNumeric(classParticipation.getRemarks());
 			 
+			BusinessBypassRule.validateNumericNotAZero(s);
 	        /*****By sandip 25/10/2021******/
 			
 			if (studentsFromDB.contains(studentUsername)) {
@@ -546,7 +542,6 @@ public class FAQController extends BaseController {
 			// print the stack trace
 			logger.error(er.getMessage(), er);
 			setError(m,er.getMessage());
-			//return "m";
 			String json = "{\"Status\":\"Fail\", \"msg\":\""+er.getMessage()+"\"}";
 			return json;
 		}
