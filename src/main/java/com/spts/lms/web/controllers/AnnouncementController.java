@@ -2850,23 +2850,27 @@ public class AnnouncementController extends BaseController {
 				 throw new ValidationException("Invalid Semester");
 			}
 		}
+			if(announcement.getProgramIds().isEmpty() || null==announcement.getProgramIds())
+			{ 
+				throw new ValidationException("Invalid Program Id");
 			
+			}else{
 			for(String programId:announcement.getProgramIds())
 			{
-
+				
 				
 				HtmlValidation.checkHtmlCode(programId);
 				businessBypassRule.validateNumeric(programId.toString());
 
 				//businessBypassRule.validateNumeric(programId.toString());
-
+				System.out.println("programId---"+programId);
 				Course Programdata=courseService.checkIfExistsInDB("programId", programId);
 				if(Programdata.toString().isEmpty() || null==Programdata)
 				{ 
 					throw new ValidationException("Invalid Program Id");
 				
 				}
-			}
+			}}
 			if(null !=admincourseId && !admincourseId.isEmpty())
 			{
 				
