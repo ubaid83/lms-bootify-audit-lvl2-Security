@@ -783,10 +783,26 @@ tbody td:last-child, thead th:last-child {
 													url : "${pageContext.request.contextPath}/saveIcaAsDraft",
 													data : datastring,
 													success : function(data) {
-														$(".newLoaderWrap").css('display','none');
+														var msg = data;
+														console.log("msg is " + msg);
+														if(msg=='validationError'){
+															console.log("inside error");
+															$(".newLoaderWrap").css('display','none');
+															swal('Error! Input number should be a positive number').then(function() {
+															document.location.reload();
+															});
+														}
+														if(msg=='saved'){
+															console.log("inside saved");
+															$(".newLoaderWrap").css('display','none');
+															swal('data saved  successfully').then(function() {
+															document.location.reload();
+															});;
+														}
+														/* $(".newLoaderWrap").css('display','none');
 														swal('data saved successfully').then(function() {
 														document.location.reload();
-														});
+														}); */
 													},
 													error : function() {
 														alert('Error here');

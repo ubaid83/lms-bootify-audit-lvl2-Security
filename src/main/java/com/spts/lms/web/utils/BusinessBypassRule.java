@@ -195,11 +195,85 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Input field cannot be empty");
 	    }
 		Integer rating = Integer.valueOf(s);
-		if(rating>7 || rating <0){
+		if(rating>7 || rating <1){
 			throw new ValidationException("Please Rate Between 1 to 7");
 		}
 		
 	}
+	
+	//Peter 05/12/2021
+	public static void validateStartAndEndDatesToUpdate(String date1, String date2) throws ValidationException {
+
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date d1 = null;
+		Date d2 = null;
+		Date d3 = Utils.getInIST();
+		String date3 = format.format(d3);
+		date3 = date3.split(" ")[0].concat(" 00:00:00");
+		try {
+			if (date1.contains("T")) {
+				date1 = date1.replace("T", " ");
+			}
+			if (date2.contains("T")) {
+				date2 = date2.replace("T", " ");
+			}
+			d1 = format.parse(date1);
+			d2 = format.parse(date2);
+			d3 = format.parse(date3);
+			if (d1.after(d2)) {
+//				System.out.println("False - startDate after endDate");
+				throw new ValidationException("Invalid Start date and End date.");
+			}
+			if (d1.compareTo(d2) == 0) {
+//				System.out.println("False - startDate equals endDate");
+				throw new ValidationException("Invalid Start date and End date.");
+			}
+			if (d2.before(d3)) {
+//				System.out.println("False - endDate before currentDate");
+				throw new ValidationException("Invalid Start date and End date.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ValidationException("Invalid Start date and End date.");
+		}
+	}
+	
+//	//Peter 05/12/2021
+//	public static void validateMarks(String marks, String marks2, String marks3) throws ValidationException{
+//		
+//		if (marks == null || marks2 == null || marks3 == null || marks.trim().isEmpty() || marks2.trim().isEmpty() || marks3.trim().isEmpty()) {
+//	    	 throw new ValidationException("Input field cannot be empty");
+//	    }
+//		Integer m1 = Integer.valueOf(marks); //Marks
+//		Integer m2 = Integer.valueOf(marks2); //Pass Marks
+//		Integer m3 = Integer.valueOf(marks2); //Total Marks
+//		if (m1>m3) {
+//			//Internal/External Marks is Greater than Total Marks
+//	    	 throw new ValidationException("Marks greater than Total Marks");
+//	    }
+//		if (m1<m2) {
+//			//Internal/External Marks less than Pass Marks
+//	    	 throw new ValidationException("Marks less than Pass Marks");
+//	     }
+//		if(m2>m3) {
+//			//Pass Marks Greater than Total Marks
+//			throw new ValidationException("Pass marks greater than Total Marks");
+//		}
+//	 }
+	
+	//Peter 05/12/2021
+	public static void validateMarks(String marks, String marks2) throws ValidationException{
+		
+		if (marks == null || marks2 == null|| marks.trim().isEmpty() || marks2.trim().isEmpty()) {
+	    	 throw new ValidationException("Input field cannot be empty");
+	    }
+		Integer m1 = Integer.valueOf(marks); //Marks
+		Integer m2 = Integer.valueOf(marks2); //Pass Marks
+		if (m1<m2) {
+			//Internal/External Marks is Less than Pass Marks
+	    	 throw new ValidationException("Marks greater than Pass Marks");
+	    }
+	 }
 
 }
 

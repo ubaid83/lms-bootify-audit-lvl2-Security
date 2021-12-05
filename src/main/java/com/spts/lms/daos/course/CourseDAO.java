@@ -1383,7 +1383,7 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 		} else
 		if(columnName.equals("programId")) {
 			sql = "select * from course where programId=? limit 1";
-		}
+		} else
 		if(columnName.equals("acadMonth")) {
 			sql = "select * from course where acadMonth=? limit 1";
 		}
@@ -1406,6 +1406,16 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 	public Course checkIfCampusExists(String campusId) {
 		String sql="SELECT campusId FROM program_campus WHERE campusId=? limit 1";
 		return findOneSQL(sql, new Object[] {campusId});
+	}
+
+	public Course checkIfAcadYearExists(String acadYear) {
+		String sql="SELECT distinct acadYear FROM module WHERE acadYear=? limit 1";
+		return findOneSQL(sql, new Object[] {acadYear});
+	}
+
+	public Course checkIfProgramExists(String programId) {
+		String sql="SELECT distinct programId FROM course WHERE programId=? limit 1";
+		return findOneSQL(sql, new Object[] {programId});
 	}
 }
 

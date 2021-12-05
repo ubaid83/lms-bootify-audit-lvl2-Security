@@ -1007,4 +1007,9 @@ public class UserDAO extends BaseDAO<User> {
 		executeUpdateSql("Update users set email = ?, mobile = ? where username= ?",
 				new Object[] { email, mobile, username });
 	}
+
+	public User checkIfExistsInDB(String username) {
+		String sql = "select username from users where username=? limit 1";
+		return findOneSQL(sql, new Object[] {username});
+	}
 }

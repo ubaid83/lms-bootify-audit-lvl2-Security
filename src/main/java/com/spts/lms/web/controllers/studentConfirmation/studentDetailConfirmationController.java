@@ -443,9 +443,16 @@ public class studentDetailConfirmationController extends BaseController {
 		
 		try {
 			HtmlValidation.validateHtml(studentdetails, new ArrayList<>());
-			BusinessBypassRule.validateAlphaNumeric(studentdetails.getFirstname());
-			BusinessBypassRule.validateAlphaNumeric(studentdetails.getFathername());
-			BusinessBypassRule.validateAlphaNumeric(studentdetails.getMothername());
+			if(studentdetails.getFirstname() != null && !studentdetails.getFirstname().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(studentdetails.getFirstname());
+			}
+			if(studentdetails.getFathername() != null && !studentdetails.getFathername().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(studentdetails.getFathername());
+			}
+			if(studentdetails.getMothername() != null && !studentdetails.getMothername().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(studentdetails.getMothername());
+			}
+			
 		} catch (ValidationException ve) {
 			logger.error(ve.getMessage(), ve);
 			setError(r, ve.getMessage());

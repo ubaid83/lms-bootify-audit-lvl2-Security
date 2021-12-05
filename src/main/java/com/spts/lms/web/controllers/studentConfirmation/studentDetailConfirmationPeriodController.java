@@ -247,7 +247,8 @@ public class studentDetailConfirmationPeriodController extends BaseController {
 			sendEmailAlert="N";
 		}
 		BusinessBypassRule.validateYesOrNo(sendEmailAlert);
-		if(campusId != null){
+		logger.info("campusId is " + campusId);
+		if(!campusId.isEmpty()){
 			Course checkIfCampusExistsInDB = courseService.checkIfExistsInDB("campusId", campusId);
 			if(checkIfCampusExistsInDB==null) {
 				throw new ValidationException("Invalid Campus Selected");
