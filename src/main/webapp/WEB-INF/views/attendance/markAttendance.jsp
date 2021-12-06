@@ -698,11 +698,11 @@ input[type="checkbox"][readonly] {
 												$
 														.ajax({
 															url : '${pageContext.request.contextPath}/checkLectureTime?lecture='
-																	+ selectedValue
+																	+ encodeURIComponent(selectedValue)
 																	+ '&courseId='
-																	+ courseValue
+																	+ encodeURIComponent(courseValue)
 																	+ '&facultyId='
-																	+ facultyId,
+																	+ encodeURIComponent(facultyId),
 															type : 'POST',
 															success : function(data) {
 																var parseObj = JSON

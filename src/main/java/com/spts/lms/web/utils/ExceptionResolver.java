@@ -2,7 +2,10 @@ package com.spts.lms.web.utils;
 
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,12 +21,16 @@ public class ExceptionResolver {
 
 	@Value("#{'${aes.saltKey}'}")
 	String salt;
+	
+	@Value("${app}")
+	String app;
 
     @ExceptionHandler(Exception.class)
     public String handleException(HttpServletRequest request, Exception e) {
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Seems like request body/param has been hampered.");
         String json = new Gson().toJson(response);
+        System.out.println("ExceptionResolver--->"+response);
 		json = encryptResponseBody(json);
         return json;
     }
@@ -33,6 +40,7 @@ public class ExceptionResolver {
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Required path variable is missing in this request. Please add it to your request.");
         String json = new Gson().toJson(response);
+        System.out.println("ExceptionResolver--->"+response);
 		json = encryptResponseBody(json);
         return json;
     }
@@ -42,9 +50,11 @@ public class ExceptionResolver {
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Requested resource wasn't found on the server.");
         String json = new Gson().toJson(response);
+        System.out.println("ExceptionResolver--->"+response);
 		json = encryptResponseBody(json);
         return json;
     }
+ 
     
     private String encryptResponseBody(String json) {
 		String encryptedStr = "";

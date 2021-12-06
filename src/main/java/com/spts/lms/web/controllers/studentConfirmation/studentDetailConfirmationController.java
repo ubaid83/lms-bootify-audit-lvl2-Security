@@ -61,6 +61,7 @@ import com.spts.lms.studentms.sap.ZCHANGESTMOBILEEMAILWSDFEQ;
 import com.spts.lms.studentms.sap.ZmessageLogTt;
 import com.spts.lms.web.controllers.BaseController;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -127,11 +128,12 @@ public class studentDetailConfirmationController extends BaseController {
 		Response response = null;
 		String jsonResponse = null;
 		try {
-			BusinessBypassRule.validateAlphaNumeric(user.getEmail());
+			HtmlValidation.validateHtml(user, new ArrayList<>());
+			BusinessBypassRule.validateEmail(user.getEmail());
 			BusinessBypassRule.validateNumeric(user.getMobile());
 			BusinessBypassRule.validateAlphaNumeric(user.getSecAnswer());
 			
-			String json = "{\"secQuestion\":\" " + user.getSecquestion() + " \"}";
+			String json = "{\"secQuestion\":\""+ user.getSecquestion() +"\"}";
 			
 			WebTarget webTarget3 = client.target(URIUtil
 					.encodeQuery(userRoleMgmtCrudUrl
@@ -140,7 +142,7 @@ public class studentDetailConfirmationController extends BaseController {
 			Response response1 = invocationBuilder3.post(Entity.entity(json.toString(), MediaType.APPLICATION_JSON));
 			jsonResponse = response1.readEntity(String.class);
 			logger.info("jsonResponse is " + jsonResponse);
-			if(jsonResponse!="true") {
+			if(jsonResponse.equals("false")) {
 				throw new ValidationException("Invalid Security Question");				
 			}
 			
@@ -185,7 +187,8 @@ public class studentDetailConfirmationController extends BaseController {
 														(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 														(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 														(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-														(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+														(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) ||
+														("text/plain").equals(detectedType)) {
 						logger.info("File is valid--->");
 					}else {
 						m.addAttribute("fileuploaderror", "File uploaded is invalid!");
@@ -439,9 +442,17 @@ public class studentDetailConfirmationController extends BaseController {
 				+ studentdetails.getMothernamedisagr());
 		
 		try {
-			BusinessBypassRule.validateAlphaNumeric(studentdetails.getFirstname());
-			BusinessBypassRule.validateAlphaNumeric(studentdetails.getFathername());
-			BusinessBypassRule.validateAlphaNumeric(studentdetails.getMothername());
+			HtmlValidation.validateHtml(studentdetails, new ArrayList<>());
+			if(studentdetails.getFirstname() != null && !studentdetails.getFirstname().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(studentdetails.getFirstname());
+			}
+			if(studentdetails.getFathername() != null && !studentdetails.getFathername().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(studentdetails.getFathername());
+			}
+			if(studentdetails.getMothername() != null && !studentdetails.getMothername().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(studentdetails.getMothername());
+			}
+			
 		} catch (ValidationException ve) {
 			logger.error(ve.getMessage(), ve);
 			setError(r, ve.getMessage());

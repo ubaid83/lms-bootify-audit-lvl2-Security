@@ -247,4 +247,9 @@ public class IcaBeanService extends BaseService<IcaBean> {
 	public IcaBean checkIfComponentIdExists(String componentId) {
 		return icaBeanDAO.checkIfComponentIdExists(componentId);
 	}
+
+	//Peter 04/12/2021
+	public IcaBean checkIfExistsInDB(String columnName, String value) {
+		return icaBeanDAO.checkIfExistsInDB(columnName,value);
+	}
 }

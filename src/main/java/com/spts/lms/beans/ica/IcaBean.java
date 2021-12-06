@@ -53,7 +53,16 @@ public class IcaBean extends BaseBean{
 	private String submittedComps;
 	private String publishedComps;
 	
+	//Peter 25/11/2021
+	private String saveAsDraft;
 	
+	public String getSaveAsDraft() {
+		return saveAsDraft;
+	}
+
+	public void setSaveAsDraft(String saveAsDraft) {
+		this.saveAsDraft = saveAsDraft;
+	}	
 
 	public String getSubmittedComps() {
 		return submittedComps;

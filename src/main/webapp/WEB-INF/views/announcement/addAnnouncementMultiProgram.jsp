@@ -117,7 +117,8 @@
  								
 								         <div class="col-sm-6 col-md-8 column">
 													<div class="form-group">
-														<form:label path="programIds" for="programIds">Select Program</form:label>
+														<form:label path="programIds" for="programIds">Select Program</form:label><span
+												style="color: red">*</span>
 														<form:select id="programIds" path="programIds" multiple="multiple"
 														required="required" class="form-control table-responsive">
 															<form:option value="" disabled="true">Select Program</form:option>
@@ -177,9 +178,11 @@
 									<div class="col-sm-6 col-md-4">
 										<div class="form-group">
 											<label class="control-label" for="announcementSubType">Select
-												Announcement Subtype</label>
+												Announcement Subtype</label><span
+												style="color: red">*</span>
+												
 											<form:select id="announcementSubType"
-												path="announcementSubType"
+												path="announcementSubType"  required="required"
 												placeholder="Announcement Subtype" class="form-control">
 												<form:option value="">Select Announcement Subtype</form:option>
 												<form:option value="EXAM">EXAM</form:option>

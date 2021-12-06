@@ -17,6 +17,19 @@
 <jsp:include page="../common/newDashboardHeader.jsp" />
 <head>
 <style>
+
+tr[data-saveAsDraft='Y'] {
+    background: #ffef82;
+}
+
+tr[data-isSubmitted='Y'] {
+    background: #dbffe3;
+}
+
+tr[data-isSubmitted='N'][data-saveAsDraft=''] {
+    background: #ffd0d0;
+}
+
 .osTable {
 	overflow-x: scroll;
 }
@@ -108,9 +121,10 @@ tbody td:last-child, thead th:last-child {
 							</c:if>
 
 							<div class="table-responsive mt-3 mb-3 testAssignTable">
-								<table class="table table-striped table-hover">
+								<table class="table table-hover">
 									<thead>
 										<tr>
+											<th scope="col">Actions</th>
 											<th scope="col">Sl. No.</th>
 											<th scope="col">ICA Name</th>
 											<th scope="col">ICA Description</th>
@@ -130,7 +144,57 @@ tbody td:last-child, thead th:last-child {
 									</thead>
 									<tbody>
 										<c:forEach var="ica" items="${icaList}" varStatus="status">
-											<tr>
+											<tr data-saveAsDraft="${ica.saveAsDraft}" 
+											data-isSubmitted="<c:choose><c:when test="${ica.isSubmitted eq 'Y'}"><c:out value="Y"/></c:when><c:otherwise><c:out value="N"/></c:otherwise></c:choose>">
+												<td><c:url value="deleteIca" var="deleteurl">
+														<c:param name="icaId" value="${ica.id}" />
+													</c:url> <%-- <td><c:out value="${course.property1}" /></td>
+								<td><c:out value="${course.property2}" /></td>
+								<td><c:out value="${course.property3}" /></td> --%> <c:url
+														value="/addIcaForm" var="editurl">
+														<c:param name="id" value="${ica.id}" />
+													</c:url> <c:url value="/addIcaComponentsForm" var="addComponent">
+														<c:param name="id" value="${ica.id}" />
+													</c:url> <c:url value="/evaluateIca" var="evaluateIcaStudents">
+														<c:param name="icaId" value="${ica.id}" />
+													</c:url> <c:url value="/showEvaluatedInternalMarks"
+														var="showInternalMarks">
+														<c:param name="icaId" value="${ica.id}" />
+													</c:url>
+													<c:if test="${ica.isIcaDivisionWise eq 'Y'}">
+													 <c:url value="/assignTestMarksToIcaForm"
+														var="assgnTestMarksToIca">
+														<c:param name="icaId" value="${ica.id}" />
+														<c:param name="courseId" value="${ica.eventId}" />
+													</c:url>
+													</c:if>
+													<c:if test="${ica.isIcaDivisionWise ne 'Y'}">
+													<c:url value="/assignTestMarksToIcaForm"
+														var="assgnTestMarksToIca">
+														<c:param name="icaId" value="${ica.id}" />
+														
+													</c:url>
+													</c:if>
+													
+													
+													 <sec:authorize access="hasRole('ROLE_ADMIN')">
+														<a href="${deleteurl}" title="Delete"
+															onclick="return confirm('Are you sure you want to delete this record?')"><i
+															class="fas fa-trash-alt fa-lg text-danger"></i></a>
+														<a href="${editurl}" title="Edit"><i
+															class="fas fa-edit fa-lg text-primary"></i></a>
+														<a href="${addComponent}" title="Add Components"><i
+															class="fa fa-plus fa-lg"></i></a>
+													</sec:authorize> <sec:authorize access="hasRole('ROLE_FACULTY')">
+														<a href="${evaluateIcaStudents}" title="Evaluate ICA"><i
+															class="fas fa-check-square"></i></a>
+														<a href="${showInternalMarks}" title="Show Internal Marks"><i
+															class="fa fa-info-circle fa-lg"></i></a>
+														<c:if test="${ica.showTestMarksIcon eq 'true'}">
+														<a href="${assgnTestMarksToIca}" title="Add Test Marks To Component"><i
+															class="fas fa-file-alt"></i></a>
+														</c:if>	
+													</sec:authorize></td>
 												<td><c:out value="${status.count}" /></td>
 												<td><c:out value="${ica.icaName}" /></td>
 												<%-- <td><c:out value="${course.abbr}" /></td> --%>
@@ -157,6 +221,9 @@ tbody td:last-child, thead th:last-child {
 												<c:choose>
 													<c:when test="${ica.isSubmitted eq 'Y'}">
 														<td><c:out value="Evaluated" /></td>
+													</c:when>
+													<c:when test="${ica.saveAsDraft eq 'Y'}">
+															<td><c:out value="Draft" /></td>
 													</c:when>
 													<c:otherwise>
 														<td><c:out value="Pending" /></td>

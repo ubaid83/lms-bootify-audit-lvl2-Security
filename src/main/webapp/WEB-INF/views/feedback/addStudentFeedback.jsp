@@ -72,7 +72,7 @@
 										</form:label>
 
 										<div class='input-group date' id='datetimepicker1'>
-											<form:input id="startDateProgram" path="startDate"
+											<form:input id="startDatePram" path="startDate"
 												type="text" placeholder="Start Date" class="form-control"
 												required="required" readonly="true" />
 											<span class="input-group-addon"><span
@@ -89,7 +89,7 @@
 										</form:label>
 
 										<div class='input-group date' id='datetimepicker2'>
-											<form:input id="endDateProgram" path="endDate" type="text"
+											<form:input id="endDatePrgram" path="endDate" type="text"
 												placeholder="End Date" class="form-control"
 												required="required" readonly="true" />
 											<span class="input-group-addon"><span
@@ -170,10 +170,9 @@
 				<div class="col-xs-12 col-sm-12">
 					<div class="x_panel">
 						<div class="text-center pb-2 border-bottom mb-3 pt-3">
-							<h5>Allocate
-								Feedback To Semester</h5>
-							<p class="text-danger">(Please choose the year
-								and month when the module booking was done.)</p>
+							<h5>Allocate Feedback To Semester</h5>
+							<p class="text-danger">(Please choose the year and month when
+								the module booking was done.)</p>
 						</div>
 						<form:form id="studentFeedbackForm" action="saveStudentFeedback"
 							method="post" modelAttribute="feedback">
@@ -486,56 +485,56 @@
 												});
 
 							});
+			
+			//$("#datetimepicker1 input").destroy();
 
-			/* $("#datetimepicker1").on("dp.change", function(e) {
+			$("#datetimepicker1,#datetimepicker2 input").on("dp.change", function(e) {
 
 				validDateTimepicks();
 
-			}).datetimepicker({
-
-				// minDate:new Date(),
-				useCurrent : false,
-				format : 'YYYY-MM-DD HH:mm:ss'
-
+				}).daterangepicker({
+				minDate: new Date(),
+			    "singleDatePicker": true,
+			    "showDropdowns": true,
+			}, function(start, end, label) {
+			  console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
 			});
+			/* $("#datetimepicker2").on("dp.change", function(e) {
 
-
-			$("#datetimepicker2").on("dp.change", function(e) {
-
-				validDateTimepicks();
+			validDateTimepicks();
 
 			}).datetimepicker({
 
-				// minDate:new Date(),
-				useCurrent : false,
-				format : 'YYYY-MM-DD HH:mm:ss'
+			// minDate:new Date(),
+			useCurrent : false,
+			format : 'YYYY-MM-DD HH:mm:ss'
 
 			});
 
 			$("#datetimepicker3").on("dp.change", function(e) {
 
-				validDateTimepicks1();
+			validDateTimepicks1();
 
 			}).datetimepicker({
 
-				// minDate:new Date(),
-				useCurrent : false,
-				format : 'YYYY-MM-DD HH:mm:ss'
+			minDate:new Date(),
+			useCurrent : false,
+			format : 'YYYY-MM-DD HH:mm:ss'
 
 			});
 
 			$("#datetimepicker4").on("dp.change", function(e) {
 
-				validDateTimepicks1();
+			validDateTimepicks1();
 
 			}).datetimepicker({
 
-				//	 minDate:new Date(),
-				useCurrent : false,
-				format : 'YYYY-MM-DD HH:mm:ss'
+			//	 minDate:new Date(),
+			useCurrent : false,
+			format : 'YYYY-MM-DD HH:mm:ss'
 
 			});
-
+			 */
 			function validDateTimepicks() {
 
 				//alert("called ");
@@ -602,8 +601,9 @@
 
 				}
 
-			} */
+			}
 		</script>
+
 		<script type="text/javascript">
-		
+			
 		</script>

@@ -89,6 +89,7 @@ import com.spts.lms.services.program.ProgramService;
 import com.spts.lms.services.user.UserRoleService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -219,7 +220,8 @@ public class LorController extends BaseController {
 																(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																("text/plain").equals(detectedType)) {
 							errorMessage = uploadFileForS3(file, userdetails);
 							} else {
 								setError(ra, "File uploaded is invalid!");
@@ -376,7 +378,8 @@ public class LorController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	("text/plain").equals(detectedType)) {
 								errorMessage = uploadFileForS3(file, userdetails);
 								} else {
 									setError(ra, "File uploaded is invalid!");
@@ -766,7 +769,8 @@ public class LorController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
-																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B)) {
+																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																	("text/plain").equals(detectedType)) {
 								errorMessage = uploadStudentFileForS3(file);
 								if (!errorMessage.contains("Error in uploading file")) {
 									if (filepath.isEmpty() || filepath == null) {
@@ -938,9 +942,27 @@ public class LorController extends BaseController {
 		 String username = principal.getName();
 		try {
 			
+
+			logger.info("lorRegDetails--->" + lorRegDetails);
+			logger.info("lorRegStaff--->" + lorRegStaff);
+		    HtmlValidation.validateHtml(lorRegDetails,new ArrayList<>());
+		    HtmlValidation.validateHtml(lorRegStaff,new ArrayList<>());
+		    
+		    
+			if(lorRegDetails.getUsername() == null ||lorRegDetails.getUsername().isEmpty() )
+		    {
+				 throw new ValidationException("Input field cannot be empty");	
+			}
+	    	//  BusinessBypassRule.validateNumeric(lorRegDetails.getUsername());
+	    	//  BusinessBypassRule.validateString(lorRegDetails.getName());
+	    	//  BusinessBypassRule.validateEmail(lorRegDetails.getEmail());
+	    	//  BusinessBypassRule.validateNumeric(lorRegDetails.getMobile());
+			
+
 			logger.info("lorRegDetails--->" + lorRegDetails.getNoOfCopies());
 			logger.info("lorRegStaff--->" + lorRegStaff.getNoOfCopies());
 	    	
+
 			 User u = userService.findByUserName(username);
 			 lorRegDetails.setUsername(username);
 			 lorRegDetails.setEmail(u.getEmail());

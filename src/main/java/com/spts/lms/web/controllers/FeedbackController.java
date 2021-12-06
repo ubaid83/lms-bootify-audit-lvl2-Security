@@ -74,6 +74,7 @@ import com.spts.lms.services.variables.LmsVariablesService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.HtmlValidation;
 import com.spts.lms.web.utils.Utils;
 import com.spts.lms.web.utils.ValidationException;
 
@@ -184,6 +185,7 @@ public class FeedbackController extends BaseController {
 			String ProgramName = userdetails1.getProgramName();
 			
 			logger.info("INSIDE /addFeedback");
+			HtmlValidation.validateHtml(feedback, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(feedback.getFeedbackName());
 			logger.info("AFTER business By pass");
 			logger.info("feedback.getFeedbackType() is " + feedback.getFeedbackType());
@@ -247,10 +249,10 @@ public class FeedbackController extends BaseController {
 	//Peter 27/10/2021
 	public void validateFeedbackType(String s) throws ValidationException{
 		if (s == null || s.trim().isEmpty()) {
-			 throw new ValidationException("Input field cannot be empty");
+			 throw new ValidationException("Input field cannot be blank");
 		 }
 		if(!s.equalsIgnoreCase("Mid-Term") && !s.equalsIgnoreCase("End-Term") && !s.equalsIgnoreCase("IT Feedback")) {
-			throw new ValidationException("Invalid Assignment Type.");
+			throw new ValidationException("Invalid Feedback Type.");
 		}
 	}
 
@@ -365,7 +367,7 @@ public class FeedbackController extends BaseController {
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
 		try {
-			
+			HtmlValidation.validateHtml(feedback, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(feedback.getFeedbackName());
 			validateFeedbackType(feedback.getFeedbackType());
 
@@ -453,7 +455,12 @@ public class FeedbackController extends BaseController {
 					setError(redirectAttrs, "Feedback cannot be updated");
 			}
 
-		} catch (Exception e) {
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addFeedbackForm?id=" + feedback.getId();
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating Feedback");
 			return "redirect:/addFeedbackForm";
@@ -723,7 +730,8 @@ public class FeedbackController extends BaseController {
 			for (FeedbackQuestion fq : feedbackQuestion) {
 				logger.info("fq.getStudentFeedbackResponse() is " + fq.getStudentFeedbackResponse());
 				logger.info("fq.getStudentFeedbackResponse().getAnswer(); is " + fq.getStudentFeedbackResponse().getAnswer());
-				BusinessBypassRule.validateNumeric(fq.getStudentFeedbackResponse().getAnswer());
+				HtmlValidation.validateHtml(fq, new ArrayList<>());
+				BusinessBypassRule.validateRatings(fq.getStudentFeedbackResponse().getAnswer());
 				studentFeedbackResponse = fq.getStudentFeedbackResponse();
 				studentFeedbackResponse.setUsername(username);
 
@@ -1682,7 +1690,8 @@ public class FeedbackController extends BaseController {
 		m.addAttribute("AcadSession", acadSession);
 		try {
 			logger.info("feedbackQuestion.getDescription() is " + feedbackQuestion.getDescription());
-			BusinessBypassRule.validateAlphaNumeric(feedbackQuestion.getDescription());
+			HtmlValidation.validateHtml(feedbackQuestion, new ArrayList<>());
+			BusinessBypassRule.validateQuestion(feedbackQuestion.getDescription());
 			boolean typeIsValid = feedbackQuestion.getType().equals("SINGLESELECT");
 			if(!typeIsValid) {
 				throw new ValidationException("Invalid Type Selected");
@@ -1734,7 +1743,7 @@ public class FeedbackController extends BaseController {
 		try {
 			logger.info("feedbackQuestion.getDescription() is " + feedbackQuestion.getDescription());
 			logger.info("feedbackQuestion.getType() is " + feedbackQuestion.getType());
-			
+			HtmlValidation.validateHtml(feedbackQuestion, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(feedbackQuestion.getDescription());
 //			BusinessBypassRule.validateAlphaNumeric("");
 			boolean typeIsValid = feedbackQuestion.getType().equals("SINGLESELECT");
@@ -1787,8 +1796,9 @@ public class FeedbackController extends BaseController {
 			StudentFeedbackResponse studentFeedbackResponse = new StudentFeedbackResponse();
 
 			for (FeedbackQuestion fq : feedbackQuestion) {
-
+				HtmlValidation.validateHtml(fq,new ArrayList<>());
 				if(!fq.getStudentFeedbackResponse().getComments().isEmpty()) {
+					HtmlValidation.checkHtmlCode(fq.getStudentFeedbackResponse().getComments());
 					BusinessBypassRule.validateAlphaNumeric(fq.getStudentFeedbackResponse().getComments());
 				}
 				studentFeedbackResponse = fq.getStudentFeedbackResponse();
@@ -1940,7 +1950,10 @@ public class FeedbackController extends BaseController {
 				for (Map<String, Object> mapper : maps) {
 					if (mapper.get("Error") != null) {
 
-						setNote(m, "Error--->" + mapper.get("Error"));
+//						setNote(m, "Error--->" + mapper.get("Error"));
+						String errorMsg = (String)mapper.get("Error");
+						setError(redirectAttributes, errorMsg);
+						return "redirect:/UploadStudentsToDeallocateForm";
 					} else {
 						studentList.add(mapper.get("SAPID").toString().trim());
 

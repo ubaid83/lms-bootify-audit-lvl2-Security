@@ -90,12 +90,24 @@ public class GroupController extends BaseController {
 			@RequestParam(required = false) Long courseId,
 			@RequestParam(required = false) Long id, Model m,
 			@ModelAttribute Groups groups, Principal principal,
-			HttpServletRequest request) {
+			HttpServletRequest request,RedirectAttributes redirectAttrs) {
 		m.addAttribute("webPage", new WebPage("groups", "Create group", true,
 				false));
 
 		String username = principal.getName();
+		
+		//update by sandip on 01/12/2021
+		logger.info("info---"+id);
+		logger.info("info---"+studentGroupService.getNoOfStudentsAllocated(id));
+		System.out.println("Number of students allocated : "+studentGroupService.getNoOfStudentsAllocated(id));
 
+		
+		if(studentGroupService.getNoOfStudentsAllocated(id)>0){
+			setError(redirectAttrs, "This group is created you cannot edit!");
+			return "redirect:/viewGroup?id="+groups.getId();
+		}
+		//update by sandip on 01/12/2021
+		
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
@@ -128,6 +140,7 @@ public class GroupController extends BaseController {
 			for (Course c : courseList) {
 				List<String> studentList = userCourseService
 						.findStudentUsernamesForFaculty(c.getId());
+				
 				/*
 				 * if (studentList.containsAll(students)) {
 				 * logger.info("course - " + c.getCourseName() +
@@ -135,6 +148,7 @@ public class GroupController extends BaseController {
 				 * 
 				 * }
 				 */
+				
 
 				if (students != null && studentList != null
 						&& (students.size() == studentList.size())) {
@@ -242,15 +256,15 @@ public class GroupController extends BaseController {
 			groups.setFacultyId(username);
 			groups.setActive("Y");
 
-            /*by sandip(22/10/2021)*/
+            /*update by sandip(22/10/2021)*/
 	        
 			String grouptitle = groups.getGroupName();
 			BusinessBypassRule.validateAlphaNumeric(grouptitle);
 			
 			String noOfstudent = groups.getNoOfStudents();
-			BusinessBypassRule.validateNumeric(noOfstudent);
+			BusinessBypassRule.validateNumericNotAZero(noOfstudent);
 			
-			/*by sandip(22/10/2021)*/
+			/*update by sandip(22/10/2021)*/
 			
 			String idForCourse = groups.getIdForCourse();
 
@@ -296,11 +310,12 @@ public class GroupController extends BaseController {
 			//String json = "{\"Status\":\"Fail\", \"msg\":\""+er.getMessage()+"\"}";
 			//return json;
 		}
-	  /*by sandip(23/10/2021)*/
+	  /*by sandip(22/10/2021)*/
 		
 		catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			setError(m, "Error in creating group");
+			//setError(m, "Error in creating group");
+			setError(m, e.getMessage());
 			m.addAttribute("webPage", new WebPage("groups", "Create Group",
 					false, false));
 			return "group/createGroup";
@@ -361,7 +376,7 @@ public class GroupController extends BaseController {
 		try {
 
 			String username = principal.getName();
-
+			
 			Token userdetails1 = (Token) principal;
 			String ProgramName = userdetails1.getProgramName();
 			User u = userService.findByUserName(username);
@@ -405,10 +420,14 @@ public class GroupController extends BaseController {
 			setSuccess(redirectAttrs, "Group updated successfully");
 			List<StudentGroup> students = studentGroupService
 					.getStudentsForGroup(groups.getId(), groups.getCourseId());
+			
+			
+			
 			m.addAttribute("students", students);
 			redirectAttrs.addFlashAttribute("groups", groupDb);
 
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating group");
@@ -590,6 +609,7 @@ public class GroupController extends BaseController {
 	 * } m.addAttribute("groups", groups); return "group/group"; }
 	 */
 
+	
 	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/viewGroup", method = { RequestMethod.GET,
 			RequestMethod.POST })
@@ -599,6 +619,13 @@ public class GroupController extends BaseController {
 				false));
 
 		String username = principal.getName();
+		
+
+//		String noOfStu = groups.getNoOfStudents();
+//		System.out.println("no of students"+noOfStu);
+//		logger.info("noOfStu is " + noOfStu);
+//
+//		businessBypassRule.validateNumericNotAZero(noOfStu);
 
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
@@ -618,6 +645,9 @@ public class GroupController extends BaseController {
 			m.addAttribute("noOfStudents", groups.getNoOfStudents());
 			m.addAttribute("noOfStudentAllocated",
 					studentGroupService.getNoOfStudentsAllocated(id));
+			
+			logger.info(studentGroupService.getNoOfStudentsAllocated(id));
+		
 			groups.setCourse(courseService.findByID(groups.getCourseId()));
 			List<StudentGroup> students = new ArrayList<StudentGroup>();
 

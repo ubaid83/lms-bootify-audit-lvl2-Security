@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Repository;
 
+import com.spts.lms.beans.ica.IcaTotalMarks;
 import com.spts.lms.beans.tee.TeeTotalMarks;
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.daos.BaseDAO;
@@ -396,5 +397,16 @@ public class TeeTotalMarksDAO extends BaseDAO<TeeTotalMarks> {
 	public int getCountOfTcsFlagSentForTee(Long icaId) {
 		String sql =" select count(*) from "+getTableName()+" where teeId = ? and active ='Y' and flagTcs='S' ";
 		return getJdbcTemplate().queryForObject(sql, Integer.class, new Object[] {icaId});
+	}
+	public List<TeeTotalMarks> getFacultyEvaluationStatus(String teeId){
+		String sql ="select itm.teeId,isb.facultyId,itm.saveAsDraft,itm.finalSubmit,GROUP_CONCAT(DISTINCT concat(u.firstName,' ',u.lastName,' (',u.username,')')) as assignedFaculty from "
+				+ "tee_student_batchwise isb join users u on u.username=isb.facultyId left join tee_total_marks itm on itm.teeId=isb.teeId and isb.username=itm.username "
+				+ "where isb.teeId = ? and isb.active = 'Y' group by isb.facultyId,itm.saveAsDraft,itm.finalSubmit";
+		return findAllSQL(sql, new Object[] { teeId });
+	}
+
+	public int checkIfSavedAsDraft(Long teeId) {
+		String sql = "select count(*) from tee_total_marks where teeId=? and saveAsDraft='Y'";
+		return getJdbcTemplate().queryForObject(sql, Integer.class, new Object[] {teeId});
 	}
 }

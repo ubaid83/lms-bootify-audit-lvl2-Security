@@ -1134,7 +1134,7 @@
 
 						<li id="navCalendar" class="nav-item dropdown"><a
 							class="nav-link dropdown-toggle"
-							href="https://portal.svkm.ac.in/usermgmt"> <i
+							href="https://dev-portal.svkm.ac.in/usermgmt"> <i
 								class="fas fa-exchange-alt" data-toggle="tooltip"
 								data-placement="bottom" title="Change Program"></i>
 						</a></li>

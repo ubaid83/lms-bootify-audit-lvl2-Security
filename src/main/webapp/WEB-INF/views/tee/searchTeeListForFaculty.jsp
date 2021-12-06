@@ -17,6 +17,19 @@
 <jsp:include page="../common/newDashboardHeader.jsp" />
 <head>
 <style>
+
+tr[data-saveAsDraft='Y'] {
+    background: #ffef82;
+}
+
+tr[data-isSubmitted='Y'] {
+    background: #dbffe3;
+}
+
+tr[data-isSubmitted='N'][data-saveAsDraft=''] {
+    background: #ffd0d0;
+}
+
 .osTable {
 	overflow-x: scroll;
 }
@@ -108,9 +121,10 @@ tbody td:last-child, thead th:last-child {
 							</c:if>
 
 							<div class="table-responsive mt-3 mb-3 testAssignTable">
-								<table class="table table-striped table-hover">
+								<table class="table table-hover">
 									<thead>
 										<tr>
+											<th scope="col">Actions</th>
 											<th scope="col">Sl. No.</th>
 											<th scope="col">TEE Name</th>
 											<th scope="col">TEE Description</th>
@@ -130,7 +144,32 @@ tbody td:last-child, thead th:last-child {
 									</thead>
 									<tbody>
 										<c:forEach var="tee" items="${teeList}" varStatus="status">
-											<tr>
+											<tr data-saveAsDraft="${tee.saveAsDraft}" 
+											data-isSubmitted="<c:choose><c:when test="${tee.isSubmitted eq 'Y'}"><c:out value="Y"/></c:when><c:otherwise><c:out value="N"/></c:otherwise></c:choose>">
+												<td>
+                                                    <c:url value="/evaluateTee" var="evaluateurl">
+														<c:param name="teeId" value="${tee.id}" />
+													</c:url> 
+													<c:url value="/showEvaluatedTeeMarks" var="showTeeMarks">
+														<c:param name="teeId" value="${tee.id}" />
+													</c:url>  
+													<c:url value="/assignAssignmentMarksToTeeForm" var="teeMarksAutoAssign">
+														<c:param name="teeId" value="${tee.id}" />
+														<c:if test="${'Y' eq tee.isTeeDivisionWise}">
+														<c:param name="courseId" value="${tee.eventId}" />
+														</c:if>
+														
+													</c:url>
+													<sec:authorize access="hasRole('ROLE_FACULTY')">
+														<a href="${evaluateurl}" title="Evaluate TEE"><i
+															class="fas fa-check-square"></i></a>
+														<a href="${showTeeMarks}" title="Show External Marks"><i
+															class="fa fa-info-circle fa-lg"></i></a>
+														<c:if test="${'Y' eq tee.autoAssignMarks}">
+														<a href="${teeMarksAutoAssign}" title="Add Test Marks To TEE"><i
+															class="fas fa-file-alt"></i></a>
+														</c:if>	
+													</sec:authorize></td>
 												<td><c:out value="${status.count}" /></td>
 												<td><c:out value="${tee.teeName}" /></td>
 												<%-- <td><c:out value="${course.abbr}" /></td> --%>
@@ -154,6 +193,9 @@ tbody td:last-child, thead th:last-child {
 												<c:choose>
 													<c:when test="${tee.isSubmitted eq 'Y'}">
 														<td><c:out value="Evaluated" /></td>
+													</c:when>
+													<c:when test="${tee.saveAsDraft eq 'Y'}">
+															<td><c:out value="Draft" /></td>
 													</c:when>
 													<c:otherwise>
 														<td><c:out value="Pending" /></td>
