@@ -74,9 +74,9 @@
 										<div class='input-group date' id='datetimepicker1'>
 											<form:input id="startDatePram" path="startDate"
 												type="text" placeholder="Start Date" class="form-control"
-												required="required" readonly="true" />
+												required="required" />
 											<span class="input-group-addon"><span
-												class="glyphicon glyphicon-calendar"></span> </span>
+												class="glyphicon glyphicon-calendar"></span></span>
 										</div>
 
 
@@ -487,18 +487,22 @@
 							});
 			
 			//$("#datetimepicker1 input").destroy();
-
-			$("#datetimepicker1,#datetimepicker2 input").on("dp.change", function(e) {
-
-				validDateTimepicks();
-
-				}).daterangepicker({
-				minDate: new Date(),
-			    "singleDatePicker": true,
-			    "showDropdowns": true,
+/* Peter 
+			$("#datetimepicker1, #datetimepicker2 input").daterangepicker({
+				autoUpdateInput : false,
+				minDate : TommorowDate,
+				locale : {
+					cancelLabel : 'Clear'
+				},
+				"singleDatePicker" : true,
+				"showDropdowns" : true,
+				"timePicker" : true,
+				"showCustomRangeLabel" : false,
+				"alwaysShowCalendars" : true,
+				"opens" : "center"
 			}, function(start, end, label) {
 			  console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
-			});
+			}); */
 			/* $("#datetimepicker2").on("dp.change", function(e) {
 
 			validDateTimepicks();
@@ -534,7 +538,7 @@
 			format : 'YYYY-MM-DD HH:mm:ss'
 
 			});
-			 */
+			 
 			function validDateTimepicks() {
 
 				//alert("called ");
@@ -601,9 +605,12 @@
 
 				}
 
-			}
+			} */
 		</script>
 
 		<script type="text/javascript">
+		</script>
+		
+		<script>
 			
 		</script>
