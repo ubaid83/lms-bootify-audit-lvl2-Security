@@ -165,7 +165,7 @@ public class BusinessBypassRule {
 		if (file == null || file.isEmpty()) {
 	    	 throw new ValidationException("File cannot be empty!");
 	     }
-<<<<<<< Updated upstream
+
 	}
 
 	public static void validateEmail(String s) throws ValidationException{
@@ -301,9 +301,5 @@ public class BusinessBypassRule {
 		}
 	 }
 
-=======
-	}
-	
->>>>>>> Stashed changes
 }
 

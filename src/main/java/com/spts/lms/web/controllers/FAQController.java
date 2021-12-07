@@ -546,6 +546,7 @@ public class FAQController extends BaseController {
 			return json;
 			
 		}
+		
 		catch (ValidationException er) { 
 			// print the stack trace
 			logger.error(er.getMessage(), er);

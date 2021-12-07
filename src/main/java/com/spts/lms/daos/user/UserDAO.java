@@ -1007,11 +1007,12 @@ public class UserDAO extends BaseDAO<User> {
 		executeUpdateSql("Update users set email = ?, mobile = ? where username= ?",
 				new Object[] { email, mobile, username });
 	}
-<<<<<<< Updated upstream
+
 
 	public User checkIfExistsInDB(String username) {
 		String sql = "select username from users where username=? limit 1";
-=======
+		return findOneSQL(sql, new Object[] {username});
+}
 	
 	
 	//sandip
@@ -1022,7 +1023,7 @@ public class UserDAO extends BaseDAO<User> {
 	
 	public User checkIfSAPIDExists(String username) {
 		String sql="SELECT username FROM uuser_roles WHERE username=?";
->>>>>>> Stashed changes
+
 		return findOneSQL(sql, new Object[] {username});
 	}
 }
