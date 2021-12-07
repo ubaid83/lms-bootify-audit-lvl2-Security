@@ -1407,6 +1407,7 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 		String sql="SELECT campusId FROM program_campus WHERE campusId=? limit 1";
 		return findOneSQL(sql, new Object[] {campusId});
 	}
+<<<<<<< Updated upstream
 
 	public Course checkIfAcadYearExists(String acadYear) {
 		String sql="SELECT distinct acadYear FROM module WHERE acadYear=? limit 1";
@@ -1416,6 +1417,18 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 	public Course checkIfProgramExists(String programId) {
 		String sql="SELECT distinct programId FROM course WHERE programId=? limit 1";
 		return findOneSQL(sql, new Object[] {programId});
+=======
+	
+	//sandip
+	public Course checkIfCourseId(Long Id){
+		String sql="SELECT Id FROM course WHERE courseId=? limit 1";
+		return findOneSQL(sql, new Object[] {Id});
+	}
+	
+	public Course checkIfAcadYearExists(Integer acadYear){
+		String sql="SELECT acadYear FROM course WHERE acadYear=? limit 1";
+		return findOneSQL(sql, new Object[] {acadYear});
+>>>>>>> Stashed changes
 	}
 }
 

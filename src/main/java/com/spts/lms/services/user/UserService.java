@@ -15,7 +15,11 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+<<<<<<< Updated upstream
 import com.spts.lms.beans.ica.IcaBean;
+=======
+import com.spts.lms.beans.course.Course;
+>>>>>>> Stashed changes
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
 import com.spts.lms.beans.user.UserRole;
@@ -781,8 +785,21 @@ public class UserService extends BaseService<User> {
 		userDAO.changeEmailMobileByApp(email, mobile, username);
 	}
 	
+<<<<<<< Updated upstream
 	//Peter 04/12/2021
 	public User checkIfExistsInDB(String username) {
 		return userDAO.checkIfExistsInDB(username);
 	}
+=======
+	
+	//sandip
+	public User checkIfFacultyIdExists(String username) {
+		return userDAO.checkIfFacultyIdExists(username);
+	}
+	
+	public User checkIfSAPIDExists(String username) {
+		return userDAO.checkIfSAPIDExists(username);
+	}
+	
+>>>>>>> Stashed changes
 }

@@ -179,8 +179,6 @@ public class ForumController extends BaseController {
 	
 		HtmlValidation.validateHtml(forum, Arrays.asList("description"));
 
-//		BusinessBypassRule.validateAlphaNumeric("^%&");
-
 
 
 		String acadSession = u.getAcadSession();
@@ -1093,6 +1091,8 @@ public class ForumController extends BaseController {
              {
              	throw new ValidationException("Invalid Course Selected.");
              }
+			 BusinessBypassRule.validateAlphaNumeric(forum.getTopic());
+			 
 			if (forum != null) {
 				Forum forumdb = forumService.findByID(forum.getId());
                 forum.setCreatedBy(forumdb.getCreatedBy());
@@ -1101,6 +1101,12 @@ public class ForumController extends BaseController {
 				forumService.update(forum);
 				setSuccess(redirectAttrs, "Forum updates successfully!");
 			}
+		}
+		catch (ValidationException ve) {
+			setError(redirectAttrs, ve.getMessage());
+			logger.error(ve);
+			return "redirect:/updateForumForm?id=" + forum.getId();
+
 		}
 		  catch (Exception e) {
 			setError(redirectAttrs, "Error while updating forum!");

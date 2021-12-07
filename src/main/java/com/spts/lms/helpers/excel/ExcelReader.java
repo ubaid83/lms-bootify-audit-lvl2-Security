@@ -134,7 +134,9 @@ public class ExcelReader {
 			valueMap = new HashMap<String, Object>();
 			if (rowNum != 0) {
 				if (ValidateHeader.size() != header.size()) {
-					ErrorMessage = "excel format is wrong ";
+					//ErrorMessage = "excel format is wrong ";
+					throw new IllegalArgumentException(
+							"Excel format is wrong");
 					
 				}
 				for (int cellNumber = 0; cellNumber < headerColumn; cellNumber++) {

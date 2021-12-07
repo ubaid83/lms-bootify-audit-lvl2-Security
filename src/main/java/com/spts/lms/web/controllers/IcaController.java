@@ -340,9 +340,7 @@ public class IcaController extends BaseController {
 			if(acadSession == null) {
 				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			logger.info("icaBean.getCampusId() is " + icaBean.getCampusId());
-			if(icaBean.getCampusId() != null){
-				logger.info("checking campus");
+			if(icaBean.getCampusId() != null && !icaBean.getCampusId().isEmpty()){
 				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
 				if(campusId == null) {
 					throw new ValidationException("Invalid Campus Selected");
@@ -355,7 +353,6 @@ public class IcaController extends BaseController {
 			logger.info("create ica selected programs are " + icaBean.getProgramId());
 			List<String> progIds = null;
 			if(icaBean.getProgramId().contains(",")) {
-				logger.info("inside multiple programs");
 				progIds = Arrays.asList(icaBean.getProgramId().split(","));
 				for(String programId : progIds) {
 					Course progId = courseService.checkIfExistsInDB("programId", programId);			
@@ -364,13 +361,11 @@ public class IcaController extends BaseController {
 					}
 				}
 			} else {
-				logger.info("inside single program");
 				Course progId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());
 				if(progId == null) {
 					throw new ValidationException("Invalid Program Selected");
 				}
 			}
-			
 			List<String> assignedFaculties = null;
 			if(icaBean.getAssignedFaculty().contains(",")) {
 				assignedFaculties = Arrays.asList(icaBean.getAssignedFaculty().split(","));
@@ -386,9 +381,7 @@ public class IcaController extends BaseController {
 		            }
 				}
 			} else {
-				logger.info("inside single faculty");
-				UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getAssignedFaculty(),icaBean.getModuleId());
-				logger.info("courseId is " + courseId); 
+				UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getAssignedFaculty(),icaBean.getModuleId()); 
 				if(null == courseId) {
 	                  throw new ValidationException("Invalid faculty selected.");
 	            }
@@ -397,37 +390,32 @@ public class IcaController extends BaseController {
 	                  throw new ValidationException("Invalid faculty selected.");
 	            }
 			}
-			BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks());
-//			BusinessBypassRule.validateNumeric(icaBean.getInternalMarks());
-//			BusinessBypassRule.validateNumeric(icaBean.getInternalPassMarks());
-			logger.info("addica - icaBean.getExternalMarks() " + icaBean.getExternalMarks()); 
-			if(!icaBean.getExternalMarks().isEmpty()) {
-				logger.info("inside external marks not empty");
-				BusinessBypassRule.validateNumeric(icaBean.getExternalMarks());
+//			icaBean.setTotalMarks("");
+//			icaBean.setInternalMarks("10");
+//			icaBean.setInternalPassMarks("-1");
+//			icaBean.setExternalMarks("");
+//			icaBean.setExternalPassMarks("");
+			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks(),icaBean.getExternalMarks(),icaBean.getExternalPassMarks(),icaBean.getTotalMarks());
+			} else
+			if(icaBean.getInternalMarks() != null && !icaBean.getInternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks());
+			} else
+			if(icaBean.getExternalMarks() != null && !icaBean.getExternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getExternalMarks(), icaBean.getExternalPassMarks());
+			} else {
+				throw new ValidationException("Invalid Marks");
 			}
-			if(!icaBean.getExternalPassMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalPassMarks());
-			}
-			if(!icaBean.getTotalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getTotalMarks());
-			}
-			logger.info("Start Date is " + icaBean.getStartDate());
-			logger.info("End Date is " + icaBean.getEndDate());
-			
-			Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate());
-			logger.info("Scaled Req is " + icaBean.getScaledReq());
-			
+			Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate());			
 			if (icaBean.getScaledReq() == null || icaBean.getScaledReq().equals("N")) {
 				icaBean.setScaledReq("N");
 				icaBean.setScaledMarks(null);
 			} else {
-				BusinessBypassRule.validateNumeric(icaBean.getScaledMarks());
+				BusinessBypassRule.validateNumericNotAZero(icaBean.getScaledMarks());
 			}
-			if(!icaBean.getIcaDesc().isEmpty()) {
+			if(icaBean.getIcaDesc() != null && !icaBean.getIcaDesc().isEmpty()) {
 				BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaDesc());
 			}
-			logger.info("Validation Done");
-			
 			String username = principal.getName();
 			icaBean.setCreatedBy(username);
 			icaBean.setLastModifiedBy(username);
@@ -548,7 +536,6 @@ public class IcaController extends BaseController {
 		
 		IcaBean icaBeanDAO = icaBeanService.findByID(icaBean.getId());
 		try {
-			
 			logger.info("Validating /updateIca...");
 			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
@@ -556,17 +543,12 @@ public class IcaController extends BaseController {
 			if(acadYear == null) {
 				throw new ValidationException("Invalid Acad Year Selected");
 			}
-//			Course acadSession = courseService.checkIfExistsInDB("acadSession", icaBean.getAcadSession());
-//			if(acadSession == null) {
-//				throw new ValidationException("Invalid Acad Session Selected");
-//			}
-			if(icaBean.getCampusId() != null){
+			if(icaBean.getCampusId() != null && !icaBean.getCampusId().isEmpty()){
 				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
 				if(campusId == null) {
 					throw new ValidationException("Invalid Campus Selected");
 				}
 			}
-			
 			Course moduleId = courseService.checkIfExistsInDB("moduleId", icaBean.getModuleId());
 			if(moduleId == null) {
 				throw new ValidationException("Invalid Module Selected");
@@ -586,12 +568,6 @@ public class IcaController extends BaseController {
 					throw new ValidationException("Invalid Acad Session Selected");
 				}
 			}
-//			Course programId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());
-//			if(programId == null) {
-//				throw new ValidationException("Invalid Program Selected");
-//			}
-			
-			logger.info("create ica selected programs are " + icaBean.getProgramId());
 			List<String> progIds = null;
 			if(icaBean.getProgramId().contains(",")) {
 				logger.info("inside multiple programs");
@@ -609,14 +585,6 @@ public class IcaController extends BaseController {
 					throw new ValidationException("Invalid Program Selected");
 				}
 			}
-			
-//			UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getAssignedFaculty(),icaBean.getModuleId());
-//			logger.info("courseId is " + courseId);
-//			UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(icaBean.getAssignedFaculty(), String.valueOf(courseId.getCourseId()));
-//            if(null == userccourse) {
-//                  throw new ValidationException("Invalid faculty selected");
-//            }
-			
 			List<String> assignedFaculties = null;
 			if(icaBean.getAssignedFaculty().contains(",")) {
 				assignedFaculties = Arrays.asList(icaBean.getAssignedFaculty().split(","));
@@ -641,33 +609,25 @@ public class IcaController extends BaseController {
 	                  throw new ValidationException("Invalid faculty selected.");
 	            }
 			}
-			if(icaBean.getInternalMarks() != null && !icaBean.getInternalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getInternalMarks());
+			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks(),icaBean.getExternalMarks(),icaBean.getExternalPassMarks(),icaBean.getTotalMarks());
+			} else
+			if(icaBean.getInternalMarks() != null && !icaBean.getInternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks());
+			} else
+			if(icaBean.getExternalMarks() != null && !icaBean.getExternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getExternalMarks(), icaBean.getExternalPassMarks());
+			} else {
+				throw new ValidationException("Invalid Marks");
 			}
-			if(icaBean.getInternalPassMarks() != null && !icaBean.getInternalPassMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getInternalPassMarks());
-			}
-			if(icaBean.getExternalMarks() != null && !icaBean.getExternalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalMarks());
-			}
-			if(icaBean.getExternalPassMarks() != null && !icaBean.getExternalPassMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalPassMarks());
-			}
-			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getTotalMarks());
-			}
-			logger.info("icaBean.getStartDate() is " + icaBean.getStartDate());
-			logger.info("icaBean.getEndDate() is " + icaBean.getEndDate());
 			BusinessBypassRule.validateStartAndEndDatesToUpdate(icaBean.getStartDate(), icaBean.getEndDate());
-			logger.info("Scaled Req is " + icaBean.getScaledReq());
-			
 			if (icaBean.getScaledReq() == null || icaBean.getScaledReq().equals("N")) {
 				icaBean.setScaledReq("N");
 				icaBean.setScaledMarks(null);
 			} else {
-				BusinessBypassRule.validateNumeric(icaBean.getScaledMarks());
+				BusinessBypassRule.validateNumericNotAZero(icaBean.getScaledMarks());
 			}
-			if(!icaBean.getIcaDesc().isEmpty()) {
+			if(icaBean.getIcaDesc() != null && !icaBean.getIcaDesc().isEmpty()) {
 				BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaDesc());
 			}
 
@@ -1285,17 +1245,17 @@ public class IcaController extends BaseController {
 		for (IcaComponent icaComp : ica.getComponentList()) {
 			
 			
-			if(icaComp.getComponentId() != null) {
+			if(icaComp.getComponentId() != null && !icaComp.getComponentId().isEmpty()) {
 				IcaBean checkIfComponentIdExists = icaBeanService.checkIfComponentIdExists(icaComp.getComponentId());
 				if(checkIfComponentIdExists==null) {
 					throw new ValidationException("Invalid Component");
 				}
 			}
-			if(icaComp.getSequenceNo() != null) {
+			if(icaComp.getSequenceNo() != null && !icaComp.getSequenceNo().isEmpty()) {
 				BusinessBypassRule.validateNumeric(icaComp.getSequenceNo());
 			}
 			if(icaComp.getMarks()!=null) {
-				BusinessBypassRule.validateNumericNotAZero(icaComp.getMarks());
+				BusinessBypassRule.validateNumeric(icaComp.getMarks());
 			}
 		}
 
@@ -2227,6 +2187,9 @@ public class IcaController extends BaseController {
 	public String submitIca(@RequestParam Map<String, String> allRequestParams, Principal p,
 			RedirectAttributes redirectAttributes) {
 		logger.info("allRequestParams----------------" + allRequestParams);
+		String teeIdVal = allRequestParams.get("teeIdValue");
+		try {
+			BusinessBypassRule.validateNumeric(teeIdVal);
 
 		String username = p.getName();
 		List<IcaComponentMarks> icaCompMarksList = new ArrayList<>();
@@ -2238,7 +2201,7 @@ public class IcaController extends BaseController {
 		redirectAttributes.addAttribute("icaId", allRequestParams.get("icaIdValue"));
 
 		IcaBean icaDB = icaBeanService.findByID(Long.valueOf(allRequestParams.get("icaIdValue")));
-		try {
+		
 			for (String sapId : allRequestParams.keySet()) {
 				logger.info("sapId is " + sapId);
 				if (sapId.contains("-")) {
@@ -5014,7 +4977,7 @@ public class IcaController extends BaseController {
 			if(acadSession == null) {
 				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			if(icaBean.getCampusId() != null) {
+			if(icaBean.getCampusId() != null && !icaBean.getCampusId().isEmpty()) {
 				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
 				if(campusId == null) {
 					throw new ValidationException("Invalid Campus Selected");
@@ -5024,37 +4987,22 @@ public class IcaController extends BaseController {
 			if(moduleId == null) {
 				throw new ValidationException("Invalid Module Selected");
 			}
-			logger.info("create ica selected programs are " + icaBean.getProgramId());
-			
 			Course progId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());			
 			if(progId == null) {
 				throw new ValidationException("Invalid Program Selected");
+			} 
+			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks(),icaBean.getExternalMarks(),icaBean.getExternalPassMarks(),icaBean.getTotalMarks());
+			} else
+			if(icaBean.getInternalMarks() != null && !icaBean.getInternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks());
+			} else
+			if(icaBean.getExternalMarks() != null && !icaBean.getExternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getExternalMarks(), icaBean.getExternalPassMarks());
+			} else {
+				throw new ValidationException("Invalid Marks");
 			}
-//			
-//			UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getModuleId(),icaBean.getModuleId());
-//			logger.info("courseID is " + courseId);
-//			UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(icaBean.getModuleId(), String.valueOf(courseId.getCourseId()));
-//		    if(null == userccourse) {
-//		         throw new ValidationException("Invalid faculty selected.");
-//		    }   
-            
-			BusinessBypassRule.validateNumeric(icaBean.getInternalMarks());
-			BusinessBypassRule.validateNumeric(icaBean.getInternalPassMarks());
-			logger.info("icaBean.getExternalMarks() is " + icaBean.getExternalMarks());
-			if(!icaBean.getExternalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalMarks());
-			}
-			if(!icaBean.getExternalPassMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalPassMarks());
-			}
-			if(!icaBean.getTotalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getTotalMarks());
-			}
-			logger.info("Start Date is " + icaBean.getStartDate());
-			logger.info("End Date is " + icaBean.getEndDate());
-			
 			Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate());
-			logger.info("Scaled Req is " + icaBean.getScaledReq());
 			
 			if (icaBean.getScaledReq() == null || icaBean.getScaledReq().equals("N")) {
 				icaBean.setScaledReq("N");
@@ -5066,7 +5014,6 @@ public class IcaController extends BaseController {
 				BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaDesc());
 			}
 			logger.info("Validation Done");
-			
 			
 			String username = principal.getName();
 
@@ -5923,7 +5870,7 @@ public class IcaController extends BaseController {
 			if(acadSession == null) {
 				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			if(icaBean.getCampusId() != null) {
+			if(icaBean.getCampusId() != null && !icaBean.getCampusId().isEmpty()) {
 				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
 				if(campusId == null) {
 					throw new ValidationException("Invalid Campus Selected");
@@ -5947,32 +5894,27 @@ public class IcaController extends BaseController {
 				if(progId == null) {
 					throw new ValidationException("Invalid Program Selected");
 				}
-			}				
-            
-			BusinessBypassRule.validateNumeric(icaBean.getInternalMarks());
-			BusinessBypassRule.validateNumeric(icaBean.getInternalPassMarks());
-			if(!icaBean.getExternalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalMarks());
 			}
-			if(!icaBean.getExternalPassMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalPassMarks());
+			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks(),icaBean.getExternalMarks(),icaBean.getExternalPassMarks(),icaBean.getTotalMarks());
+			} else
+			if(icaBean.getInternalMarks() != null && !icaBean.getInternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks());
+			} else
+			if(icaBean.getExternalMarks() != null && !icaBean.getExternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getExternalMarks(), icaBean.getExternalPassMarks());
+			} else {
+				throw new ValidationException("Invalid Marks");
 			}
-			if(!icaBean.getTotalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getTotalMarks());
-			}
-			logger.info("Start Date is " + icaBean.getStartDate());
-			logger.info("End Date is " + icaBean.getEndDate());
-			
 			Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate());
-			logger.info("Scaled Req is " + icaBean.getScaledReq());
-			
+
 			if (icaBean.getScaledReq() == null || icaBean.getScaledReq().equals("N")) {
 				icaBean.setScaledReq("N");
 				icaBean.setScaledMarks(null);
 			} else {
 				BusinessBypassRule.validateNumeric(icaBean.getScaledMarks());
 			}
-			if(!icaBean.getIcaDesc().isEmpty()) {
+			if(icaBean.getIcaDesc() != null && !icaBean.getIcaDesc().isEmpty()) {
 				BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaDesc());
 			}
 			logger.info("Validation Done");
@@ -6417,16 +6359,11 @@ public class IcaController extends BaseController {
 			if(acadSession == null) {
 				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			if(nsBean.getCampusId() != null){
-				Course campusId = courseService.checkIfCampusExists(nsBean.getCampusId());
-				if(campusId == null) {
-					throw new ValidationException("Invalid Campus Selected");
-				}
-			}
 			Course moduleId = courseService.checkIfModuleExists(nsBean.getModuleId());
 			if(moduleId == null) {
 				throw new ValidationException("Invalid Module Selected");
 			}
+			nsBean.setProgramId("0000000");
 			List<String> progIds = null;
 			if(nsBean.getProgramId().contains(",")) {
 				progIds = Arrays.asList(nsBean.getProgramId().split(","));
@@ -6440,6 +6377,12 @@ public class IcaController extends BaseController {
 				Course progId = courseService.checkIfExistsInDB("programId", nsBean.getProgramId());
 				if(progId == null) {
 					throw new ValidationException("Invalid Program Selected");
+				}
+			}
+			if(nsBean.getCampusId() != null && !nsBean.getCampusId().isEmpty()){
+				Course campusId = courseService.checkIfCampusExists(nsBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
 				}
 			}
 			logger.info("above show to students");
@@ -8567,7 +8510,7 @@ public class IcaController extends BaseController {
 					throw new ValidationException("Invalid Acad Session Selected");
 				}
 			}
-			if(icaBean.getCampusId() != null) {
+			if(icaBean.getCampusId() != null && !icaBean.getCampusId().isEmpty()) {
 				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
 				if(campusId == null) {
 					throw new ValidationException("Invalid Campus Selected");
@@ -8595,7 +8538,6 @@ public class IcaController extends BaseController {
 					throw new ValidationException("Invalid Program Selected");
 				}
 			}
-			
 			List<String> assignedFaculties = null;
 			if(icaBean.getAssignedFaculty().contains(",")) {
 				assignedFaculties = Arrays.asList(icaBean.getAssignedFaculty().split(","));
@@ -8623,19 +8565,17 @@ public class IcaController extends BaseController {
 			
 			
 			logger.info("checking internal marks");
-			BusinessBypassRule.validateNumeric(icaBean.getInternalMarks());
-			BusinessBypassRule.validateNumeric(icaBean.getInternalPassMarks());
-			if(!icaBean.getExternalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalMarks());
+			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks(),icaBean.getExternalMarks(),icaBean.getExternalPassMarks(),icaBean.getTotalMarks());
+			} else
+			if(icaBean.getInternalMarks() != null && !icaBean.getInternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks());
+			} else
+			if(icaBean.getExternalMarks() != null && !icaBean.getExternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getExternalMarks(), icaBean.getExternalPassMarks());
+			} else {
+				throw new ValidationException("Invalid Marks");
 			}
-			if(!icaBean.getExternalPassMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalPassMarks());
-			}
-			if(!icaBean.getTotalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getTotalMarks());
-			}
-			logger.info("Start Date is " + icaBean.getStartDate());
-			logger.info("End Date is " + icaBean.getEndDate());
 			
 			Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate());
 			logger.info("Scaled Req is " + icaBean.getScaledReq());
@@ -8646,7 +8586,7 @@ public class IcaController extends BaseController {
 			} else {
 				BusinessBypassRule.validateNumeric(icaBean.getScaledMarks());
 			}
-			if(!icaBean.getIcaDesc().isEmpty()) {
+			if(icaBean.getIcaDesc() != null && !icaBean.getIcaDesc().isEmpty()) {
 				BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaDesc());
 			}
 			logger.info("Validation Done");			

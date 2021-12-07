@@ -32,7 +32,7 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Input field cannot be empty");
 	     }
 
-	     Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-.]");
+	     Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-.()]");
 	     Matcher m = p.matcher(s);
 	     boolean b = m.find();
 	     if(b) {
@@ -74,6 +74,7 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Input number should be a positive number and non zero number.");
 	     }  
 	 }
+	
 	public static void validateNumeric(String s) throws ValidationException{
 		//Allows Only Double Positive Numbers as String, Zero allowed
 		if (s == null || s.trim().isEmpty()) {
@@ -158,12 +159,13 @@ public class BusinessBypassRule {
 		}
 	}
 	
+	
 	//update by sandip
 	public static void validateFile(MultipartFile file) throws ValidationException {
-		// TODO Auto-generated method stub
 		if (file == null || file.isEmpty()) {
 	    	 throw new ValidationException("File cannot be empty!");
 	     }
+<<<<<<< Updated upstream
 	}
 
 	public static void validateEmail(String s) throws ValidationException{
@@ -238,42 +240,70 @@ public class BusinessBypassRule {
 		}
 	}
 	
-//	//Peter 05/12/2021
-//	public static void validateMarks(String marks, String marks2, String marks3) throws ValidationException{
-//		
-//		if (marks == null || marks2 == null || marks3 == null || marks.trim().isEmpty() || marks2.trim().isEmpty() || marks3.trim().isEmpty()) {
-//	    	 throw new ValidationException("Input field cannot be empty");
-//	    }
-//		Integer m1 = Integer.valueOf(marks); //Marks
-//		Integer m2 = Integer.valueOf(marks2); //Pass Marks
-//		Integer m3 = Integer.valueOf(marks2); //Total Marks
-//		if (m1>m3) {
-//			//Internal/External Marks is Greater than Total Marks
-//	    	 throw new ValidationException("Marks greater than Total Marks");
-//	    }
-//		if (m1<m2) {
-//			//Internal/External Marks less than Pass Marks
-//	    	 throw new ValidationException("Marks less than Pass Marks");
-//	     }
-//		if(m2>m3) {
-//			//Pass Marks Greater than Total Marks
-//			throw new ValidationException("Pass marks greater than Total Marks");
-//		}
-//	 }
-	
 	//Peter 05/12/2021
 	public static void validateMarks(String marks, String marks2) throws ValidationException{
 		
 		if (marks == null || marks2 == null|| marks.trim().isEmpty() || marks2.trim().isEmpty()) {
 	    	 throw new ValidationException("Input field cannot be empty");
 	    }
+		
 		Integer m1 = Integer.valueOf(marks); //Marks
 		Integer m2 = Integer.valueOf(marks2); //Pass Marks
+		
+		if (m1 <= 0 || m2 <= 0) {
+	    	 throw new ValidationException("Input number should be a positive number");
+	    }
+		
 		if (m1<m2) {
 			//Internal/External Marks is Less than Pass Marks
 	    	 throw new ValidationException("Marks greater than Pass Marks");
 	    }
+		if (m1==m2) {
+			//Internal/External Marks is Less than Pass Marks
+	    	 throw new ValidationException("Marks are Equal to Pass Marks");
+	    }
+	 }
+	
+	//Peter 05/12/2021
+	public static void validateMarks(String marks1, String marks2, String marks3, String marks4, String marks5) throws ValidationException{
+		
+		if (marks1 == null || marks2 == null || marks3 == null || marks3 == null || marks4 == null || marks5 == null ||
+				marks1.trim().isEmpty() || marks2.trim().isEmpty() || marks3.trim().isEmpty() || marks4.trim().isEmpty() || marks5.trim().isEmpty()) {
+	    	 throw new ValidationException("Input field cannot be empty");
+	    }
+		Integer m1 = Integer.valueOf(marks1); //Internal Marks
+		Integer m2 = Integer.valueOf(marks2); //Internal Pass Marks
+		
+		Integer m3 = Integer.valueOf(marks3); //External Marks
+		Integer m4 = Integer.valueOf(marks4); //External Pass Marks
+		
+		Integer m5 = Integer.valueOf(marks5); //Total Marks
+		
+		if (m1 <= 0 || m2 <= 0 || m3 <= 0 || m4 <= 0 || m5 <= 0) {
+	    	 throw new ValidationException("Input number should be a positive number");
+	    }
+		
+		if(m1<m2 || m3<m4) {
+	    	 throw new ValidationException("Marks is Less than Pass Marks");
+	    }
+		if(m2>m5 || m4>m5) {
+	    	 throw new ValidationException("Pass Marks Greater than Total Marks");
+	    }
+		if(m5<m1 || m5<m3) {
+			throw new ValidationException("Total Marks less than Marks");
+		}
+		if(m1+m3!=m5) {
+			logger.info("Invalid Total Marks");
+			throw new ValidationException("Internal & External Marks does not equal Total Marks");
+		}
+		if(m1==m2 || m3==m4){
+			throw new ValidationException("Marks are equal to Pass Marks");
+		}
 	 }
 
+=======
+	}
+	
+>>>>>>> Stashed changes
 }
 
