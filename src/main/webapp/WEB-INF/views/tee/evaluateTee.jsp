@@ -665,7 +665,7 @@
                                                             document.location
                                                                 .reload();
                                                         });
-                                            } 
+                                            }
                                         },
                                         error: function() {
                                             alert('Error here');

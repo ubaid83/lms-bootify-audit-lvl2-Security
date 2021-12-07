@@ -251,7 +251,7 @@ public class FeedbackController extends BaseController {
 		if (s == null || s.trim().isEmpty()) {
 			 throw new ValidationException("Input field cannot be blank");
 		 }
-		if(!s.equalsIgnoreCase("Mid-Term") && !s.equalsIgnoreCase("End-Term") && !s.equalsIgnoreCase("IT Feedback")) {
+		if(!s.equalsIgnoreCase("Mid-Term") && !s.equalsIgnoreCase("End-Term") && !s.equalsIgnoreCase("it-feedback")) {
 			throw new ValidationException("Invalid Feedback Type.");
 		}
 	}

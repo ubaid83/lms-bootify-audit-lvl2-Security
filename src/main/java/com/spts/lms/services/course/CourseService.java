@@ -427,7 +427,12 @@ public String getAcadMonthByModuleIdAndAcadYearAndProgram(String moduleId, Strin
 	public Course checkIfCampusExists(String campusId) {
 		return courseDAO.checkIfCampusExists(campusId);
 	}
-
+	
+	//sandip
+	public Course checkIfCourseId(Long Id) {
+		return courseDAO.checkIfCourseId(Id);
+	}
+	
 	public Course checkIfAcadYearExists(String acadYear) {
 		return courseDAO.checkIfAcadYearExists(acadYear);
 	}

@@ -1008,8 +1008,22 @@ public class UserDAO extends BaseDAO<User> {
 				new Object[] { email, mobile, username });
 	}
 
+
 	public User checkIfExistsInDB(String username) {
 		String sql = "select username from users where username=? limit 1";
+		return findOneSQL(sql, new Object[] {username});
+}
+	
+	
+	//sandip
+	public User checkIfFacultyIdExists(String username) {
+		String sql="SELECT username FROM uuser_roles WHERE username=? limit 1";
+		return findOneSQL(sql, new Object[] {username});
+	}
+	
+	public User checkIfSAPIDExists(String username) {
+		String sql="SELECT username FROM uuser_roles WHERE username=?";
+
 		return findOneSQL(sql, new Object[] {username});
 	}
 }

@@ -242,7 +242,7 @@ public class GroupController extends BaseController {
 	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/createGroup", method = { RequestMethod.GET,
 			RequestMethod.POST })
-	public String createGroup(@ModelAttribute Groups groups, Long courseId,
+	public String createGroup(@ModelAttribute Groups groups, Long courseId, 
 			@RequestParam(required = false) Long myId,
 			RedirectAttributes redirectAttrs, Model m, Principal principal) {
 		m.addAttribute("webPage", new WebPage("groups", "Group Details", true,
@@ -250,28 +250,48 @@ public class GroupController extends BaseController {
 		String username = principal.getName();
 
 		try {
-
 			groups.setCreatedBy(username);
 			groups.setLastModifiedBy(username);
 			groups.setFacultyId(username);
 			groups.setActive("Y");
 
             /*update by sandip(22/10/2021)*/
+			 
+			 
+			// if(groups.getCourseId() !=null){
+				 Course courseI2 = courseService.checkIfCourseId(groups.getCourseId());
+				 System.out.println("Course Id 2:  "+groups.getCourseId());
+					if(courseId.equals(courseI2))
+					{
+					   System.out.println("course id is valid");	
+					}
+					else
+					{
+						setError(m, "Invalid course Id Selected");
+					}
+			//	}
+					
+
+			
+			System.out.println("course id 1 : "+courseId);
 	        
 			String grouptitle = groups.getGroupName();
 			BusinessBypassRule.validateAlphaNumeric(grouptitle);
-			
 			String noOfstudent = groups.getNoOfStudents();
 			BusinessBypassRule.validateNumericNotAZero(noOfstudent);
 			
 			/*update by sandip(22/10/2021)*/
 			
 			String idForCourse = groups.getIdForCourse();
+			System.out.println("course id 2 : "+idForCourse); //print null
+			
 
 			if (idForCourse != null) {
 				groups.setCourse(courseService.findByID(Long
 						.valueOf(idForCourse)));
 				groups.setCourseId(Long.valueOf(idForCourse));
+				
+				
 			} else
 				groups.setCourse(courseService.findByID(groups.getCourseId()));
 			Course c = courseService.findByID(groups.getCourseId());
@@ -305,7 +325,7 @@ public class GroupController extends BaseController {
 			// print the stack trace
 			logger.error(er.getMessage(), er);
 			setError(m,er.getMessage());
-			m.addAttribute("webPage", new WebPage("groups", "Create Group", false, false));
+            m.addAttribute("webPage", new WebPage("groups", "Create Group", false, false));
 			return "group/createGroup";
 			//String json = "{\"Status\":\"Fail\", \"msg\":\""+er.getMessage()+"\"}";
 			//return json;
@@ -316,8 +336,7 @@ public class GroupController extends BaseController {
 			logger.error(e.getMessage(), e);
 			//setError(m, "Error in creating group");
 			setError(m, e.getMessage());
-			m.addAttribute("webPage", new WebPage("groups", "Create Group",
-					false, false));
+	        m.addAttribute("webPage", new WebPage("groups", "Create Group", false, false));
 			return "group/createGroup";
 		}
 
@@ -450,6 +469,8 @@ public class GroupController extends BaseController {
 		User u = userService.findByUserName(username);
 
 		String acadSession = u.getAcadSession();
+		
+		System.out.println("acadSession : "+acadSession);
 
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
@@ -460,6 +481,7 @@ public class GroupController extends BaseController {
 		List<String> allocatestudents = new ArrayList<String>();
 		ArrayList<StudentGroup> studentGroupMappingList = new ArrayList<StudentGroup>();
 		try {
+		
 			List<StudentGroup> stu = studentGroupService
 					.getStudentsForGroup(groups.getCourseId());
 
@@ -518,8 +540,49 @@ public class GroupController extends BaseController {
 
 		ArrayList<StudentGroup> studentGroupMappingList = new ArrayList<StudentGroup>();
 		try {
-			List<String> stu = groups.getStudents();
+			
+			//Sandip 06/12/2021
+			
+			
+			// if(groups.getCourseId() !=null){
+				 Course courseI2 = courseService.checkIfCourseId(groups.getCourseId());
+				 System.out.println("Course Id 2:  "+groups.getCourseId());
+					if(courseI2 == null) {
+						throw new ValidationException("Invalid course Id Selected");
+					}
+				
+			//	}
+			 
+			// if(groups.getAcadYear() !=null){
+				 Course acadYear = courseService.checkIfAcadYearExists(String.valueOf(groups.getAcadYear()));
+					if(acadYear == null) {
+						throw new ValidationException("Invalid Academic Year Selected!");
+					}
+				//}
+			 	
+			 //if(groups.getFacultyId() !=null){
+				 User facultyId = userService.checkIfFacultyIdExists(groups.getFacultyId());
+					if(facultyId  == null) {
+						throw new ValidationException("Invalid Faculty ID!");
+					}
+				//}
+			 
+			 System.out.println("groupdetails: "+groups.getAcadYear());
 
+			
+			List<String> stu = groups.getStudents();
+			
+			for (String student : stu) {
+				BusinessBypassRule.validateNumeric(student);
+				 if(student !=null){
+					 User students = userService.checkIfSAPIDExists(student);
+						if(students == null) {
+							throw new ValidationException("Invalid Students SAP ID!");
+						}
+					}
+			}
+			//Sandip 06/12/2021
+			
 			if (stu != null && stu.size() > 0) {
 				for (String studentUsername : groups.getStudents()) {
 					StudentGroup bean = new StudentGroup();
