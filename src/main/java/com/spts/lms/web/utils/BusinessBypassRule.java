@@ -74,6 +74,7 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Input number should be a positive number and non zero number.");
 	     }  
 	 }
+	
 	public static void validateNumeric(String s) throws ValidationException{
 		//Allows Only Double Positive Numbers as String, Zero allowed
 		if (s == null || s.trim().isEmpty()) {
@@ -158,12 +159,13 @@ public class BusinessBypassRule {
 		}
 	}
 	
+	
 	//update by sandip
 	public static void validateFile(MultipartFile file) throws ValidationException {
-		// TODO Auto-generated method stub
 		if (file == null || file.isEmpty()) {
 	    	 throw new ValidationException("File cannot be empty!");
 	     }
+<<<<<<< Updated upstream
 	}
 
 	public static void validateEmail(String s) throws ValidationException{
@@ -275,5 +277,9 @@ public class BusinessBypassRule {
 	    }
 	 }
 
+=======
+	}
+	
+>>>>>>> Stashed changes
 }
 

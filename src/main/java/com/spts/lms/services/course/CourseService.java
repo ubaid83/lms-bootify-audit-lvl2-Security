@@ -427,6 +427,7 @@ public String getAcadMonthByModuleIdAndAcadYearAndProgram(String moduleId, Strin
 	public Course checkIfCampusExists(String campusId) {
 		return courseDAO.checkIfCampusExists(campusId);
 	}
+<<<<<<< Updated upstream
 
 	public Course checkIfAcadYearExists(String acadYear) {
 		return courseDAO.checkIfAcadYearExists(acadYear);
@@ -434,5 +435,16 @@ public String getAcadMonthByModuleIdAndAcadYearAndProgram(String moduleId, Strin
 
 	public Course checkIfProgramExists(String programId) {
 		return courseDAO.checkIfProgramExists(programId);
+=======
+	
+	
+	//Peter 20/10/2021
+	public Course checkIfCourseId(Long Id) {
+		return courseDAO.checkIfCourseId(Id);
+	}
+	
+	public Course checkIfAcadYearExists(Integer acadYear) {
+		return courseDAO.checkIfAcadYearExists(acadYear);
+>>>>>>> Stashed changes
 	}
 }
