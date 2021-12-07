@@ -542,7 +542,8 @@ public class GroupController extends BaseController {
 		try {
 			
 			//Sandip 06/12/2021
-			 BusinessBypassRule.validateNumeric(groups.getCourseId());
+			
+			
 			 if(groups.getCourseId() !=null){
 				 Course courseI2 = courseService.checkIfCourseId(groups.getCourseId());
 				 System.out.println("Course Id 2:  "+groups.getCourseId());
@@ -552,15 +553,13 @@ public class GroupController extends BaseController {
 				
 				}
 			 
-			 BusinessBypassRule.validateNumeric(groups.getAcadYear());
 			 if(groups.getAcadYear() !=null){
 				 Course acadYear = courseService.checkIfAcadYearExists(groups.getAcadYear());
 					if(acadYear == null) {
 						throw new ValidationException("Invalid Academic Year Selected!");
 					}
 				}
-			 
-			 BusinessBypassRule.validateNumeric(groups.getFacultyId());
+			 	
 			 if(groups.getFacultyId() !=null){
 				 User acadYear = userService.checkIfFacultyIdExists(groups.getFacultyId());
 					if(acadYear == null) {
