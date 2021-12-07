@@ -140,7 +140,6 @@ public class MessageController extends BaseController {
 		UsernamePasswordAuthenticationToken userDeatils = (UsernamePasswordAuthenticationToken) principal;
 		m.addAttribute("message", message);
 	
-		
 		//changes 25-10-2021 for create msg
 		try {
 			HtmlValidation.validateHtml(message, Arrays.asList("description"));
