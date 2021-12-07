@@ -82,19 +82,17 @@ public class MessageController extends BaseController {
 		String ProgramName = userdetails1.getProgramName();
 		User u1 = userService.findByUserName(username);
 		
-
+ 
 		String acadSession = u1.getAcadSession();
 		
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
-
 		if (request.getSession().getAttribute("courseRecord") == null
 				|| request.getSession().getAttribute("courseRecord").equals("")) {
 			
 		} else {
 			request.getSession().removeAttribute("courseRecord");
 		}
-
 		if (id != null) {
 			message = messageService.findByID(id);
 			m.addAttribute("edit", "true");
@@ -452,12 +450,10 @@ public class MessageController extends BaseController {
         
 		
 	//	Message msg = messageService.findByID(messageId);
-		
 		StudentMessage message = studentMessageService.findByID(messageId);
 	//	Message msg = messageService.findByID(message.getMessageId());
-		//String subject = message.getSubject();
- 	 
-		String subject = message.getSubject();
+		//String subject = message.getSubject();	
+ 	     String subject = message.getSubject();
        
 		Document doc = Jsoup.parse(message.getDescription());
 		String cQuestion = doc.text();
