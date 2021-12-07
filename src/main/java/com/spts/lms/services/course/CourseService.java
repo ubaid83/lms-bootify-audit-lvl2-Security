@@ -433,7 +433,7 @@ public String getAcadMonthByModuleIdAndAcadYearAndProgram(String moduleId, Strin
 		return courseDAO.checkIfCourseId(Id);
 	}
 	
-	public Course checkIfAcadYearExists(Integer acadYear) {
+	public Course checkIfAcadYearExists(String acadYear) {
 		return courseDAO.checkIfAcadYearExists(acadYear);
 	}
 }

@@ -554,7 +554,7 @@ public class GroupController extends BaseController {
 				}
 			 
 			 if(groups.getAcadYear() !=null){
-				 Course acadYear = courseService.checkIfAcadYearExists(groups.getAcadYear());
+				 Course acadYear = courseService.checkIfAcadYearExists(String.valueOf(groups.getAcadYear()));
 					if(acadYear == null) {
 						throw new ValidationException("Invalid Academic Year Selected!");
 					}
