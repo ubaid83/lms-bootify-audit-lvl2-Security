@@ -1409,6 +1409,7 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 	}
 
 
+	
 	public Course checkIfAcadYearExists(String acadYear) {
 		String sql="SELECT distinct acadYear FROM module WHERE acadYear=? limit 1";
 		return findOneSQL(sql, new Object[] {acadYear});
@@ -1420,9 +1421,9 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 	}
 	
 	//sandip
-	public Course checkIfCourseId(Long Id){
-		String sql="SELECT Id FROM course WHERE courseId=? limit 1";
-		return findOneSQL(sql, new Object[] {Id});
+	public Course checkIfCourseId(Long courseId){
+		String sql="SELECT Id FROM course WHERE Id=? limit 1";
+		return findOneSQL(sql, new Object[] {courseId});
 	}
 	
 	public Course checkIfAcadYearExists(Integer acadYear){
