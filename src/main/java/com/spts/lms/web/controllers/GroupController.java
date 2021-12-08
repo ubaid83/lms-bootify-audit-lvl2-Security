@@ -543,7 +543,6 @@ public class GroupController extends BaseController {
 			
 			//Sandip 06/12/2021
 			
-			
 			  Course courseI2 = courseService.checkIfCourseId(groups.getCourseId());
 			  System.out.println("Course Id 2:  "+groups.getCourseId());
 				if(null != groups.getCourseId() && null != courseI2)
