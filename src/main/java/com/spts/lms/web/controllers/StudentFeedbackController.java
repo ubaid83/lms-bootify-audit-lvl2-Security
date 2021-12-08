@@ -457,10 +457,6 @@ public class StudentFeedbackController extends BaseController {
 					throw new ValidationException("Invalid Campus Selected");
 				}
 			}
-//			boolean hasAcadYear = Arrays.asList(enrollmentYears).contains(feedback.getAcadYear().toString());
-//			if(!hasAcadYear) {
-//				throw new ValidationException("Invalid Acad Year Selected");
-//			}
 			if(feedback.getAcadYear() == null) {
 				throw new ValidationException("Invalid Acad Year Selected");
 			}
