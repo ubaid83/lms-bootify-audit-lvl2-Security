@@ -310,7 +310,7 @@
 											
 											
 													$.ajax({
-														type : 'GET',
+														type : 'POST',
 														url : '${pageContext.request.contextPath}/saveClassParticipation?'
 																+ 'studentUsername='
 																+ username
@@ -320,7 +320,9 @@
 																+ remarks
 																+ '&courseId='
 																+ courseid,
-
+																
+											        /***By sandip 26/10/2021****/
+											       
 														success : function(data) {
 															console
 																	.log("sucess messsgae e like "
@@ -337,7 +339,7 @@
 															     
 														},
 														
-														/***By sandip 26/10/2021****/
+														
 														
 														error: function(data){
 															alert("Something went wrong!");
