@@ -15,6 +15,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.minidev.json.writer.MapperRemapped;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.impl.xb.xsdschema.impl.AttributeImpl.UseImpl;
@@ -325,6 +327,7 @@ public class FAQController extends BaseController {
 		 file.getAbsolutePath();
 	
 		
+		 
 		OutputStream outStream = null;
 		FileInputStream inputStream = null;
 		ServletContext context = request.getSession().getServletContext();
@@ -383,11 +386,14 @@ public class FAQController extends BaseController {
 		
 		try {
 			
+			//Sandip 
 			BusinessBypassRule.validateFile(classParticipation.getFile());
+			
 			
 			List<Map<String, Object>> maps = excelReader.readExcelFileUsingColumnHeader(file, validateHeaders);
 			System.out.println("mapsmapsmaps--------12222"+maps.get(0));
 			System.out.println("mapsmapsmaps--------12222"+maps.get(1));
+			
 			
 	
 			logger.info("inside student marks : "+file.getOriginalFilename());
@@ -402,14 +408,15 @@ public class FAQController extends BaseController {
 				
 				for (Map<String, Object> mapper : maps) {
 					if (mapper.get("Error") != null) {
-					
+						
 						setNote(m, "Error  " + mapper.get("Error"));
+						
 					} else {
 					
 						
 						if (null==mapper.get("ASSIGNED SCORE").toString() ||mapper.get("ASSIGNED SCORE").toString().equals(" ")  || mapper.get("ASSIGNED SCORE").toString().isEmpty() || mapper.get("ASSIGNED SCORE").toString().matches("[a-zA-Z_]+") || Integer.parseInt((String) mapper.get("ASSIGNED SCORE")) < 0 )
 						{
-
+						
 							setError(redirectAttributes, " check the marks entered for student Id "+mapper.get("SAP ID").toString());
 							return "redirect:/classParticipation?courseId=" +classParticipation.getCourseId();
 														
@@ -448,6 +455,7 @@ public class FAQController extends BaseController {
 										.setAcadYear(Integer.valueOf(c.getAcadYear()));
 								classparticipationsinList.add(classparticipations);
 								
+													
 							}
 									
 						}	
@@ -463,11 +471,11 @@ public class FAQController extends BaseController {
 			}
 			
 		}
-//		catch (ValidationException er) { 
-//			
-//			logger.info("inside ValidationException er"+er.getMessage());
-//			setError(redirectAttributes,er.getMessage());
-//		}
+		catch (ValidationException er) { 
+			
+			logger.info("inside ValidationException er"+er.getMessage());
+			setError(redirectAttributes,er.getMessage());
+		}
 		
 		catch (Exception ex) {
 			logger.info("inside ValidationException er"+ex.getMessage());
@@ -538,6 +546,7 @@ public class FAQController extends BaseController {
 			return json;
 			
 		}
+		
 		catch (ValidationException er) { 
 			// print the stack trace
 			logger.error(er.getMessage(), er);

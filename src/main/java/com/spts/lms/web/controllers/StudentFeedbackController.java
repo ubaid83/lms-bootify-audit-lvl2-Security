@@ -297,7 +297,6 @@ public class StudentFeedbackController extends BaseController {
 		m.addAttribute("AcadSession", acadSession);
 
 		redirectAttr.addFlashAttribute("feedback", feedback);
-		
 		try {
 			logger.info("INSIDE /saveStudentFeedbackForProgram");
 			logger.info("feedback.getId() is " + feedback.getId());
@@ -305,6 +304,18 @@ public class StudentFeedbackController extends BaseController {
 			if(isFeedbackExists==null) {
 				throw new ValidationException("Invalid Feedback Selected");
 			}
+			if(feedback.getAcadYear() == null) {
+				throw new ValidationException("Invalid Acad Year Selected");
+			}
+			if(!feedback.getAcadYear().toString().isEmpty() && feedback.getAcadYear() !=null) {
+				boolean hasAcadYear = Arrays.asList(enrollmentYears).contains(feedback.getAcadYear().toString());
+				logger.info("hasAcadYear is " + hasAcadYear);
+				if(!hasAcadYear) {
+					logger.info("inside acadyear exception");
+					throw new ValidationException("Invalid Acad Year Selected");
+				}
+			}
+			
 			Utils.validateStartAndEndDates(feedback.getStartDate(), feedback.getEndDate());
 			if(feedback.getCampusId() != null) {
 				ProgramCampus checkIfCampusExists = programCampusService.checkIfCampusExists(feedback.getCampusId());
@@ -312,10 +323,11 @@ public class StudentFeedbackController extends BaseController {
 					throw new ValidationException("Invalid Campus Selected");
 				}
 			}
-			boolean hasAcadYear = Arrays.asList(enrollmentYears).contains(feedback.getAcadYear().toString());
-			if(!hasAcadYear) {
-				throw new ValidationException("Invalid Acad Year Selected");
+			
+			if(feedback.getAcadYear().toString().isEmpty() || feedback.getAcadYear() == null) {
+				throw new ValidationException("Input field cannot be empty");
 			}
+			
 			Course checkIfAcadYearExists = courseService.checkIfExistsInDB("acadMonth", feedback.getAcadMonth());
 			if(checkIfAcadYearExists==null) {
 				throw new ValidationException("Invalid Acad Month Selected");
@@ -445,9 +457,16 @@ public class StudentFeedbackController extends BaseController {
 					throw new ValidationException("Invalid Campus Selected");
 				}
 			}
-			boolean hasAcadYear = Arrays.asList(enrollmentYears).contains(feedback.getAcadYear().toString());
-			if(!hasAcadYear) {
+			if(feedback.getAcadYear() == null) {
 				throw new ValidationException("Invalid Acad Year Selected");
+			}
+			if(!feedback.getAcadYear().toString().isEmpty() && feedback.getAcadYear() !=null) {
+				boolean hasAcadYear = Arrays.asList(enrollmentYears).contains(feedback.getAcadYear().toString());
+				logger.info("hasAcadYear is " + hasAcadYear);
+				if(!hasAcadYear) {
+					logger.info("inside acadyear exception");
+					throw new ValidationException("Invalid Acad Year Selected");
+				}
 			}
 			Course checkIfAcadYearExists = courseService.checkIfExistsInDB("acadMonth", feedback.getAcadMonth());
 			if(checkIfAcadYearExists==null) {
@@ -562,6 +581,7 @@ public class StudentFeedbackController extends BaseController {
 		m.addAttribute("webPage", new WebPage("feedback", "Update Feedback",
 				false, false));
 		try {
+			
 
 			StudentFeedback studentFeedbackFromDb = studentFeedbackService
 					.findByID(studentFeedback.getId());
@@ -895,8 +915,47 @@ public class StudentFeedbackController extends BaseController {
 		m.addAttribute("webPage", new WebPage("addStudentFeedback",
 				"Create Feedback", true, false));
 		try {
-			// ----------------
 			String username = principal.getName();
+			logger.info("INSIDE /searchCoursesByInputParams");
+			logger.info("feedback.getId() is " + feedback.getId());
+			Feedback isFeedbackExists = feedbackService.checkIfFeedbackExists(username,feedback.getId());
+			if(isFeedbackExists==null) {
+				throw new ValidationException("Invalid Feedback Selected");
+			}
+			if(feedback.getAcadYear() == null) {
+				throw new ValidationException("Invalid Acad Year Selected");
+			}
+			if(!feedback.getAcadYear().toString().isEmpty() && feedback.getAcadYear() !=null) {
+				boolean hasAcadYear = Arrays.asList(enrollmentYears).contains(feedback.getAcadYear().toString());
+				logger.info("hasAcadYear is " + hasAcadYear);
+				if(!hasAcadYear) {
+					logger.info("inside acadyear exception");
+					throw new ValidationException("Invalid Acad Year Selected");
+				}
+			}
+			Course course = courseService.checkIfProgramExists(feedback.getProgramId());
+			if(course==null) {
+				throw new ValidationException("Invalid Program Selected");
+			}
+			Utils.validateStartAndEndDates(feedback.getStartDate(), feedback.getEndDate());
+			if(feedback.getCampusId() != null) {
+				ProgramCampus checkIfCampusExists = programCampusService.checkIfCampusExists(feedback.getCampusId());
+				if(checkIfCampusExists==null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
+			}
+			
+			if(feedback.getAcadYear().toString().isEmpty() || feedback.getAcadYear() == null) {
+				throw new ValidationException("Input field cannot be empty");
+			}
+			
+			Course checkIfAcadYearExists = courseService.checkIfExistsInDB("acadMonth", feedback.getAcadMonth());
+			if(checkIfAcadYearExists==null) {
+				throw new ValidationException("Invalid Acad Month Selected");
+			}
+			
+			// ----------------
+			
 			Token userdetails1 = (Token) principal;
 			String ProgramName = userdetails1.getProgramName();
 			String programId = userdetails1.getProgramId();
@@ -928,7 +987,14 @@ public class StudentFeedbackController extends BaseController {
 			feedback.setStudentFeedbacks(studentFeedbacksByCourse);
 			
 			redirectAttribute.addFlashAttribute("feedback", feedback);
-		} catch (Exception ex) {
+		} 
+		catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			logger.error("Validation Exception");
+			setError(redirectAttribute, ve.getMessage());
+			return "redirect:/addStudentFeedbackFormForCourses";
+		}	
+		catch (Exception ex) {
 			logger.error("Exception", ex);
 		}
 		// ---------------

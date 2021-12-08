@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.spts.lms.auth.Token;
 import com.spts.lms.beans.assignment.StudentAssignment;
+import com.spts.lms.beans.course.Course;
 import com.spts.lms.beans.message.Message;
 import com.spts.lms.beans.message.StudentMessage;
 import com.spts.lms.beans.user.Role;
@@ -81,19 +82,17 @@ public class MessageController extends BaseController {
 		String ProgramName = userdetails1.getProgramName();
 		User u1 = userService.findByUserName(username);
 		
-
+ 
 		String acadSession = u1.getAcadSession();
 		
 		m.addAttribute("Program_Name", ProgramName);
 		m.addAttribute("AcadSession", acadSession);
-
 		if (request.getSession().getAttribute("courseRecord") == null
 				|| request.getSession().getAttribute("courseRecord").equals("")) {
 			
 		} else {
 			request.getSession().removeAttribute("courseRecord");
 		}
-
 		if (id != null) {
 			message = messageService.findByID(id);
 			m.addAttribute("edit", "true");
@@ -141,34 +140,35 @@ public class MessageController extends BaseController {
 		UsernamePasswordAuthenticationToken userDeatils = (UsernamePasswordAuthenticationToken) principal;
 		m.addAttribute("message", message);
 	
-		
 		//changes 25-10-2021 for create msg
 		try {
 			HtmlValidation.validateHtml(message, Arrays.asList("description"));
 			message.setCreatedBy(username);
 			message.setLastModifiedBy(username);
 			message.setFacultyId(username);
-
-			String idForCourse = message.getIdForCourse();
 			String subject = message.getSubject(); 
+		
+			System.out.println("ID FOR COURSE>>>>>>"+message.getIdForCourse());
 			
-			
-			if(idForCourse == null)
+			if(message.getIdForCourse() == null || message.getIdForCourse().isEmpty())
 			{
 				throw new ValidationException("Invalid Course Selected.");
 			}
-			  
-	        // BusinessBypassRule.validateNumeric(idForCourse); 
-	         BusinessBypassRule.validateAlphaNumeric(subject);
-	         
-			message.setCourseId(Long.valueOf(idForCourse));
 			
-			if (idForCourse != null) {
+			Course course =courseService.findByID(Long.valueOf(message.getIdForCourse())); //new
+			
+			System.out.println("Course>>>>>>>>>>"+course);
+			
+			if(null == course) {
+				throw new ValidationException("Invalid Course Selected.");
+			}
+			 BusinessBypassRule.validateAlphaNumeric(subject);
+			if (message.getIdForCourse() != null) {
 				message.setCourse(courseService.findByID(Long
-						.valueOf(idForCourse)));
-				message.setCourseId(Long.valueOf(idForCourse));
+						.valueOf(message.getIdForCourse())));
+				message.setCourseId(Long.valueOf(message.getIdForCourse()));
 			} else
-				message.setCourse(courseService.findByID(message.getCourseId()));
+				message.setCourse(courseService.findByID(Long.valueOf(message.getIdForCourse())));
 			messageService.insertWithIdReturn(message);
 
 			setSuccess(m, "Message created successfully");
@@ -186,20 +186,21 @@ public class MessageController extends BaseController {
 			
 
 		}
-		catch (ValidationException e) {
-			logger.error(e.getMessage(), e);
-			setError(m, "Input field cannot be empty");
+		catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
 			m.addAttribute("webPage", new WebPage("message", "Create Message",
 					false, false));
-			return "message/createMessage";
+			return "redirect:/createMessageForm";
+			//return "message/createMessage";
 		}
-
 		catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			setError(m, "Error in creating message");
+			setError(redirectAttrs, "Error in creating message");
 			m.addAttribute("webPage", new WebPage("message", "Create Message",
 					false, false));
-			return "message/createMessage";
+			return "redirect:/createMessageForm";
+			//return "message/createMessage";
 		}
 
 		return "message/message";
@@ -246,13 +247,16 @@ public class MessageController extends BaseController {
 		String username = principal.getName();
 		
 		ArrayList<StudentMessage> studentMessageMappingList = new ArrayList<StudentMessage>();
+		//System.out.println("StudentMessageMapping List:>>>>>>>>>."+studentMessageMappingList);
 		try {
 			
 			List<String> msg = message.getStudents();
+			System.out.println("Message >>>>>>>"+msg);
 			
 			if (msg != null && msg.size() > 0) {
 				for (String studentname : message.getStudents()) {
 					StudentMessage bean = new StudentMessage();
+					//System.out.println("Bean>>>>>..."+bean);
 					bean.setMessageId(message.getId());
 					bean.setCourseId(courseId);
 					bean.setDescription(message.getDescription());
@@ -278,6 +282,8 @@ public class MessageController extends BaseController {
 			m.addAttribute("webPage", new WebPage("message", "Create Message",
 					false, false));
 			return "message/createMessage";
+			
+		
 		}
 		m.addAttribute("message", message);
 		return "message/createMessage";
@@ -443,12 +449,10 @@ public class MessageController extends BaseController {
         
 		
 	//	Message msg = messageService.findByID(messageId);
-		
 		StudentMessage message = studentMessageService.findByID(messageId);
 	//	Message msg = messageService.findByID(message.getMessageId());
-		//String subject = message.getSubject();
- 	 
-		String subject = message.getSubject();
+		//String subject = message.getSubject();	
+ 	     String subject = message.getSubject();
        
 		Document doc = Jsoup.parse(message.getDescription());
 		String cQuestion = doc.text();
@@ -509,7 +513,7 @@ public class MessageController extends BaseController {
 	     String reply =	message.getMessageReply();
 		try {
 			HtmlValidation.validateHtml(message, Arrays.asList("description"));
-		 if(subject == null ||subject.isEmpty()) {
+		   if(subject == null ||subject.isEmpty()) {
 		    	 throw new ValidationException("Subject Can't be blank");
 		     }
 			 
