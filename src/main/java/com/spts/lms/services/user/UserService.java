@@ -795,9 +795,9 @@ public class UserService extends BaseService<User> {
 		return userDAO.checkIfFacultyIdExists(username);
 	}
 	
-	public User checkIfSAPIDExists(String username) {
-		return userDAO.checkIfSAPIDExists(username);
-	}
+//	public User checkIfSAPIDExists(String username) {
+//		return userDAO.checkIfSAPIDExists(username);
+//	}
 	
 
 }
