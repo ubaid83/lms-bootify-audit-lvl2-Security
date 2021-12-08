@@ -1445,7 +1445,7 @@ public class AnnouncementController extends BaseController {
 		try {
 			
 			
-
+			HtmlValidation.validateHtml(announcement, Arrays.asList("description"));
 			if(null!=announcement.getAnnouncementSubType() || !announcement.getAnnouncementSubType().isEmpty())
 			{
 				validateAnnouncementSubType(announcement.getAnnouncementSubType());
