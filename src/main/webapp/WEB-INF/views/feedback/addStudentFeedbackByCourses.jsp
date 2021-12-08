@@ -144,8 +144,12 @@
                                                                                           <form:input id="startDateAcadSession" path="startDate"
                                                                                                 type="text" placeholder="Start Date"
                                                                                                 class="form-control"  required="required" readonly="true"/>
-                                                                                          <span class="input-group-addon"><span
-                                                                                                class="glyphicon glyphicon-calendar"></span> </span>
+                                                                                          <!-- <span class="input-group-addon"><span
+                                                                                                class="glyphicon glyphicon-calendar"></span> </span> -->
+                                                                                                <button class="btn btn-outline-secondary iniSDatePickerForCourse"
+																									type="button">
+																									<i class="fas fa-calendar"></i>
+																								</button>
                                                                                     </div>
 
 
@@ -160,8 +164,12 @@
                                                                                           <form:input id="endDateAcadSession" path="endDate"
                                                                                                 type="text" placeholder="End Date" class="form-control"
                                                                                                 required="required" readonly="true"/>
-                                                                                          <span class="input-group-addon"><span
-                                                                                                class="glyphicon glyphicon-calendar"></span> </span>
+                                                                                          <!-- <span class="input-group-addon"><span
+                                                                                                class="glyphicon glyphicon-calendar"></span> </span> -->
+                                                                                                <button class="btn btn-outline-secondary iniEDatePickerForCourse"
+																									type="button">
+																									<i class="fas fa-calendar"></i>
+																								</button>
                                                                                     </div>
 
                                                                               </div>
@@ -447,6 +455,146 @@ function() {
 
       } */
 </script>
+
+		<!-- Peter Start 07/12/2021-->
+		<script>
+			$(window)
+					.bind(
+							"pageshow",
+							function() {
+								var TommorowDate = new Date();
+								//start Date picker
+								$('.iniSDatePicker, .iniSDatePickerForCourse').daterangepicker({
+									autoUpdateInput : false,
+									minDate : TommorowDate,
+									locale : {
+										cancelLabel : 'Clear'
+									},
+									"singleDatePicker" : true,
+									"showDropdowns" : true,
+									"timePicker" : true,
+									"showCustomRangeLabel" : false,
+									"alwaysShowCalendars" : true,
+									"opens" : "center"
+								});
+
+								$(".iniSDatePicker, .iniSDatePickerForCourse")
+										.on(
+												'apply.daterangepicker',
+												function(ev, picker) {
+													//validDateTimepicks();
+													var fromDate = $(
+															'#starDProgram')
+															.val();
+													var toDate = $(
+															'#enDProgram')
+															.val();
+													var sDate = new Date(
+															fromDate);
+													var eDate = new Date(toDate);
+													console.log('validate called'
+																	+ sDate
+																	+ ','
+																	+ eDate);
+													if (sDate > eDate) {
+														alert("endate cannot be smaller than startDate");
+														$('#startDateTimeTable')
+																.val(
+																		$(
+																				'#startDateDB')
+																				.val());
+														$('#endDateTimeTable').val(
+																$('#endDateDB')
+																		.val());
+													} else {
+														$(this)
+																.parent()
+																.parent()
+																.find('input')
+																.val(
+																		picker.startDate
+																				.format('YYYY-MM-DD HH:mm:ss'));
+													}
+												});
+
+								$('.iniSDatePicker .iniSDatePickerForCourse').on(
+										'cancel.daterangepicker',
+										function(ev, picker) {
+											$(this).parent().parent().find(
+													'input').val(
+													$('#startDateDB').val());
+
+										});
+
+								//end Date picker
+
+								$('.iniEDatePicker, .iniEDatePickerForCourse').daterangepicker({
+									autoUpdateInput : false,
+									minDate : TommorowDate,
+									locale : {
+										cancelLabel : 'Clear'
+									},
+									"singleDatePicker" : true,
+									"showDropdowns" : true,
+									"timePicker" : true,
+									"showCustomRangeLabel" : false,
+									"alwaysShowCalendars" : true,
+									"opens" : "center"
+								});
+
+								$('.iniEDatePicker, .iniEDatePickerForCourse')
+										.on(
+												'apply.daterangepicker',
+												function(ev, picker) {
+													//validDateTimepicks();
+													var fromDate = $(
+															'#starDProgram')
+															.val();
+													var toDate = $(
+															'#enDProgram')
+															.val();
+													var eDate = new Date(
+															fromDate);
+													var sDate = new Date(toDate);
+													console
+															.log('validate called'
+																	+ sDate
+																	+ ','
+																	+ eDate);
+													/* if (sDate > eDate) {
+														alert("endate cannot be smaller than startDate");
+														$('#startDateTimeTable')
+																.val(
+																		$(
+																				'#startDateDB')
+																				.val());
+														$('#endDateTimeTable').val(
+																$('#endDateDB')
+																		.val());
+													} else { */
+														$(this)
+																.parent()
+																.parent()
+																.find('input')
+																.val(
+																		picker.startDate
+																				.format('YYYY-MM-DD HH:mm:ss'));
+													//}
+												});
+
+								$('.iniEDatePicker, .iniEDatePickerForCourse').on(
+										'cancel.daterangepicker',
+										function(ev, picker) {
+											$(this).parent().parent().find(
+													'input').val(
+													$('#endDateDB').val());
+
+										});
+
+							});
+		</script>
+		<!-- Peter End 07/12/2021-->
+
 
 
 

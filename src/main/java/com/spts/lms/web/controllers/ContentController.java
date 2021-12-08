@@ -815,7 +815,7 @@ public class ContentController extends BaseController {
 			Course course= courseService.findByID(Long.parseLong(idForCourse));
 			if(null==course || course.equals(""))
 			{
-				 throw new ValidationException("Input number should be a positive number.");
+				 throw new ValidationException("Error! Course field is blank or Invalid course selected.");
 			}
 			
 			businessBypassRule.validateaccesstype(content.getAccessType());
@@ -942,7 +942,7 @@ public class ContentController extends BaseController {
 				HtmlValidation.validateHtml(content, new ArrayList<>());
 
 
-				businessBypassRule.validateNumeric(acadYear);
+			//	businessBypassRule.validateNumeric(acadYear);
 				Course acadyear=courseService.checkIfExistsInDB("acadYear",acadYear);
 				
 				if(null==acadyear || acadyear.equals(" ") ) {
@@ -1120,16 +1120,14 @@ public class ContentController extends BaseController {
 			}
 
 		}
-//		catch (ValidationException e) {
-//
-//			
-//			setError(redirectAttrs, e.getMessage());
-//			if (file != null && file.list().length == 0) {
-//				file.delete();
-//			}
-//			return "redirect:/addContentForm";
-//		
-//		}
+		catch (ValidationException e) {
+
+			
+			setError(redirectAttrs, e.getMessage());
+			
+			return "redirect:/addContentForm";
+		
+		}
 		
 		
 		

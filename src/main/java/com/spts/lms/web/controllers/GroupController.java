@@ -259,16 +259,16 @@ public class GroupController extends BaseController {
 			 
 			 
 			// if(groups.getCourseId() !=null){
-				 Course courseI2 = courseService.checkIfCourseId(groups.getCourseId());
-				 System.out.println("Course Id 2:  "+groups.getCourseId());
-					if(courseId.equals(courseI2))
-					{
-					   System.out.println("course id is valid");	
-					}
-					else
-					{
-						setError(m, "Invalid course Id Selected");
-					}
+			 Course courseI2 = courseService.checkIfCourseId(groups.getCourseId());
+			 System.out.println("Course Id 2:  "+groups.getCourseId());
+				if(null != groups.getCourseId() && null != courseI2)
+				{
+				   System.out.println("course id is valid");
+				}
+				else
+				{
+					throw new ValidationException("Invalid course ID");
+				}
 			//	}
 					
 
@@ -542,45 +542,52 @@ public class GroupController extends BaseController {
 		try {
 			
 			//Sandip 06/12/2021
-			
-			
-			// if(groups.getCourseId() !=null){
-				 Course courseI2 = courseService.checkIfCourseId(groups.getCourseId());
-				 System.out.println("Course Id 2:  "+groups.getCourseId());
-					if(courseI2 == null) {
-						throw new ValidationException("Invalid course Id Selected");
-					}
-				
-			//	}
-			 
-			// if(groups.getAcadYear() !=null){
-				 Course acadYear = courseService.checkIfAcadYearExists(String.valueOf(groups.getAcadYear()));
-					if(acadYear == null) {
-						throw new ValidationException("Invalid Academic Year Selected!");
-					}
-				//}
-			 	
-			 //if(groups.getFacultyId() !=null){
-				 User facultyId = userService.checkIfFacultyIdExists(groups.getFacultyId());
-					if(facultyId  == null) {
-						throw new ValidationException("Invalid Faculty ID!");
-					}
-				//}
-			 
-			 System.out.println("groupdetails: "+groups.getAcadYear());
 
-			
+//			Course courseI2 = courseService.checkIfCourseId(groups
+//					.getCourseId());
+//			System.out.println("Course Id 2:  " + groups.getCourseId());
+//			if (null != groups.getCourseId() && null != courseI2) {
+//				System.out.println("course id is valid");
+//			}
+//
+//			else {
+//				throw new ValidationException("Invalid course ID");
+//			}
+//
+//			Course acadYear = courseService.checkIfAcadYearExists(String
+//					.valueOf(groups.getAcadYear()));
+//			System.out.println("Acad Year :  " + groups.getAcadYear());
+//			if (null != groups.getAcadYear() && null != acadYear) {
+//
+//				System.out.println("Academic year is valid!");
+//			} else {
+//				throw new ValidationException("Invalid Academic Year Selected!");
+//			}
+//
+//			User facultyId = userService.checkIfFacultyIdExists(groups
+//					.getFacultyId());
+//			System.out.println("Faculty ID :  " + groups.getFacultyId());
+//			if (null != groups.getFacultyId() && null != facultyId) {
+//
+//				System.out.println("Faculty ID is valid!");
+//			} else {
+//				throw new ValidationException("Invalid Faculty ID!");
+//			}
+
+			System.out.println("groupdetails: " + groups.getAcadYear());
+
 			List<String> stu = groups.getStudents();
-			
-			for (String student : stu) {
-				BusinessBypassRule.validateNumeric(student);
-				 if(student !=null){
-					 User students = userService.checkIfSAPIDExists(student);
-						if(students == null) {
-							throw new ValidationException("Invalid Students SAP ID!");
-						}
-					}
-			}
+
+//			for (String student : stu) {
+//				BusinessBypassRule.validateNumeric(student);
+//				if (student != null) {
+//					User students = userService.checkIfSAPIDExists(student);
+//					if (students == null) {
+//						throw new ValidationException(
+//								"Invalid Students SAP ID!");
+//					}
+//				}
+//			}
 			//Sandip 06/12/2021
 			
 			if (stu != null && stu.size() > 0) {

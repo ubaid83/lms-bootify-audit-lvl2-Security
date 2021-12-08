@@ -71,12 +71,16 @@
 												style="color: red">*</span>
 										</form:label>
 
-										<div class='input-group date' id='datetimepicker1'>
-											<form:input id="startDatePram" path="startDate"
+										<div class='input-group date' id='datetimpicker1'>
+											<form:input id="starDProgram" path="startDate"
 												type="text" placeholder="Start Date" class="form-control"
-												required="required" />
-											<span class="input-group-addon"><span
-												class="glyphicon glyphicon-calendar"></span></span>
+												required="required" readonly="true"/>
+											<!-- <span class="input-group-addon"><span
+												class="glyphicon glyphicon-calendar"></span></span> -->
+												<button class="btn btn-outline-secondary iniSDatePicker"
+											type="button">
+											<i class="fas fa-calendar"></i>
+										</button>
 										</div>
 
 
@@ -89,11 +93,15 @@
 										</form:label>
 
 										<div class='input-group date' id='datetimepicker2'>
-											<form:input id="endDatePrgram" path="endDate" type="text"
+											<form:input id="enDProgram" path="endDate" type="text"
 												placeholder="End Date" class="form-control"
 												required="required" readonly="true" />
-											<span class="input-group-addon"><span
-												class="glyphicon glyphicon-calendar"></span> </span>
+											<!-- <span class="input-group-addon"><span
+												class="glyphicon glyphicon-calendar"></span> </span> -->
+												<button class="btn btn-outline-secondary iniSDatePicker"
+											type="button">
+											<i class="fas fa-calendar"></i>
+										</button>
 										</div>
 
 									</div>
@@ -246,11 +254,15 @@
 											</form:label>
 
 											<div class='input-group date' id='datetimepicker3'>
-												<form:input id="startDateAcadSession" path="startDate"
+												<form:input id="startDatAcadSession" path="startDate"
 													type="text" placeholder="Start Date" class="form-control"
 													required="required" readonly="true" />
-												<span class="input-group-addon"><span
-													class="glyphicon glyphicon-calendar"></span> </span>
+												<!-- <span class="input-group-addon"><span
+													class="glyphicon glyphicon-calendar"></span> </span> -->
+													<button class="btn btn-outline-secondary iniSDatePickerForSem"
+														type="button">
+														<i class="fas fa-calendar"></i>
+													</button>
 											</div>
 
 
@@ -263,11 +275,15 @@
 											</form:label>
 
 											<div class='input-group date' id='datetimepicker4'>
-												<form:input id="endDateAcadSession" path="endDate"
+												<form:input id="endDatAcadSession" path="endDate"
 													type="text" placeholder="End Date" class="form-control"
 													required="required" readonly="true" />
-												<span class="input-group-addon"><span
-													class="glyphicon glyphicon-calendar"></span> </span>
+												<!-- <span class="input-group-addon"><span
+													class="glyphicon glyphicon-calendar"></span> </span> -->
+													<button class="btn btn-outline-secondary iniEDatePickerForSem"
+														type="button">
+														<i class="fas fa-calendar"></i>
+													</button>
 											</div>
 
 										</div>
@@ -322,16 +338,146 @@
 
 		<!-- SIDEBAR END -->
 		<jsp:include page="../common/newAdminFooter.jsp" />
-
-
-
-
-
-
-
-
 		<%-- 	<script type="text/javascript"
 		src="<c:url value="/resources/js/customDateTimePicker.js" />"></script> --%>
+		<!-- Peter Start 07/12/2021-->
+		<script>
+			$(window)
+					.bind(
+							"pageshow",
+							function() {
+								var TommorowDate = new Date();
+								//start Date picker
+								$('.iniSDatePicker, .iniSDatePickerForSem').daterangepicker({
+									autoUpdateInput : false,
+									minDate : TommorowDate,
+									locale : {
+										cancelLabel : 'Clear'
+									},
+									"singleDatePicker" : true,
+									"showDropdowns" : true,
+									"timePicker" : true,
+									"showCustomRangeLabel" : false,
+									"alwaysShowCalendars" : true,
+									"opens" : "center"
+								});
+
+								$(".iniSDatePicker, .iniSDatePickerForSem")
+										.on(
+												'apply.daterangepicker',
+												function(ev, picker) {
+													//validDateTimepicks();
+													var fromDate = $(
+															'#starDProgram')
+															.val();
+													var toDate = $(
+															'#enDProgram')
+															.val();
+													var sDate = new Date(
+															fromDate);
+													var eDate = new Date(toDate);
+													console.log('validate called'
+																	+ sDate
+																	+ ','
+																	+ eDate);
+													if (sDate > eDate) {
+														alert("endate cannot be smaller than startDate");
+														$('#startDateTimeTable')
+																.val(
+																		$(
+																				'#startDateDB')
+																				.val());
+														$('#endDateTimeTable').val(
+																$('#endDateDB')
+																		.val());
+													} else {
+														$(this)
+																.parent()
+																.parent()
+																.find('input')
+																.val(
+																		picker.startDate
+																				.format('YYYY-MM-DD HH:mm:ss'));
+													}
+												});
+
+								$('.iniSDatePicker .iniSDatePickerForSem').on(
+										'cancel.daterangepicker',
+										function(ev, picker) {
+											$(this).parent().parent().find(
+													'input').val(
+													$('#startDateDB').val());
+
+										});
+
+								//end Date picker
+
+								$('.iniEDatePicker, .iniEDatePickerForSem').daterangepicker({
+									autoUpdateInput : false,
+									minDate : TommorowDate,
+									locale : {
+										cancelLabel : 'Clear'
+									},
+									"singleDatePicker" : true,
+									"showDropdowns" : true,
+									"timePicker" : true,
+									"showCustomRangeLabel" : false,
+									"alwaysShowCalendars" : true,
+									"opens" : "center"
+								});
+
+								$('.iniEDatePicker, .iniEDatePickerForSem')
+										.on(
+												'apply.daterangepicker',
+												function(ev, picker) {
+													//validDateTimepicks();
+													var fromDate = $(
+															'#starDProgram')
+															.val();
+													var toDate = $(
+															'#enDProgram')
+															.val();
+													var eDate = new Date(
+															fromDate);
+													var sDate = new Date(toDate);
+													console
+															.log('validate called'
+																	+ sDate
+																	+ ','
+																	+ eDate);
+													/* if (sDate > eDate) {
+														alert("endate cannot be smaller than startDate");
+														$('#startDateTimeTable')
+																.val(
+																		$(
+																				'#startDateDB')
+																				.val());
+														$('#endDateTimeTable').val(
+																$('#endDateDB')
+																		.val());
+													} else { */
+														$(this)
+																.parent()
+																.parent()
+																.find('input')
+																.val(
+																		picker.startDate
+																				.format('YYYY-MM-DD HH:mm:ss'));
+													//}
+												});
+
+								$('.iniEDatePicker, .iniEDatePickerForSem').on(
+										'cancel.daterangepicker',
+										function(ev, picker) {
+											$(this).parent().parent().find(
+													'input').val(
+													$('#endDateDB').val());
+
+										});
+
+							});
+		</script>
+		<!-- Peter End 07/12/2021-->
 
 		<script>
 			$(document)
@@ -487,19 +633,22 @@
 							});
 			
 			//$("#datetimepicker1 input").destroy();
-/* Peter 
-			$("#datetimepicker1, #datetimepicker2 input").daterangepicker({
-				autoUpdateInput : false,
-				minDate : TommorowDate,
-				locale : {
-					cancelLabel : 'Clear'
-				},
-				"singleDatePicker" : true,
-				"showDropdowns" : true,
-				"timePicker" : true,
-				"showCustomRangeLabel" : false,
-				"alwaysShowCalendars" : true,
-				"opens" : "center"
+			
+			
+			
+			
+			
+			//$("#startDatePram, #datetimepicker2 input").daterangepicker({
+			/* $('#startDatePram, #datetimepicker2 input').daterangepicker({
+				locale: {
+		            format: 'YYYY-MM-DD HH:mm:ss'
+		                },
+		        "minYear": "2000",
+		        "showDropdowns": true,
+				"timePicker": true,
+				"singleDatePicker": true,
+			    "startDate": "12/01/2021",
+			    "endDate": "12/07/2021"
 			}, function(start, end, label) {
 			  console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
 			}); */
