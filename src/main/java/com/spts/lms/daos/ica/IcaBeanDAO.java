@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import com.spts.lms.beans.course.Course;
 import com.spts.lms.beans.ica.IcaBean;
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.daos.BaseDAO;
@@ -951,7 +952,16 @@ public class IcaBeanDAO extends BaseDAO<IcaBean> {
 		String sql = " SELECT id from pre_def_ica_components where id=?";
 		return findOneSQL(sql, new Object[] { componentId });
 	}
-
 	
+	public IcaBean checkIfExistsInDB(String columnName, String value) {
+		String sql = "";
+		if(columnName.equals("id")) {
+			sql = "select id from ica where id=? limit 1";
+		} else 
+		if(columnName.equals("assignedFaculty")) {
+			sql = "select assignedFaculty from ica where assignedFaculty=? limit 1";
+		} 
+		return findOneSQL(sql, new Object[] {value});
+	}
 
 }

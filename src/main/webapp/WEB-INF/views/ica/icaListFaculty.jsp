@@ -121,7 +121,7 @@ tbody td:last-child, thead th:last-child {
 							</c:if>
 
 							<div class="table-responsive mt-3 mb-3 testAssignTable">
-								<table class="table table-striped table-hover">
+								<table class="table table-hover">
 									<thead>
 										<tr>
 											<th scope="col">Actions</th>

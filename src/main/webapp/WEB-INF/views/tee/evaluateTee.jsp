@@ -665,13 +665,6 @@
                                                             document.location
                                                                 .reload();
                                                         });
-                                            } else {
-                                                swal(data)
-                                                    .then(
-                                                        function() {
-                                                            document.location
-                                                                .reload();
-                                                        });
                                             }
                                         },
                                         error: function() {
