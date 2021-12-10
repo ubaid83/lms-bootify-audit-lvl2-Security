@@ -2087,16 +2087,21 @@ public class IcaController extends BaseController {
 					}
 				}
 			}
-
-			return "saved";
+			String json = "{\"Status\":\"Success\"}";
+			return json;
+//			return "saved";
 			
 		} catch (ValidationException ex) {
 			logger.error("ValidationException", ex);
-			return "validationError";
+			String json = "{\"Status\":\"ValidationError\", \"msg\":\""+ex.getMessage()+"\"}";
+			return json;
+//			return "validationError";
 		} 
 		catch (Exception ex) {
 			logger.error("Exception", ex);
-			return "error";
+			String json = "{\"Status\":\"Error\", \"msg\":\""+ex.getMessage()+"\"}";
+			return json;
+//			return "error";
 		}
 
 	}
@@ -2187,7 +2192,7 @@ public class IcaController extends BaseController {
 	public String submitIca(@RequestParam Map<String, String> allRequestParams, Principal p,
 			RedirectAttributes redirectAttributes) {
 		logger.info("allRequestParams----------------" + allRequestParams);
-		String teeIdVal = allRequestParams.get("teeIdValue");
+		String teeIdVal = allRequestParams.get("icaIdValue");
 		try {
 			BusinessBypassRule.validateNumeric(teeIdVal);
 
