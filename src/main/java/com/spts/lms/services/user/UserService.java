@@ -789,15 +789,6 @@ public class UserService extends BaseService<User> {
 		return userDAO.checkIfExistsInDB(username);
 	}
 
-	
-	//sandip
-	public User checkIfFacultyIdExists(String username) {
-		return userDAO.checkIfFacultyIdExists(username);
-	}
-	
-//	public User checkIfSAPIDExists(String username) {
-//		return userDAO.checkIfSAPIDExists(username);
-//	}
-	
+
 
 }

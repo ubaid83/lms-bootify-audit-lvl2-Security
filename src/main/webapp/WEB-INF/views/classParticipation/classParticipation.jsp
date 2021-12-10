@@ -281,10 +281,14 @@
 										
 										/*****By sandip 26/10/2021*****/
 										
-										var value = $('#' + str2).val();
+										var remarks = $('#' + str2).val();
 										
 										//var remarks = value.replaceAll('+', '%2B');
+<<<<<<< Updated upstream
 										var remarks = value;
+=======
+									
+>>>>>>> Stashed changes
 										console.log("value replaced " + remarks);
 										
 										/*****By sandip 26/10/2021*****/

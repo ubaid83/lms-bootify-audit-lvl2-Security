@@ -167,6 +167,7 @@ public class BusinessBypassRule {
 	     }
 
 	}
+	
 
 	public static void validateEmail(String s) throws ValidationException{
 	     if (s == null || s.trim().isEmpty()) {
