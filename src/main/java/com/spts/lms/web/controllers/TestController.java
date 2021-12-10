@@ -3956,21 +3956,25 @@ public class TestController extends BaseController {
 				throw new ValidationException("Input field cannot be empty");
 			}
 			BusinessBypassRule.validateNumericNotAZero(testQuestionPools.getMarks());
-			validateTestQuestionType(testQuestionPools.getQuestionType());
-			if(testQuestionPools.getQuestionType().equals("MCQ")) {
-				BusinessBypassRule.validateAlphaNumeric(testQuestionPools.getOption1());
-				BusinessBypassRule.validateAlphaNumeric(testQuestionPools.getOption2());
-				validateTestQuestionSubType(testQuestionPools.getType());
-				BusinessBypassRule.validateYesOrNo(testQuestionPools.getOptionShuffle());
-				if(testQuestionPools.getCorrectOption() == null && testQuestionPools.getCorrectOption().isEmpty()) {
-					throw new ValidationException("Please select correct Answer");
+			validateTestType(testQuestionPools.getTestType());
+			if(testQuestionPools.getTestType().equals("Objective")) {
+				validateTestQuestionType(testQuestionPools.getQuestionType());
+				if(testQuestionPools.getQuestionType().equals("MCQ")) {
+					BusinessBypassRule.validateAlphaNumeric(testQuestionPools.getOption1());
+					BusinessBypassRule.validateAlphaNumeric(testQuestionPools.getOption2());
+					validateTestQuestionSubType(testQuestionPools.getType());
+					BusinessBypassRule.validateYesOrNo(testQuestionPools.getOptionShuffle());
+					if(testQuestionPools.getCorrectOption() == null && testQuestionPools.getCorrectOption().isEmpty()) {
+						throw new ValidationException("Please select correct Answer");
+					}
+				}
+				if(testQuestionPools.getQuestionType().equals("Numeric")) {
+					if(testQuestionPools.getCorrectAnswerNum() == null && testQuestionPools.getCorrectAnswerNum().isEmpty()) {
+						throw new ValidationException("Please select correct Answer");
+					}
 				}
 			}
-			if(testQuestionPools.getQuestionType().equals("Numeric")) {
-				if(testQuestionPools.getCorrectAnswerNum() == null && testQuestionPools.getCorrectAnswerNum().isEmpty()) {
-					throw new ValidationException("Please select correct Answer");
-				}
-			}
+			
 			/* New Audit changes end */
 			if (testQuestionPools.getQuestionType().equals("Numeric")) {
 
