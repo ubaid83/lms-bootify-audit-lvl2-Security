@@ -3337,8 +3337,11 @@ public class AnnouncementController extends BaseController {
 		m.addAttribute("webPage", new WebPage("addAnnouncement",
 				"Announcement Details", false, false));
 		try {
+			
+			logger.info("new update");
 			String username = principal.getName();
 
+			
 			Token userdetails1 = (Token) principal;
 			String ProgramName = userdetails1.getProgramName();
 			User u = userService.findByUserName(username);
@@ -3515,7 +3518,8 @@ public class AnnouncementController extends BaseController {
 			m.addAttribute("announcement", announcementDb1);
 
 		} catch (Exception e) {
-
+			logger.info("e---"+e.getMessage());
+			logger.info("e---"+e);
 			logger.error("Exception", e);
 			setError(redirectAttrs, "Error in updating Announcement");
 			if (typeOfAnn != null) {
