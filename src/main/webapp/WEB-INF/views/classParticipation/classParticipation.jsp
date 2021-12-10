@@ -283,8 +283,8 @@
 										
 										var value = $('#' + str2).val();
 										
-										var remarks = value.replaceAll('+', '%2B');
-									
+										//var remarks = value.replaceAll('+', '%2B');
+										var remarks = value;
 										console.log("value replaced " + remarks);
 										
 										/*****By sandip 26/10/2021*****/
@@ -304,43 +304,45 @@
 
 										//alert(score);
 										//alert(remarks);
-
+										console.log('${pageContext.request.contextPath}/saveClassParticipation?'
+												+ 'studentUsername='
+												+ username
+												+ '&score='
+												+ score
+												+ '&remarks='
+												+ remarks
+												+ '&courseId='
+												+ courseid)
 										//if ((score > 0) && (score<=maxScore)) {
 											if ((score > 0)) {
 											
 											
 													$.ajax({
-														type : 'POST',
+														type : 'GET',
 														url : '${pageContext.request.contextPath}/saveClassParticipation?'
 																+ 'studentUsername='
-																+ username
+																+ encodeURIComponent(username)
 																+ '&score='
-																+ score
+																+ encodeURIComponent(score)
 																+ '&remarks='
-																+ remarks
+																+ encodeURIComponent(remarks)
 																+ '&courseId='
-																+ courseid,
+																+ encodeURIComponent(courseid),
 																
 											        /***By sandip 26/10/2021****/
 											       
 														success : function(data) {
-															console
-																	.log("sucess messsgae e like "
-																			+ likeId)
+															console.log("sucess messsgae e like " + likeId)
 															console.log(data);
 															const obj = JSON.parse(data);
 															
 															if(obj.Status === "Success"){
-																
 																alert("Saved");
 															}else{
 																alert(obj.msg);
 															}
 															     
 														},
-														
-														
-														
 														error: function(data){
 															alert("Something went wrong!");
 														 }
