@@ -280,6 +280,7 @@ public class GroupController extends BaseController {
 			String noOfstudent = groups.getNoOfStudents();
 			BusinessBypassRule.validateNumericNotAZero(noOfstudent);
 			
+			
 			/*update by sandip(22/10/2021)*/
 			
 			String idForCourse = groups.getIdForCourse();
@@ -1030,6 +1031,7 @@ public class GroupController extends BaseController {
 		return "group/facultyGroupAssigned";
 
 	}
+	
 
 	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/saveFacultyGroupAllocation", method = {

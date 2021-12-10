@@ -306,6 +306,7 @@
 										//	alert(courseid);
 										//alert('Course Id is '+courseid);
 
+										
 										//alert(score);
 										//alert(remarks);
 										console.log('${pageContext.request.contextPath}/saveClassParticipation?'
