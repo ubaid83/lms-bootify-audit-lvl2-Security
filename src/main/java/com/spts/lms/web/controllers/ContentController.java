@@ -939,7 +939,7 @@ public class ContentController extends BaseController {
 			
 
 				
-				HtmlValidation.validateHtml(content, new ArrayList<>());
+			//	HtmlValidation.validateHtml(content, new ArrayList<>());
 
 
 			//	businessBypassRule.validateNumeric(acadYear);
@@ -1755,11 +1755,11 @@ public class ContentController extends BaseController {
 			businessBypassRule.validateNumeric(acadYear);
 			businessBypassRule.validateAlphaNumeric(content.getContentName());
 			Course course=new Course();
-			if(null!=idForCourse) {
+			if(null!=idForCourse && idForCourse.isEmpty() ) {
 			businessBypassRule.validateNumeric(idForCourse);
 			course=courseService.findByID(Long.valueOf(idForCourse));
 			}
-			if(null!=idForModule) {
+			if(null!=idForModule && idForModule.isEmpty()) {
 				businessBypassRule.validateNumeric(idForModule);
 				course=courseService.findByID(Long.valueOf(idForModule));
 				}
