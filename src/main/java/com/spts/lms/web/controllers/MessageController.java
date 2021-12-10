@@ -247,16 +247,25 @@ public class MessageController extends BaseController {
 		String username = principal.getName();
 		
 		ArrayList<StudentMessage> studentMessageMappingList = new ArrayList<StudentMessage>();
-		//System.out.println("StudentMessageMapping List:>>>>>>>>>."+studentMessageMappingList);
 		try {
-			
+		
+			List<StudentMessage> students = studentMessageService
+					.getStudentsForMessage(message.getId(),
+							message.getCourseId());
+
+			for (StudentMessage uc : students) {
+				User u1 = userService.findByUserName(uc.getUsername());
+				uc.setRollNo(u1.getRollNo());
+				students.set(students.indexOf(uc), uc);
+				
+			}
+			m.addAttribute("students", students);
+
 			List<String> msg = message.getStudents();
 			System.out.println("Message >>>>>>>"+msg);
-			
 			if (msg != null && msg.size() > 0) {
 				for (String studentname : message.getStudents()) {
 					StudentMessage bean = new StudentMessage();
-					//System.out.println("Bean>>>>>..."+bean);
 					bean.setMessageId(message.getId());
 					bean.setCourseId(courseId);
 					bean.setDescription(message.getDescription());
@@ -281,12 +290,12 @@ public class MessageController extends BaseController {
 			setError(m, "Error in allocating message");
 			m.addAttribute("webPage", new WebPage("message", "Create Message",
 					false, false));
-			return "message/createMessage";
+			return "message/message";
 			
 		
 		}
 		m.addAttribute("message", message);
-		return "message/createMessage";
+		return "message/message";
 	}
 
 	@Secured({ "ROLE_ADMIN", "ROLE_FACULTY" })

@@ -551,7 +551,7 @@ public class FAQController extends BaseController {
 			// print the stack trace
 			logger.error(er.getMessage(), er);
 			setError(m,er.getMessage());
-			String json = "{\"Status\":\"Fail\", \"msg\":\""+er.getMessage()+"\"}";
+			String json = "{\"Status\":\"Error\", \"msg\":\""+er.getMessage()+"\"}";
 			return json;
 		}
 		
