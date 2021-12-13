@@ -4958,7 +4958,6 @@ public class TestController extends BaseController {
 					if (tq.getQuestionType().equals("Numeric")) {
 						mapOfTestDetails.put("answerRangeFrom", answerRangeFrom);
 						mapOfTestDetails.put("answerRangeTo", answerRangeTo);
-
 					}
 				}
 
