@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -384,18 +385,19 @@ public class FAQController extends BaseController {
 		
 		System.out.println("file uploaded");
 		
+		System.out.println("student SAP ID : "+classParticipation.getUsername());
+		
 		try {
 			
 			//Sandip 
 			BusinessBypassRule.validateFile(classParticipation.getFile());
 			
-			
 			List<Map<String, Object>> maps = excelReader.readExcelFileUsingColumnHeader(file, validateHeaders);
 			System.out.println("mapsmapsmaps--------12222"+maps.get(0));
 			System.out.println("mapsmapsmaps--------12222"+maps.get(1));
 			
-			
-	
+					
+		
 			logger.info("inside student marks : "+file.getOriginalFilename());
 			if (maps.size() == 0) {
 				setNote(m, "Excel File is empty");
@@ -419,6 +421,8 @@ public class FAQController extends BaseController {
 						
 							setError(redirectAttributes, " check the marks entered for student Id "+mapper.get("SAP ID").toString());
 							return "redirect:/classParticipation?courseId=" +classParticipation.getCourseId();
+							
+							
 														
 						}
 						else {
@@ -426,9 +430,11 @@ public class FAQController extends BaseController {
 							List<String> studentsFromDB = classParticipationService
 							
 									.findAllStudentUsernames(Long.valueOf(classParticipation.getCourseId()));
+							
+							
+							
 							ClassParticipation classparticipations = new ClassParticipation();
 							if (studentsFromDB.contains(mapper.get("SAP ID").toString())) {
-								
 								
 									classparticipations.setScore(Integer.parseInt(mapper.get("ASSIGNED SCORE").toString()));
 									classparticipations.setRemarks(mapper.get("ASSIGN REMARKS").toString());
@@ -441,7 +447,7 @@ public class FAQController extends BaseController {
 							} 
 							
 							else {
-
+								System.out.println("class participation student ID -----> "+classparticipations.getUsername()); 
 								classparticipations.setScore(Integer.parseInt(mapper.get("ASSIGNED SCORE").toString()));
 								classparticipations.setRemarks(mapper.get("ASSIGN REMARKS").toString());
 								classparticipations.setUsername(mapper.get("SAP ID").toString());
@@ -496,15 +502,18 @@ public class FAQController extends BaseController {
 		String username = principal.getName();
 		List<String> studentsFromDB = classParticipationService
 				.findAllStudentUsernames(Long.valueOf(courseId));
+		
 
 		try {
 			
 			/*****By sandip 25/10/2021******/
+			
+			System.out.println("saveClassParticipation course Id : "+courseId);
 			 
 			String s=String.valueOf(classParticipation.getScore());
-				
+			
 			BusinessBypassRule.validateAlphaNumeric(classParticipation.getRemarks());
-			 
+			
 			BusinessBypassRule.validateNumericNotAZero(s);
 	        /*****By sandip 25/10/2021******/
 			
@@ -542,26 +551,27 @@ public class FAQController extends BaseController {
 			m.addAttribute("showIcon", false);
 			//return "Success";
 			
-			String json = "{\"Status\":\"Success\"}";
+			String json = "success";
 			return json;
 			
 		}
 		
-		catch (ValidationException er) { 
+
+		
+		catch (ValidationException er) {
 			// print the stack trace
 			logger.error(er.getMessage(), er);
 			setError(m,er.getMessage());
 			String json = "{\"Status\":\"Error\", \"msg\":\""+er.getMessage()+"\"}";
 			return json;
-		}
-		
-		catch (Exception e) {
+			}
+			catch (Exception e) {
 			logger.error("Error " + e);
 			//return "Error";
 			String json = "{\"Status\":\"Error\", \"msg\":\""+e.getMessage()+"\"}";
 			return json;
-		}
-
+			}
+		
 	}
 
 }
