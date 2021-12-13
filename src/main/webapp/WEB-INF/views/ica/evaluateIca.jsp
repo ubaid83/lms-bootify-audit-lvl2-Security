@@ -783,10 +783,35 @@ tbody td:last-child, thead th:last-child {
 													url : "${pageContext.request.contextPath}/saveIcaAsDraft",
 													data : datastring,
 													success : function(data) {
-														$(".newLoaderWrap").css('display','none');
+														var msg = data;
+														console.log("msg is " + msg);
+														const obj = JSON.parse(data);
+														
+														if(obj.Status === 'ValidationError'){
+															console.log("inside validation error");
+															$(".newLoaderWrap").css('display','none');
+															swal(obj.msg).then(function() {
+															document.location.reload();
+															});
+														}
+														if(obj.Status === 'Error'){
+															console.log("inside error");
+															$(".newLoaderWrap").css('display','none');
+															swal(obj.msg).then(function() {
+															document.location.reload();
+															});
+														}
+														if(obj.Status === 'Success'){
+															console.log("inside saved");
+															$(".newLoaderWrap").css('display','none');
+															swal('data saved  successfully').then(function() {
+															document.location.reload();
+															});;
+														}
+														/* $(".newLoaderWrap").css('display','none');
 														swal('data saved successfully').then(function() {
 														document.location.reload();
-														});
+														}); */
 													},
 													error : function() {
 														alert('Error here');

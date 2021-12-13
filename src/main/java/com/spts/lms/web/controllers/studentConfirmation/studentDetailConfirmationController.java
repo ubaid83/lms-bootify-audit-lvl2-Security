@@ -129,11 +129,11 @@ public class studentDetailConfirmationController extends BaseController {
 		String jsonResponse = null;
 		try {
 			HtmlValidation.validateHtml(user, new ArrayList<>());
-			BusinessBypassRule.validateAlphaNumeric(user.getEmail());
+			BusinessBypassRule.validateEmail(user.getEmail());
 			BusinessBypassRule.validateNumeric(user.getMobile());
 			BusinessBypassRule.validateAlphaNumeric(user.getSecAnswer());
 			
-			String json = "{\"secQuestion\":\" " + user.getSecquestion() + " \"}";
+			String json = "{\"secQuestion\":\""+ user.getSecquestion() +"\"}";
 			
 			WebTarget webTarget3 = client.target(URIUtil
 					.encodeQuery(userRoleMgmtCrudUrl
@@ -142,7 +142,7 @@ public class studentDetailConfirmationController extends BaseController {
 			Response response1 = invocationBuilder3.post(Entity.entity(json.toString(), MediaType.APPLICATION_JSON));
 			jsonResponse = response1.readEntity(String.class);
 			logger.info("jsonResponse is " + jsonResponse);
-			if(jsonResponse!="true") {
+			if(jsonResponse.equals("false")) {
 				throw new ValidationException("Invalid Security Question");				
 			}
 			
@@ -444,9 +444,16 @@ public class studentDetailConfirmationController extends BaseController {
 		
 		try {
 			HtmlValidation.validateHtml(studentdetails, new ArrayList<>());
-			BusinessBypassRule.validateAlphaNumeric(studentdetails.getFirstname());
-			BusinessBypassRule.validateAlphaNumeric(studentdetails.getFathername());
-			BusinessBypassRule.validateAlphaNumeric(studentdetails.getMothername());
+			if(studentdetails.getFirstname() != null && !studentdetails.getFirstname().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(studentdetails.getFirstname());
+			}
+			if(studentdetails.getFathername() != null && !studentdetails.getFathername().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(studentdetails.getFathername());
+			}
+			if(studentdetails.getMothername() != null && !studentdetails.getMothername().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(studentdetails.getMothername());
+			}
+			
 		} catch (ValidationException ve) {
 			logger.error(ve.getMessage(), ve);
 			setError(r, ve.getMessage());
@@ -604,7 +611,7 @@ public class studentDetailConfirmationController extends BaseController {
 				sb.append("<th>First Name</th><th>Father Name</th><th>Mother Name</th>");
 				sb.append("</tr></thead>");
 				sb.append("<tbody><tr>");
-				for (User b : bf) {
+				for (User b : bf) {0
 
 					/*
 					 * sb.append("<td>" + b.getFirstname() +" "+b.getLastname()+
@@ -645,8 +652,8 @@ public class studentDetailConfirmationController extends BaseController {
 				msg = msg + sb.toString();
 				logger.info("Message:" + msg);
 
-				Boolean success = notifier.sendEmail(map, mobile, subject, msg);
-				logger.info("success------------>" + success);
+//				Boolean success = notifier.sendEmail(map, mobile, subject, msg);
+//				logger.info("success------------>" + success);
 			}
 		}
 

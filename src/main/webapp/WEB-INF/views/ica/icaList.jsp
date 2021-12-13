@@ -200,6 +200,7 @@
 												<c:if test="${fn:contains(ica.assignedFaculty, ',')}">
 												<a href="${addStudentsFacultyWise}" title="Add Students FacultyWise"><i
 													class="fa fa-cog fa-lg"></i></a>
+												<a href="#" id="evaluationStatusOfFaculty" data-id="${ica.id}" title="Evaluation Status Of Faculty"><i class="fas fa-tasks"></i></a>
 												</c:if>
 												</c:if>
 											</sec:authorize> <sec:authorize access="hasRole('ROLE_FACULTY')">
@@ -280,5 +281,38 @@
 					$('#mark' + id).prop('required', false);
 					$('#mark' + id).val('');
 				}
+			});
+			
+			$("#evaluationStatusOfFaculty").on('click', function(){
+				let id = $(this).attr('data-id');
+				console.log("id--->"+id)
+				$.ajax({
+					type : 'GET',
+					url : "${pageContext.request.contextPath}/getEvaluationStatusOfICAByFaculty?id="+id,
+					success : function(data) {
+						console.log("data-->"+data)
+						var json = JSON.parse(data);
+						let facultyStatusString = "";
+						for (var i = 0; i < json.length; i++) {
+							var obj = json[i];
+							console.log("obj--->"+obj.assignedFaculty)
+							facultyStatusString += obj.assignedFaculty + " - ";
+							if(obj.saveAsDraft != null){
+								facultyStatusString += "Draft Mode."
+							}else
+							if(obj.finalSubmit == "Y"){
+								facultyStatusString += "Evaluated."
+							}else
+							if(obj.saveAsDraft == null && obj.finalSubmit == null){
+								facultyStatusString += "Pending."
+							}
+							facultyStatusString += "\n"
+						}
+						console.log("facultyStatusString--->"+facultyStatusString)
+						swal('INFO!', facultyStatusString);
+
+					}
+				});
+					
 			});
 		</script>

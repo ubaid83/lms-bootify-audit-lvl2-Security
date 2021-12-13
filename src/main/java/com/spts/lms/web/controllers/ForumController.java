@@ -165,8 +165,6 @@ public class ForumController extends BaseController {
 				false));
 		String username = principal.getName();
 		System.out.println("COURSEID>>>>>>>>>>>>>>>>"+courseId);
-	//	String topic = forum.getTopic();
-	//	System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<TOPIC>>>>>>>>>>>>>>>>"+topic);
 		
 		String question = forum.getQuestion();
 
@@ -180,8 +178,6 @@ public class ForumController extends BaseController {
 		try {
 	
 		HtmlValidation.validateHtml(forum, Arrays.asList("description"));
-
-//		BusinessBypassRule.validateAlphaNumeric("^%&");
 
 
 
@@ -267,8 +263,6 @@ public class ForumController extends BaseController {
 			RedirectAttributes redirectAttributes, Principal principal) {
 		m.addAttribute("webPage", new WebPage("forum", "Reply to Question",
 				true, false));
-		
-   	System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Faculty Side >>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 	
 		String username = principal.getName();
 
@@ -412,10 +406,7 @@ public class ForumController extends BaseController {
 	public String replyToQuestion(@ModelAttribute ForumReply forumreply, RedirectAttributes redirectAttributes, Model m,
 			@RequestParam(required = false) Long questionId, Long courseId, Principal principal) {
 		m.addAttribute("webPage", new WebPage("forum", "Reply to Question", true, false));
-		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<INSIDE FORUM REPLY  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<INSIDE FORUM Faculty REPLY >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-				+ forumreply.getReply());
 
 		String username = principal.getName();
 
@@ -448,11 +439,6 @@ public class ForumController extends BaseController {
 			}
 
 			
-			// if(reply == null ||reply.isEmpty())
-			// {
-			// throw new ValidationException("Invalid Reply to Forum");
-			// }
-
 			if (questionId != null) {
 
 				Forum forum = forumService.findByID(questionId);
@@ -485,7 +471,14 @@ public class ForumController extends BaseController {
 
 			}
 
-		} catch (Exception e) {
+		}
+		catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(m, e.getMessage());
+			m.addAttribute("webPage", new WebPage("forum", "Create Forum", false, false));
+			return "forum/reply";
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in creating forum");
 			m.addAttribute("webPage", new WebPage("forum", "Create Forum", false, false));
@@ -1093,16 +1086,29 @@ public class ForumController extends BaseController {
 		Token userDetails = (Token) principal;
 
 		try {
+			System.out.println("FORUM OBJ>>>>:"+forum);
+			 if(forum.getCourseId() == null || forum.getCourseId().toString().isEmpty())
+             {
+             	throw new ValidationException("Invalid Course Selected.");
+             }
+			 BusinessBypassRule.validateAlphaNumeric(forum.getTopic());
+			 
 			if (forum != null) {
 				Forum forumdb = forumService.findByID(forum.getId());
                 forum.setCreatedBy(forumdb.getCreatedBy());
                 forum.setCreatedDate(forumdb.getCreatedDate());
                 forum.setLastModifiedBy(username);
-
 				forumService.update(forum);
 				setSuccess(redirectAttrs, "Forum updates successfully!");
 			}
-		} catch (Exception e) {
+		}
+		catch (ValidationException ve) {
+			setError(redirectAttrs, ve.getMessage());
+			logger.error(ve);
+			return "redirect:/updateForumForm?id=" + forum.getId();
+
+		}
+		  catch (Exception e) {
 			setError(redirectAttrs, "Error while updating forum!");
 			logger.error(e);
 			return "redirect:/updateForumForm?id=" + forum.getId();
@@ -1147,4 +1153,5 @@ public class ForumController extends BaseController {
 
 	}
 
+	
 }

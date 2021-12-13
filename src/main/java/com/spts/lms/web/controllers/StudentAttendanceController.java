@@ -914,7 +914,10 @@ public String saveStudentCourseAttendance(
 		List<Long> courseIdList = new ArrayList<>();
 		for (int i = 0; i < courseidsStrings.length; i++) {
 			courseIdList.add(Long.valueOf(courseidsStrings[i]));
-			
+			Course course = courseService.findByID(Long.valueOf(courseidsStrings[i]));
+			if(course == null) {
+				throw new ValidationException("Invalid Course of selected lecture.");
+			}
 			MultipleDBConnection multipleDBConnection = new MultipleDBConnection();
 
 		       DriverManagerDataSource dataSourceDefaultLms = multipleDBConnection
@@ -943,7 +946,7 @@ public String saveStudentCourseAttendance(
 		}else if(tt1.size() > 0) {
 			int i=0;
 			for(Timetable t: tt1) {
-				if(t.getStart_time().equals(startDateTime) && t.getEnd_time().equals(endDateTime)) {
+				if(t.getStart_time().replace(".",":").equals(startDateTime) && t.getEnd_time().replace(".",":").equals(endDateTime)) {
 					i++;
 				}
 			}
@@ -1231,8 +1234,7 @@ public String saveStudentCourseAttendance(
 		try {
 			Date dt = format.parse(lecture.split(" To ")[0]);
 			Date dt1 = format.parse(lecture.split(" To ")[1].split(",")[0]);
-			SimpleDateFormat formatter = new SimpleDateFormat(
-					"yyyy-MM-dd HH:mm:ss");
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 			String startTime = formatter.format(dt);
 			String endTime = formatter.format(dt1);
@@ -1311,11 +1313,14 @@ public String saveStudentCourseAttendance(
 		String tmpCourseId = lectureDetails.substring(
 				lectureDetails.indexOf("[") + 1, lectureDetails.indexOf("]"));
 		String[] courseidsStrings = tmpCourseId.split(", ");
-
+		try {
 		List<Long> courseIdList = new ArrayList<>();
 		for (int i = 0; i < courseidsStrings.length; i++) {
 			courseIdList.add(Long.valueOf(courseidsStrings[i]));
-			
+			Course course = courseService.findByID(Long.valueOf(courseidsStrings[i]));
+			if(course == null) {
+				throw new ValidationException("Invalid Course of selected lecture.");
+			}
 			MultipleDBConnection multipleDBConnection = new MultipleDBConnection();
 
 		       DriverManagerDataSource dataSourceDefaultLms = multipleDBConnection
@@ -1358,11 +1363,28 @@ public String saveStudentCourseAttendance(
 		      statusArray = statusList.get(j).split("_");
 		      suc.put(statusArray[1], statusArray[0]+"_"+statusArray[2]);
 		}
-		try {
-			Date dt = format.parse(attendance.getLecture().split(" To ")[0]);
-			Date dt1 = format.parse(attendance.getLecture().split(" To ")[1]
-					.split(",")[0]);
-
+		
+			String startDateTime = attendance.getLecture().split(" To ")[0];
+			String endDateTime = attendance.getLecture().split(" To ")[1].split(",")[0];
+			Date dt = format.parse(startDateTime);
+			Date dt1 = format.parse(endDateTime);
+		
+			/* New Audit changes start */
+			List<Timetable> tt1 = getFacultyLectures(username);
+			if(tt1.size() == 0) {
+				throw new ValidationException("No lectures found.");
+			}else if(tt1.size() > 0) {
+				int i=0;
+				for(Timetable t: tt1) {
+					if(t.getStart_time().replace(".",":").equals(startDateTime) && t.getEnd_time().replace(".",":").equals(endDateTime)) {
+						i++;
+					}
+				}
+				if(i==0) {
+					throw new ValidationException("Invalid Lecture selected.");
+				}
+			}
+			/* New Audit changes end */
 			if (students != null && students.size() > 0) {
 				int i = 0;
 				for (Course sca : students) {
@@ -1592,6 +1614,10 @@ public String saveStudentCourseAttendance(
 				setSuccess(redirectAttributes, "Attendance Updated for "
 						+ students.size() + " students successfully");
 			}
+		} catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttributes, e.getMessage());
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttributes, "Error in updating attendance");

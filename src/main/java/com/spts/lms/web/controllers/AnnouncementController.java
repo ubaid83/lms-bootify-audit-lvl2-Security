@@ -1446,7 +1446,7 @@ public class AnnouncementController extends BaseController {
 		try {
 			
 			
-
+			HtmlValidation.validateHtml(announcement, Arrays.asList("description"));
 			if(null!=announcement.getAnnouncementSubType() || !announcement.getAnnouncementSubType().isEmpty())
 			{
 				validateAnnouncementSubType(announcement.getAnnouncementSubType());
@@ -2840,35 +2840,40 @@ public class AnnouncementController extends BaseController {
 			HtmlValidation.validateHtml(announcement, Arrays.asList("description"));
 			Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
 
-			
-			if(null!=announcement.getAcadSession() && !announcement.getAcadSession().isEmpty())
-			{
-	//	Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
-
-				businessBypassRule.validateAlphaNumeric(announcement.getAcadSession());
 			if(null==semdata || semdata.toString().isEmpty())
 			{
 				
 				 throw new ValidationException("Invalid Semester");
 			}
-		}
+			if(null!=announcement.getAcadSession() && !announcement.getAcadSession().isEmpty())
+			{
+	//	Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
+
+				businessBypassRule.validateAlphaNumeric(announcement.getAcadSession());
+			}
+		
+		
+			if(announcement.getProgramIds().isEmpty() || null==announcement.getProgramIds())
+			{ 
+				throw new ValidationException("Invalid Program Id");
 			
+			}else{
 			for(String programId:announcement.getProgramIds())
 			{
-
+				
 				
 				HtmlValidation.checkHtmlCode(programId);
 				businessBypassRule.validateNumeric(programId.toString());
 
 				//businessBypassRule.validateNumeric(programId.toString());
-
+				System.out.println("programId---"+programId);
 				Course Programdata=courseService.checkIfExistsInDB("programId", programId);
 				if(Programdata.toString().isEmpty() || null==Programdata)
 				{ 
 					throw new ValidationException("Invalid Program Id");
 				
 				}
-			}
+			}}
 			if(null !=admincourseId && !admincourseId.isEmpty())
 			{
 				
@@ -3335,14 +3340,83 @@ public class AnnouncementController extends BaseController {
 		m.addAttribute("webPage", new WebPage("addAnnouncement",
 				"Announcement Details", false, false));
 		try {
+			
+			logger.info("new update");
 			String username = principal.getName();
 
+			
 			Token userdetails1 = (Token) principal;
 			String ProgramName = userdetails1.getProgramName();
 			User u = userService.findByUserName(username);
 			String errorMessage = null;
 
 			String acadSession = u.getAcadSession();
+			
+			
+			
+			/*----------------audit changes for -----------------*/
+			
+			
+			
+			
+
+			Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
+
+			if(null==semdata || semdata.toString().isEmpty())
+			{
+				
+				 throw new ValidationException("Invalid Semester");
+			}
+			
+			if(null!=announcement.getAcadSession() && !announcement.getAcadSession().isEmpty())
+			{
+
+				businessBypassRule.validateAlphaNumeric(announcement.getAcadSession());
+			}
+			
+			if(announcement.getProgramIds().isEmpty() || null==announcement.getProgramIds())
+			{ 
+				throw new ValidationException("Invalid Program Id");
+			
+			}else{
+			for(String programId:announcement.getProgramIds())
+			{
+				
+				
+				HtmlValidation.checkHtmlCode(programId);
+				businessBypassRule.validateNumeric(programId.toString());
+
+				//businessBypassRule.validateNumeric(programId.toString());
+				System.out.println("programId---"+programId);
+				Course Programdata=courseService.checkIfExistsInDB("programId", programId);
+				if(Programdata.toString().isEmpty() || null==Programdata)
+				{ 
+					throw new ValidationException("Invalid Program Id");
+				
+				}
+			}}
+			
+			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
+			
+
+			Course acadYear=courseService.checkIfExistsInDB("acadYear", announcement.getAcadYear().toString());
+			if( null==acadYear || acadYear.toString().isEmpty() )
+			{
+				throw new ValidationException("Invalid acad Year");	
+			
+			}
+			
+			
+			validateAnnouncementSubType(announcement.getAnnouncementSubType());
+			businessBypassRule.validateAlphaNumeric(announcement.getSubject());
+			utils.validateStartAndEndDates(announcement.getStartDate(), announcement.getEndDate());
+			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
+			
+			
+			/*----------------audit changes for -----------------*/
+			
 			
 //			logger.info("title edit before--->"+announcement.getSubject());
 //			announcement.setSubject(announcement.getSubject().replaceAll("\\<.*?\\>", ""));
@@ -3448,7 +3522,8 @@ public class AnnouncementController extends BaseController {
 			m.addAttribute("announcement", announcementDb1);
 
 		} catch (Exception e) {
-
+			logger.info("e---"+e.getMessage());
+			logger.info("e---"+e);
 			logger.error("Exception", e);
 			setError(redirectAttrs, "Error in updating Announcement");
 			if (typeOfAnn != null) {

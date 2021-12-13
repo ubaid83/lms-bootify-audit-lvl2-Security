@@ -147,4 +147,10 @@ public class IcaTotalMarksService extends BaseService<IcaTotalMarks> {
 			Collection<GrantedAuthority> auth, String username){
 		return icaTotalMarksDAO.getComponentQueriesNE(acadYear, auth, username);
 	}
+	public List<IcaTotalMarks> getFacultyEvaluationStatus(String icaId){
+		return icaTotalMarksDAO.getFacultyEvaluationStatus(icaId);
+	}
+	public int checkIfSavedAsDraft(Long icaId) {
+		return icaTotalMarksDAO.checkIfSavedAsDraft(icaId);
+	}
 }

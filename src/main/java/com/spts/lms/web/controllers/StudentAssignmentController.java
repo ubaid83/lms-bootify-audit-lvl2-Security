@@ -4208,9 +4208,14 @@ public class StudentAssignmentController extends BaseController {
 						FileUtils.deleteQuietly(new File(downloadAllFolder + File.separator + assignment.getAssignmentName()
 								+ '-' + assignment.getId()));
 					}
+					setSuccess(redirectAttrs, "Student Assignment Remarks File Uplaoded Successfully");
+					return "redirect:/evaluateByStudent";
+				}else {
+					setError(redirectAttrs, "File uploaded is invalid!");
+					setNote(redirectAttrs, "File should be ZIP and inside that student assignment remark file name with student's SAPID.");
+					return "redirect:/evaluateByStudent";
 				}
-				setSuccess(redirectAttrs, "Student Assignment Remarks File Uplaoded Successfully");
-				return "redirect:/evaluateByStudent";
+				
 			}else {
 				if (extension.equals("zip")) {
 					File normalFile = convert(file);
@@ -4232,9 +4237,14 @@ public class StudentAssignmentController extends BaseController {
 						FileUtils.deleteQuietly(new File(downloadAllFolder + File.separator + assignment.getAssignmentName()
 								+ '-' + assignment.getId()));
 					}
+					setSuccess(redirectAttrs, "Student Assignment Remarks File Uplaoded Successfully");
+					return "redirect:/evaluateByStudentForModule";
+				}else {
+					setError(redirectAttrs, "File uploaded is invalid!");
+					setNote(redirectAttrs, "File should be ZIP and inside that student assignment remark file name with student's SAPID.");
+					return "redirect:/evaluateByStudentForModule";
 				}
-				setSuccess(redirectAttrs, "Student Assignment Remarks File Uplaoded Successfully");
-				return "redirect:/evaluateByStudentForModule";
+				
 			}
 		} catch (Exception ex) {
 			logger.error("Exception", ex);

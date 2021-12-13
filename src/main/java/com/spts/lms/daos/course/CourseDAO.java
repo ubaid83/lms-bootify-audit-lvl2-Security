@@ -1383,7 +1383,7 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 		} else
 		if(columnName.equals("programId")) {
 			sql = "select * from course where programId=? limit 1";
-		}
+		} else
 		if(columnName.equals("acadMonth")) {
 			sql = "select * from course where acadMonth=? limit 1";
 		}
@@ -1392,20 +1392,44 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 
 	//Peter 25/10/2021
 	public Course checkIfAcadSessionExists(String acadSession) {
-		String sql="SELECT sapSessionText FROM session_master WHERE sapSessionText=?";
+		String sql="SELECT sapSessionText FROM session_master WHERE sapSessionText=? limit 1";
 		return findOneSQL(sql, new Object[] {acadSession});
 	}
 
 	//Peter 25/10/2021
 	public Course checkIfModuleExists(String moduleId) {
-		String sql="SELECT module_id FROM module WHERE module_id=?";
+		String sql="SELECT module_id FROM module WHERE module_id=? limit 1";
 		return findOneSQL(sql, new Object[] {moduleId});
 	}
 
 	//Peter 25/10/2021
 	public Course checkIfCampusExists(String campusId) {
-		String sql="SELECT campusId FROM program_campus WHERE campusId=?";
+		String sql="SELECT campusId FROM program_campus WHERE campusId=? limit 1";
 		return findOneSQL(sql, new Object[] {campusId});
+	}
+
+
+	
+	public Course checkIfAcadYearExists(String acadYear) {
+		String sql="SELECT distinct acadYear FROM module WHERE acadYear=? limit 1";
+		return findOneSQL(sql, new Object[] {acadYear});
+	}
+
+	public Course checkIfProgramExists(String programId) {
+		String sql="SELECT distinct programId FROM course WHERE programId=? limit 1";
+		return findOneSQL(sql, new Object[] {programId});
+	}
+	
+	//sandip
+	public Course checkIfCourseId(Long courseId){
+		String sql="SELECT Id FROM course WHERE Id=?";
+		return findOneSQL(sql, new Object[] {courseId});
+	}
+	
+	public Course checkIfAcadYearExists(String acadYear, Long courseId){
+		String sql="SELECT acadYear FROM course WHERE acadYear=? and Id=?";
+		return findOneSQL(sql, new Object[] {acadYear, courseId});
+
 	}
 }
 

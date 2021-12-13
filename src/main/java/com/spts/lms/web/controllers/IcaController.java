@@ -18,6 +18,7 @@ import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -27,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -333,19 +335,21 @@ public class IcaController extends BaseController {
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course acadSession = courseService.checkIfExistsInDB("acadSession", icaBean.getAcadSession());
 			if(acadSession == null) {
-				throw new ValidationException("Invalid Acad Session");
+				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+			if(icaBean.getCampusId() != null && !icaBean.getCampusId().isEmpty()){
+				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			Course moduleId = courseService.checkIfExistsInDB("moduleId", icaBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
 			logger.info("create ica selected programs are " + icaBean.getProgramId());
 			List<String> progIds = null;
@@ -354,65 +358,65 @@ public class IcaController extends BaseController {
 				for(String programId : progIds) {
 					Course progId = courseService.checkIfExistsInDB("programId", programId);			
 					if(progId == null) {
-						throw new ValidationException("Invalid Program");
+						throw new ValidationException("Invalid Program Selected");
 					}
 				}
 			} else {
 				Course progId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());
 				if(progId == null) {
-					throw new ValidationException("Invalid Program");
+					throw new ValidationException("Invalid Program Selected");
 				}
 			}
-			
 			List<String> assignedFaculties = null;
 			if(icaBean.getAssignedFaculty().contains(",")) {
 				assignedFaculties = Arrays.asList(icaBean.getAssignedFaculty().split(","));
 				for(String assignedFaculty : assignedFaculties) {
 					UserCourse courseId = userCourseService.getFacultyCourseId(assignedFaculty,icaBean.getModuleId());
+					if(null == courseId) {
+		                  throw new ValidationException("Invalid faculty selected.");
+		            }
 					logger.info("courseID is " + courseId);
 					UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(assignedFaculty, String.valueOf(courseId.getCourseId()));
 		            if(null == userccourse) {
-		                  throw new ValidationException("Invalid faculty selected.");
+		                  throw new ValidationException("Invalid Faculty Selected.");
 		            }
 				}
 			} else {
-				UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getAssignedFaculty(),icaBean.getModuleId());
+				UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getAssignedFaculty(),icaBean.getModuleId()); 
+				if(null == courseId) {
+	                  throw new ValidationException("Invalid faculty selected.");
+	            }
 				UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(icaBean.getAssignedFaculty(), String.valueOf(courseId.getCourseId()));
 	            if(null == userccourse) {
 	                  throw new ValidationException("Invalid faculty selected.");
 	            }
 			}
-			
-			
-            
-			BusinessBypassRule.validateNumeric(icaBean.getInternalMarks());
-			BusinessBypassRule.validateNumeric(icaBean.getInternalPassMarks());
-			if(!icaBean.getExternalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalMarks());
+//			icaBean.setTotalMarks("");
+//			icaBean.setInternalMarks("10");
+//			icaBean.setInternalPassMarks("-1");
+//			icaBean.setExternalMarks("");
+//			icaBean.setExternalPassMarks("");
+			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks(),icaBean.getExternalMarks(),icaBean.getExternalPassMarks(),icaBean.getTotalMarks());
+			} else
+			if(icaBean.getInternalMarks() != null && !icaBean.getInternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks());
+			} else
+			if(icaBean.getExternalMarks() != null && !icaBean.getExternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getExternalMarks(), icaBean.getExternalPassMarks());
+			} else {
+				throw new ValidationException("Invalid Marks");
 			}
-			if(!icaBean.getExternalPassMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalPassMarks());
-			}
-			if(!icaBean.getTotalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getTotalMarks());
-			}
-			logger.info("Start Date is " + icaBean.getStartDate());
-			logger.info("End Date is " + icaBean.getEndDate());
-			
-			Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate());
-			logger.info("Scaled Req is " + icaBean.getScaledReq());
-			
+			Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate());			
 			if (icaBean.getScaledReq() == null || icaBean.getScaledReq().equals("N")) {
 				icaBean.setScaledReq("N");
 				icaBean.setScaledMarks(null);
 			} else {
-				BusinessBypassRule.validateNumeric(icaBean.getScaledMarks());
+				BusinessBypassRule.validateNumericNotAZero(icaBean.getScaledMarks());
 			}
-			if(!icaBean.getIcaDesc().isEmpty()) {
+			if(icaBean.getIcaDesc() != null && !icaBean.getIcaDesc().isEmpty()) {
 				BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaDesc());
 			}
-			logger.info("Validation Done");
-			
 			String username = principal.getName();
 			icaBean.setCreatedBy(username);
 			icaBean.setLastModifiedBy(username);
@@ -498,7 +502,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 
@@ -533,63 +537,100 @@ public class IcaController extends BaseController {
 		
 		IcaBean icaBeanDAO = icaBeanService.findByID(icaBean.getId());
 		try {
-			
 			logger.info("Validating /updateIca...");
 			HtmlValidation.validateHtml(icaBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
-			Course acadSession = courseService.checkIfExistsInDB("acadSession", icaBean.getAcadSession());
-			if(acadSession == null) {
-				throw new ValidationException("Invalid Acad Session");
-			}
-			Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+			if(icaBean.getCampusId() != null && !icaBean.getCampusId().isEmpty()){
+				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			Course moduleId = courseService.checkIfExistsInDB("moduleId", icaBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
-			Course programId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());
-			if(programId == null) {
-				throw new ValidationException("Invalid Program");
+			List<String> acadSess = null;
+			if(icaBean.getAcadSession().contains(",")) {
+				acadSess = Arrays.asList(icaBean.getAcadSession().split(","));
+				for(String acadS : acadSess) {
+					Course acadSession = courseService.checkIfExistsInDB("acadSession", acadS);			
+					if(acadSession == null) {
+						throw new ValidationException("Invalid Acad Session Selected");
+					}
+				}
+			} else {
+				Course acadSession = courseService.checkIfExistsInDB("acadSession", icaBean.getAcadSession());
+				if(acadSession == null) {
+					throw new ValidationException("Invalid Acad Session Selected");
+				}
 			}
-			UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getAssignedFaculty(),icaBean.getModuleId());
-			logger.info("courseId is " + courseId);
-			UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(icaBean.getAssignedFaculty(), String.valueOf(courseId.getCourseId()));
-            if(null == userccourse) {
-                  throw new ValidationException("Invalid faculty selected.");
-            }
-            
-			BusinessBypassRule.validateNumeric(icaBean.getInternalMarks());
-			BusinessBypassRule.validateNumeric(icaBean.getInternalPassMarks());
-			if(!icaBean.getExternalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalMarks());
+			List<String> progIds = null;
+			if(icaBean.getProgramId().contains(",")) {
+				logger.info("inside multiple programs");
+				progIds = Arrays.asList(icaBean.getProgramId().split(","));
+				for(String programId : progIds) {
+					Course progId = courseService.checkIfExistsInDB("programId", programId);			
+					if(progId == null) {
+						throw new ValidationException("Invalid Program Selected");
+					}
+				}
+			} else {
+				logger.info("inside single program");
+				Course progId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());
+				if(progId == null) {
+					throw new ValidationException("Invalid Program Selected");
+				}
 			}
-			if(!icaBean.getExternalPassMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalPassMarks());
+			List<String> assignedFaculties = null;
+			if(icaBean.getAssignedFaculty().contains(",")) {
+				assignedFaculties = Arrays.asList(icaBean.getAssignedFaculty().split(","));
+				for(String assignedFaculty : assignedFaculties) {
+					UserCourse courseId = userCourseService.getFacultyCourseId(assignedFaculty,icaBean.getModuleId());
+					logger.info("courseID is " + courseId);
+					if(null == courseId) {
+		                  throw new ValidationException("Invalid Faculty Selected.");
+		            }
+					UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(assignedFaculty, String.valueOf(courseId.getCourseId()));
+		            if(null == userccourse) {
+		                  throw new ValidationException("Invalid Faculty Selected.");
+		            }
+				}
+			} else {
+				UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getAssignedFaculty(),icaBean.getModuleId());
+				if(null == courseId) {
+	                  throw new ValidationException("Invalid faculty selected.");
+	            }
+				UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(icaBean.getAssignedFaculty(), String.valueOf(courseId.getCourseId()));
+	            if(null == userccourse) {
+	                  throw new ValidationException("Invalid faculty selected.");
+	            }
 			}
-			if(!icaBean.getTotalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getTotalMarks());
+			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks(),icaBean.getExternalMarks(),icaBean.getExternalPassMarks(),icaBean.getTotalMarks());
+			} else
+			if(icaBean.getInternalMarks() != null && !icaBean.getInternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks());
+			} else
+			if(icaBean.getExternalMarks() != null && !icaBean.getExternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getExternalMarks(), icaBean.getExternalPassMarks());
+			} else {
+				throw new ValidationException("Invalid Marks");
 			}
-			Utils.validateDate(icaBean.getStartDate());
-			Utils.validateDate(icaBean.getEndDate());
-			logger.info("Scaled Req is " + icaBean.getScaledReq());
-			
+			BusinessBypassRule.validateStartAndEndDatesToUpdate(icaBean.getStartDate(), icaBean.getEndDate());
 			if (icaBean.getScaledReq() == null || icaBean.getScaledReq().equals("N")) {
 				icaBean.setScaledReq("N");
 				icaBean.setScaledMarks(null);
 			} else {
-				BusinessBypassRule.validateNumeric(icaBean.getScaledMarks());
+				BusinessBypassRule.validateNumericNotAZero(icaBean.getScaledMarks());
 			}
-			
-//			if(!icaBean.getScaledMarks().isEmpty()) {
-//				BusinessBypassRule.validateNumeric(icaBean.getScaledMarks());
-//			}
-			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaDesc());
+			if(icaBean.getIcaDesc() != null && !icaBean.getIcaDesc().isEmpty()) {
+				BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaDesc());
+			}
 
 			logger.info("Acad Year New--------------->" + icaBean.getAcadYear());
 
@@ -807,7 +848,7 @@ public class IcaController extends BaseController {
 
 	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/saveStudentsBatchWiseForIca", method = RequestMethod.POST)
-	public @ResponseBody String saveStudentsBatchWiseForIca(@RequestParam String json, HttpServletResponse resp) {
+	public @ResponseBody String saveStudentsBatchWiseForIca(@RequestParam String json, HttpServletResponse resp, RedirectAttributes redirectAttr) {
 		logger.info("json--->" + json);
 		IcaBean icaBean = new IcaBean();
 		String ica = "";
@@ -815,9 +856,25 @@ public class IcaController extends BaseController {
 
 		try {
 
-			List<IcaStudentBatchwise> jsonList = mapper.readValue(json, new TypeReference<List<IcaStudentBatchwise>>() {
-			});
+			List<IcaStudentBatchwise> jsonList = mapper.readValue(json, new TypeReference<List<IcaStudentBatchwise>>() {});
+			logger.info("jsonList is " + jsonList.size());
 			logger.info("jsonList--->" + jsonList.size());
+//			for (IcaStudentBatchwise isb : jsonList) {
+//				
+//				IcaBean icaId = icaBeanService.checkIfExistsInDB("id",isb.getIcaId());
+//				icaId=null;
+//				if(icaId == null) {
+//					throw new ValidationException("Invalid ICA Selected");
+//				}
+//				IcaBean assignedFaculty = icaBeanService.checkIfExistsInDB("assignedFaculty",isb.getFacultyId());
+//				if(assignedFaculty == null) {
+//					throw new ValidationException("Invalid Faculty Selected");
+//				}
+//				User user = userService.checkIfExistsInDB(isb.getUsername());
+//				if(user == null) {
+//					throw new ValidationException("Invalid User Selected");
+//				}
+//			}
 			if (jsonList.size() > 0) {
 
 				icaBean = icaBeanService.findByID(Long.valueOf(jsonList.get(0).getIcaId()));
@@ -834,7 +891,15 @@ public class IcaController extends BaseController {
 				icaBean.setStatus("blank");
 				ica = mapper.writeValueAsString(icaBean);
 			}
-		} catch (Exception e) {
+		}
+//			catch (ValidationException ve) {
+//				logger.info("INSIDE Validation Exception");
+//				logger.error(ve.getMessage(), ve);
+//				setError(redirectAttr, ve.getMessage());
+//				icaBean.setStatus("validationError");
+//			
+//		} 
+		catch (Exception e) {
 			logger.error("Exception while saving students", e);
 			icaBean.setStatus("falied");
 		}
@@ -1147,7 +1212,6 @@ public class IcaController extends BaseController {
 		for (UserCourse ass : faculty) {
 			Map<String, String> returnMap = new HashMap();
 			returnMap.put(ass.getUsername(), ass.getFacultyName() + "(" + ass.getUsername() + ")");
-
 			res.add(returnMap);
 		}
 
@@ -1182,17 +1246,17 @@ public class IcaController extends BaseController {
 		for (IcaComponent icaComp : ica.getComponentList()) {
 			
 			
-			if(icaComp.getComponentId() != null) {
+			if(icaComp.getComponentId() != null && !icaComp.getComponentId().isEmpty()) {
 				IcaBean checkIfComponentIdExists = icaBeanService.checkIfComponentIdExists(icaComp.getComponentId());
 				if(checkIfComponentIdExists==null) {
 					throw new ValidationException("Invalid Component");
 				}
 			}
-			if(icaComp.getSequenceNo() != null) {
+			if(icaComp.getSequenceNo() != null && !icaComp.getSequenceNo().isEmpty()) {
 				BusinessBypassRule.validateNumeric(icaComp.getSequenceNo());
 			}
 			if(icaComp.getMarks()!=null) {
-				BusinessBypassRule.validateNumericNotAZero(icaComp.getMarks());
+				BusinessBypassRule.validateNumeric(icaComp.getMarks());
 			}
 		}
 
@@ -1416,6 +1480,16 @@ public class IcaController extends BaseController {
 				role = Role.ROLE_FACULTY.name();
 				icaList = icaBeanService.findIcaListByProgramForBatchWise(userdetails1.getProgramId(), role,
 						principal.getName());
+				
+				//Peter 25/11/2021 - SaveAsDraft Highlight Task
+				for(IcaBean i : icaList){
+					int checkIfSavedAsDraft = icaTotalMarksService.checkIfSavedAsDraft(i.getId());
+					logger.info("got saveAsDraft");
+					if(checkIfSavedAsDraft>0){
+						logger.info("setting saveAsDraft Y");
+						i.setSaveAsDraft("Y");
+					}
+				}
 
 			} else {
 				role = Role.ROLE_ADMIN.name();
@@ -1457,7 +1531,6 @@ public class IcaController extends BaseController {
 		for (IcaBean ica : icaList) {
 
 			boolean checkTcsFlagForIca = isIcaMarksSentToTcs(ica);
-			logger.info("ica id 0" + ica.getId() + " bools" + checkTcsFlagForIca);
 			if (checkTcsFlagForIca == false) {
 				icaFinalList.add(ica);
 			}
@@ -1925,22 +1998,38 @@ public class IcaController extends BaseController {
 	@RequestMapping(value = "/saveIcaAsDraft", method = { RequestMethod.POST, RequestMethod.GET })
 	public @ResponseBody String saveIcaAsDraft(@RequestParam Map<String, String> allRequestParams, Principal p) {
 		logger.info("allRequestParams----------------" + allRequestParams);
+		try {
+			logger.info("allRequestParams.get(\"icaIdValue\") is " + allRequestParams.get("icaIdValue"));
+		BusinessBypassRule.validateNumericNotAZero(allRequestParams.get("icaIdValue"));
+		
+//		for (Entry<String, String> m : allRequestParams.entrySet()) {
+//			
+//			logger.info("key is " + m.getKey());
+//			logger.info("value is " + m.getValue());
+//			if(m.getValue() != null) {
+//				
+//				BusinessBypassRule.validateNumericNotAZero(m.getValue());
+//			}
+//		}
+		
 		List<IcaComponentMarks> icaCompMarksList = new ArrayList<>();
 		List<IcaTotalMarks> icaTotalMarksList = new ArrayList<>();
 
 		List<String> icaCompStudList = new ArrayList<>();
 		List<String> icaTotalStudList = new ArrayList<>();
 
-		try {
+		
 			for (String sapId : allRequestParams.keySet()) {
 
 				if (sapId.contains("-")) {
 					String[] splitKey = sapId.split("-");
 					IcaComponentMarks icaCompMarks = createIcaComponent(splitKey, allRequestParams, "DRAFT", sapId,
 							p.getName());
-
+					logger.info("icaCompMarks is " + icaCompMarks.getMarks());
+					BusinessBypassRule.validateNumeric(icaCompMarks.getMarks());
 					IcaTotalMarks icaTotalMarks = createIcaTotalMark(splitKey, allRequestParams, "DRAFT", sapId,
 							p.getName());
+					logger.info("icaTotalMarks is " + icaTotalMarks);
 
 					if (!allRequestParams.get(sapId).isEmpty() && allRequestParams.get(sapId) != null) {
 						icaCompMarksList.add(icaCompMarks);
@@ -1999,13 +2088,21 @@ public class IcaController extends BaseController {
 					}
 				}
 			}
-
-			return "saved";
-		} catch (Exception ex) {
-
+			String json = "{\"Status\":\"Success\"}";
+			return json;
+//			return "saved";
+			
+		} catch (ValidationException ex) {
+			logger.error("ValidationException", ex);
+			String json = "{\"Status\":\"ValidationError\", \"msg\":\""+ex.getMessage()+"\"}";
+			return json;
+//			return "validationError";
+		} 
+		catch (Exception ex) {
 			logger.error("Exception", ex);
-
-			return "error";
+			String json = "{\"Status\":\"Error\", \"msg\":\""+ex.getMessage()+"\"}";
+			return json;
+//			return "error";
 		}
 
 	}
@@ -2096,6 +2193,9 @@ public class IcaController extends BaseController {
 	public String submitIca(@RequestParam Map<String, String> allRequestParams, Principal p,
 			RedirectAttributes redirectAttributes) {
 		logger.info("allRequestParams----------------" + allRequestParams);
+		String teeIdVal = allRequestParams.get("icaIdValue");
+		try {
+			BusinessBypassRule.validateNumeric(teeIdVal);
 
 		String username = p.getName();
 		List<IcaComponentMarks> icaCompMarksList = new ArrayList<>();
@@ -2107,7 +2207,7 @@ public class IcaController extends BaseController {
 		redirectAttributes.addAttribute("icaId", allRequestParams.get("icaIdValue"));
 
 		IcaBean icaDB = icaBeanService.findByID(Long.valueOf(allRequestParams.get("icaIdValue")));
-		try {
+		
 			for (String sapId : allRequestParams.keySet()) {
 				logger.info("sapId is " + sapId);
 				if (sapId.contains("-")) {
@@ -2115,6 +2215,7 @@ public class IcaController extends BaseController {
 					logger.info("splitKey is " + splitKey);
 					IcaComponentMarks icaCompMarks = createIcaComponent(splitKey, allRequestParams, "SUBMIT", sapId,
 							p.getName());
+					BusinessBypassRule.validateNumeric(icaCompMarks.getMarks());
 
 					IcaTotalMarks icaTotalMarks = createIcaTotalMark(splitKey, allRequestParams, "SUBMIT", sapId,
 							p.getName());
@@ -2271,7 +2372,7 @@ public class IcaController extends BaseController {
 							logger.info("mobile -----> " + mobiles);
 							logger.info("subject -----> " + subject);
 							logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-							notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+							//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 						}
 					}
 
@@ -2298,7 +2399,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 			} catch (Exception e) {
@@ -2429,7 +2530,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 
@@ -2467,7 +2568,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 			}
@@ -2534,7 +2635,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 
@@ -2571,7 +2672,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 			return "success";
@@ -3007,7 +3108,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 
@@ -3186,7 +3287,7 @@ public class IcaController extends BaseController {
 							logger.info("mobile -----> " + mobiles);
 							logger.info("subject -----> " + subject);
 							logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-							notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+							//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 						}
 					}
 				}
@@ -3904,7 +4005,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 			if ("submit".equals(saveAs)) {
@@ -4878,50 +4979,38 @@ public class IcaController extends BaseController {
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course acadSession = courseService.checkIfExistsInDB("acadSession", icaBean.getAcadSession());
 			if(acadSession == null) {
-				throw new ValidationException("Invalid Acad Session");
+				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+			if(icaBean.getCampusId() != null && !icaBean.getCampusId().isEmpty()) {
+				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			Course moduleId = courseService.checkIfExistsInDB("moduleId", icaBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
-			logger.info("create ica selected programs are " + icaBean.getProgramId());
-			
 			Course progId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());			
 			if(progId == null) {
-				throw new ValidationException("Invalid Program");
+				throw new ValidationException("Invalid Program Selected");
+			} 
+			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks(),icaBean.getExternalMarks(),icaBean.getExternalPassMarks(),icaBean.getTotalMarks());
+			} else
+			if(icaBean.getInternalMarks() != null && !icaBean.getInternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks());
+			} else
+			if(icaBean.getExternalMarks() != null && !icaBean.getExternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getExternalMarks(), icaBean.getExternalPassMarks());
+			} else {
+				throw new ValidationException("Invalid Marks");
 			}
-//			
-//			UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getModuleId(),icaBean.getModuleId());
-//			logger.info("courseID is " + courseId);
-//			UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(icaBean.getModuleId(), String.valueOf(courseId.getCourseId()));
-//		    if(null == userccourse) {
-//		         throw new ValidationException("Invalid faculty selected.");
-//		    }   
-            
-			BusinessBypassRule.validateNumeric(icaBean.getInternalMarks());
-			BusinessBypassRule.validateNumeric(icaBean.getInternalPassMarks());
-			if(!icaBean.getExternalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalMarks());
-			}
-			if(!icaBean.getExternalPassMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalPassMarks());
-			}
-			if(!icaBean.getTotalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getTotalMarks());
-			}
-			logger.info("Start Date is " + icaBean.getStartDate());
-			logger.info("End Date is " + icaBean.getEndDate());
-			
 			Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate());
-			logger.info("Scaled Req is " + icaBean.getScaledReq());
 			
 			if (icaBean.getScaledReq() == null || icaBean.getScaledReq().equals("N")) {
 				icaBean.setScaledReq("N");
@@ -4933,7 +5022,6 @@ public class IcaController extends BaseController {
 				BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaDesc());
 			}
 			logger.info("Validation Done");
-			
 			
 			String username = principal.getName();
 
@@ -5043,7 +5131,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 
 				setSuccess(redirectAttrs, "ICA Added For " + distinctCourseId.size() + " Divisions successfully ");
@@ -5409,30 +5497,59 @@ public class IcaController extends BaseController {
 			for (PredefinedIcaComponent pd : compList) {
 				getCompMap.put(String.valueOf(pd.getId()), pd.getComponentName());
 			}
+			 Calendar c = Calendar.getInstance();
+	        c.setTime(Utils.getInIST());
+	        int month = c.get(Calendar.MONTH) + 1;
+	        int year = c.get(Calendar.YEAR) - 1;
+	        int currentYear = c.get(Calendar.YEAR);
 			for (IcaTotalMarks itm : itmRaiseQueryList) {
 				Map<String, Object> mapOfQueries = new HashMap<>();
+				if(month > 6 && itm.getAcadYear().equals(String.valueOf(currentYear))) {
+					mapOfQueries.put("ICA Name", itm.getIcaName());
+					mapOfQueries.put("AcadYear", itm.getAcadYear());
+					mapOfQueries.put("Session", itm.getAcadSession());
+					mapOfQueries.put("Student SAPID", itm.getUsername());
+					mapOfQueries.put("Student-Name", itm.getStudentName());
+					mapOfQueries.put("Program", itm.getProgramName());
+					mapOfQueries.put("Subject", itm.getModuleName());
+					mapOfQueries.put("Total Marks Obtained", itm.getIcaTotalMarks());
+					mapOfQueries.put("Query", itm.getQuery());
+					mapOfQueries.put("Assigned Faculty", itm.getAssignedFaculty());
+					mapOfQueries.put("Roll No", itm.getRollNo());
+					mapOfQueries.put("Student-EmailId", itm.getEmail());
+					mapOfQueries.put("Query Raised Date", itm.getRaiseQDate());
+					// ,"Component Marks"
+					String component = itm.getCompId() != null ? getCompMap.get(itm.getCompId()) : "NA";
+					String compMarks = itm.getComponentMarks() != null ? itm.getComponentMarks() : "NA";
+					mapOfQueries.put("Component", component);
 
-				mapOfQueries.put("ICA Name", itm.getIcaName());
-				mapOfQueries.put("AcadYear", itm.getAcadYear());
-				mapOfQueries.put("Session", itm.getAcadSession());
-				mapOfQueries.put("Student SAPID", itm.getUsername());
-				mapOfQueries.put("Student-Name", itm.getStudentName());
-				mapOfQueries.put("Program", itm.getProgramName());
-				mapOfQueries.put("Subject", itm.getModuleName());
-				mapOfQueries.put("Total Marks Obtained", itm.getIcaTotalMarks());
-				mapOfQueries.put("Query", itm.getQuery());
-				mapOfQueries.put("Assigned Faculty", itm.getAssignedFaculty());
-				mapOfQueries.put("Roll No", itm.getRollNo());
-				mapOfQueries.put("Student-EmailId", itm.getEmail());
-				mapOfQueries.put("Query Raised Date", itm.getRaiseQDate());
-				// ,"Component Marks"
-				String component = itm.getCompId() != null ? getCompMap.get(itm.getCompId()) : "NA";
-				String compMarks = itm.getComponentMarks() != null ? itm.getComponentMarks() : "NA";
-				mapOfQueries.put("Component", component);
+					mapOfQueries.put("Component Marks", compMarks);
 
-				mapOfQueries.put("Component Marks", compMarks);
+					listOfMapOfRaisedQueries.add(mapOfQueries);
+				}else if(itm.getAcadYear().equals(String.valueOf(year)) || itm.getAcadYear().equals(String.valueOf(currentYear))){
+					mapOfQueries.put("ICA Name", itm.getIcaName());
+					mapOfQueries.put("AcadYear", itm.getAcadYear());
+					mapOfQueries.put("Session", itm.getAcadSession());
+					mapOfQueries.put("Student SAPID", itm.getUsername());
+					mapOfQueries.put("Student-Name", itm.getStudentName());
+					mapOfQueries.put("Program", itm.getProgramName());
+					mapOfQueries.put("Subject", itm.getModuleName());
+					mapOfQueries.put("Total Marks Obtained", itm.getIcaTotalMarks());
+					mapOfQueries.put("Query", itm.getQuery());
+					mapOfQueries.put("Assigned Faculty", itm.getAssignedFaculty());
+					mapOfQueries.put("Roll No", itm.getRollNo());
+					mapOfQueries.put("Student-EmailId", itm.getEmail());
+					mapOfQueries.put("Query Raised Date", itm.getRaiseQDate());
+					// ,"Component Marks"
+					String component = itm.getCompId() != null ? getCompMap.get(itm.getCompId()) : "NA";
+					String compMarks = itm.getComponentMarks() != null ? itm.getComponentMarks() : "NA";
+					mapOfQueries.put("Component", component);
 
-				listOfMapOfRaisedQueries.add(mapOfQueries);
+					mapOfQueries.put("Component Marks", compMarks);
+
+					listOfMapOfRaisedQueries.add(mapOfQueries);
+				}
+				
 			}
 			excelCreater.CreateExcelFile(listOfMapOfRaisedQueries, validateHeaders, filePath);
 			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -5784,19 +5901,21 @@ public class IcaController extends BaseController {
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course acadSession = courseService.checkIfAcadSessionExists(icaBean.getAcadSession());
 			if(acadSession == null) {
-				throw new ValidationException("Invalid Acad Session");
+				throw new ValidationException("Invalid Acad Session Selected");
 			}
-			Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+			if(icaBean.getCampusId() != null && !icaBean.getCampusId().isEmpty()) {
+				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			Course moduleId = courseService.checkIfModuleExists(icaBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
 			List<String> progIds = null;
 			if(icaBean.getProgramId().contains(",")) {
@@ -5804,40 +5923,35 @@ public class IcaController extends BaseController {
 				for(String programId : progIds) {
 					Course progId = courseService.checkIfExistsInDB("programId", programId);			
 					if(progId == null) {
-						throw new ValidationException("Invalid Program");
+						throw new ValidationException("Invalid Program Selected");
 					}
 				}
 			} else {
 				Course progId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());
 				if(progId == null) {
-					throw new ValidationException("Invalid Program");
+					throw new ValidationException("Invalid Program Selected");
 				}
-			}				
-            
-			BusinessBypassRule.validateNumeric(icaBean.getInternalMarks());
-			BusinessBypassRule.validateNumeric(icaBean.getInternalPassMarks());
-			if(!icaBean.getExternalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalMarks());
 			}
-			if(!icaBean.getExternalPassMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalPassMarks());
+			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks(),icaBean.getExternalMarks(),icaBean.getExternalPassMarks(),icaBean.getTotalMarks());
+			} else
+			if(icaBean.getInternalMarks() != null && !icaBean.getInternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks());
+			} else
+			if(icaBean.getExternalMarks() != null && !icaBean.getExternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getExternalMarks(), icaBean.getExternalPassMarks());
+			} else {
+				throw new ValidationException("Invalid Marks");
 			}
-			if(!icaBean.getTotalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getTotalMarks());
-			}
-			logger.info("Start Date is " + icaBean.getStartDate());
-			logger.info("End Date is " + icaBean.getEndDate());
-			
 			Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate());
-			logger.info("Scaled Req is " + icaBean.getScaledReq());
-			
+
 			if (icaBean.getScaledReq() == null || icaBean.getScaledReq().equals("N")) {
 				icaBean.setScaledReq("N");
 				icaBean.setScaledMarks(null);
 			} else {
 				BusinessBypassRule.validateNumeric(icaBean.getScaledMarks());
 			}
-			if(!icaBean.getIcaDesc().isEmpty()) {
+			if(icaBean.getIcaDesc() != null && !icaBean.getIcaDesc().isEmpty()) {
 				BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaDesc());
 			}
 			logger.info("Validation Done");
@@ -6274,35 +6388,38 @@ public class IcaController extends BaseController {
 			logger.info("Validating /addNonCreditIca...");
 			HtmlValidation.validateHtml(nsBean, new ArrayList<>());
 			BusinessBypassRule.validateAlphaNumeric(nsBean.getIcaName());
-			Course acadYear = courseService.checkIfExistsInDB("acadYear", nsBean.getAcadYear());
+			Course acadYear = courseService.checkIfAcadYearExists(nsBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
 			Course acadSession = courseService.checkIfAcadSessionExists(nsBean.getAcadSession());
 			if(acadSession == null) {
-				throw new ValidationException("Invalid Acad Session");
-			}
-			Course campusId = courseService.checkIfCampusExists(nsBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+				throw new ValidationException("Invalid Acad Session Selected");
 			}
 			Course moduleId = courseService.checkIfModuleExists(nsBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
+			nsBean.setProgramId("0000000");
 			List<String> progIds = null;
 			if(nsBean.getProgramId().contains(",")) {
 				progIds = Arrays.asList(nsBean.getProgramId().split(","));
 				for(String programId : progIds) {
-					Course progId = courseService.checkIfExistsInDB("programId", programId);			
+					Course progId = courseService.checkIfExistsInDB("programId", nsBean.getProgramId());		
 					if(progId == null) {
-						throw new ValidationException("Invalid Program");
+						throw new ValidationException("Invalid Program Selected");
 					}
 				}
 			} else {
 				Course progId = courseService.checkIfExistsInDB("programId", nsBean.getProgramId());
 				if(progId == null) {
-					throw new ValidationException("Invalid Program");
+					throw new ValidationException("Invalid Program Selected");
+				}
+			}
+			if(nsBean.getCampusId() != null && !nsBean.getCampusId().isEmpty()){
+				Course campusId = courseService.checkIfCampusExists(nsBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
 				}
 			}
 			logger.info("above show to students");
@@ -6336,8 +6453,14 @@ public class IcaController extends BaseController {
 
 			// redirectAttrs.addFlashAttribute("nsBean", nsBean);
 			redirectAttrs.addAttribute("ncIcaId", nsBean.getId());
+			logger.info("redirect uploadNS");
 			return "redirect:/uploadNS";
 
+		} catch (ValidationException ve) {
+			logger.info("INSIDE Validation Exception");
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttrs, ve.getMessage());
+			return "redirect:/addNonCreditIcaForm";
 		}
 
 		catch (Exception ex) {
@@ -7292,7 +7415,7 @@ public class IcaController extends BaseController {
 
 	@Secured({ "ROLE_SUPPORT_ADMIN" })
 	@RequestMapping(value = "/AddIcaComponentNew", method = { RequestMethod.GET, RequestMethod.POST })
-	public String AddIcaComponent(Principal principal, Model m) {
+	public String ad(Principal principal, Model m) {
 		m.addAttribute("webPage",
 				new WebPage("createTrainingProgram", "Add new Librarian", true, true, true, true, false));
 		// m.addAttribute("AddIcaComponent", new TrainingProgram());
@@ -7406,16 +7529,28 @@ public class IcaController extends BaseController {
 					ica.setProgramName(programService.getProgramNamesForIca(ica.getProgramId()));
 				}
 			}
-			// New Changes on 09-04-2021 to check tcs flag
+//			// New Changes on 09-04-2021 to check tcs flag
+//			for (IcaBean ica : icaList) {
+//
+//				boolean checkTcsFlagForIca = isIcaMarksSentToTcs(ica);
+//				if (checkTcsFlagForIca == false) {
+//					ica.setFlagTcs("F");
+//				} else {
+//					ica.setFlagTcs("S");
+//				}
+//			}
+//			//
+			// New Changes to check tcs flag
+			List<IcaBean> icaFinalList = new ArrayList<>();
 			for (IcaBean ica : icaList) {
-
 				boolean checkTcsFlagForIca = isIcaMarksSentToTcs(ica);
 				if (checkTcsFlagForIca == false) {
-					ica.setFlagTcs("F");
-				} else {
-					ica.setFlagTcs("S");
+					icaFinalList.add(ica);
 				}
 			}
+
+			icaList.clear();
+			icaList.addAll(icaFinalList);
 			//
 		}
 		m.addAttribute("Program_Name", userdetails1.getProgramName());
@@ -8394,30 +8529,33 @@ public class IcaController extends BaseController {
 			BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaName());
 			Course acadYear = courseService.checkIfExistsInDB("acadYear", icaBean.getAcadYear());
 			if(acadYear == null) {
-				throw new ValidationException("Invalid Acad Year");
+				throw new ValidationException("Invalid Acad Year Selected");
 			}
+			
 			List<String> acadSess = null;
 			if(icaBean.getAcadSession().contains(",")) {
-				acadSess = Arrays.asList(icaBean.getProgramId().split(","));
+				acadSess = Arrays.asList(icaBean.getAcadSession().split(","));
 				for(String acadS : acadSess) {
-					Course acadSession = courseService.checkIfExistsInDB("programId", acadS);			
+					Course acadSession = courseService.checkIfExistsInDB("acadSession", acadS);			
 					if(acadSession == null) {
-						throw new ValidationException("Invalid Program");
+						throw new ValidationException("Invalid Acad Session Selected");
 					}
 				}
 			} else {
-				Course acadSession = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());
+				Course acadSession = courseService.checkIfExistsInDB("acadSession", icaBean.getAcadSession());
 				if(acadSession == null) {
-					throw new ValidationException("Invalid Program");
+					throw new ValidationException("Invalid Acad Session Selected");
 				}
 			}
-			Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
-			if(campusId == null) {
-				throw new ValidationException("Invalid Campus");
+			if(icaBean.getCampusId() != null && !icaBean.getCampusId().isEmpty()) {
+				Course campusId = courseService.checkIfExistsInDB("campusId", icaBean.getCampusId());
+				if(campusId == null) {
+					throw new ValidationException("Invalid Campus Selected");
+				}
 			}
 			Course moduleId = courseService.checkIfExistsInDB("moduleId", icaBean.getModuleId());
 			if(moduleId == null) {
-				throw new ValidationException("Invalid Module");
+				throw new ValidationException("Invalid Module Selected");
 			}
 			logger.info("create ica selected programs are " + icaBean.getProgramId());
 			List<String> progIds = null;
@@ -8426,22 +8564,26 @@ public class IcaController extends BaseController {
 				for(String programId : progIds) {
 					Course progId = courseService.checkIfExistsInDB("programId", programId);			
 					if(progId == null) {
-						throw new ValidationException("Invalid Program");
+						throw new ValidationException("Invalid Program Selected");
 					}
 				}
 			} else {
+				logger.info("addIcaCoursera - Inside single program");
 				Course progId = courseService.checkIfExistsInDB("programId", icaBean.getProgramId());
+				logger.info("addIcaCoursera - Inside single program");
 				if(progId == null) {
-					throw new ValidationException("Invalid Program");
+					throw new ValidationException("Invalid Program Selected");
 				}
 			}
-			
 			List<String> assignedFaculties = null;
 			if(icaBean.getAssignedFaculty().contains(",")) {
 				assignedFaculties = Arrays.asList(icaBean.getAssignedFaculty().split(","));
 				for(String assignedFaculty : assignedFaculties) {
 					UserCourse courseId = userCourseService.getFacultyCourseId(assignedFaculty,icaBean.getModuleId());
 					logger.info("courseID is " + courseId);
+					if(null == courseId) {
+		                  throw new ValidationException("Invalid faculty selected.");
+		            }
 					UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(assignedFaculty, String.valueOf(courseId.getCourseId()));
 		            if(null == userccourse) {
 		                  throw new ValidationException("Invalid faculty selected.");
@@ -8449,6 +8591,9 @@ public class IcaController extends BaseController {
 				}
 			} else {
 				UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getAssignedFaculty(),icaBean.getModuleId());
+				if(null == courseId) {
+	                  throw new ValidationException("Invalid faculty selected.");
+	            }
 				UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(icaBean.getAssignedFaculty(), String.valueOf(courseId.getCourseId()));
 	            if(null == userccourse) {
 	                  throw new ValidationException("Invalid faculty selected.");
@@ -8456,20 +8601,18 @@ public class IcaController extends BaseController {
 			}
 			
 			
-            
-			BusinessBypassRule.validateNumeric(icaBean.getInternalMarks());
-			BusinessBypassRule.validateNumeric(icaBean.getInternalPassMarks());
-			if(!icaBean.getExternalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalMarks());
+			logger.info("checking internal marks");
+			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks(),icaBean.getExternalMarks(),icaBean.getExternalPassMarks(),icaBean.getTotalMarks());
+			} else
+			if(icaBean.getInternalMarks() != null && !icaBean.getInternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks());
+			} else
+			if(icaBean.getExternalMarks() != null && !icaBean.getExternalMarks().isEmpty()){
+				BusinessBypassRule.validateMarks(icaBean.getExternalMarks(), icaBean.getExternalPassMarks());
+			} else {
+				throw new ValidationException("Invalid Marks");
 			}
-			if(!icaBean.getExternalPassMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getExternalPassMarks());
-			}
-			if(!icaBean.getTotalMarks().isEmpty()) {
-				BusinessBypassRule.validateNumeric(icaBean.getTotalMarks());
-			}
-			logger.info("Start Date is " + icaBean.getStartDate());
-			logger.info("End Date is " + icaBean.getEndDate());
 			
 			Utils.validateStartAndEndDates(icaBean.getStartDate(), icaBean.getEndDate());
 			logger.info("Scaled Req is " + icaBean.getScaledReq());
@@ -8480,7 +8623,7 @@ public class IcaController extends BaseController {
 			} else {
 				BusinessBypassRule.validateNumeric(icaBean.getScaledMarks());
 			}
-			if(!icaBean.getIcaDesc().isEmpty()) {
+			if(icaBean.getIcaDesc() != null && !icaBean.getIcaDesc().isEmpty()) {
 				BusinessBypassRule.validateAlphaNumeric(icaBean.getIcaDesc());
 			}
 			logger.info("Validation Done");			
@@ -8590,7 +8733,7 @@ public class IcaController extends BaseController {
 				logger.info("mobile -----> " + mobiles);
 				logger.info("subject -----> " + subject);
 				logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-				notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+				//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 			}
 
 			setSuccess(redirectAttrs, "Coursera ICA Added Successfully");
@@ -9621,7 +9764,7 @@ public class IcaController extends BaseController {
 							logger.info("mobile -----> " + mobiles);
 							logger.info("subject -----> " + subject);
 							logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-							notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+							//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 						}
 					}
 
@@ -9648,7 +9791,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 			} catch (Exception e) {
@@ -10039,7 +10182,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 			if ("submit".equals(saveAs)) {
@@ -10268,7 +10411,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 
@@ -10308,7 +10451,7 @@ public class IcaController extends BaseController {
 						logger.info("mobile -----> " + mobiles);
 						logger.info("subject -----> " + subject);
 						logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-						notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+						//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 					}
 				}
 
@@ -10390,7 +10533,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 
@@ -10429,7 +10572,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 			return "success";
@@ -10534,7 +10677,7 @@ public class IcaController extends BaseController {
 					logger.info("mobile -----> " + mobiles);
 					logger.info("subject -----> " + subject);
 					logger.info("notificationEmailMessage -----> " + notificationEmailMessage);
-					notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
+					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
 			return "success";
@@ -10548,5 +10691,22 @@ public class IcaController extends BaseController {
 			return "error";
 		}
 
+	}
+	
+	
+	@RequestMapping(value = "/getEvaluationStatusOfICAByFaculty", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody String getEvaluationStatusOfICAByFaculty(@RequestParam(name = "id") String id, Principal principal) {
+
+		ObjectMapper mapper = new ObjectMapper();
+		String json = "";
+		try {
+			Token userdetails1 = (Token) principal;
+			List<IcaTotalMarks> facultyStatus =  icaTotalMarksService.getFacultyEvaluationStatus(id);
+			json = mapper.writeValueAsString(facultyStatus);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			logger.error("Exception", e);
+		}
+		return json;
 	}
 }

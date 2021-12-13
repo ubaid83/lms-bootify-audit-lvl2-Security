@@ -1,5 +1,6 @@
 package com.spts.lms.daos.tee;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Repository;
 
+import com.spts.lms.beans.ica.IcaTotalMarks;
 import com.spts.lms.beans.tee.TeeTotalMarks;
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.daos.BaseDAO;
@@ -317,48 +319,96 @@ public class TeeTotalMarksDAO extends BaseDAO<TeeTotalMarks> {
 				return null;
 			}
 		} else {
-
-			if (auth.contains(Role.ROLE_ADMIN)) {
-
-				String sql = " select i.teeName,i.id as teeId,(case when itm.teeScaledMarks is not null then itm.teeScaledMarks "
-						+ " else itm.teeTotalMarks  end) as teeTotalMarks, "
-						+ " i.acadYear,i.acadSession,concat(u.firstName,' ',u.lastName) as studentName,u.rollNo,u.email, p.programName, "
-						+ " concat(c.moduleName,'(',c.moduleAbbr,')') as moduleName,itm.`query`,iq.isApproved,DATE_FORMAT(iq.createdDate, \"%M %e %Y\") as raiseQDate, "
-						+ " itm.username,c1.courseName as division, GROUP_CONCAT(DISTINCT concat(u1.firstName,' ',u1.lastName,'(',u1.username,')')) "
-						+ " as assignedFaculty "
-						+ " from program p,tee_total_marks itm,users u,course c,users u1, tee i  "
-						+ " left outer join course c1 on c1.id=i.eventId "
-						+ " inner join tee_queries iq on iq.teeId=i.id "
-						+ " where itm.teeId=i.id and itm.username=u.username and FIND_IN_SET(u1.username,i.assignedFaculty) "
-						+ " and i.moduleId=c.moduleId and i.acadYear=c.acadYearCode and i.acadSession=c.acadSession "
-						+ " and u.programId=p.id " + " and itm.isQueryRaise= 'Y'  "
-						+ " and (i.createdBy=? or i.lastModifiedBy= ?)  AND i.active = 'Y' "
-						+ " group by itm.username,itm.teeId ";
-
-				return findAllSQL(sql, new Object[] { username, username });
-			}
-
-			else if (auth.contains(Role.ROLE_FACULTY)) {
-
-				String sql = " select i.teeName,i.id as teeId,(case when itm.teeScaledMarks is not null then itm.teeScaledMarks "
-						+ " else itm.teeTotalMarks  end) as teeTotalMarks, "
-						+ " i.acadYear,i.acadSession,concat(u.firstName,' ',u.lastName) as studentName,u.rollNo,u.email, p.programName, "
-						+ " concat(c.moduleName,'(',c.moduleAbbr,')') as moduleName,itm.`query`,iq.isApproved,DATE_FORMAT(iq.createdDate, \"%M %e %Y\") as raiseQDate, "
-						+ " itm.username,c1.courseName as division, GROUP_CONCAT(DISTINCT concat(u1.firstName,' ',u1.lastName,'(',u1.username,')')) "
-						+ " as assignedFaculty "
-						+ " from program p,tee_total_marks itm,users u,course c,users u1, tee i  "
-						+ " left outer join course c1 on c1.id=i.eventId "
-						+ " inner join tee_queries iq on iq.teeId=i.id "
-						+ " where itm.teeId=i.id and itm.username=u.username and FIND_IN_SET(u1.username,i.assignedFaculty) "
-						+ " and i.moduleId=c.moduleId and i.acadYear=c.acadYearCode and i.acadSession=c.acadSession "
-						+ " and u.programId=p.id " + " and itm.isQueryRaise= 'Y'  "
-						+ " and (FIND_IN_SET(?,i.assignedFaculty))  AND i.active = 'Y' "
-						+ " group by itm.username,itm.teeId ";
-				return findAllSQL(sql, new Object[] { username });
-
-			} else {
-				return null;
-			}
+			Calendar c = Calendar.getInstance();
+	        c.setTime(Utils.getInIST());
+	        int month = c.get(Calendar.MONTH) + 1;
+	        int year = c.get(Calendar.YEAR) - 1;
+	        int currentYear = c.get(Calendar.YEAR);
+	        if (month > 6) {
+				if (auth.contains(Role.ROLE_ADMIN)) {
+	
+					String sql = " select i.teeName,i.id as teeId,(case when itm.teeScaledMarks is not null then itm.teeScaledMarks "
+							+ " else itm.teeTotalMarks  end) as teeTotalMarks, "
+							+ " i.acadYear,i.acadSession,concat(u.firstName,' ',u.lastName) as studentName,u.rollNo,u.email, p.programName, "
+							+ " concat(c.moduleName,'(',c.moduleAbbr,')') as moduleName,itm.`query`,iq.isApproved,DATE_FORMAT(iq.createdDate, \"%M %e %Y\") as raiseQDate, "
+							+ " itm.username,c1.courseName as division, GROUP_CONCAT(DISTINCT concat(u1.firstName,' ',u1.lastName,'(',u1.username,')')) "
+							+ " as assignedFaculty "
+							+ " from program p,tee_total_marks itm,users u,course c,users u1, tee i  "
+							+ " left outer join course c1 on c1.id=i.eventId "
+							+ " inner join tee_queries iq on iq.teeId=i.id "
+							+ " where itm.teeId=i.id and itm.username=u.username and FIND_IN_SET(u1.username,i.assignedFaculty) "
+							+ " and i.moduleId=c.moduleId and i.acadYear=c.acadYearCode and i.acadSession=c.acadSession "
+							+ " and u.programId=p.id " + " and itm.isQueryRaise= 'Y'  "
+							+ " and (i.createdBy=? or i.lastModifiedBy= ?) and i.acadYear = ? AND i.active = 'Y' "
+							+ " group by itm.username,itm.teeId ";
+	
+					return findAllSQL(sql, new Object[] { username, username, currentYear });
+				}
+	
+				else if (auth.contains(Role.ROLE_FACULTY)) {
+	
+					String sql = " select i.teeName,i.id as teeId,(case when itm.teeScaledMarks is not null then itm.teeScaledMarks "
+							+ " else itm.teeTotalMarks  end) as teeTotalMarks, "
+							+ " i.acadYear,i.acadSession,concat(u.firstName,' ',u.lastName) as studentName,u.rollNo,u.email, p.programName, "
+							+ " concat(c.moduleName,'(',c.moduleAbbr,')') as moduleName,itm.`query`,iq.isApproved,DATE_FORMAT(iq.createdDate, \"%M %e %Y\") as raiseQDate, "
+							+ " itm.username,c1.courseName as division, GROUP_CONCAT(DISTINCT concat(u1.firstName,' ',u1.lastName,'(',u1.username,')')) "
+							+ " as assignedFaculty "
+							+ " from program p,tee_total_marks itm,users u,course c,users u1, tee i  "
+							+ " left outer join course c1 on c1.id=i.eventId "
+							+ " inner join tee_queries iq on iq.teeId=i.id "
+							+ " where itm.teeId=i.id and itm.username=u.username and FIND_IN_SET(u1.username,i.assignedFaculty) "
+							+ " and i.moduleId=c.moduleId and i.acadYear=c.acadYearCode and i.acadSession=c.acadSession "
+							+ " and u.programId=p.id " + " and itm.isQueryRaise= 'Y'  "
+							+ " and (FIND_IN_SET(?,i.assignedFaculty)) and i.acadYear = ? AND i.active = 'Y' "
+							+ " group by itm.username,itm.teeId ";
+					return findAllSQL(sql, new Object[] { username, currentYear  });
+	
+				} else {
+					return null;
+				}
+	        }else {
+	        	if (auth.contains(Role.ROLE_ADMIN)) {
+	        		
+					String sql = " select i.teeName,i.id as teeId,(case when itm.teeScaledMarks is not null then itm.teeScaledMarks "
+							+ " else itm.teeTotalMarks  end) as teeTotalMarks, "
+							+ " i.acadYear,i.acadSession,concat(u.firstName,' ',u.lastName) as studentName,u.rollNo,u.email, p.programName, "
+							+ " concat(c.moduleName,'(',c.moduleAbbr,')') as moduleName,itm.`query`,iq.isApproved,DATE_FORMAT(iq.createdDate, \"%M %e %Y\") as raiseQDate, "
+							+ " itm.username,c1.courseName as division, GROUP_CONCAT(DISTINCT concat(u1.firstName,' ',u1.lastName,'(',u1.username,')')) "
+							+ " as assignedFaculty "
+							+ " from program p,tee_total_marks itm,users u,course c,users u1, tee i  "
+							+ " left outer join course c1 on c1.id=i.eventId "
+							+ " inner join tee_queries iq on iq.teeId=i.id "
+							+ " where itm.teeId=i.id and itm.username=u.username and FIND_IN_SET(u1.username,i.assignedFaculty) "
+							+ " and i.moduleId=c.moduleId and i.acadYear=c.acadYearCode and i.acadSession=c.acadSession "
+							+ " and u.programId=p.id " + " and itm.isQueryRaise= 'Y'  "
+							+ " and (i.createdBy=? or i.lastModifiedBy= ?) and (i.acadYear = ? or i.acadYear = ?) AND i.active = 'Y' "
+							+ " group by itm.username,itm.teeId ";
+	
+					return findAllSQL(sql, new Object[] { username, username, year, currentYear });
+				}
+	
+				else if (auth.contains(Role.ROLE_FACULTY)) {
+	
+					String sql = " select i.teeName,i.id as teeId,(case when itm.teeScaledMarks is not null then itm.teeScaledMarks "
+							+ " else itm.teeTotalMarks  end) as teeTotalMarks, "
+							+ " i.acadYear,i.acadSession,concat(u.firstName,' ',u.lastName) as studentName,u.rollNo,u.email, p.programName, "
+							+ " concat(c.moduleName,'(',c.moduleAbbr,')') as moduleName,itm.`query`,iq.isApproved,DATE_FORMAT(iq.createdDate, \"%M %e %Y\") as raiseQDate, "
+							+ " itm.username,c1.courseName as division, GROUP_CONCAT(DISTINCT concat(u1.firstName,' ',u1.lastName,'(',u1.username,')')) "
+							+ " as assignedFaculty "
+							+ " from program p,tee_total_marks itm,users u,course c,users u1, tee i  "
+							+ " left outer join course c1 on c1.id=i.eventId "
+							+ " inner join tee_queries iq on iq.teeId=i.id "
+							+ " where itm.teeId=i.id and itm.username=u.username and FIND_IN_SET(u1.username,i.assignedFaculty) "
+							+ " and i.moduleId=c.moduleId and i.acadYear=c.acadYearCode and i.acadSession=c.acadSession "
+							+ " and u.programId=p.id " + " and itm.isQueryRaise= 'Y'  "
+							+ " and (FIND_IN_SET(?,i.assignedFaculty)) and (i.acadYear = ? or i.acadYear = ?) AND i.active = 'Y' "
+							+ " group by itm.username,itm.teeId ";
+					return findAllSQL(sql, new Object[] { username, year, currentYear  });
+	
+				} else {
+					return null;
+				}
+	        }
 		}
 
 	}
@@ -396,5 +446,16 @@ public class TeeTotalMarksDAO extends BaseDAO<TeeTotalMarks> {
 	public int getCountOfTcsFlagSentForTee(Long icaId) {
 		String sql =" select count(*) from "+getTableName()+" where teeId = ? and active ='Y' and flagTcs='S' ";
 		return getJdbcTemplate().queryForObject(sql, Integer.class, new Object[] {icaId});
+	}
+	public List<TeeTotalMarks> getFacultyEvaluationStatus(String teeId){
+		String sql ="select itm.teeId,isb.facultyId,itm.saveAsDraft,itm.finalSubmit,GROUP_CONCAT(DISTINCT concat(u.firstName,' ',u.lastName,' (',u.username,')')) as assignedFaculty from "
+				+ "tee_student_batchwise isb join users u on u.username=isb.facultyId left join tee_total_marks itm on itm.teeId=isb.teeId and isb.username=itm.username "
+				+ "where isb.teeId = ? and isb.active = 'Y' group by isb.facultyId,itm.saveAsDraft,itm.finalSubmit";
+		return findAllSQL(sql, new Object[] { teeId });
+	}
+
+	public int checkIfSavedAsDraft(Long teeId) {
+		String sql = "select count(*) from tee_total_marks where teeId=? and saveAsDraft='Y'";
+		return getJdbcTemplate().queryForObject(sql, Integer.class, new Object[] {teeId});
 	}
 }

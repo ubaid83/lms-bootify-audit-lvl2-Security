@@ -1587,7 +1587,7 @@ public class AssignmentController extends BaseController {
 		Token userDetails = (Token) principal;
 
 		logger.info("courseList---->" + userDetails.getCourseList());
-
+		
 		HashMap<String, List<Course>> sessionWiseCourseList = new HashMap<String, List<Course>>();
 
 		for (Course c : userDetails.getCourseList()) {
@@ -1626,7 +1626,7 @@ public class AssignmentController extends BaseController {
 			} else {
 			}
 		}
-		
+		try {
 		Date currDate = Utils.getInIST();
 		for (Assignment a : assignments) {
 			Course c = courseService.findByID(a.getCourseId());
@@ -1648,7 +1648,7 @@ public class AssignmentController extends BaseController {
 			}else {
 				a.setStudentHashKey("Hash Key Not Generated");
 			}
-
+			
 				boolean remarkFileExist = false;
 				String remarkFilePath = amazonS3ClientService.existsFile(submissionFolder+"/"+a.getAssignmentName()+"-"+a.getId()+"/Remarks", username);
 				//logger.info("check for file--->"+remarkFileExist);
@@ -1680,6 +1680,10 @@ public class AssignmentController extends BaseController {
 		
 		if ((assignments.size() == 0 || assignments.isEmpty()) && courseId != null) {
 			setNote(m, "No Assignments Allocated to you!");
+		}
+		}catch(Exception e) {
+			logger.error(e.getMessage(), e);
+			setError(m, "Error in getting assignment.");
 		}
 		m.addAttribute("courseId", courseId);
 		m.addAttribute("assignments", assignments);

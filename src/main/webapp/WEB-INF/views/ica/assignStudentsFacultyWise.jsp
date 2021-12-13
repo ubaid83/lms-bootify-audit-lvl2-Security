@@ -237,7 +237,7 @@
 					if(data.status == 'success'){
 						console.log("sucess");
 						console.log('returnData--->'+data);
-
+						
 						/* var returnJson = JSON.stringify(data);
 						console.log('return---->'+returnJson); */
 						
@@ -247,6 +247,9 @@
 					}else if(data.status == 'blank'){
 						alert('Select the Students');
 					}
+					/* else if(data.status == 'validationError'){
+						alert('Invalid Data');
+					} */
 					
 				}
 			});
