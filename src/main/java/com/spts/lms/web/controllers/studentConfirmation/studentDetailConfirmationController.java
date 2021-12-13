@@ -610,7 +610,7 @@ public class studentDetailConfirmationController extends BaseController {
 				sb.append("<th>First Name</th><th>Father Name</th><th>Mother Name</th>");
 				sb.append("</tr></thead>");
 				sb.append("<tbody><tr>");
-				for (User b : bf) {0
+				for (User b : bf) {
 
 					/*
 					 * sb.append("<td>" + b.getFirstname() +" "+b.getLastname()+
