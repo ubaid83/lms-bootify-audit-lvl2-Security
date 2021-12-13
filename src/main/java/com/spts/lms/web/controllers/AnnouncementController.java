@@ -3371,27 +3371,28 @@ public class AnnouncementController extends BaseController {
 				businessBypassRule.validateAlphaNumeric(announcement.getAcadSession());
 			}
 			
-			if(announcement.getProgramIds().isEmpty() || null==announcement.getProgramIds())
+			/*if(null==announcement.getProgramIds() || announcement.getProgramIds().size() == 0)
 			{ 
 				throw new ValidationException("Invalid Program Id");
 			
 			}else{
-			for(String programId:announcement.getProgramIds())
-			{
-				
-				
-				HtmlValidation.checkHtmlCode(programId);
-				businessBypassRule.validateNumeric(programId.toString());
-
-				//businessBypassRule.validateNumeric(programId.toString());
-				System.out.println("programId---"+programId);
-				Course Programdata=courseService.checkIfExistsInDB("programId", programId);
-				if(Programdata.toString().isEmpty() || null==Programdata)
-				{ 
-					throw new ValidationException("Invalid Program Id");
-				
+				for(String programId:announcement.getProgramIds())
+				{
+					
+					
+					HtmlValidation.checkHtmlCode(programId);
+					businessBypassRule.validateNumeric(programId.toString());
+	
+					//businessBypassRule.validateNumeric(programId.toString());
+					System.out.println("programId---"+programId);
+					Course Programdata=courseService.checkIfExistsInDB("programId", programId);
+					if(Programdata.toString().isEmpty() || null==Programdata)
+					{ 
+						throw new ValidationException("Invalid Program Id");
+					
+					}
 				}
-			}}
+			}*/
 			
 			businessBypassRule.validateYesOrNo(announcement.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(announcement.getSendSmsAlert());
@@ -3517,9 +3518,18 @@ public class AnnouncementController extends BaseController {
 			setSuccess(m, "Announcement updated successfully");
 			m.addAttribute("announcement", announcementDb1);
 
+		}catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			if (typeOfAnn != null) {
+				if ("PROGRAM".equals(typeOfAnn)) {
+					return "redirect:/addAnnouncementFormMultiProgram";
+				}
+			}
+			return "redirect:/addAnnouncementForm";
 		} catch (Exception e) {
-			logger.info("e---"+e.getMessage());
-			logger.info("e---"+e);
+			//logger.info("e---"+e.getMessage());
+			//logger.info("e---"+e);
 			logger.error("Exception", e);
 			setError(redirectAttrs, "Error in updating Announcement");
 			if (typeOfAnn != null) {
