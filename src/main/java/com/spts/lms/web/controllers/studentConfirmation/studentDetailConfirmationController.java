@@ -610,7 +610,7 @@ public class studentDetailConfirmationController extends BaseController {
 				sb.append("<th>First Name</th><th>Father Name</th><th>Mother Name</th>");
 				sb.append("</tr></thead>");
 				sb.append("<tbody><tr>");
-				for (User b : bf) {
+				for (User b : bf) {0
 
 					/*
 					 * sb.append("<td>" + b.getFirstname() +" "+b.getLastname()+
@@ -651,8 +651,8 @@ public class studentDetailConfirmationController extends BaseController {
 				msg = msg + sb.toString();
 				logger.info("Message:" + msg);
 
-				Boolean success = notifier.sendEmail(map, mobile, subject, msg);
-				logger.info("success------------>" + success);
+//				Boolean success = notifier.sendEmail(map, mobile, subject, msg);
+//				logger.info("success------------>" + success);
 			}
 		}
 
