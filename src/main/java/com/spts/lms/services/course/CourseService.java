@@ -434,9 +434,9 @@ public String getAcadMonthByModuleIdAndAcadYearAndProgram(String moduleId, Strin
 	}
 	
 
-//	public Course checkIfAcadYearExists(String acadYear) {
-//		return courseDAO.checkIfAcadYearExists(acadYear);
-//	}
+	public Course checkIfAcadYearExists(String acadYear) {
+		return courseDAO.checkIfAcadYearExists(acadYear);
+	}
 	
 	//Peter 20/10/2021
 	public Course checkIfProgramExists(String programId) {

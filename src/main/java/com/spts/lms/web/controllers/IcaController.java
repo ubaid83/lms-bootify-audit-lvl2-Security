@@ -1572,7 +1572,6 @@ public class IcaController extends BaseController {
 							ica.setIsApproved("Y");
 						}
 					}
-					
 				}
 			} else {
 				if (ica.getIcaQueryId() != null) {

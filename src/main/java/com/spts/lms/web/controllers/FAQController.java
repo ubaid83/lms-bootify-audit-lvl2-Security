@@ -462,22 +462,24 @@ public class FAQController extends BaseController {
 									.findAllStudentUsernames(Long.valueOf(classParticipation.getCourseId()));
 							
 							
-							
+//							logger.info("List--->"+studentsFromDB);
+//							logger.info("SAP ID--->"+mapper.get("SAP ID").toString());
+//							logger.info("contains--->"+studentsFromDB.contains(mapper.get("SAP ID").toString()));
 							ClassParticipation classparticipations = new ClassParticipation();
 							if (studentsFromDB.contains(mapper.get("SAP ID").toString())) {
-								
+//								logger.info("SAP ID--->"+mapper.get("SAP ID").toString());
 									classparticipations.setScore(Integer.parseInt(mapper.get("ASSIGNED SCORE").toString()));
 									classparticipations.setRemarks(mapper.get("ASSIGN REMARKS").toString());
 									classparticipations.setLastModifiedBy(username);
 									classparticipations.setUsername(mapper.get("SAP ID").toString());
-									
+									classparticipations.setCourseId(classParticipation.getCourseId());
 									classparticipationsList.add(classparticipations);
 								
 								
 							} 
 							
 							else {
-								System.out.println("class participation student ID -----> "+classparticipations.getUsername()); 
+//								logger.info("class participation student ID -----> "+classparticipations.getUsername()); 
 								classparticipations.setScore(Integer.parseInt(mapper.get("ASSIGNED SCORE").toString()));
 								classparticipations.setRemarks(mapper.get("ASSIGN REMARKS").toString());
 								classparticipations.setUsername(mapper.get("SAP ID").toString());
@@ -581,7 +583,7 @@ public class FAQController extends BaseController {
 			m.addAttribute("showIcon", false);
 			//return "Success";
 			
-			String json = "success";
+			String json = "{\"Status\":\"Success\"}";
 			return json;
 			
 		}

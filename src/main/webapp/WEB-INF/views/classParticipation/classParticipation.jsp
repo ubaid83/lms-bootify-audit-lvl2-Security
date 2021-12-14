@@ -301,7 +301,7 @@
 
 										//var remarks = value.replaceAll('+', '%2B');
 
-										var remarks = value;
+										/* var remarks = value; */
 
 										console
 												.log("value replaced "
