@@ -527,4 +527,15 @@ public class UserCourseService extends BaseService<UserCourse> {
 	public UserCourse getFacultyCourseId(String assignedFaculty, String moduleId) {
 		return userCourseDAO.getFacultyCourseId(assignedFaculty,moduleId);
 	}
+	
+	//Sandip
+	public UserCourse checkIfStudentExistsInDB(String username, Long courseId) {
+		return userCourseDAO.checkIfStudentExistsInDB(username,courseId);
+   }
+	
+	//sandip
+	public UserCourse checkIfFacultyCourseAcadYear(String username, Long courseId, Integer acadYear) {
+		return userCourseDAO.checkIfFacultyCourseAcadYear(username,courseId, acadYear);
+    }
+  
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+
 import com.spts.lms.beans.ica.IcaBean;
 import com.spts.lms.beans.course.Course;
 import com.spts.lms.beans.user.Role;
@@ -788,7 +789,7 @@ public class UserService extends BaseService<User> {
 	public User checkIfExistsInDB(String username) {
 		return userDAO.checkIfExistsInDB(username);
 	}
-
-
-
+    
+	
+	
 }
