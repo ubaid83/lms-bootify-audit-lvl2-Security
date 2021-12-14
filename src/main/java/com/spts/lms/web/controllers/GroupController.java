@@ -554,21 +554,22 @@ public class GroupController extends BaseController {
 			}
 
 			System.out.println("groupdetails: " + groups.getAcadYear());
-
 			List<String> stu = groups.getStudents();
-
+			
 			for (String student : stu) {
-				BusinessBypassRule.validateNumeric(student);
-				if (student != null) {
-					User students = userService.checkIfExistsInDB(student);
-					if (students == null) {
-						throw new ValidationException(
-								"Invalid Students SAP ID!");
-					}
-				}
+				System.out.println("Allocated studnets1111 :"+student);
+		    	UserCourse checkStudentId =userCourseService.checkStudentSAPId(student, groups.getCourseId());
+		    	
+		    	if(null !=checkStudentId){
+		    		System.out.println("valid student Id!");
+		    	}
+		    	else
+		    	{
+		    		throw new ValidationException("Invalid Students SAP ID!");
+		    	}
+			     
 			}
 
-			
 			//Sandip 06/12/2021
 			
 			if (stu != null && stu.size() > 0) {

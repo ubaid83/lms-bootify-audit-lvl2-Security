@@ -17,8 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 
+
+
 import com.spts.lms.beans.ica.IcaBean;
 import com.spts.lms.beans.course.Course;
+import com.spts.lms.beans.course.UserCourse;
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
 import com.spts.lms.beans.user.UserRole;
@@ -789,7 +792,8 @@ public class UserService extends BaseService<User> {
 	public User checkIfExistsInDB(String username) {
 		return userDAO.checkIfExistsInDB(username);
 	}
-    
+
+	
 	
 	
 }

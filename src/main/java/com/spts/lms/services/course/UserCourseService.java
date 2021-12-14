@@ -538,4 +538,12 @@ public class UserCourseService extends BaseService<UserCourse> {
 		return userCourseDAO.checkIfFacultyCourseAcadYear(username,courseId, acadYear);
     }
   
+	//sandip
+	public UserCourse checkStudentSAPId(String username, Long courseId) {
+		return userCourseDAO.checkStudentSAPId(username, courseId);
+	 }
+
+	
+
+	
 }
