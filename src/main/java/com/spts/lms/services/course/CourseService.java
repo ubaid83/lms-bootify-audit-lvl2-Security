@@ -434,20 +434,20 @@ public String getAcadMonthByModuleIdAndAcadYearAndProgram(String moduleId, Strin
 	}
 	
 
-//	public Course checkIfAcadYearExists(String acadYear) {
-//		return courseDAO.checkIfAcadYearExists(acadYear);
-//	}
+	public Course checkIfAcadYearExists(String acadYear) {
+		return courseDAO.checkIfAcadYearExists(acadYear);
+	}
 	
 	//Peter 20/10/2021
 	public Course checkIfProgramExists(String programId) {
 		return courseDAO.checkIfProgramExists(programId);
 	}
 	
-//   
-//	public Course checkIfAcadYearExists(String acadYear, Long courseId) {
-//		return courseDAO.checkIfAcadYearExists(acadYear, courseId);
-//	}
-//	
+   
+	public Course checkIfAcadYearExists(String acadYear, Long courseId) {
+		return courseDAO.checkIfAcadYearExists(acadYear, courseId);
+	}
+	
 
 
 }
