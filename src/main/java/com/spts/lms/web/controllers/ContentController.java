@@ -455,7 +455,8 @@ public class ContentController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
+						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+								|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/addContentForm";
 						}else {
@@ -559,24 +560,23 @@ public class ContentController extends BaseController {
 			
 			businessBypassRule.validateNumeric(acadYear);
 		
-				Course course=new Course();
-				if(null!=idForCourse && !idForCourse.isEmpty()) {
+			Course course = new Course();
+			if (null != idForCourse && !idForCourse.isEmpty()) {
 				businessBypassRule.validateNumeric(idForCourse);
-				course=courseService.findByID(Long.valueOf(idForCourse));
+				course = courseService.findByID(Long.valueOf(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
 				}
-				if(null!=idForModule && !idForModule.isEmpty()) {
-					businessBypassRule.validateNumeric(idForModule);
-					course=courseService.findByID(Long.valueOf(idForModule));
-					}
-				
-				
+			}
+			if (null != idForModule && !idForModule.isEmpty()) {
+				businessBypassRule.validateNumeric(idForModule);
+				course = courseService.checkIfExistsInDB("moduleId", idForModule);
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
+			}
+
 			
-				if(null==course || course.toString().isEmpty()  )
-				{
-					
-					throw new ValidationException("Error in creating Folder");
-				
-				}
 				
 			businessBypassRule.validateaccesstype(content.getAccessType());
 			
@@ -674,7 +674,8 @@ public class ContentController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
+						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+								|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/addContentForm";
 						}else {
@@ -939,7 +940,7 @@ public class ContentController extends BaseController {
 			
 
 				
-			//	HtmlValidation.validateHtml(content, new ArrayList<>());
+				HtmlValidation.validateHtml(content, new ArrayList<>());
 
 
 			//	businessBypassRule.validateNumeric(acadYear);
@@ -958,30 +959,27 @@ public class ContentController extends BaseController {
 
 				businessBypassRule.validateAlphaNumeric(content.getContentName());
 				Course course=new Course();
-				if(null!=idForCourse && !idForCourse.isEmpty()) {
+				if (null != idForCourse && !idForCourse.isEmpty()) {
 					businessBypassRule.validateNumeric(idForCourse);
-					
-					
-					course=courseService.checkIfExistsInDB("moduleId",idForCourse);
+					course = courseService.findByID(Long.valueOf(idForCourse));
+					if (null == course) {
+						if (file != null && file.list().length == 0) {
+							file.delete();
+						}
+						throw new ValidationException("Invalid course");
+					}
 				}
-				if(null!=idForModule && !idForModule.isEmpty() ) {
-					
+				if (null != idForModule && !idForModule.isEmpty()) {
 					businessBypassRule.validateNumeric(idForModule);
-					course=courseService.checkIfExistsInDB("moduleId",idForModule);
+					course = courseService.checkIfExistsInDB("moduleId", idForModule);
+					if (null == course) {
+						if (file != null && file.list().length == 0) {
+							file.delete();
+						}
+						throw new ValidationException("Invalid course");
 					}
-				
-			
-				if(course.toString().isEmpty() || null==course)
-				{
-					
-					
-					if (file != null && file.list().length == 0) {
-						file.delete();
-					}
-					
-					throw new ValidationException("Error in creating Folder Invalid Module Selected");
-				
 				}
+				
 				
 				businessBypassRule.validateaccesstype(content.getAccessType());
 			
@@ -1641,7 +1639,8 @@ public class ContentController extends BaseController {
 				}else {
 					String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
+					if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+							|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 						setError(redirectAttrs, "File uploaded is invalid!");
 						return "redirect:/addContentForm";
 					}else {
@@ -1755,21 +1754,20 @@ public class ContentController extends BaseController {
 			businessBypassRule.validateNumeric(acadYear);
 			businessBypassRule.validateAlphaNumeric(content.getContentName());
 			Course course=new Course();
-			if(null!=idForCourse && idForCourse.isEmpty() ) {
-			businessBypassRule.validateNumeric(idForCourse);
-			course=courseService.findByID(Long.valueOf(idForCourse));
-			}
-			if(null!=idForModule && idForModule.isEmpty()) {
-				businessBypassRule.validateNumeric(idForModule);
-				course=courseService.findByID(Long.valueOf(idForModule));
+			//logger.info("--->"+idForCourse);
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.valueOf(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
 				}
-			
-			
-		
-			if(course.toString().isEmpty() || null==course)
-			{
-				throw new ValidationException("Error in creating Folder");
-			
+			}
+			if (null != idForModule && !idForModule.isEmpty()) {
+				businessBypassRule.validateNumeric(idForModule);
+				course = courseService.checkIfExistsInDB("moduleId", idForModule);
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
 			}
 			
 			businessBypassRule.validateaccesstype(content.getAccessType());
@@ -1854,7 +1852,8 @@ public class ContentController extends BaseController {
 				}else {
 					String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
+					if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+							|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 						setError(redirectAttrs, "File uploaded is invalid!");
 						return "redirect:/addContentForm";
 					}else {
@@ -1982,7 +1981,8 @@ public class ContentController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
+						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+								|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							redirectAttrs.addFlashAttribute("edit", "true");
 							return "redirect:/addContentForm";
@@ -2116,7 +2116,8 @@ public class ContentController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
+						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+								|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							redirectAttrs.addFlashAttribute("edit", "true");
 							return "redirect:/addContentForm";
@@ -2337,27 +2338,21 @@ public class ContentController extends BaseController {
 
 			
 			businessBypassRule.validateNumeric(acadYear);
-				businessBypassRule.validateAlphaNumeric(content.getContentName());
-				Course course=new Course();
-				
-					businessBypassRule.validateNumeric(idForModule);
-					course=courseService.findByID(Long.valueOf(idForModule));
-					
-				
-				
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course = new Course();
 			
-				if(course.toString().isEmpty() || null==course)
-				{
-					
-					
-					
-					throw new ValidationException("Error in creating linq");
-				
+			if (null != idForModule && !idForModule.isEmpty()) {
+				businessBypassRule.validateNumeric(idForModule);
+				course = courseService.checkIfExistsInDB("moduleId", idForModule);
+				if (null == course) {
+					throw new ValidationException("Invalid course");
 				}
-				
-				businessBypassRule.validateaccesstype(content.getAccessType());
-			
-			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			}
+
+			businessBypassRule.validateaccesstype(content.getAccessType());
+
+			utils.validateStartAndEndDates(content.getStartDate(),
+					content.getEndDate());
 			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
@@ -2449,7 +2444,7 @@ public class ContentController extends BaseController {
 
 		} catch (ValidationException e) {
 			logger.error(e.getMessage(), e);
-			setError(redirectAttrs, "Error in creating Link");
+			setError(redirectAttrs, e.getMessage());
 			return "redirect:/addContentForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

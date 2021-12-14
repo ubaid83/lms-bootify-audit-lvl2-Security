@@ -169,7 +169,8 @@ public class studentDetailConfirmationController extends BaseController {
 			}else {
 				String extension = FilenameUtils.getExtension(originalfileName);
 				logger.info("extension--->"+extension);
-				if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
+				if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+						|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 					m.addAttribute("fileuploaderror", "File uploaded is invalid!");
 					setError(r, "File uploaded is invalid!");
 					return "redirect:/homepage";
@@ -651,8 +652,8 @@ public class studentDetailConfirmationController extends BaseController {
 				msg = msg + sb.toString();
 				logger.info("Message:" + msg);
 
-				Boolean success = notifier.sendEmail(map, mobile, subject, msg);
-				logger.info("success------------>" + success);
+//				Boolean success = notifier.sendEmail(map, mobile, subject, msg);
+//				logger.info("success------------>" + success);
 			}
 		}
 
