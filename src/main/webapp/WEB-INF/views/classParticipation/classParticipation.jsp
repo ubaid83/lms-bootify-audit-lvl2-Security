@@ -125,7 +125,7 @@
 											modelAttribute="classParticipation">
 											<form:input path="courseId" type="hidden" />
 											<div class="table-responsive testAssignTable">
-												<table class="table table-striped table-hover">
+												<table class="table table-striped table-hover" id="classParticipationTable">
 													<thead>
 														<tr>
 															<th>Sr. No.</th>
@@ -271,15 +271,12 @@
 												+ encodeURIComponent(selectedValue);
 										return false;
 									});
-
-					$(".likeClass")
-							.click(
-									function() {
+					$("#classParticipationTable").on("click", ".likeClass", function(){
+						console.log("likeClass called");
 										$('#likeClass').click(function() {
 											change(1);
 										});
-										console
-												.log("called ........................................................000000.");
+										console.log("likeClass called");
 
 										var likeId = $(this).attr("id");
 

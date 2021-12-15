@@ -1638,5 +1638,5 @@ public class UserCourseDAO extends BaseDAO<UserCourse> {
 		public UserCourse  checkStudentSAPId(String username, Long courseId) {
 			String sql = "select username from user_course where username=? and courseId=?";
 			return findOneSQL(sql, new Object[] {username, courseId});
-	 }
+		}
 }

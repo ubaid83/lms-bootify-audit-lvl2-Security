@@ -208,6 +208,8 @@ public class AssignmentController extends BaseController {
 	@Autowired
 	TestQuestionPoolsService testQuestionPoolsService;
 	
+	@Autowired
+	BusinessBypassRule businessBypassRule;
 
 	protected static final int BUFFER_SIZE = 4096;
 
@@ -1001,11 +1003,14 @@ public class AssignmentController extends BaseController {
 	@RequestMapping(value = "/saveStudentAssignmentAllocation", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentAssignmentAllocation(
-			@ModelAttribute Assignment assignment, Model m, Principal principal) {
+			@ModelAttribute Assignment assignment, Model m, Principal principal,RedirectAttributes redirectAttributes) {
 		m.addAttribute("webPage", new WebPage("assignment",
 				"Create Assignment", true, false));
 		String username = principal.getName();
 
+		
+		
+		
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
@@ -1032,7 +1037,7 @@ public class AssignmentController extends BaseController {
 		try {
 			if (assignment.getStudents() != null
 					&& assignment.getStudents().size() > 0) {
-				
+				businessBypassRule.validateStudentAllocationList(assignment.getStudents(), String.valueOf(assignment.getCourseId()));
 				if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
 					studentList.add(retrived.getFacultyId());
 				}
@@ -1149,6 +1154,11 @@ public class AssignmentController extends BaseController {
 				return viewAssignment(assignment.getId(), m, null, principal);
 			}
 
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttributes, ve.getMessage());
+			return "redirect:/viewAssignment?id=" + assignment.getId();
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in allocating assignment");
@@ -4209,7 +4219,7 @@ public class AssignmentController extends BaseController {
 	@RequestMapping(value = "/saveStudentAssignmentAllocationForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentAssignmentAllocationForModule(
-			@ModelAttribute Assignment assignment, Model m, Principal principal) {
+			@ModelAttribute Assignment assignment, Model m, Principal principal, RedirectAttributes redirectAttributes) {
 		m.addAttribute("webPage", new WebPage("assignment",
 				"Create Assignment", true, false));
 		String username = principal.getName();
@@ -4242,6 +4252,10 @@ public class AssignmentController extends BaseController {
 			if (assignment.getStudents() != null
 					&& assignment.getStudents().size() > 0) {
 				studentList.add(username);
+				List<String> courseList = assignment.getStudents().stream().map(student -> student.split("_")[1]).distinct().collect(Collectors.toList());
+				for(String c: courseList) {
+					businessBypassRule.validateStudentAllocationList(assignment.getStudents(), String.valueOf(assignment.getCourseId()));
+				}
 				for (String studentUsername : assignment.getStudents()) {
 					StudentAssignment bean = new StudentAssignment();
 					logger.info("studentUsername------->"+studentUsername);
@@ -4346,6 +4360,11 @@ public class AssignmentController extends BaseController {
 				return viewAssignmentForModule(assignment.getId(), m, null, principal);
 			}
 
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttributes, ve.getMessage());
+			return "redirect:/viewAssignmentForModule?id=" + assignment.getId();
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in allocating assignment");

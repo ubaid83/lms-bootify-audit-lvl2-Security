@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -188,6 +189,9 @@ public class TestController extends BaseController {
 
 	@Autowired
 	TestPoolDAO testPoolDAO;
+	
+	@Autowired
+	BusinessBypassRule businessBypassRule;
 
 	@Autowired
 	TestQuestionPoolsDAO testQuestionPoolsDAO;
@@ -1819,6 +1823,13 @@ public class TestController extends BaseController {
 		}
 
 		try {
+			List<String> studentUsernames = test.getStudentTests().stream().map(map -> map.getUsername()).collect(Collectors.toList());
+			logger.info("studentUsernames--->"+studentUsernames);
+			if(studentUsernames.size() > 0) {
+				businessBypassRule.validateStudentAllocationList(studentUsernames, String.valueOf(test.getCourseId()));
+			} else {
+				throw new ValidationException("No Student selected or you have tampered the student SAP IDs.");
+			}
 			for (StudentTest studentTest : test.getStudentTests()) {
 
 				studentTest.setCreatedBy(username);
@@ -1937,6 +1948,9 @@ public class TestController extends BaseController {
 			}
 			setSuccess(redirectAttr, "Students Allocated successfully");
 
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttr, ve.getMessage());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttr, "Error in allocating test");
@@ -2751,6 +2765,25 @@ public class TestController extends BaseController {
 					throw new ValidationException("Question Marks should be " + test.getMarksPerQue() + ".");
 				}
 			}
+			if("Y".equals(test.getRandomQuestion()) && "N".equals(test.getSameMarksQue())) {
+				List<TestConfiguration> testConfigList = testConfigurationService.findAllByTestId(test.getId());
+				List<TestPoolConfiguration> testPoolConfigList = testPoolConfigurationService.findAllByTestId(test.getId());
+				if(testConfigList.size() > 0) {
+					TestConfiguration tc = testConfigList.stream().filter(testConfiguration -> testQuestion.getMarks().equals(testConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else if(testPoolConfigList.size() > 0) {
+					TestPoolConfiguration tpc = testPoolConfigList.stream().filter(testPoolConfiguration -> testQuestion.getMarks().equals(testPoolConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tpc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else {
+					throw new ValidationException("Please configure question weightage.");
+				}
+			}
 			/* New Audit changes end */
 			if (testQuestions.isEmpty()) {
 				sumOfQuestionMarks = testQuestion.getMarks();
@@ -2874,6 +2907,25 @@ public class TestController extends BaseController {
 			if("Y".equals(test.getSameMarksQue())) {
 				if(!testQuestion.getMarks().equals(test.getMarksPerQue())) {
 					throw new ValidationException("Question Marks should be " + test.getMarksPerQue() + ".");
+				}
+			}
+			if("Y".equals(test.getRandomQuestion()) && "N".equals(test.getSameMarksQue())) {
+				List<TestConfiguration> testConfigList = testConfigurationService.findAllByTestId(test.getId());
+				List<TestPoolConfiguration> testPoolConfigList = testPoolConfigurationService.findAllByTestId(test.getId());
+				if(testConfigList.size() > 0) {
+					TestConfiguration tc = testConfigList.stream().filter(testConfiguration -> testQuestion.getMarks().equals(testConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else if(testPoolConfigList.size() > 0) {
+					TestPoolConfiguration tpc = testPoolConfigList.stream().filter(testPoolConfiguration -> testQuestion.getMarks().equals(testPoolConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tpc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else {
+					throw new ValidationException("Please configure question weightage.");
 				}
 			}
 			/* New Audit changes end */
@@ -3129,6 +3181,25 @@ public class TestController extends BaseController {
 			if("Y".equals(test.getSameMarksQue())) {
 				if(!testQuestion.getMarks().equals(test.getMarksPerQue())) {
 					throw new ValidationException("Question Marks should be " + test.getMarksPerQue() + ".");
+				}
+			}
+			if("Y".equals(test.getRandomQuestion()) && "N".equals(test.getSameMarksQue())) {
+				List<TestConfiguration> testConfigList = testConfigurationService.findAllByTestId(test.getId());
+				List<TestPoolConfiguration> testPoolConfigList = testPoolConfigurationService.findAllByTestId(test.getId());
+				if(testConfigList.size() > 0) {
+					TestConfiguration tc = testConfigList.stream().filter(testConfiguration -> testQuestion.getMarks().equals(testConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else if(testPoolConfigList.size() > 0) {
+					TestPoolConfiguration tpc = testPoolConfigList.stream().filter(testPoolConfiguration -> testQuestion.getMarks().equals(testPoolConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tpc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else {
+					throw new ValidationException("Please configure question weightage.");
 				}
 			}
 			/* New Audit changes end */
@@ -8190,6 +8261,13 @@ public class TestController extends BaseController {
 //			List<UserCourse> userCourseListByCourseId = new ArrayList<>();
 //			userCourseListByCourseId = userCourseService.getStudentsByModuleId(String.valueOf(testFromDb.getModuleId()),
 //					String.valueOf(testFromDb.getAcadYear()));
+			List<String> studentUsernames = test.getStudentTests().stream().map(map -> map.getUsername()).collect(Collectors.toList());
+//			logger.info("studentUsernames--->"+studentUsernames);
+			if(studentUsernames.size() > 0) {
+				businessBypassRule.validateStudentAllocationList(studentUsernames, String.valueOf(test.getCourseId()));
+			} else {
+				throw new ValidationException("No Student selected or you have tampered the student SAP IDs.");
+			}
 			for (StudentTest studentTest : test.getStudentTests()) {
 
 				studentTest.setCreatedBy(username);
@@ -8311,6 +8389,9 @@ public class TestController extends BaseController {
 			}
 			setSuccess(redirectAttr, "Students Allocated successfully");
 
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttr, ve.getMessage());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttr, "Error in allocating test");
