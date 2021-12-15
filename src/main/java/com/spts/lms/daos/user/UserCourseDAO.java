@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import com.spts.lms.beans.course.UserCourse;
 import com.spts.lms.beans.user.Role;
+import com.spts.lms.beans.user.User;
 import com.spts.lms.daos.BaseDAO;
 import com.spts.lms.helpers.PaginationHelper.Page;
 
@@ -1621,4 +1622,21 @@ public class UserCourseDAO extends BaseDAO<UserCourse> {
 		String sql = "select courseId from course c join user_course uc on c.id=uc.courseId where uc.username=? and c.moduleId=? limit 1";
 		return findOneSQL(sql,new Object[] { assignedFaculty, moduleId });
 	}
+	
+	//sandip
+		public UserCourse checkIfStudentExistsInDB(String username, Long courseId) {
+			String sql = "select username from user_course where username=? and courseId=? and role='ROLE_STUDENT' and active='Y'";
+			return findOneSQL(sql, new Object[] {username,  courseId});
+	   }
+		
+	  //sandip
+		public UserCourse checkIfFacultyCourseAcadYear(String username, Long courseId, Integer acadYear) {
+			String sql = "select username from user_course where username=? and courseId=? and acadYear=?";
+			return findOneSQL(sql, new Object[] {username, courseId, acadYear});
+	   }
+		//sandip
+		public UserCourse  checkStudentSAPId(String username, Long courseId) {
+			String sql = "select username from user_course where username=? and courseId=?";
+			return findOneSQL(sql, new Object[] {username, courseId});
+	 }
 }

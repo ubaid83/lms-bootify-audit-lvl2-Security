@@ -35,21 +35,30 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.amazonaws.services.applicationautoscaling.model.ValidationException;
+
+
+
+
+
+
 import com.spts.lms.auth.Token;
 import com.spts.lms.beans.classParticipation.ClassParticipation;
 import com.spts.lms.beans.course.Course;
+import com.spts.lms.beans.course.UserCourse;
 import com.spts.lms.beans.faq.Faq;
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
 import com.spts.lms.helpers.excel.ExcelCreater;
 import com.spts.lms.helpers.excel.ExcelReader;
 import com.spts.lms.services.classParticipation.ClassParticipationService;
+import com.spts.lms.services.course.CourseService;
+import com.spts.lms.services.course.UserCourseService;
 import com.spts.lms.services.faq.FaqService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 @Controller
 public class FAQController extends BaseController {
 
@@ -59,10 +68,16 @@ public class FAQController extends BaseController {
 	UserService userService;
 	@Value("${lms.assignment.downloadAllFolder}")
 	private String downloadAllFolder;
+	
+	@Autowired
+	CourseService courseService;
 
 	@Autowired
 	ClassParticipationService classParticipationService;
 	
+	@Autowired
+	UserCourseService userCourseService; 
+
 	@Autowired
 	BusinessBypassRule businessBypassRule;
 
@@ -369,7 +384,7 @@ public class FAQController extends BaseController {
 	@RequestMapping(value = "/uploadStudentsMarks", method = { RequestMethod.POST })
 	public String uploadStudentsMarks(@ModelAttribute ClassParticipation classParticipation,
 			@RequestParam("file") MultipartFile file, Model m,
-			RedirectAttributes redirectAttributes, Principal principal) {
+			RedirectAttributes redirectAttributes, Principal principal, Long courseId) {
 		m.addAttribute("webPage", new WebPage("test", "Upload FAQs", true,
 				false));
 		logger.info("inside student marks : "+file.getOriginalFilename());
@@ -384,9 +399,7 @@ public class FAQController extends BaseController {
 		ExcelReader excelReader = new ExcelReader();
 		
 		System.out.println("file uploaded");
-		
-		System.out.println("student SAP ID : "+classParticipation.getUsername());
-		
+			
 		try {
 			
 			//Sandip 
@@ -396,8 +409,25 @@ public class FAQController extends BaseController {
 			System.out.println("mapsmapsmaps--------12222"+maps.get(0));
 			System.out.println("mapsmapsmaps--------12222"+maps.get(1));
 			
-					
-		
+			//Sandip
+			
+			for (Map<String, Object> map : maps) {
+				System.out.println("student username : " + map.get("SAP ID"));
+
+				UserCourse classPart = userCourseService.checkIfStudentExistsInDB(map
+						.get("SAP ID").toString(), Long.valueOf(classParticipation.getCourseId()));
+				System.out.println("shshsh : " + classPart);
+
+				if (null != classPart) {
+					System.out.println("Students username is valid!");
+				} else {
+					throw new ValidationException("Invalid Students username!");
+				}
+
+			}
+		   //Sandip
+			
+			
 			logger.info("inside student marks : "+file.getOriginalFilename());
 			if (maps.size() == 0) {
 				setNote(m, "Excel File is empty");
@@ -432,22 +462,24 @@ public class FAQController extends BaseController {
 									.findAllStudentUsernames(Long.valueOf(classParticipation.getCourseId()));
 							
 							
-							
+//							logger.info("List--->"+studentsFromDB);
+//							logger.info("SAP ID--->"+mapper.get("SAP ID").toString());
+//							logger.info("contains--->"+studentsFromDB.contains(mapper.get("SAP ID").toString()));
 							ClassParticipation classparticipations = new ClassParticipation();
 							if (studentsFromDB.contains(mapper.get("SAP ID").toString())) {
-								
+//								logger.info("SAP ID--->"+mapper.get("SAP ID").toString());
 									classparticipations.setScore(Integer.parseInt(mapper.get("ASSIGNED SCORE").toString()));
 									classparticipations.setRemarks(mapper.get("ASSIGN REMARKS").toString());
 									classparticipations.setLastModifiedBy(username);
 									classparticipations.setUsername(mapper.get("SAP ID").toString());
-									
+									classparticipations.setCourseId(classParticipation.getCourseId());
 									classparticipationsList.add(classparticipations);
 								
 								
 							} 
 							
 							else {
-								System.out.println("class participation student ID -----> "+classparticipations.getUsername()); 
+//								logger.info("class participation student ID -----> "+classparticipations.getUsername()); 
 								classparticipations.setScore(Integer.parseInt(mapper.get("ASSIGNED SCORE").toString()));
 								classparticipations.setRemarks(mapper.get("ASSIGN REMARKS").toString());
 								classparticipations.setUsername(mapper.get("SAP ID").toString());
@@ -551,7 +583,7 @@ public class FAQController extends BaseController {
 			m.addAttribute("showIcon", false);
 			//return "Success";
 			
-			String json = "success";
+			String json = "{\"Status\":\"Success\"}";
 			return json;
 			
 		}
