@@ -2098,6 +2098,25 @@ public class ContentController extends BaseController {
 		try {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
 			performFolderPathCheck(content);
+			
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course=new Course();
+			//logger.info("--->"+idForCourse);
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.valueOf(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
 			Content contentDB = contentService.findByID(content.getId());
 			if (file != null && !file.isEmpty()) {
 				
