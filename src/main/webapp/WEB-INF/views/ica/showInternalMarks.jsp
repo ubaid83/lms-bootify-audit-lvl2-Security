@@ -480,10 +480,11 @@
                                                                          url: '${pageContext.request.contextPath}/raiseQueryForStudent',
                                                                          data: {id:icaId,query:query},
                                                                       success : function(data) {
-                                                                    	  if(data=='validationError'){
+                                                                    	  const obj = JSON.parse(data);
+                                                                    	  if(obj.Status === 'ValidationException'){
                                                                     		  $(".newLoaderWrap").css('display','none');
-                                                                              swal('Special characters are not allowed to enter except underscore(_) and hyphen(-)');
-                                                                    	  } else {
+                                                                              swal(obj.msg);
+                                                                    	  } else if(obj.Status === 'Success') {
                                                                     	  
                                                                     	  console.log('data is ' + data);
                                                                             $(".newLoaderWrap").css('display','none');
@@ -507,6 +508,8 @@
                                                                                                     + icaId).value = query;
                                                                             swal('query raised successfully');
                                                                             //$("#raiseQ").addClass('disabled');
+                                                                    	  } else {
+                                                                    		  swal('Error in raising query');
                                                                     	  }
                                                                       },
                                                                       error : function() {
