@@ -3,14 +3,21 @@ package com.spts.lms.web.utils;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 //import org.springframework.web.multipart.MultipartFile;
+
+import com.spts.lms.beans.course.UserCourse;
+import com.spts.lms.beans.test.TestConfiguration;
+import com.spts.lms.services.course.UserCourseService;
 
 //import org.springframework.stereotype.Component;
 //import org.springframework.stereotype.Service;
@@ -21,6 +28,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class BusinessBypassRule {
+	
+	@Autowired
+	UserCourseService userCourseService;
 	
 	private static final Logger logger = Logger.getLogger(BusinessBypassRule.class);
 	
@@ -302,5 +312,17 @@ public class BusinessBypassRule {
 		}
 	 }
 
+	public void validateStudentAllocationList(List<String> usernames, String courseId) throws ValidationException{
+		List<UserCourse> uc = userCourseService.getStudentsByCourseId(courseId);
+//		List<String> studentUsernames = uc.stream().map(map -> map.getUsername()).collect(Collectors.toList());
+//		logger.info("studentUsernames--->"+studentUsernames);
+		for(String s: usernames) {
+			UserCourse userExist = uc.stream().filter(userCourse -> s.equals(userCourse.getUsername()))
+					.findAny().orElse(null);
+			if(userExist == null) {
+				throw new ValidationException("You have tampered the student SAP IDs.");
+			}
+		}
+	}
 }
 

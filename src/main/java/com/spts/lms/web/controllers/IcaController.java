@@ -1572,7 +1572,6 @@ public class IcaController extends BaseController {
 							ica.setIsApproved("Y");
 						}
 					}
-					
 				}
 			} else {
 				if (ica.getIcaQueryId() != null) {
@@ -10596,13 +10595,13 @@ public class IcaController extends BaseController {
 		}
 		try {
 			logger.info("Raising Query...");
+			logger.info("query is " + query);
 			HtmlValidation.checkHtmlCode(id);
-			HtmlValidation.checkHtmlCode(compId);
+			if(compId != null && !compId.isEmpty()){
+				HtmlValidation.checkHtmlCode(compId);
+			}
 			HtmlValidation.checkHtmlCode(query);
-			
-			
 			BusinessBypassRule.validateAlphaNumeric(query);
-			
 			IcaBean icaBean = icaBeanService.findByID(Long.valueOf(id));
 			if ("Y".equals(icaBean.getIsPublishCompWise())) {
 				if (compId != null) {
@@ -10680,15 +10679,21 @@ public class IcaController extends BaseController {
 					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
-			return "success";
+			String json = "{\"Status\":\"Success\"}";
+			return json;
+//			return "success";
 		} 
 		catch (ValidationException ve) {
 			logger.error("ValidationException", ve);
-			return "validationError";
+			String json = "{\"Status\":\"ValidationException\", \"msg\":\""+ve.getMessage()+"\"}";
+			return json;
+//			return "validationError";
 		} 
 		catch (Exception ex) {
 			logger.error("Exception", ex);
-			return "error";
+//			return "error";
+			String json = "{\"Status\":\"Error\", \"msg\":\""+ex.getMessage()+"\"}";
+			return json;
 		}
 
 	}

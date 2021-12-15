@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -188,6 +189,9 @@ public class TestController extends BaseController {
 
 	@Autowired
 	TestPoolDAO testPoolDAO;
+	
+	@Autowired
+	BusinessBypassRule businessBypassRule;
 
 	@Autowired
 	TestQuestionPoolsDAO testQuestionPoolsDAO;
@@ -1819,6 +1823,13 @@ public class TestController extends BaseController {
 		}
 
 		try {
+			List<String> studentUsernames = test.getStudentTests().stream().map(map -> map.getUsername()).collect(Collectors.toList());
+			logger.info("studentUsernames--->"+studentUsernames);
+			if(studentUsernames.size() > 0) {
+				businessBypassRule.validateStudentAllocationList(studentUsernames, String.valueOf(test.getCourseId()));
+			} else {
+				throw new ValidationException("No Student selected or you have tampered the student SAP IDs.");
+			}
 			for (StudentTest studentTest : test.getStudentTests()) {
 
 				studentTest.setCreatedBy(username);
@@ -1937,6 +1948,9 @@ public class TestController extends BaseController {
 			}
 			setSuccess(redirectAttr, "Students Allocated successfully");
 
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttr, ve.getMessage());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttr, "Error in allocating test");
@@ -2610,6 +2624,7 @@ public class TestController extends BaseController {
 			throw new ValidationException("Invalid Test Question Sub Type.");
 		}
 	}
+	
 	@Secured({"ROLE_FACULTY","ROLE_ADMIN"})
 	@RequestMapping(value = "/addTestQuestion", method = RequestMethod.POST)
 	public String addTestQuestion(@ModelAttribute TestQuestion testQuestion, Model m, RedirectAttributes redirectAttrs,
@@ -2629,17 +2644,144 @@ public class TestController extends BaseController {
 			BusinessBypassRule.validateNumericNotAZero(testQuestion.getMarks());
 			validateTestQuestionType(testQuestion.getQuestionType());
 			if(testQuestion.getQuestionType().equals("MCQ")) {
-				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption1());
-				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption2());
+//				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption1());
+//				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption2());
+				if(testQuestion.getOption1() == null || testQuestion.getOption1().isEmpty()) {
+					throw new ValidationException("Minimum 2 Option required.");
+				}
+				if(testQuestion.getOption2() == null || testQuestion.getOption2().isEmpty()) {
+					throw new ValidationException("Minimum 2 Option required.");
+				}
 				validateTestQuestionSubType(testQuestion.getType());
 				BusinessBypassRule.validateYesOrNo(testQuestion.getOptionShuffle());
 				if(testQuestion.getCorrectOption() == null || testQuestion.getCorrectOption().isEmpty()) {
 					throw new ValidationException("Please select correct Answer");
 				}
+				
+				if (testQuestion.getCorrectOption().contains(",")) {
+					List<String> splittedCorrectOption = new ArrayList<>();
+					splittedCorrectOption = Arrays.asList(testQuestion.getCorrectOption().split(","));
+					for(String s:splittedCorrectOption) {
+						switch(s) {
+						case "1": 
+							if(testQuestion.getOption1() == null || testQuestion.getOption1().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "2":
+							if(testQuestion.getOption2() == null || testQuestion.getOption2().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "3":
+							if(testQuestion.getOption3() == null || testQuestion.getOption3().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "4":
+							if(testQuestion.getOption4() == null || testQuestion.getOption4().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "5":
+							if(testQuestion.getOption5() == null || testQuestion.getOption5().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "6":
+							if(testQuestion.getOption6() == null || testQuestion.getOption6().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "7":
+							if(testQuestion.getOption7() == null || testQuestion.getOption7().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "8":
+							if(testQuestion.getOption8() == null || testQuestion.getOption8().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						default:
+							throw new ValidationException("Please select correct Answer");
+						}
+					}
+				}else {
+					switch(testQuestion.getCorrectOption()) {
+						case "1": 
+							if(testQuestion.getOption1() == null || testQuestion.getOption1().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "2":
+							if(testQuestion.getOption2() == null || testQuestion.getOption2().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "3":
+							if(testQuestion.getOption3() == null || testQuestion.getOption3().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "4":
+							if(testQuestion.getOption4() == null || testQuestion.getOption4().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "5":
+							if(testQuestion.getOption5() == null || testQuestion.getOption5().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "6":
+							if(testQuestion.getOption6() == null || testQuestion.getOption6().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "7":
+							if(testQuestion.getOption7() == null || testQuestion.getOption7().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "8":
+							if(testQuestion.getOption8() == null || testQuestion.getOption8().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						default:
+							throw new ValidationException("Please select correct Answer");
+					}
+				}
+				
 			}
 			if(testQuestion.getQuestionType().equals("Numeric")) {
 				if(testQuestion.getCorrectAnswerNum() == null || testQuestion.getCorrectAnswerNum().isEmpty()) {
-					throw new ValidationException("Please select correct Answer");
+					throw new ValidationException("Correct Answer Input field cannot be empty");
+				}
+			}
+			if("Y".equals(test.getSameMarksQue())) {
+				if(!testQuestion.getMarks().equals(test.getMarksPerQue())) {
+					throw new ValidationException("Question Marks should be " + test.getMarksPerQue() + ".");
+				}
+			}
+			if("Y".equals(test.getRandomQuestion()) && "N".equals(test.getSameMarksQue())) {
+				List<TestConfiguration> testConfigList = testConfigurationService.findAllByTestId(test.getId());
+				List<TestPoolConfiguration> testPoolConfigList = testPoolConfigurationService.findAllByTestId(test.getId());
+				if(testConfigList.size() > 0) {
+					TestConfiguration tc = testConfigList.stream().filter(testConfiguration -> testQuestion.getMarks().equals(testConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else if(testPoolConfigList.size() > 0) {
+					TestPoolConfiguration tpc = testPoolConfigList.stream().filter(testPoolConfiguration -> testQuestion.getMarks().equals(testPoolConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tpc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else {
+					throw new ValidationException("Please configure question weightage.");
 				}
 			}
 			/* New Audit changes end */
@@ -2761,6 +2903,30 @@ public class TestController extends BaseController {
 			BusinessBypassRule.validateNumeric(testQuestion.getMarks());
 			if(testQuestion.getQuestionType() == null || testQuestion.getQuestionType().isEmpty() || !testQuestion.getQuestionType().equals("Descriptive")) {
 				throw new ValidationException("Input field cannot be empty");
+			}
+			if("Y".equals(test.getSameMarksQue())) {
+				if(!testQuestion.getMarks().equals(test.getMarksPerQue())) {
+					throw new ValidationException("Question Marks should be " + test.getMarksPerQue() + ".");
+				}
+			}
+			if("Y".equals(test.getRandomQuestion()) && "N".equals(test.getSameMarksQue())) {
+				List<TestConfiguration> testConfigList = testConfigurationService.findAllByTestId(test.getId());
+				List<TestPoolConfiguration> testPoolConfigList = testPoolConfigurationService.findAllByTestId(test.getId());
+				if(testConfigList.size() > 0) {
+					TestConfiguration tc = testConfigList.stream().filter(testConfiguration -> testQuestion.getMarks().equals(testConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else if(testPoolConfigList.size() > 0) {
+					TestPoolConfiguration tpc = testPoolConfigList.stream().filter(testPoolConfiguration -> testQuestion.getMarks().equals(testPoolConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tpc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else {
+					throw new ValidationException("Please configure question weightage.");
+				}
 			}
 			/* New Audit changes end */
 			if (testQuestions.isEmpty()) {
@@ -2898,17 +3064,142 @@ public class TestController extends BaseController {
 			logger.info(testQuestion.getQuestionType());
 //			validateTestQuestionType(testQuestion.getQuestionType());
 			if(testQuestion.getQuestionType().equals("MCQ")) {
-				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption1());
-				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption2());
+//				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption1());
+//				BusinessBypassRule.validateAlphaNumeric(testQuestion.getOption2());
+				if(testQuestion.getOption1() == null || testQuestion.getOption1().isEmpty()) {
+					throw new ValidationException("Minimum 2 Option required.");
+				}
+				if(testQuestion.getOption2() == null || testQuestion.getOption2().isEmpty()) {
+					throw new ValidationException("Minimum 2 Option required.");
+				}
 				validateTestQuestionSubType(testQuestion.getType());
 				BusinessBypassRule.validateYesOrNo(testQuestion.getOptionShuffle());
 				if(testQuestion.getCorrectOption() == null && testQuestion.getCorrectOption().isEmpty()) {
 					throw new ValidationException("Please select correct Answer");
 				}
+				if (testQuestion.getCorrectOption().contains(",")) {
+					List<String> splittedCorrectOption = new ArrayList<>();
+					splittedCorrectOption = Arrays.asList(testQuestion.getCorrectOption().split(","));
+					for(String s:splittedCorrectOption) {
+						switch(s) {
+						case "1": 
+							if(testQuestion.getOption1() == null || testQuestion.getOption1().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "2":
+							if(testQuestion.getOption2() == null || testQuestion.getOption2().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "3":
+							if(testQuestion.getOption3() == null || testQuestion.getOption3().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "4":
+							if(testQuestion.getOption4() == null || testQuestion.getOption4().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "5":
+							if(testQuestion.getOption5() == null || testQuestion.getOption5().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "6":
+							if(testQuestion.getOption6() == null || testQuestion.getOption6().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "7":
+							if(testQuestion.getOption7() == null || testQuestion.getOption7().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "8":
+							if(testQuestion.getOption8() == null || testQuestion.getOption8().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						default:
+							throw new ValidationException("Please select correct Answer");
+						}
+					}
+				}else {
+					switch(testQuestion.getCorrectOption()) {
+						case "1": 
+							if(testQuestion.getOption1() == null || testQuestion.getOption1().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "2":
+							if(testQuestion.getOption2() == null || testQuestion.getOption2().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "3":
+							if(testQuestion.getOption3() == null || testQuestion.getOption3().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "4":
+							if(testQuestion.getOption4() == null || testQuestion.getOption4().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "5":
+							if(testQuestion.getOption5() == null || testQuestion.getOption5().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "6":
+							if(testQuestion.getOption6() == null || testQuestion.getOption6().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "7":
+							if(testQuestion.getOption7() == null || testQuestion.getOption7().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "8":
+							if(testQuestion.getOption8() == null || testQuestion.getOption8().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						default:
+							throw new ValidationException("Please select correct Answer");
+					}
+				}
 			}
 			if(testQuestion.getQuestionType().equals("Numeric")) {
 				if(testQuestion.getCorrectAnswerNum() == null && testQuestion.getCorrectAnswerNum().isEmpty()) {
-					throw new ValidationException("Please select correct Answer");
+					throw new ValidationException("Correct Answer Input field cannot be empty");
+				}
+			}
+			if("Y".equals(test.getSameMarksQue())) {
+				if(!testQuestion.getMarks().equals(test.getMarksPerQue())) {
+					throw new ValidationException("Question Marks should be " + test.getMarksPerQue() + ".");
+				}
+			}
+			if("Y".equals(test.getRandomQuestion()) && "N".equals(test.getSameMarksQue())) {
+				List<TestConfiguration> testConfigList = testConfigurationService.findAllByTestId(test.getId());
+				List<TestPoolConfiguration> testPoolConfigList = testPoolConfigurationService.findAllByTestId(test.getId());
+				if(testConfigList.size() > 0) {
+					TestConfiguration tc = testConfigList.stream().filter(testConfiguration -> testQuestion.getMarks().equals(testConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else if(testPoolConfigList.size() > 0) {
+					TestPoolConfiguration tpc = testPoolConfigList.stream().filter(testPoolConfiguration -> testQuestion.getMarks().equals(testPoolConfiguration.getMarks()))
+							.findAny().orElse(null);
+					if(tpc == null) {
+						throw new ValidationException("Question Marks should be from configured question weightage.");
+					}
+				} else {
+					throw new ValidationException("Please configure question weightage.");
 				}
 			}
 			/* New Audit changes end */
@@ -3960,17 +4251,118 @@ public class TestController extends BaseController {
 			if(testQuestionPools.getTestType().equals("Objective")) {
 				validateTestQuestionType(testQuestionPools.getQuestionType());
 				if(testQuestionPools.getQuestionType().equals("MCQ")) {
-					BusinessBypassRule.validateAlphaNumeric(testQuestionPools.getOption1());
-					BusinessBypassRule.validateAlphaNumeric(testQuestionPools.getOption2());
+//					BusinessBypassRule.validateAlphaNumeric(testQuestionPools.getOption1());
+//					BusinessBypassRule.validateAlphaNumeric(testQuestionPools.getOption2());
+					if(testQuestionPools.getOption1() == null || testQuestionPools.getOption1().isEmpty()) {
+						throw new ValidationException("Minimum 2 Option required.");
+					}
+					if(testQuestionPools.getOption2() == null || testQuestionPools.getOption2().isEmpty()) {
+						throw new ValidationException("Minimum 2 Option required.");
+					}
 					validateTestQuestionSubType(testQuestionPools.getType());
 					BusinessBypassRule.validateYesOrNo(testQuestionPools.getOptionShuffle());
 					if(testQuestionPools.getCorrectOption() == null && testQuestionPools.getCorrectOption().isEmpty()) {
 						throw new ValidationException("Please select correct Answer");
 					}
+					if (testQuestionPools.getCorrectOption().contains(",")) {
+						List<String> splittedCorrectOption = new ArrayList<>();
+						splittedCorrectOption = Arrays.asList(testQuestionPools.getCorrectOption().split(","));
+						for(String s:splittedCorrectOption) {
+							switch(s) {
+							case "1": 
+								if(testQuestionPools.getOption1() == null || testQuestionPools.getOption1().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "2":
+								if(testQuestionPools.getOption2() == null || testQuestionPools.getOption2().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "3":
+								if(testQuestionPools.getOption3() == null || testQuestionPools.getOption3().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "4":
+								if(testQuestionPools.getOption4() == null || testQuestionPools.getOption4().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "5":
+								if(testQuestionPools.getOption5() == null || testQuestionPools.getOption5().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "6":
+								if(testQuestionPools.getOption6() == null || testQuestionPools.getOption6().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "7":
+								if(testQuestionPools.getOption7() == null || testQuestionPools.getOption7().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "8":
+								if(testQuestionPools.getOption8() == null || testQuestionPools.getOption8().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							default:
+								throw new ValidationException("Please select correct Answer");
+							}
+						}
+					}else {
+						switch(testQuestionPools.getCorrectOption()) {
+							case "1": 
+								if(testQuestionPools.getOption1() == null || testQuestionPools.getOption1().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "2":
+								if(testQuestionPools.getOption2() == null || testQuestionPools.getOption2().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "3":
+								if(testQuestionPools.getOption3() == null || testQuestionPools.getOption3().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "4":
+								if(testQuestionPools.getOption4() == null || testQuestionPools.getOption4().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "5":
+								if(testQuestionPools.getOption5() == null || testQuestionPools.getOption5().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "6":
+								if(testQuestionPools.getOption6() == null || testQuestionPools.getOption6().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "7":
+								if(testQuestionPools.getOption7() == null || testQuestionPools.getOption7().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							case "8":
+								if(testQuestionPools.getOption8() == null || testQuestionPools.getOption8().isEmpty()) {
+									throw new ValidationException("Selected correct option cannot be empty.");
+								}
+								break;
+							default:
+								throw new ValidationException("Please select correct Answer");
+						}
+					}
 				}
 				if(testQuestionPools.getQuestionType().equals("Numeric")) {
 					if(testQuestionPools.getCorrectAnswerNum() == null && testQuestionPools.getCorrectAnswerNum().isEmpty()) {
-						throw new ValidationException("Please select correct Answer");
+						throw new ValidationException("Correct Answer Input field cannot be empty");
 					}
 				}
 			}
@@ -4958,7 +5350,6 @@ public class TestController extends BaseController {
 					if (tq.getQuestionType().equals("Numeric")) {
 						mapOfTestDetails.put("answerRangeFrom", answerRangeFrom);
 						mapOfTestDetails.put("answerRangeTo", answerRangeTo);
-
 					}
 				}
 
@@ -5090,17 +5481,118 @@ public class TestController extends BaseController {
 			BusinessBypassRule.validateNumericNotAZero(testQuestionPool.getMarks());
 			validateTestQuestionType(testQuestionPool.getQuestionType());
 			if(testQuestionPool.getQuestionType().equals("MCQ")) {
-				BusinessBypassRule.validateAlphaNumeric(testQuestionPool.getOption1());
-				BusinessBypassRule.validateAlphaNumeric(testQuestionPool.getOption2());
+//				BusinessBypassRule.validateAlphaNumeric(testQuestionPool.getOption1());
+//				BusinessBypassRule.validateAlphaNumeric(testQuestionPool.getOption2());
+				if(testQuestionPool.getOption1() == null || testQuestionPool.getOption1().isEmpty()) {
+					throw new ValidationException("Minimum 2 Option required.");
+				}
+				if(testQuestionPool.getOption2() == null || testQuestionPool.getOption2().isEmpty()) {
+					throw new ValidationException("Minimum 2 Option required.");
+				}
 				validateTestQuestionSubType(testQuestionPool.getType());
 				BusinessBypassRule.validateYesOrNo(testQuestionPool.getOptionShuffle());
 				if(testQuestionPool.getCorrectOption() == null && testQuestionPool.getCorrectOption().isEmpty()) {
 					throw new ValidationException("Please select correct Answer");
 				}
+				if (testQuestionPool.getCorrectOption().contains(",")) {
+					List<String> splittedCorrectOption = new ArrayList<>();
+					splittedCorrectOption = Arrays.asList(testQuestionPool.getCorrectOption().split(","));
+					for(String s:splittedCorrectOption) {
+						switch(s) {
+						case "1": 
+							if(testQuestionPool.getOption1() == null || testQuestionPool.getOption1().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "2":
+							if(testQuestionPool.getOption2() == null || testQuestionPool.getOption2().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "3":
+							if(testQuestionPool.getOption3() == null || testQuestionPool.getOption3().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "4":
+							if(testQuestionPool.getOption4() == null || testQuestionPool.getOption4().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "5":
+							if(testQuestionPool.getOption5() == null || testQuestionPool.getOption5().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "6":
+							if(testQuestionPool.getOption6() == null || testQuestionPool.getOption6().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "7":
+							if(testQuestionPool.getOption7() == null || testQuestionPool.getOption7().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "8":
+							if(testQuestionPool.getOption8() == null || testQuestionPool.getOption8().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						default:
+							throw new ValidationException("Please select correct Answer");
+						}
+					}
+				}else {
+					switch(testQuestionPool.getCorrectOption()) {
+						case "1": 
+							if(testQuestionPool.getOption1() == null || testQuestionPool.getOption1().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "2":
+							if(testQuestionPool.getOption2() == null || testQuestionPool.getOption2().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "3":
+							if(testQuestionPool.getOption3() == null || testQuestionPool.getOption3().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "4":
+							if(testQuestionPool.getOption4() == null || testQuestionPool.getOption4().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "5":
+							if(testQuestionPool.getOption5() == null || testQuestionPool.getOption5().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "6":
+							if(testQuestionPool.getOption6() == null || testQuestionPool.getOption6().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "7":
+							if(testQuestionPool.getOption7() == null || testQuestionPool.getOption7().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						case "8":
+							if(testQuestionPool.getOption8() == null || testQuestionPool.getOption8().isEmpty()) {
+								throw new ValidationException("Selected correct option cannot be empty.");
+							}
+							break;
+						default:
+							throw new ValidationException("Please select correct Answer");
+					}
+				}
 			}
 			if(testQuestionPool.getQuestionType().equals("Numeric")) {
 				if(testQuestionPool.getCorrectAnswerNum() == null && testQuestionPool.getCorrectAnswerNum().isEmpty()) {
-					throw new ValidationException("Please select correct Answer");
+					throw new ValidationException("Correct Answer Input field cannot be empty");
 				}
 			}
 			/* New Audit changes end */
@@ -7769,6 +8261,13 @@ public class TestController extends BaseController {
 //			List<UserCourse> userCourseListByCourseId = new ArrayList<>();
 //			userCourseListByCourseId = userCourseService.getStudentsByModuleId(String.valueOf(testFromDb.getModuleId()),
 //					String.valueOf(testFromDb.getAcadYear()));
+			List<String> studentUsernames = test.getStudentTests().stream().map(map -> map.getUsername()).collect(Collectors.toList());
+//			logger.info("studentUsernames--->"+studentUsernames);
+			if(studentUsernames.size() > 0) {
+				businessBypassRule.validateStudentAllocationList(studentUsernames, String.valueOf(test.getCourseId()));
+			} else {
+				throw new ValidationException("No Student selected or you have tampered the student SAP IDs.");
+			}
 			for (StudentTest studentTest : test.getStudentTests()) {
 
 				studentTest.setCreatedBy(username);
@@ -7890,6 +8389,9 @@ public class TestController extends BaseController {
 			}
 			setSuccess(redirectAttr, "Students Allocated successfully");
 
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttr, ve.getMessage());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttr, "Error in allocating test");
