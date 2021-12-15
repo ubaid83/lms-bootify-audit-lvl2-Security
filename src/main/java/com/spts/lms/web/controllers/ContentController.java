@@ -234,7 +234,7 @@ public class ContentController extends BaseController {
 				Course c = courseService.findByID(content.getCourseId());
 				m.addAttribute("moduleName", c.getCourseName());
 			}
-
+			
 			m.addAttribute("edit", "true");
 
 		}
@@ -400,14 +400,15 @@ public class ContentController extends BaseController {
 			String username = p.getName();
 
 
-
-
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			
-			
-			Course course= courseService.findByID(Long.parseLong(idForCourse));
-			if(null==course || course.equals(""))
-			{
-				 throw new ValidationException("Input number should be a positive number.");
+			Course course = new Course();
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.valueOf(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
 			}
 			
 			businessBypassRule.validateaccesstype(content.getAccessType());
@@ -556,7 +557,7 @@ public class ContentController extends BaseController {
 		try {
 
 			
-
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			
 			businessBypassRule.validateNumeric(acadYear);
 		
@@ -809,15 +810,21 @@ public class ContentController extends BaseController {
 		File file = null;
 		try {
 			
-			
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			
 			businessBypassRule.validateAlphaNumeric(content.getContentName());
 			
-			Course course= courseService.findByID(Long.parseLong(idForCourse));
-			if(null==course || course.equals(""))
-			{
-				 throw new ValidationException("Error! Course field is blank or Invalid course selected.");
+			
+			Course course = new Course();
+			
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.parseLong(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
 			}
+			
 			
 			businessBypassRule.validateaccesstype(content.getAccessType());
 			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
@@ -1293,6 +1300,22 @@ public class ContentController extends BaseController {
 
 		try {
 			
+			HtmlValidation.validateHtml(content, new ArrayList<>());
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			businessBypassRule.validateNumeric(idForCourse);
+			Course course=courseService.findByID(Long.valueOf(idForCourse));
+			if(course.toString().isEmpty() || null==course)
+			{
+				setError(redirectAttrs, "Invalid Course While creating folder");
+				redirectAttrs.addFlashAttribute("edit", "true");
+				return "redirect:/addContentForm";
+			}
+			businessBypassRule.validateaccesstype(content.getAccessType());
+		
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
 			
 			performFolderPathCheck(content);
 			Course c = null;
@@ -1443,20 +1466,22 @@ public class ContentController extends BaseController {
 		try {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
 			businessBypassRule.validateAlphaNumeric(content.getContentName());
-			businessBypassRule.validateNumeric(idForModule);
-			Course course=courseService.findByID(Long.valueOf(idForModule));
-			if(course.toString().isEmpty() || null==course)
-			{
-				setError(redirectAttrs, "Invalid Course While creating folder");
-				redirectAttrs.addFlashAttribute("edit", "true");
-				return "redirect:/addContentForm";
+			Course cr = new Course();
+			if (null != idForModule && !idForModule.isEmpty()) {
+				businessBypassRule.validateNumeric(idForModule);
+				cr = courseService.checkIfExistsInDB("moduleId", idForModule);
+				if (null == cr) {
+					throw new ValidationException("Invalid course");
+				}
 			}
+			
+			
 			businessBypassRule.validateaccesstype(content.getAccessType());
 		
-		utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
-		businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
-		businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
-		businessBypassRule.validateYesOrNo(content.getExamViewType());
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
 	
 			
 			
@@ -1589,14 +1614,18 @@ public class ContentController extends BaseController {
 		try {
 			
 
-
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 
 			businessBypassRule.validateAlphaNumeric(content.getContentName());
 			
-			Course course= courseService.findByID(Long.parseLong(idForCourse));
-			if(null==course || course.equals(""))
-			{
-				 throw new ValidationException("Input number should be a positive number.");
+			Course course = new Course();
+			
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.parseLong(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
 			}
 			
 			businessBypassRule.validateaccesstype(content.getAccessType());
@@ -1963,6 +1992,25 @@ public class ContentController extends BaseController {
 		try {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
 			performFolderPathCheck(content);
+			
+			//businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course=new Course();
+			//logger.info("--->"+idForCourse);
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.valueOf(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
+			}
+			
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
 
 			if (file != null && !file.isEmpty()) {
 				Content c = contentService.findByID(content.getId());
@@ -2099,7 +2147,7 @@ public class ContentController extends BaseController {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
 			performFolderPathCheck(content);
 			
-			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			//businessBypassRule.validateAlphaNumeric(content.getContentName());
 			Course course=new Course();
 			//logger.info("--->"+idForCourse);
 			if (null != idForCourse && !idForCourse.isEmpty()) {
@@ -2241,6 +2289,10 @@ public class ContentController extends BaseController {
 			}
 			setSuccess(redirectAttrs, "File Updated Successfully");
 
+		} catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			return "redirect:/addContentForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating file");
@@ -2264,15 +2316,16 @@ public class ContentController extends BaseController {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
 
 			
-
-
-
 			businessBypassRule.validateAlphaNumeric(content.getContentName());
 			
-			Course course= courseService.findByID(Long.parseLong(idForCourse));
-			if(null==course || course.equals(""))
-			{
-				 throw new ValidationException("Input number should be a positive number.");
+			Course course = new Course();
+			
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.parseLong(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
 			}
 			
 			businessBypassRule.validateaccesstype(content.getAccessType());
@@ -2352,10 +2405,6 @@ public class ContentController extends BaseController {
 
 			HtmlValidation.validateHtml(content, new ArrayList<>());
 
-
-
-
-			
 			businessBypassRule.validateNumeric(acadYear);
 			businessBypassRule.validateAlphaNumeric(content.getContentName());
 			Course course = new Course();
@@ -2486,6 +2535,26 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
+			
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course = new Course();
+			
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.parseLong(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
+			}
+
+			businessBypassRule.validateaccesstype(content.getAccessType());
+
+			utils.validateStartAndEndDates(content.getStartDate(),
+					content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
 			performFolderPathCheck(content);
 			Course c = null;
 			content.setLastModifiedBy(p.getName());
@@ -2546,6 +2615,30 @@ public class ContentController extends BaseController {
 
 		try {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
+			
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course = new Course();
+			
+			if (null != idForModule && !idForModule.isEmpty()) {
+				businessBypassRule.validateNumeric(idForModule);
+				course = courseService.checkIfExistsInDB("moduleId", idForModule);
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
+			}
+
+			businessBypassRule.validateaccesstype(content.getAccessType());
+
+			logger.info("startDate---->" + content.getStartDate());
+			logger.info("endDate---->" + content.getEndDate());
+			
+			utils.validateStartAndEndDates(content.getStartDate(),
+					content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			
 			String username = p.getName();
 			Content contentForModule = new Content();
 
@@ -2601,16 +2694,21 @@ public class ContentController extends BaseController {
 			}else{
 				studentContentService.setActiveByContentId(content.getId());
 			}
-			int studentContentCount = studentContentService.getNoOfStudentsAllocated(c.getId());
+			int studentContentCount = studentContentService.getNoOfStudentsAllocated(content.getId());
 			if(studentContentCount == 0){
 				if (Content.ACCESS_TYPE_EVERYONE.equals(content
 	                    .getAccessType())){
-					redirectAttrs.addFlashAttribute("content",c);
+					redirectAttrs.addFlashAttribute("content",content);
 	              return "redirect:/saveStudentContentAllocationForAllStudentsForModule";
 	            }
 			}
 			setSuccess(redirectAttrs, "Link updated Successfully");
 
+		} catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			redirectAttrs.addFlashAttribute("edit", "true");
+			return "redirect:/addContentForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating Link");
@@ -3107,6 +3205,7 @@ public class ContentController extends BaseController {
 			subject = buff.toString();
 			if (content.getStudents() != null
 					&& content.getStudents().size() > 0) {
+				businessBypassRule.validateStudentAllocationListForModule(content.getStudents());
 				for (String studentUsername : content.getStudents()) {
 					StudentContent bean = new StudentContent();
 
@@ -3252,6 +3351,9 @@ public class ContentController extends BaseController {
 			subject = buff.toString();
 			if (content.getStudents() != null
 					&& content.getStudents().size() > 0) {
+				
+				businessBypassRule.validateStudentAllocationList(content.getStudents(), content.getCourseId().toString());
+				
 				for (String studentUsername : content.getStudents()) {
 					StudentContent bean = new StudentContent();
 					bean.setAcadMonth(content.getAcadMonth());

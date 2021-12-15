@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 //import org.springframework.web.multipart.MultipartFile;
 
+
+
 import com.spts.lms.beans.course.UserCourse;
 import com.spts.lms.beans.test.TestConfiguration;
 import com.spts.lms.services.course.UserCourseService;
@@ -324,5 +326,28 @@ public class BusinessBypassRule {
 			}
 		}
 	}
+	
+	public void validateStudentAllocationListForModule(List<String> usernames) throws ValidationException{
+		
+		for(String s: usernames) {
+			
+			String[] sUsername = null;
+			UserCourse userExist = null;
+			
+			if (s.contains("_")) {
+				sUsername = s.split("_");
+				String suser = sUsername[0];
+				List<UserCourse> uc = userCourseService.getStudentsByCourseId(sUsername[1]);
+				userExist = uc.stream().filter(userCourse -> suser.equals(userCourse.getUsername()))
+						.findAny().orElse(null);
+			}
+			
+			
+			if(userExist == null) {
+				throw new ValidationException("You have tampered the student SAP IDs.");
+			}
+		}
+	}
+	
 }
 
