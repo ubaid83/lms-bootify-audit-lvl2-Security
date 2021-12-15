@@ -305,4 +305,9 @@ public class FeedbackDAO extends BaseDAO<Feedback> {
 		return findOneSQL(sql,new Object[] {feedbackId, username});
 	}
 
+	public Feedback getFeedbackType(String feedbackId) {
+		String sql = "select feedbackType from feedback where id=?";
+		return findOneSQL(sql,new Object[] {feedbackId});
+	}
+
 }
