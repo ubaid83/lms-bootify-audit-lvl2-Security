@@ -556,20 +556,12 @@ public class GroupController extends BaseController {
 			System.out.println("groupdetails: " + groups.getAcadYear());
 			List<String> stu = groups.getStudents();
 			
-			for (String student : stu) {
-				System.out.println("Allocated studnets1111 :"+student);
-		    	UserCourse checkStudentId =userCourseService.checkStudentSAPId(student, groups.getCourseId());
-		    	
-		    	if(null !=checkStudentId){
-		    		System.out.println("valid student Id!");
-		    	}
-		    	else
-		    	{
-		    		throw new ValidationException("Invalid Students SAP ID!");
-		    	}
-			     
+			if(stu.size() > 0) {
+				businessBypassRule.validateStudentAllocationList(stu, String.valueOf(groups.getCourseId()));
+			} else {
+				throw new ValidationException("Invalid Student SAP ID!");
 			}
-
+		
 			//Sandip 06/12/2021
 			
 			if (stu != null && stu.size() > 0) {
@@ -584,13 +576,15 @@ public class GroupController extends BaseController {
 					bean.setLastModifiedBy(username);
 					studentGroupMappingList.add(bean);
 				}
+				
 
 				int noOfStudentsAllocated = studentGroupService
 						.getNoOfStudentsAllocated(grpDB.getId());
+				
 				int noOfStudentSelected = stu.size();
 				int noOfStudent = Integer.parseInt(grpDB.getNoOfStudents());
 				int totalLimit = noOfStudent - noOfStudentsAllocated;
-
+				
 				if (totalLimit >= noOfStudentSelected) {
 					studentGroupService.insertBatch(studentGroupMappingList);
 					setSuccess(m, "Group created for "
@@ -602,7 +596,7 @@ public class GroupController extends BaseController {
 
 				return viewGroup(groups.getId(), m, null, principal,redirectAttributes);
 			}
-
+			
 		}
 		catch (ValidationException er) {
 			logger.info("temp-----------");
