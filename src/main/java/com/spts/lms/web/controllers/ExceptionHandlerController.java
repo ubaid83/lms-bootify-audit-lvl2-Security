@@ -103,4 +103,10 @@ public class ExceptionHandlerController {
 			 m.addAttribute("status", "TypeMismatchException - 400");
 			 return "error";
 	    }
+	 	@ExceptionHandler(IllegalArgumentException.class)
+	    public String IllegalArgumentException(HttpServletRequest request,HttpServletResponse response,Model m) 
+	    {
+			 m.addAttribute("status", "IllegalArgumentException - 400");
+			 return "error";
+	    }
 }

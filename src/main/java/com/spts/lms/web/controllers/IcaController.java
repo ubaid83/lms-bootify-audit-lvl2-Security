@@ -5496,14 +5496,10 @@ public class IcaController extends BaseController {
 			for (PredefinedIcaComponent pd : compList) {
 				getCompMap.put(String.valueOf(pd.getId()), pd.getComponentName());
 			}
-			 Calendar c = Calendar.getInstance();
-	        c.setTime(Utils.getInIST());
-	        int month = c.get(Calendar.MONTH) + 1;
-	        int year = c.get(Calendar.YEAR) - 1;
-	        int currentYear = c.get(Calendar.YEAR);
+			
 			for (IcaTotalMarks itm : itmRaiseQueryList) {
 				Map<String, Object> mapOfQueries = new HashMap<>();
-				if(month > 6 && itm.getAcadYear().equals(String.valueOf(currentYear))) {
+				
 					mapOfQueries.put("ICA Name", itm.getIcaName());
 					mapOfQueries.put("AcadYear", itm.getAcadYear());
 					mapOfQueries.put("Session", itm.getAcadSession());
@@ -5525,29 +5521,7 @@ public class IcaController extends BaseController {
 					mapOfQueries.put("Component Marks", compMarks);
 
 					listOfMapOfRaisedQueries.add(mapOfQueries);
-				}else if(itm.getAcadYear().equals(String.valueOf(year)) || itm.getAcadYear().equals(String.valueOf(currentYear))){
-					mapOfQueries.put("ICA Name", itm.getIcaName());
-					mapOfQueries.put("AcadYear", itm.getAcadYear());
-					mapOfQueries.put("Session", itm.getAcadSession());
-					mapOfQueries.put("Student SAPID", itm.getUsername());
-					mapOfQueries.put("Student-Name", itm.getStudentName());
-					mapOfQueries.put("Program", itm.getProgramName());
-					mapOfQueries.put("Subject", itm.getModuleName());
-					mapOfQueries.put("Total Marks Obtained", itm.getIcaTotalMarks());
-					mapOfQueries.put("Query", itm.getQuery());
-					mapOfQueries.put("Assigned Faculty", itm.getAssignedFaculty());
-					mapOfQueries.put("Roll No", itm.getRollNo());
-					mapOfQueries.put("Student-EmailId", itm.getEmail());
-					mapOfQueries.put("Query Raised Date", itm.getRaiseQDate());
-					// ,"Component Marks"
-					String component = itm.getCompId() != null ? getCompMap.get(itm.getCompId()) : "NA";
-					String compMarks = itm.getComponentMarks() != null ? itm.getComponentMarks() : "NA";
-					mapOfQueries.put("Component", component);
-
-					mapOfQueries.put("Component Marks", compMarks);
-
-					listOfMapOfRaisedQueries.add(mapOfQueries);
-				}
+				
 				
 			}
 			excelCreater.CreateExcelFile(listOfMapOfRaisedQueries, validateHeaders, filePath);

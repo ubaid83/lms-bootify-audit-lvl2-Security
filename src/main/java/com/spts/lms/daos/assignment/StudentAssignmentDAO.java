@@ -544,7 +544,7 @@ public class StudentAssignmentDAO extends BaseDAO<StudentAssignment> {
 
 	public List<StudentAssignment> getStudentsForAssignment(Long assignmentId,
 			Long courseId) {
-		String sql = "select uc.username, p.programName, u.firstname, u.lastname, sa.assignmentId, sa.id ,u.campusId, u.campusName"
+		String sql = "select uc.username, p.programName, u.firstname, u.lastname, sa.assignmentId, sa.id, sa.groupId ,u.campusId, u.campusName"
 				+ " from user_course uc"
 				+ "		inner join users u on uc.username = u.username"
 				+ "		inner join program p on u.programId = p.id"
@@ -844,7 +844,7 @@ public class StudentAssignmentDAO extends BaseDAO<StudentAssignment> {
 
 	public List<StudentAssignment> getStudentsForAssignmentOnCampusId(
 			Long assignmentId, Long courseId, Long campusId) {
-		String sql = "select uc.username, p.programName, u.firstname, u.lastname, sa.assignmentId, sa.id, u.campusId, u.campusName "
+		String sql = "select uc.username, p.programName, u.firstname, u.lastname, sa.assignmentId, sa.id, sa.groupId, u.campusId, u.campusName "
 				+ " from user_course uc"
 				+ "         inner join users u on uc.username = u.username"
 				+ "         inner join program p on u.programId = p.id"

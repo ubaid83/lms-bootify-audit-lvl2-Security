@@ -546,7 +546,7 @@ public class FAQController extends BaseController {
 			
 			BusinessBypassRule.validateAlphaNumeric(classParticipation.getRemarks());
 			
-			BusinessBypassRule.validateNumericNotAZero(s);
+			BusinessBypassRule.validateNumeric(s);
 	        /*****By sandip 25/10/2021******/
 			
 			if (studentsFromDB.contains(studentUsername)) {
