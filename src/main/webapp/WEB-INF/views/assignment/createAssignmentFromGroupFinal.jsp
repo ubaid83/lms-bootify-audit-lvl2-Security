@@ -73,10 +73,7 @@
 							<form:form action="saveGroupAssignment" method="post"
 								modelAttribute="assignment" enctype="multipart/form-data">
 								<%-- <form:input path="courseId" type="hidden" /> --%>
-								<%
-									if (isEdit) {
-								%>
-								<form:input type="hidden" path="id" />
+								
 								<%
 									if (isEdit) {
 								%>
@@ -86,9 +83,6 @@
 								<form:input type="hidden" path="acadMonth" />
 								<input type="hidden" id="plagscanRequired"
 									value="${assignment.plagscanRequired}" />
-								<%
-									}
-								%>
 								<%
 									}
 								%>
@@ -113,19 +107,48 @@
 
 									<div class="col-lg-12 col-md-12 col-sm-12">
 										<div class="form-group">
-											<form:label class="textStrong" path="groupName" for="groupId">Groups <span
+										<%
+											if (isEdit) {
+										%>
+											<form:label class="textStrong" path="groupName" for="groupId">Groups<span
 													style="color: red">*</span>
-											</form:label>
+											</form:label><c:forEach var="groups" items="${allGroups}"
+													varStatus="status"></c:forEach>
 											<form:select multiple="multiple" id="grps" path="grps"
 												required="required" class="form-control"
 												style="overflow: auto;">
-												<form:option value="">Select Group</form:option>
 												<c:forEach var="groups" items="${allGroups}"
 													varStatus="status">
-													<form:option value="${groups.id}">${groups.groupName}</form:option>
+													
+													<c:if test="${fn:contains(groupIds, groups.id)}">
+														<form:option value="${groups.id}" selected="selected" disabled="true">${groups.groupName}</form:option>	
+													</c:if>
+													<c:if test="${!fn:contains(groupIds, groups.id)}">
+														<form:option value="${groups.id}" disabled="true">${groups.groupName}</form:option>
+													</c:if>
+													
 												</c:forEach>
 
 											</form:select>
+										<%
+											} else {
+										%>
+											<form:label class="textStrong" path="groupName" for="groupId">Groups<span
+														style="color: red">*</span>
+												</form:label><c:forEach var="groups" items="${allGroups}"
+														varStatus="status"></c:forEach>
+												<form:select multiple="multiple" id="grps" path="grps"
+													required="required" class="form-control"
+													style="overflow: auto;">
+													<form:option value="" disabled="true">Select Group</form:option>
+													<c:forEach var="groups" items="${allGroups}"
+														varStatus="status">
+														<form:option value="${groups.id}">${groups.groupName}</form:option>
+													</c:forEach>
+												</form:select>
+										<%
+											}
+										%>
 										</div>
 									</div>
 									<div class="col-lg-12 col-md-12 col-sm-12">
@@ -933,7 +956,7 @@
 										%>
 										<button id="submit"
 											class="btn btn-info col-md-5 col-sm-12  ml-auto mr-auto mb-3"
-											formaction="updateAssignment">Update Assignment</button>
+											formaction="updateGroupAssignment">Update Assignment</button>
 										<%
 											} else {
 										%>
@@ -1213,6 +1236,6 @@
 													alert('Error no course');
 												}
 											});
-							$('#idForCourse').trigger('change');
+							/* $('#idForCourse').trigger('change'); */
 						});
 	</script>

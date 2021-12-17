@@ -7048,7 +7048,7 @@ public class TestController extends BaseController {
 
 	@Secured({"ROLE_SUPPORT_ADMIN"})
 	@RequestMapping(value = "/searchTestListBySupportAdminForm", method = RequestMethod.GET)
-	public String searchTestListBySupportAdmin(@ModelAttribute("test") Test test, Model m) {
+	public String searchTestListBySupportAdminForm(@ModelAttribute("test") Test test, Model m) {
 		m.addAttribute("webPage", new WebPage("test", "Search Test", true, false));
 		List<Test> testList = new ArrayList<Test>();
 		testList = testDAO.findTestDetails("", "");

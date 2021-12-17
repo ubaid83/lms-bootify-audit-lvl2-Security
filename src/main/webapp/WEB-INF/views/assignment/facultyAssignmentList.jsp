@@ -193,8 +193,11 @@
 																				class="fa fa-info-circle fa-lg"></i></a>&nbsp;<sec:authorize
 																				access="hasAnyRole('ROLE_FACULTY')"><a href="${evaluateAssignmentUrl}"
 																					title="Evaluate Assignment"><i
-																					class="fas fa-check"></i></a></sec:authorize>&nbsp; <a href="${viewByGroupUrl}"
-																			title="View By Group"><i class="fa fa-users"></i></a>&nbsp;<sec:authorize access="hasAnyRole('ROLE_FACULTY')">&nbsp;<a href="${deleteurl}"
+																					class="fas fa-check"></i></a></sec:authorize>&nbsp;
+																					<%--  <a href="${viewByGroupUrl}"
+																			title="View By Group"><i class="fa fa-users"></i></a> --%>
+																			
+																			&nbsp;<sec:authorize access="hasAnyRole('ROLE_FACULTY')">&nbsp;<a href="${deleteurl}"
 																					onclick="return confirm('Are you sure you want to delete this record?')"
 																					title="Delete assignment"><i
 																					class="fas fa-trash"></i></a>&nbsp;
