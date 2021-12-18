@@ -598,7 +598,6 @@ input[type="checkbox"][readonly] {
 										var courseValue = $("#courseForLec")
 												.val();
 										var selectedValue = $(this).val();
-										
 										if (text >= sdate_test
 												&& text <= end1) {
 											console.log("remainingLecture " +remainingLecture)

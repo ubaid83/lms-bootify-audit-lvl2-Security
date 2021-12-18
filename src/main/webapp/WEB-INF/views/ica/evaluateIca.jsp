@@ -785,14 +785,23 @@ tbody td:last-child, thead th:last-child {
 													success : function(data) {
 														var msg = data;
 														console.log("msg is " + msg);
-														if(msg=='validationError'){
-															console.log("inside error");
+														const obj = JSON.parse(data);
+														
+														if(obj.Status === 'ValidationError'){
+															console.log("inside validation error");
 															$(".newLoaderWrap").css('display','none');
-															swal('Error! Input number should be a positive number').then(function() {
+															swal(obj.msg).then(function() {
 															document.location.reload();
 															});
 														}
-														if(msg=='saved'){
+														if(obj.Status === 'Error'){
+															console.log("inside error");
+															$(".newLoaderWrap").css('display','none');
+															swal(obj.msg).then(function() {
+															document.location.reload();
+															});
+														}
+														if(obj.Status === 'Success'){
 															console.log("inside saved");
 															$(".newLoaderWrap").css('display','none');
 															swal('data saved  successfully').then(function() {

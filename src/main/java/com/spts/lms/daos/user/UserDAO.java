@@ -1010,19 +1010,15 @@ public class UserDAO extends BaseDAO<User> {
 
 
 	public User checkIfExistsInDB(String username) {
-		String sql = "select username from users where username=? limit 1";
+		String sql = "select username from users where username=?";
 		return findOneSQL(sql, new Object[] {username});
-}
+   }
 	
-	
-	//sandip
-	public User checkIfFacultyIdExists(String username) {
-		String sql="SELECT username FROM uuser_roles WHERE username=? limit 1";
+	//Sandip
+	public User checkIfFacultyCourseAcadYear(String username, String courseId, String acadYear) {
+		String sql = "select username from user_course where username=? and courseId=? and acadYear=?";
 		return findOneSQL(sql, new Object[] {username});
-	}
+   }
 	
-//	public User checkIfSAPIDExists(String username) {
-//		String sql="SELECT username FROM uuser_roles WHERE username=?";
-//		return findOneSQL(sql, new Object[] {username});
-//	}
+
 }

@@ -24,7 +24,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.amazonaws.services.applicationautoscaling.model.ValidationException;
+
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spts.lms.auth.Token;
@@ -47,6 +48,7 @@ import com.spts.lms.services.user.UserService;
 import com.spts.lms.utils.LMSHelper;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.ValidationException;
 
 @Controller
 @SessionAttributes("userId")
@@ -257,8 +259,7 @@ public class GroupController extends BaseController {
 
             /*update by sandip(22/10/2021)*/
 			 
-			 
-			// if(groups.getCourseId() !=null){
+	
 			 Course courseI2 = courseService.checkIfCourseId(groups.getCourseId());
 			 System.out.println("Course Id 2:  "+groups.getCourseId());
 				if(null != groups.getCourseId() && null != courseI2)
@@ -269,8 +270,7 @@ public class GroupController extends BaseController {
 				{
 					throw new ValidationException("Invalid course ID");
 				}
-			//	}
-					
+		
 
 			
 			System.out.println("course id 1 : "+courseId);
@@ -279,6 +279,7 @@ public class GroupController extends BaseController {
 			BusinessBypassRule.validateAlphaNumeric(grouptitle);
 			String noOfstudent = groups.getNoOfStudents();
 			BusinessBypassRule.validateNumericNotAZero(noOfstudent);
+			
 			
 			/*update by sandip(22/10/2021)*/
 			
@@ -459,7 +460,7 @@ public class GroupController extends BaseController {
 	@RequestMapping(value = "/saveStudentGroupAllocationSelectAll", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentGroupAllocationSelectAll(
-			@ModelAttribute Groups groups, Model m, Principal principal) {
+			@ModelAttribute Groups groups, Model m, Principal principal,RedirectAttributes RedirectAttributes) {
 		m.addAttribute("webPage", new WebPage("groups", "Create Group", true,
 				true));
 		String username = principal.getName();
@@ -503,7 +504,7 @@ public class GroupController extends BaseController {
 					studentGroupMappingList.add(bean);
 				}
 
-				return viewGroup(groups.getId(), m, null, principal);
+				return viewGroup(groups.getId(), m, null, principal,RedirectAttributes);
 			}
 
 		} catch (Exception e) {
@@ -521,7 +522,7 @@ public class GroupController extends BaseController {
 	@RequestMapping(value = "/saveStudentGroupAllocation", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentGroupAllocation(@ModelAttribute Groups groups,
-			Model m, Principal principal) {
+			Model m, Principal principal,RedirectAttributes redirectAttributes) {
 		m.addAttribute("webPage", new WebPage("groups", "Create Group", true,
 				true));
 		String username = principal.getName();
@@ -543,51 +544,24 @@ public class GroupController extends BaseController {
 			
 			//Sandip 06/12/2021
 
-//			Course courseI2 = courseService.checkIfCourseId(groups
-//					.getCourseId());
-//			System.out.println("Course Id 2:  " + groups.getCourseId());
-//			if (null != groups.getCourseId() && null != courseI2) {
-//				System.out.println("course id is valid");
-//			}
-//
-//			else {
-//				throw new ValidationException("Invalid course ID");
-//			}
-//
-//			Course acadYear = courseService.checkIfAcadYearExists(String
-//					.valueOf(groups.getAcadYear()));
-//			System.out.println("Acad Year :  " + groups.getAcadYear());
-//			if (null != groups.getAcadYear() && null != acadYear) {
-//
-//				System.out.println("Academic year is valid!");
-//			} else {
-//				throw new ValidationException("Invalid Academic Year Selected!");
-//			}
-//
-//			User facultyId = userService.checkIfFacultyIdExists(groups
-//					.getFacultyId());
-//			System.out.println("Faculty ID :  " + groups.getFacultyId());
-//			if (null != groups.getFacultyId() && null != facultyId) {
-//
-//				System.out.println("Faculty ID is valid!");
-//			} else {
-//				throw new ValidationException("Invalid Faculty ID!");
-//			}
+			UserCourse facultyId = userCourseService.checkIfFacultyCourseAcadYear(groups
+					.getFacultyId(), groups.getCourseId(), groups.getAcadYear());
+			if (null != groups.getFacultyId() && null != facultyId) {
+				System.out.println("Faculty ID is valid!");
+			} else {
+				throw new ValidationException("Invalid Faculty ID / Course ID / Acad Year!");
+				
+			}
 
 			System.out.println("groupdetails: " + groups.getAcadYear());
-
 			List<String> stu = groups.getStudents();
-
-//			for (String student : stu) {
-//				BusinessBypassRule.validateNumeric(student);
-//				if (student != null) {
-//					User students = userService.checkIfSAPIDExists(student);
-//					if (students == null) {
-//						throw new ValidationException(
-//								"Invalid Students SAP ID!");
-//					}
-//				}
-//			}
+			
+			if(stu.size() > 0) {
+				businessBypassRule.validateStudentAllocationList(stu, String.valueOf(groups.getCourseId()));
+			} else {
+				throw new ValidationException("Invalid Student SAP ID!");
+			}
+		
 			//Sandip 06/12/2021
 			
 			if (stu != null && stu.size() > 0) {
@@ -602,13 +576,15 @@ public class GroupController extends BaseController {
 					bean.setLastModifiedBy(username);
 					studentGroupMappingList.add(bean);
 				}
+				
 
 				int noOfStudentsAllocated = studentGroupService
 						.getNoOfStudentsAllocated(grpDB.getId());
+				
 				int noOfStudentSelected = stu.size();
 				int noOfStudent = Integer.parseInt(grpDB.getNoOfStudents());
 				int totalLimit = noOfStudent - noOfStudentsAllocated;
-
+				
 				if (totalLimit >= noOfStudentSelected) {
 					studentGroupService.insertBatch(studentGroupMappingList);
 					setSuccess(m, "Group created for "
@@ -618,10 +594,19 @@ public class GroupController extends BaseController {
 					setError(m, "no. of students exceed ");
 				}
 
-				return viewGroup(groups.getId(), m, null, principal);
+				return viewGroup(groups.getId(), m, null, principal,redirectAttributes);
 			}
-
-		} catch (Exception e) {
+			
+		}
+		catch (ValidationException er) {
+			logger.info("temp-----------");
+			logger.error(er.getMessage(), er);
+			setError(redirectAttributes, er.getMessage());
+			m.addAttribute("webPage", new WebPage("groups", "Create Group",
+					false, false));
+			return "redirect:/viewGroup?id=" + groups.getId();
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in allocating group");
 			m.addAttribute("webPage", new WebPage("groups", "Create Group",
@@ -684,7 +669,7 @@ public class GroupController extends BaseController {
 	@RequestMapping(value = "/viewGroup", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public String viewGroup(@RequestParam(required = false) Long id, Model m,
-			@RequestParam(required = false) Long campusId, Principal principal) {
+			@RequestParam(required = false) Long campusId, Principal principal,RedirectAttributes RedirectAttributes) {
 		m.addAttribute("webPage", new WebPage("viewGroup", "View group", true,
 				false));
 
@@ -741,6 +726,7 @@ public class GroupController extends BaseController {
 		m.addAttribute("allCampuses", userService.findCampus());
 		m.addAttribute("id", id);
 		m.addAttribute("groups", groups);
+		
 		return "group/group";
 	}
 
@@ -1015,6 +1001,7 @@ public class GroupController extends BaseController {
 		return "group/facultyGroupAssigned";
 
 	}
+	
 
 	@Secured("ROLE_FACULTY")
 	@RequestMapping(value = "/saveFacultyGroupAllocation", method = {
@@ -1215,7 +1202,7 @@ public class GroupController extends BaseController {
 				}
 
 				groups.setStudents(students);
-				saveStudentGroupAllocation(groups, m, principal);
+				saveStudentGroupAllocation(groups, m, principal,redirectAttributes);
 
 			}
 			setSuccess(redirectAttributes, noOfGroups

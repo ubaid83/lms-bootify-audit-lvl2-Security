@@ -1572,7 +1572,6 @@ public class IcaController extends BaseController {
 							ica.setIsApproved("Y");
 						}
 					}
-					
 				}
 			} else {
 				if (ica.getIcaQueryId() != null) {
@@ -2088,16 +2087,21 @@ public class IcaController extends BaseController {
 					}
 				}
 			}
-
-			return "saved";
+			String json = "{\"Status\":\"Success\"}";
+			return json;
+//			return "saved";
 			
 		} catch (ValidationException ex) {
 			logger.error("ValidationException", ex);
-			return "validationError";
+			String json = "{\"Status\":\"ValidationError\", \"msg\":\""+ex.getMessage()+"\"}";
+			return json;
+//			return "validationError";
 		} 
 		catch (Exception ex) {
 			logger.error("Exception", ex);
-			return "error";
+			String json = "{\"Status\":\"Error\", \"msg\":\""+ex.getMessage()+"\"}";
+			return json;
+//			return "error";
 		}
 
 	}
@@ -2188,7 +2192,7 @@ public class IcaController extends BaseController {
 	public String submitIca(@RequestParam Map<String, String> allRequestParams, Principal p,
 			RedirectAttributes redirectAttributes) {
 		logger.info("allRequestParams----------------" + allRequestParams);
-		String teeIdVal = allRequestParams.get("teeIdValue");
+		String teeIdVal = allRequestParams.get("icaIdValue");
 		try {
 			BusinessBypassRule.validateNumeric(teeIdVal);
 
@@ -2980,7 +2984,8 @@ public class IcaController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
+							if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+									|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(redirectAttributes, "File uploaded is invalid!");
 								return "redirect:/showIcaQueries";
 							}else {
@@ -3140,7 +3145,8 @@ public class IcaController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe") || ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
+							if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+									|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								errCount++;
 							}else {
 								byte [] byteArr=file.getBytes();
@@ -5490,14 +5496,10 @@ public class IcaController extends BaseController {
 			for (PredefinedIcaComponent pd : compList) {
 				getCompMap.put(String.valueOf(pd.getId()), pd.getComponentName());
 			}
-			 Calendar c = Calendar.getInstance();
-	        c.setTime(Utils.getInIST());
-	        int month = c.get(Calendar.MONTH) + 1;
-	        int year = c.get(Calendar.YEAR) - 1;
-	        int currentYear = c.get(Calendar.YEAR);
+			
 			for (IcaTotalMarks itm : itmRaiseQueryList) {
 				Map<String, Object> mapOfQueries = new HashMap<>();
-				if(month > 6 && itm.getAcadYear().equals(String.valueOf(currentYear))) {
+				
 					mapOfQueries.put("ICA Name", itm.getIcaName());
 					mapOfQueries.put("AcadYear", itm.getAcadYear());
 					mapOfQueries.put("Session", itm.getAcadSession());
@@ -5519,29 +5521,7 @@ public class IcaController extends BaseController {
 					mapOfQueries.put("Component Marks", compMarks);
 
 					listOfMapOfRaisedQueries.add(mapOfQueries);
-				}else if(itm.getAcadYear().equals(String.valueOf(year)) || itm.getAcadYear().equals(String.valueOf(currentYear))){
-					mapOfQueries.put("ICA Name", itm.getIcaName());
-					mapOfQueries.put("AcadYear", itm.getAcadYear());
-					mapOfQueries.put("Session", itm.getAcadSession());
-					mapOfQueries.put("Student SAPID", itm.getUsername());
-					mapOfQueries.put("Student-Name", itm.getStudentName());
-					mapOfQueries.put("Program", itm.getProgramName());
-					mapOfQueries.put("Subject", itm.getModuleName());
-					mapOfQueries.put("Total Marks Obtained", itm.getIcaTotalMarks());
-					mapOfQueries.put("Query", itm.getQuery());
-					mapOfQueries.put("Assigned Faculty", itm.getAssignedFaculty());
-					mapOfQueries.put("Roll No", itm.getRollNo());
-					mapOfQueries.put("Student-EmailId", itm.getEmail());
-					mapOfQueries.put("Query Raised Date", itm.getRaiseQDate());
-					// ,"Component Marks"
-					String component = itm.getCompId() != null ? getCompMap.get(itm.getCompId()) : "NA";
-					String compMarks = itm.getComponentMarks() != null ? itm.getComponentMarks() : "NA";
-					mapOfQueries.put("Component", component);
-
-					mapOfQueries.put("Component Marks", compMarks);
-
-					listOfMapOfRaisedQueries.add(mapOfQueries);
-				}
+				
 				
 			}
 			excelCreater.CreateExcelFile(listOfMapOfRaisedQueries, validateHeaders, filePath);
@@ -10589,13 +10569,13 @@ public class IcaController extends BaseController {
 		}
 		try {
 			logger.info("Raising Query...");
+			logger.info("query is " + query);
 			HtmlValidation.checkHtmlCode(id);
-			HtmlValidation.checkHtmlCode(compId);
+			if(compId != null && !compId.isEmpty()){
+				HtmlValidation.checkHtmlCode(compId);
+			}
 			HtmlValidation.checkHtmlCode(query);
-			
-			
 			BusinessBypassRule.validateAlphaNumeric(query);
-			
 			IcaBean icaBean = icaBeanService.findByID(Long.valueOf(id));
 			if ("Y".equals(icaBean.getIsPublishCompWise())) {
 				if (compId != null) {
@@ -10673,15 +10653,21 @@ public class IcaController extends BaseController {
 					//notifier.sendEmail(email, mobiles, subject, notificationEmailMessage);
 				}
 			}
-			return "success";
+			String json = "{\"Status\":\"Success\"}";
+			return json;
+//			return "success";
 		} 
 		catch (ValidationException ve) {
 			logger.error("ValidationException", ve);
-			return "validationError";
+			String json = "{\"Status\":\"ValidationException\", \"msg\":\""+ve.getMessage()+"\"}";
+			return json;
+//			return "validationError";
 		} 
 		catch (Exception ex) {
 			logger.error("Exception", ex);
-			return "error";
+//			return "error";
+			String json = "{\"Status\":\"Error\", \"msg\":\""+ex.getMessage()+"\"}";
+			return json;
 		}
 
 	}

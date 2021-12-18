@@ -16,8 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+
+
+
 import com.spts.lms.beans.ica.IcaBean;
 import com.spts.lms.beans.course.Course;
+import com.spts.lms.beans.course.UserCourse;
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
 import com.spts.lms.beans.user.UserRole;
@@ -790,14 +794,6 @@ public class UserService extends BaseService<User> {
 	}
 
 	
-	//sandip
-	public User checkIfFacultyIdExists(String username) {
-		return userDAO.checkIfFacultyIdExists(username);
-	}
 	
-//	public User checkIfSAPIDExists(String username) {
-//		return userDAO.checkIfSAPIDExists(username);
-//	}
 	
-
 }

@@ -4,7 +4,9 @@
 	<property name="DEV_HOME" value="/home/nmazuser/lms/logs/applogs/"/>
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILE-AUDIT">
 
-		<file>/data/logs/MPSTME-NM-M/log-${myTimestamp}.log</file>
+
+		<file>/data/logs/BSSA-NM-M/log-${myTimestamp}.log</file>
+
 
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<Pattern>
@@ -15,7 +17,8 @@
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- rollover daily -->
 
-			<fileNamePattern>/data/logs/MPSTME-NM-M/archived/debug.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<fileNamePattern>/data/logs/BSSA-NM-M/archived/debug.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
 
 			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
 				<maxFileSize>10MB</maxFileSize>

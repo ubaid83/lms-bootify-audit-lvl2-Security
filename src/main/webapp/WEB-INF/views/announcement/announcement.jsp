@@ -79,6 +79,8 @@
 														${announcement.subject}
 													</div>
 												</div>
+												<c:if test="${not empty announcement.announcementSubType}">
+												
 												<div class="col-sm-6 col-md-4 col-xs-12 column">
 													<div class="form-group">
 														<form:label path="announcementSubType"
@@ -86,6 +88,7 @@
 														${announcement.announcementSubType}
 													</div>
 												</div>
+												</c:if>
 												<div class="col-sm-6 col-md-4 col-xs-12 column">
 													<div class="form-group">
 														<form:label path="startDate" for="startDate">Display From:</form:label>

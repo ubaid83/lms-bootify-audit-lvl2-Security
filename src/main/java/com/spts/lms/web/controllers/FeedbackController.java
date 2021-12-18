@@ -25,6 +25,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -721,8 +722,9 @@ public class FeedbackController extends BaseController {
 			// studentFeedbackService.getStudentFeedbackIdByCourseAndFeedbackId(courseId,feedbackId,username);
 
 			List<FeedbackQuestion> feedbackQuestion = feedback.getFeedbackQuestions();
-			
 
+			Feedback feedbackType = feedbackService.getFeedbackType(feedbackId);
+			logger.info("feedback type is " + feedbackType.getFeedbackType());
 			List<StudentFeedbackResponse> sfrList = new ArrayList<>();
 			feedback.setId(Long.valueOf(feedbackId));
 			logger.info("feedback questions size---" + feedbackQuestion.size());
@@ -731,7 +733,35 @@ public class FeedbackController extends BaseController {
 				logger.info("fq.getStudentFeedbackResponse() is " + fq.getStudentFeedbackResponse());
 				logger.info("fq.getStudentFeedbackResponse().getAnswer(); is " + fq.getStudentFeedbackResponse().getAnswer());
 				HtmlValidation.validateHtml(fq, new ArrayList<>());
-				BusinessBypassRule.validateRatings(fq.getStudentFeedbackResponse().getAnswer());
+				if(feedbackType.getFeedbackType().equals("it-feedback")){
+					logger.info("INSIDE 1");
+					if(fq.getStudentFeedbackResponses() != null && !fq.getStudentFeedbackResponses().isEmpty()){
+						logger.info("INSIDE 2");
+						for (StudentFeedbackResponse s : fq.getStudentFeedbackResponses()){
+							logger.info("INSIDE 3");
+							validateOptions(s.getAnswer());
+						}
+					}
+					if(fq.getStudentFeedbackResponse().getAnswer() != null && !fq.getStudentFeedbackResponse().getAnswer().isEmpty()){
+						logger.info("INSIDE 4");
+						if(fq.getStudentFeedbackResponse().getAnswer().contains(",")){
+							logger.info("INSIDE 5");
+							List<String> selectedOptions = Arrays.asList(fq.getStudentFeedbackResponse().getAnswer().split(","));
+							for (String option : selectedOptions){
+								logger.info("INSIDE 6" + option);
+								validateOptions(option);
+							}							
+						}
+						else {
+							validateOptions(fq.getStudentFeedbackResponse().getAnswer());
+						}
+						
+					}
+				}
+				if(feedbackType.getFeedbackType().equals("mid-term") || (feedbackType.getFeedbackType().equals("end-term"))){
+					validateRatings(fq.getStudentFeedbackResponse().getAnswer());
+				}
+				
 				studentFeedbackResponse = fq.getStudentFeedbackResponse();
 				studentFeedbackResponse.setUsername(username);
 
@@ -777,6 +807,27 @@ public class FeedbackController extends BaseController {
 			return null;
 		}
 	}
+	
+	//Peter 27/10/2021
+		public void validateOptions(String s) throws ValidationException{
+			if (s == null || s.trim().isEmpty()) {
+				 throw new ValidationException("Input field cannot be blank");
+			 }
+			if(!s.equalsIgnoreCase("Good") && !s.equalsIgnoreCase("Average") && !s.equalsIgnoreCase("Bad ") && !s.equalsIgnoreCase("Worst")) {
+				throw new ValidationException("Invalid Ratings Type");
+			}
+		}
+		
+		public void validateRatings(String s) throws ValidationException {
+			if (s == null || s.trim().isEmpty()) {
+		    	 throw new ValidationException("Input field cannot be empty");
+		    }
+			Integer rating = Integer.valueOf(s);
+			if(rating>7 || rating <1){
+				throw new ValidationException("Please Rate Between 1 to 7");
+			}
+			
+		}
 
 	/*
 	 * @RequestMapping(value = "/viewFeedbackDetails", method = RequestMethod.GET)

@@ -125,4 +125,8 @@ public class FeedbackService extends BaseService<Feedback> {
 		return feedbackDAO.checkIfFeedbackExists(username,feedbackId);
 	}
 
+	public Feedback getFeedbackType(String feedbackId) {
+		return feedbackDAO.getFeedbackType(feedbackId);
+	}
+
 }

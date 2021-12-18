@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,21 +35,30 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.amazonaws.services.applicationautoscaling.model.ValidationException;
+
+
+
+
+
+
 import com.spts.lms.auth.Token;
 import com.spts.lms.beans.classParticipation.ClassParticipation;
 import com.spts.lms.beans.course.Course;
+import com.spts.lms.beans.course.UserCourse;
 import com.spts.lms.beans.faq.Faq;
 import com.spts.lms.beans.user.Role;
 import com.spts.lms.beans.user.User;
 import com.spts.lms.helpers.excel.ExcelCreater;
 import com.spts.lms.helpers.excel.ExcelReader;
 import com.spts.lms.services.classParticipation.ClassParticipationService;
+import com.spts.lms.services.course.CourseService;
+import com.spts.lms.services.course.UserCourseService;
 import com.spts.lms.services.faq.FaqService;
 import com.spts.lms.services.user.UserService;
 import com.spts.lms.web.helper.WebPage;
 import com.spts.lms.web.utils.BusinessBypassRule;
 import com.spts.lms.web.utils.Utils;
+import com.spts.lms.web.utils.ValidationException;
 @Controller
 public class FAQController extends BaseController {
 
@@ -58,10 +68,16 @@ public class FAQController extends BaseController {
 	UserService userService;
 	@Value("${lms.assignment.downloadAllFolder}")
 	private String downloadAllFolder;
+	
+	@Autowired
+	CourseService courseService;
 
 	@Autowired
 	ClassParticipationService classParticipationService;
 	
+	@Autowired
+	UserCourseService userCourseService; 
+
 	@Autowired
 	BusinessBypassRule businessBypassRule;
 
@@ -368,7 +384,7 @@ public class FAQController extends BaseController {
 	@RequestMapping(value = "/uploadStudentsMarks", method = { RequestMethod.POST })
 	public String uploadStudentsMarks(@ModelAttribute ClassParticipation classParticipation,
 			@RequestParam("file") MultipartFile file, Model m,
-			RedirectAttributes redirectAttributes, Principal principal) {
+			RedirectAttributes redirectAttributes, Principal principal, Long courseId) {
 		m.addAttribute("webPage", new WebPage("test", "Upload FAQs", true,
 				false));
 		logger.info("inside student marks : "+file.getOriginalFilename());
@@ -383,19 +399,35 @@ public class FAQController extends BaseController {
 		ExcelReader excelReader = new ExcelReader();
 		
 		System.out.println("file uploaded");
-		
+			
 		try {
 			
 			//Sandip 
 			BusinessBypassRule.validateFile(classParticipation.getFile());
 			
-			
 			List<Map<String, Object>> maps = excelReader.readExcelFileUsingColumnHeader(file, validateHeaders);
 			System.out.println("mapsmapsmaps--------12222"+maps.get(0));
 			System.out.println("mapsmapsmaps--------12222"+maps.get(1));
 			
+			//Sandip
 			
-	
+			for (Map<String, Object> map : maps) {
+				System.out.println("student username : " + map.get("SAP ID"));
+
+				UserCourse classPart = userCourseService.checkIfStudentExistsInDB(map
+						.get("SAP ID").toString(), Long.valueOf(classParticipation.getCourseId()));
+				System.out.println("shshsh : " + classPart);
+
+				if (null != classPart) {
+					System.out.println("Students username is valid!");
+				} else {
+					throw new ValidationException("Invalid Students username!");
+				}
+
+			}
+		   //Sandip
+			
+			
 			logger.info("inside student marks : "+file.getOriginalFilename());
 			if (maps.size() == 0) {
 				setNote(m, "Excel File is empty");
@@ -419,6 +451,8 @@ public class FAQController extends BaseController {
 						
 							setError(redirectAttributes, " check the marks entered for student Id "+mapper.get("SAP ID").toString());
 							return "redirect:/classParticipation?courseId=" +classParticipation.getCourseId();
+							
+							
 														
 						}
 						else {
@@ -426,22 +460,26 @@ public class FAQController extends BaseController {
 							List<String> studentsFromDB = classParticipationService
 							
 									.findAllStudentUsernames(Long.valueOf(classParticipation.getCourseId()));
+							
+							
+//							logger.info("List--->"+studentsFromDB);
+//							logger.info("SAP ID--->"+mapper.get("SAP ID").toString());
+//							logger.info("contains--->"+studentsFromDB.contains(mapper.get("SAP ID").toString()));
 							ClassParticipation classparticipations = new ClassParticipation();
 							if (studentsFromDB.contains(mapper.get("SAP ID").toString())) {
-								
-								
+//								logger.info("SAP ID--->"+mapper.get("SAP ID").toString());
 									classparticipations.setScore(Integer.parseInt(mapper.get("ASSIGNED SCORE").toString()));
 									classparticipations.setRemarks(mapper.get("ASSIGN REMARKS").toString());
 									classparticipations.setLastModifiedBy(username);
 									classparticipations.setUsername(mapper.get("SAP ID").toString());
-									
+									classparticipations.setCourseId(classParticipation.getCourseId());
 									classparticipationsList.add(classparticipations);
 								
 								
 							} 
 							
 							else {
-
+//								logger.info("class participation student ID -----> "+classparticipations.getUsername()); 
 								classparticipations.setScore(Integer.parseInt(mapper.get("ASSIGNED SCORE").toString()));
 								classparticipations.setRemarks(mapper.get("ASSIGN REMARKS").toString());
 								classparticipations.setUsername(mapper.get("SAP ID").toString());
@@ -496,16 +534,19 @@ public class FAQController extends BaseController {
 		String username = principal.getName();
 		List<String> studentsFromDB = classParticipationService
 				.findAllStudentUsernames(Long.valueOf(courseId));
+		
 
 		try {
 			
 			/*****By sandip 25/10/2021******/
+			
+			System.out.println("saveClassParticipation course Id : "+courseId);
 			 
 			String s=String.valueOf(classParticipation.getScore());
-				
+			
 			BusinessBypassRule.validateAlphaNumeric(classParticipation.getRemarks());
-			 
-			BusinessBypassRule.validateNumericNotAZero(s);
+			
+			BusinessBypassRule.validateNumeric(s);
 	        /*****By sandip 25/10/2021******/
 			
 			if (studentsFromDB.contains(studentUsername)) {
@@ -547,21 +588,22 @@ public class FAQController extends BaseController {
 			
 		}
 		
-		catch (ValidationException er) { 
+
+		
+		catch (ValidationException er) {
 			// print the stack trace
 			logger.error(er.getMessage(), er);
 			setError(m,er.getMessage());
 			String json = "{\"Status\":\"Error\", \"msg\":\""+er.getMessage()+"\"}";
 			return json;
-		}
-		
-		catch (Exception e) {
+			}
+			catch (Exception e) {
 			logger.error("Error " + e);
 			//return "Error";
 			String json = "{\"Status\":\"Error\", \"msg\":\""+e.getMessage()+"\"}";
 			return json;
-		}
-
+			}
+		
 	}
 
 }

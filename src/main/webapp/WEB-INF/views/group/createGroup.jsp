@@ -178,7 +178,7 @@
 																style="color: red">*</span>
 														</form:label>
 														<form:input path="noOfStudents" type="number"
-															class="form-control" required="required" min="0" />
+															class="form-control" required="required" min="1" />
 													</div>
 												</div>
 											</div>
