@@ -586,30 +586,30 @@ public class IcaController extends BaseController {
 					throw new ValidationException("Invalid Program Selected");
 				}
 			}
-			List<String> assignedFaculties = null;
-			if(icaBean.getAssignedFaculty().contains(",")) {
-				assignedFaculties = Arrays.asList(icaBean.getAssignedFaculty().split(","));
-				for(String assignedFaculty : assignedFaculties) {
-					UserCourse courseId = userCourseService.getFacultyCourseId(assignedFaculty,icaBean.getModuleId());
-					logger.info("courseID is " + courseId);
-					if(null == courseId) {
-		                  throw new ValidationException("Invalid Faculty Selected.");
-		            }
-					UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(assignedFaculty, String.valueOf(courseId.getCourseId()));
-		            if(null == userccourse) {
-		                  throw new ValidationException("Invalid Faculty Selected.");
-		            }
-				}
-			} else {
-				UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getAssignedFaculty(),icaBean.getModuleId());
-				if(null == courseId) {
-	                  throw new ValidationException("Invalid faculty selected.");
-	            }
-				UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(icaBean.getAssignedFaculty(), String.valueOf(courseId.getCourseId()));
-	            if(null == userccourse) {
-	                  throw new ValidationException("Invalid faculty selected.");
-	            }
-			}
+//			List<String> assignedFaculties = null;
+//			if(icaBean.getAssignedFaculty().contains(",")) {
+//				assignedFaculties = Arrays.asList(icaBean.getAssignedFaculty().split(","));
+//				for(String assignedFaculty : assignedFaculties) {
+//					UserCourse courseId = userCourseService.getFacultyCourseId(assignedFaculty,icaBean.getModuleId());
+//					logger.info("courseID is " + courseId);
+//					if(null == courseId) {
+//		                  throw new ValidationException("Invalid Faculty Selected.");
+//		            }
+//					UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(assignedFaculty, String.valueOf(courseId.getCourseId()));
+//		            if(null == userccourse) {
+//		                  throw new ValidationException("Invalid Faculty Selected.");
+//		            }
+//				}
+//			} else {
+//				UserCourse courseId = userCourseService.getFacultyCourseId(icaBean.getAssignedFaculty(),icaBean.getModuleId());
+//				if(null == courseId) {
+//	                  throw new ValidationException("Invalid faculty selected.");
+//	            }
+//				UserCourse userccourse = userCourseService.getMappingByUsernameAndCourse(icaBean.getAssignedFaculty(), String.valueOf(courseId.getCourseId()));
+//	            if(null == userccourse) {
+//	                  throw new ValidationException("Invalid faculty selected.");
+//	            }
+//			}
 			if(icaBean.getTotalMarks() != null && !icaBean.getTotalMarks().isEmpty()){
 				BusinessBypassRule.validateMarks(icaBean.getInternalMarks(), icaBean.getInternalPassMarks(),icaBean.getExternalMarks(),icaBean.getExternalPassMarks(),icaBean.getTotalMarks());
 			} else
@@ -660,7 +660,7 @@ public class IcaController extends BaseController {
 			if (null != icaBeanDAO.getIsNonEventModule() && ("Y").equals(icaBeanDAO.getIsNonEventModule())) {
 				icaBean.setIsNonEventModule(icaBeanDAO.getIsNonEventModule());
 			}
-
+			logger.info("icaBean---->"+icaBean);
 			if ("Y".equals(icaBeanDAO.getIsIcaDivisionWise()) && icaBeanDAO.getParentIcaId() == null) {
 				List<IcaBean> updatedIcaBeanList = new ArrayList<>();
 				List<IcaBean> icaListByParentIcaId = icaBeanService.getIcaIdsByParentIcaIds(icaBean.getId());
