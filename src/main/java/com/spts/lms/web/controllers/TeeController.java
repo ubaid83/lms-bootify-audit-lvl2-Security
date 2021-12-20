@@ -2843,6 +2843,7 @@ public class TeeController extends BaseController {
 				} else {
 
 					TeeTotalMarks ttm = new TeeTotalMarks();
+					BusinessBypassRule.validateNumeric(String.valueOf(mapper.get("Total Marks")));
 					if (!excelReader.ISVALIDINPUT(String.valueOf(mapper.get("Total Marks")))) {
 						setError(redirectAttributes, "Entered marks for student is not valid");
 						return "redirect:/evaluateTee";
@@ -2906,9 +2907,15 @@ public class TeeController extends BaseController {
 				return "redirect:/evaluateTee";
 			}
 
-		} catch (
+		}
+		catch (ValidationException ve) {
+			logger.info("INSIDE Validation Exception");
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttributes, ve.getMessage());
 
-		Exception ex) {
+		}
+
+		catch (Exception ex) {
 
 			setError(redirectAttributes, "Error in uploading marks");
 
