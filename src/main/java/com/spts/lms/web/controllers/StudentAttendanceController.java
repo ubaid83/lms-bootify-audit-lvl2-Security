@@ -440,7 +440,7 @@ public class StudentAttendanceController extends BaseController {
                       lecutreEndTimeMap.put(courseIdList.toString(),
                                   tmtl.getEnd_time());
                       
-                      m.addAttribute("courseId", courseIdList);
+//                      m.addAttribute("courseId", courseIdList);
                       
                 }
                 

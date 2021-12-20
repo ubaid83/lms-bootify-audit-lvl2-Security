@@ -790,29 +790,29 @@
 
 							</div>
 						</c:if>
-				 <form:input path="isPublishCompWise" type="hidden" value="N"/> 
+				<%--  <form:input path="isPublishCompWise" type="hidden" value="N"/>  --%>
 
-					<%-- 	 <c:if test="${edit eq 'true'}">
+						 <c:if test="${edit eq 'true'}">
 							<div class="row">
 								<div class="col-lg-6 col-md-6 col-sm-12 mt-3 mb-3">
 									<label class="textStrong">Do You Want This Ica to Evaluate/Publish
-									Component Wise?</label><br>
+									Component Wise?</label><br>	
 									<c:choose>
 										<c:when test="${isGradingStart eq 't'}">
 										<form:input path="isPublishCompWise" type="hidden" value="${icaBean.isPublishCompWise}"/> 
 											<form:label path="isPublishCompWise">${icaBean.isPublishCompWise}</form:label>
 										</c:when>
 										<c:otherwise>
-											<div>
+											 <div>
 												<div class="pretty p-switch p-fill p-toggle">
-													<c:if test="${icaBean.scaledReq eq 'Y'}">
+												<%--	<c:if test="${icaBean.scaledReq eq 'Y'}">
 									 <form:checkbox id="scaledReq" value="Y"
 											path="scaledReq" checked="true"/> 
 									</c:if>
 									<c:if test="${icaBean.scaledReq ne 'Y'}">
 									<form:checkbox id="scaledReq" value="N"
 											path="scaledReq" checked="false"/> 
-									</c:if>	
+									</c:if>	 --%>
 										
 													<form:checkbox id="isPublishCompWise" value="${icaBean.isPublishCompWise}"
 														path="isPublishCompWise" />
@@ -856,7 +856,7 @@
 							
 
 							</div>
-						</c:if> --%>
+						</c:if> 
 						 
 						
 						

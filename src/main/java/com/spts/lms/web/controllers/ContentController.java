@@ -234,7 +234,7 @@ public class ContentController extends BaseController {
 				Course c = courseService.findByID(content.getCourseId());
 				m.addAttribute("moduleName", c.getCourseName());
 			}
-
+			
 			m.addAttribute("edit", "true");
 
 		}
@@ -400,28 +400,38 @@ public class ContentController extends BaseController {
 			String username = p.getName();
 
 
-
-
 			
 			
-			Course course= courseService.findByID(Long.parseLong(idForCourse));
-			if(null==course || course.equals(""))
-			{
-				 throw new ValidationException("Input number should be a positive number.");
+			Course course = new Course();
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.valueOf(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
 			}
 			
+			if (content.getCourseId() == null) {
+				content.setCourseId(Long.valueOf(idForCourse));
+			}
+			
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			businessBypassRule.validateaccesstype(content.getAccessType());
 			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
 			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 			
-			
+			if(content.getContentType() != null){
+				if(!content.getContentType().equals("Multiple_File")){
+					throw new ValidationException("you have tampered the Content Type.");
+				}
+			} else {
+				throw new ValidationException("you have tampered the Content Type.");
+			}
 			
 			Content contentd = new Content();
-			if (content.getCourseId() == null) {
-				content.setCourseId(Long.valueOf(idForCourse));
-			}
+			
 			/* New Audit changes start */
 //			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
 //				setError(redirectAttrs, "Invalid Start date and End date");
@@ -556,7 +566,7 @@ public class ContentController extends BaseController {
 		try {
 
 			
-
+			HtmlValidation.validateHtml(content, new ArrayList<>());
 			
 			businessBypassRule.validateNumeric(acadYear);
 		
@@ -585,6 +595,14 @@ public class ContentController extends BaseController {
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 		
+			if(content.getContentType() != null){
+				if(!content.getContentType().equals("Multiple_File")){
+					throw new ValidationException("you have tampered the Content Type.");
+				}
+			} else {
+				throw new ValidationException("you have tampered the Content Type.");
+			}
+			
 			String username = p.getName();
 			List<Course> courseIdList = new ArrayList<>();
 			courseIdList = courseService.findCoursesByModuleId(
@@ -783,7 +801,7 @@ public class ContentController extends BaseController {
 		}
 		catch (ValidationException e) {
 			logger.error(e.getMessage(), e);
-			setError(redirectAttrs, "Error in creating file");
+			setError(redirectAttrs, e.getMessage());
 			return "redirect:/addContentForm";
 		}
 		catch (Exception e) {
@@ -809,26 +827,39 @@ public class ContentController extends BaseController {
 		File file = null;
 		try {
 			
+			Course course = new Course();
 			
-			
-			businessBypassRule.validateAlphaNumeric(content.getContentName());
-			
-			Course course= courseService.findByID(Long.parseLong(idForCourse));
-			if(null==course || course.equals(""))
-			{
-				 throw new ValidationException("Error! Course field is blank or Invalid course selected.");
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.parseLong(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
 			}
 			
+			if (content.getCourseId() == null) {
+				content.setCourseId(Long.valueOf(idForCourse));
+			}
+			
+			HtmlValidation.validateHtml(content, new ArrayList<>());
+			
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
 			businessBypassRule.validateaccesstype(content.getAccessType());
 			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
 			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 			
-			String username = p.getName();
-			if (content.getCourseId() == null) {
-				content.setCourseId(Long.valueOf(idForCourse));
+			if(content.getContentType() != null){
+				if(!content.getContentType().equals("Folder")){
+					throw new ValidationException("you have tampered the Content Type.");
+				}
+			} else {
+				throw new ValidationException("you have tampered the Content Type.");
 			}
+			
+			String username = p.getName();
+			
 			performFolderPathCheck(content);
 			
 			Token userdetails1 = (Token) p;
@@ -988,7 +1019,13 @@ public class ContentController extends BaseController {
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 
-		
+			if(content.getContentType() != null){
+				if(!content.getContentType().equals("Folder")){
+					throw new ValidationException("you have tampered the Content Type.");
+				}
+			} else {
+				throw new ValidationException("you have tampered the Content Type.");
+			}
 			
 			String username = p.getName();
 			if (idForModule != null && !idForModule.isEmpty()) {
@@ -1293,6 +1330,49 @@ public class ContentController extends BaseController {
 
 		try {
 			
+			HtmlValidation.validateHtml(content, new ArrayList<>());
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			businessBypassRule.validateNumeric(idForCourse);
+			Course course=courseService.findByID(Long.valueOf(idForCourse));
+			if(course.toString().isEmpty() || null==course)
+			{
+				setError(redirectAttrs, "Invalid Course While creating folder");
+				redirectAttrs.addFlashAttribute("edit", "true");
+				return "redirect:/addContentForm";
+			}
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			
+			businessBypassRule.validateNumeric(content.getAcadYear());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			Content oldContent = contentService.findByID(content.getId());
+			
+			if(content.getFolderPath()==null && content.getFolderPath().isEmpty()){
+				throw new ValidationException("You have tampered the existing Folder Path.");
+			}else { 
+				if((!oldContent.getFolderPath().startsWith(FILE_SEPARATOR) && !content.getFolderPath().startsWith(FILE_SEPARATOR)) 
+						|| (oldContent.getFolderPath().startsWith(FILE_SEPARATOR) && content.getFolderPath().startsWith(FILE_SEPARATOR))){
+					if(!oldContent.getFolderPath().equals(content.getFolderPath())){
+						throw new ValidationException("You have tampered the existing Folder Path.");
+					}
+				}else if(oldContent.getFolderPath().startsWith(FILE_SEPARATOR)){
+					if(!oldContent.getFolderPath().substring(1).equals(content.getFolderPath())){
+						throw new ValidationException("You have tampered the existing Folder Path.");
+					}
+				}else if(content.getFolderPath().startsWith(FILE_SEPARATOR)){
+					if(!oldContent.getFolderPath().equals(content.getFolderPath().substring(1))){
+						throw new ValidationException("You have tampered the existing Folder Path.");
+					}
+				}else{
+					if(!oldContent.getFolderPath().equals(content.getFolderPath())){
+						throw new ValidationException("You have tampered the existing Folder Path.");
+					}
+				}
+			}
 			
 			performFolderPathCheck(content);
 			Course c = null;
@@ -1326,7 +1406,7 @@ public class ContentController extends BaseController {
 			content.setAcadMonth(c.getAcadMonth());
 			content.setAcadYear(Integer.valueOf(c.getAcadYear()));
 
-			Content oldContent = contentService.findByID(content.getId());
+			
 			if (!amazonS3ClientService.exists(completFolderPath)) {
 				File dest = new File(downloadAllFolder+"/localCopyContent");
 				String sourcePathLocal = downloadAllFolder+"/localCopyContent";
@@ -1405,6 +1485,11 @@ public class ContentController extends BaseController {
 			}
 			setSuccess(redirectAttrs, "Folder Details updated successfully");
 
+		} catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			redirectAttrs.addFlashAttribute("edit", "true");
+			return "redirect:/addContentForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in creating folder");
@@ -1443,32 +1528,57 @@ public class ContentController extends BaseController {
 		try {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
 			businessBypassRule.validateAlphaNumeric(content.getContentName());
-			businessBypassRule.validateNumeric(idForModule);
-			Course course=courseService.findByID(Long.valueOf(idForModule));
-			if(course.toString().isEmpty() || null==course)
-			{
-				setError(redirectAttrs, "Invalid Course While creating folder");
-				redirectAttrs.addFlashAttribute("edit", "true");
-				return "redirect:/addContentForm";
+			Course cr = new Course();
+			if (null != idForModule && !idForModule.isEmpty()) {
+				businessBypassRule.validateNumeric(idForModule);
+				cr = courseService.checkIfExistsInDB("moduleId", idForModule);
+				if (null == cr) {
+					throw new ValidationException("Invalid course");
+				}
 			}
+			
+			businessBypassRule.validateNumeric(acadYear);
 			businessBypassRule.validateaccesstype(content.getAccessType());
 		
-		utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
-		businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
-		businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
-		businessBypassRule.validateYesOrNo(content.getExamViewType());
-	
-			
-			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
 			
 			performFolderPathCheckForModule(content);
+			
+			Content oldContent = contentService.findByID(content.getId());
+			if(content.getFolderPath()==null && content.getFolderPath().isEmpty()){
+				throw new ValidationException("You have tampered the existing Folder Path.");
+			}else { 
+				if((!oldContent.getFolderPath().startsWith(FILE_SEPARATOR) && !content.getFolderPath().startsWith(FILE_SEPARATOR)) 
+						|| (oldContent.getFolderPath().startsWith(FILE_SEPARATOR) && content.getFolderPath().startsWith(FILE_SEPARATOR))){
+					if(!oldContent.getFolderPath().equals(content.getFolderPath())){
+						throw new ValidationException("You have tampered the existing Folder Path.");
+					}
+				}else if(oldContent.getFolderPath().startsWith(FILE_SEPARATOR)){
+					if(!oldContent.getFolderPath().substring(1).equals(content.getFolderPath())){
+						throw new ValidationException("You have tampered the existing Folder Path.");
+					}
+				}else if(content.getFolderPath().startsWith(FILE_SEPARATOR)){
+					if(!oldContent.getFolderPath().equals(content.getFolderPath().substring(1))){
+						throw new ValidationException("You have tampered the existing Folder Path.");
+					}
+				}else{
+					if(!oldContent.getFolderPath().equals(content.getFolderPath())){
+						throw new ValidationException("You have tampered the existing Folder Path.");
+					}
+				}
+			}
+			
+			
 			String completFolderPath = content.getFolderPath()+ content.getContentName()+"/";
 			if(completFolderPath.startsWith("/")) {
 				completFolderPath = StringUtils.substring(completFolderPath, 1);
 			}
 			content.setLastModifiedBy(p.getName());
 			content.setFacultyId(p.getName());
-			Content oldContent = contentService.findByID(content.getId());
+			
 			if (!amazonS3ClientService.exists(completFolderPath)) {
 				File dest = new File(downloadAllFolder+"/localCopyContent");
 				String sourcePathLocal = downloadAllFolder+"/localCopyContent";
@@ -1588,24 +1698,35 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
 			
-
-
-
-			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course = new Course();
 			
-			Course course= courseService.findByID(Long.parseLong(idForCourse));
-			if(null==course || course.equals(""))
-			{
-				 throw new ValidationException("Input number should be a positive number.");
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.parseLong(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
 			}
 			
+			if (content.getCourseId() == null) {
+				content.setCourseId(Long.valueOf(idForCourse));
+			}
+			HtmlValidation.validateHtml(content, new ArrayList<>());
+			
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
 			businessBypassRule.validateaccesstype(content.getAccessType());
 			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
 			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 			
-			
+			if(content.getContentType() != null){
+				if(!content.getContentType().equals("File")){
+					throw new ValidationException("you have tampered the Content Type.");
+				}
+			} else {
+				throw new ValidationException("you have tampered the Content Type.");
+			}
 			
 			
 			/* New Audit changes start */
@@ -1614,10 +1735,8 @@ public class ContentController extends BaseController {
 //				return "redirect:/addContentForm";
 //			}
 			/* New Audit changes end */
-			HtmlValidation.validateHtml(content, new ArrayList<>());
-			if (content.getCourseId() == null) {
-				content.setCourseId(Long.valueOf(idForCourse));
-			}
+			
+			
 
 			performFolderPathCheck(content);
 
@@ -1777,6 +1896,13 @@ public class ContentController extends BaseController {
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 			
+			if(content.getContentType() != null){
+				if(!content.getContentType().equals("File")){
+					throw new ValidationException("you have tampered the Content Type.");
+				}
+			} else {
+				throw new ValidationException("you have tampered the Content Type.");
+			}
 			
 			/* New Audit changes start */
 //			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
@@ -1963,10 +2089,77 @@ public class ContentController extends BaseController {
 		try {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
 			performFolderPathCheck(content);
+			
+			//businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course=new Course();
+			//logger.info("--->"+idForCourse);
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.valueOf(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
+			}
+			businessBypassRule.validateNumeric(content.getAcadYear());
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			Content cn = contentService.findByID(content.getId());
+			
+			if(content.getFilePath()==null && content.getFilePath().isEmpty()){
+				throw new ValidationException("You have tampered the existing File Path.");
+			} else {
+				if((!cn.getFilePath().startsWith(FILE_SEPARATOR) && !content.getFilePath().startsWith(FILE_SEPARATOR)) 
+						|| (cn.getFilePath().startsWith(FILE_SEPARATOR) && content.getFilePath().startsWith(FILE_SEPARATOR))){
+					if(!cn.getFilePath().equals(content.getFilePath())){
+						throw new ValidationException("You have tampered the existing File Path.");
+					}
+				}else if(cn.getFilePath().startsWith(FILE_SEPARATOR)){
+					if(!cn.getFilePath().substring(1).equals(content.getFilePath())){
+						throw new ValidationException("You have tampered the existing File Path.");
+					}
+				}else if(content.getFilePath().startsWith(FILE_SEPARATOR)){
+					if(!cn.getFilePath().equals(content.getFilePath().substring(1))){
+						throw new ValidationException("You have tampered the existing File Path.");
+					}
+				}else{
+					if(!cn.getFilePath().equals(content.getFilePath())){
+						throw new ValidationException("You have tampered the existing File Path.");
+					}
+				}
+			}
 
 			if (file != null && !file.isEmpty()) {
-				Content c = contentService.findByID(content.getId());
-				String oldFilePath = c.getFilePath();
+				
+				if(content.getFolderPath()==null && content.getFolderPath().isEmpty()){
+					throw new ValidationException("You have tampered the existing Folder Path.");
+				}else {
+					if((!cn.getFolderPath().startsWith(FILE_SEPARATOR) && !content.getFolderPath().startsWith(FILE_SEPARATOR)) 
+							|| (cn.getFolderPath().startsWith(FILE_SEPARATOR) && content.getFolderPath().startsWith(FILE_SEPARATOR))){
+						if(!cn.getFolderPath().equals(content.getFolderPath())){
+							throw new ValidationException("You have tampered the existing Folder Path.");
+						}
+					}else if(cn.getFolderPath().startsWith(FILE_SEPARATOR)){
+						if(!cn.getFolderPath().substring(1).equals(content.getFolderPath())){
+							throw new ValidationException("You have tampered the existing Folder Path.");
+						}
+					}else if(content.getFolderPath().startsWith(FILE_SEPARATOR)){
+						if(!cn.getFolderPath().equals(content.getFolderPath().substring(1))){
+							throw new ValidationException("You have tampered the existing Folder Path.");
+						}
+					}else{
+						if(!cn.getFolderPath().equals(content.getFolderPath())){
+							throw new ValidationException("You have tampered the existing Folder Path.");
+						}
+					}
+				}
+				
+				String oldFilePath = cn.getFilePath();
 				//Audit change start
 				String errorMessage = "";
 				Tika tika = new Tika();
@@ -2097,9 +2290,79 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
-			performFolderPathCheck(content);
+			performFolderPathCheckForModule(content);
+			
+			//businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course=new Course();
+			//logger.info("--->"+idForCourse);
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.valueOf(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
+			}
+			
+			businessBypassRule.validateNumeric(content.getAcadYear());
+			businessBypassRule.validateaccesstype(content.getAccessType());
+			
+			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
 			Content contentDB = contentService.findByID(content.getId());
+			
+			if(content.getFilePath()==null && content.getFilePath().isEmpty()){
+				throw new ValidationException("You have tampered the existing File Path.");
+			} else {
+				if((!contentDB.getFilePath().startsWith(FILE_SEPARATOR) && !content.getFilePath().startsWith(FILE_SEPARATOR)) 
+						|| (contentDB.getFilePath().startsWith(FILE_SEPARATOR) && content.getFilePath().startsWith(FILE_SEPARATOR))){
+					if(!contentDB.getFilePath().equals(content.getFilePath())){
+						throw new ValidationException("You have tampered the existing File Path.");
+					}
+				}else if(contentDB.getFilePath().startsWith(FILE_SEPARATOR)){
+					if(!contentDB.getFilePath().substring(1).equals(content.getFilePath())){
+						throw new ValidationException("You have tampered the existing File Path.");
+					}
+				}else if(content.getFilePath().startsWith(FILE_SEPARATOR)){
+					if(!contentDB.getFilePath().equals(content.getFilePath().substring(1))){
+						throw new ValidationException("You have tampered the existing File Path.");
+					}
+				}else{
+					if(!contentDB.getFilePath().equals(content.getFilePath())){
+						throw new ValidationException("You have tampered the existing File Path.");
+					}
+				}
+			}
+			
+			
 			if (file != null && !file.isEmpty()) {
+				
+				logger.info(content.getFolderPath()+"-------"+contentDB.getFolderPath());
+				
+				if(content.getFolderPath()==null && content.getFolderPath().isEmpty()){
+					throw new ValidationException("You have tampered the existing Folder Path.");
+				}else{ 
+					if((!contentDB.getFolderPath().startsWith(FILE_SEPARATOR) && !content.getFolderPath().startsWith(FILE_SEPARATOR)) 
+							|| (contentDB.getFolderPath().startsWith(FILE_SEPARATOR) && content.getFolderPath().startsWith(FILE_SEPARATOR))){
+						if(!contentDB.getFolderPath().equals(content.getFolderPath())){
+							throw new ValidationException("You have tampered the existing Folder Path.");
+						}
+					}else if(contentDB.getFolderPath().startsWith(FILE_SEPARATOR)){
+						if(!contentDB.getFolderPath().substring(1).equals(content.getFolderPath())){
+							throw new ValidationException("You have tampered the existing Folder Path.");
+						}
+					}else if(content.getFolderPath().startsWith(FILE_SEPARATOR)){
+						if(!contentDB.getFolderPath().equals(content.getFolderPath().substring(1))){
+							throw new ValidationException("You have tampered the existing Folder Path.");
+						}
+					}else{
+						if(!contentDB.getFolderPath().equals(content.getFolderPath())){
+							throw new ValidationException("You have tampered the existing Folder Path.");
+						}
+					}
+				}
 				
 				String oldFilePath = contentDB.getFilePath();
 				//Audit change start
@@ -2169,7 +2432,8 @@ public class ContentController extends BaseController {
 				}else {
 					content.setContentName(contentDB.getContentName());
 				}
-			}else{
+			} else {
+				
                 content.setContentName(contentDB.getContentName());
 			}
 
@@ -2222,6 +2486,10 @@ public class ContentController extends BaseController {
 			}
 			setSuccess(redirectAttrs, "File Updated Successfully");
 
+		} catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			return "redirect:/addContentForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating file");
@@ -2242,38 +2510,49 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
 
-			HtmlValidation.validateHtml(content, new ArrayList<>());
-
+			Course course = new Course();
 			
-
-
-
-			businessBypassRule.validateAlphaNumeric(content.getContentName());
-			
-			Course course= courseService.findByID(Long.parseLong(idForCourse));
-			if(null==course || course.equals(""))
-			{
-				 throw new ValidationException("Input number should be a positive number.");
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.parseLong(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
 			}
 			
+			if (content.getCourseId() == null) {
+				logger.info("Contnet Add Folder--------------><"
+						+ content.getCourseId());
+				content.setCourseId(Long.valueOf(idForCourse));
+			}
+			
+			HtmlValidation.validateHtml(content, new ArrayList<>());
+
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
 			businessBypassRule.validateaccesstype(content.getAccessType());
 			utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate());
 			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 			
+			if(content.getLinkUrl() == null){
+				throw new ValidationException("Invalid link URL");
+			}
 			
-
+			if(content.getContentType() != null){
+				if(!content.getContentType().equals("Link")){
+					throw new ValidationException("you have tampered the Content Type.");
+				}
+			} else {
+				throw new ValidationException("you have tampered the Content Type.");
+			}
+			
 			logger.info("Contnet idForCourse--------------><" + idForCourse);
 			if (sendAlertsToParents.equalsIgnoreCase("Y")) {
 				content.setSendEmailAlertToParents("Y");
 				content.setSendSmsAlertToParents("Y");
 			}
-			if (content.getCourseId() == null) {
-				logger.info("Contnet Add Folder--------------><"
-						+ content.getCourseId());
-				content.setCourseId(Long.valueOf(idForCourse));
-			}
+			
 			/* New Audit changes start */
 //			if(!Utils.validateStartAndEndDates(content.getStartDate(), content.getEndDate())) {
 //				setError(redirectAttrs, "Invalid Start date and End date");
@@ -2333,10 +2612,6 @@ public class ContentController extends BaseController {
 
 			HtmlValidation.validateHtml(content, new ArrayList<>());
 
-
-
-
-			
 			businessBypassRule.validateNumeric(acadYear);
 			businessBypassRule.validateAlphaNumeric(content.getContentName());
 			Course course = new Course();
@@ -2357,6 +2632,17 @@ public class ContentController extends BaseController {
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 		
+			if(content.getLinkUrl() == null){
+				throw new ValidationException("Invalid link URL");
+			}
+			
+			if(content.getContentType() != null){
+				if(!content.getContentType().equals("Link")){
+					throw new ValidationException("you have tampered the Content Type.");
+				}
+			} else {
+				throw new ValidationException("you have tampered the Content Type.");
+			}
 
 			String username = p.getName();
 			/* New Audit changes start */
@@ -2467,6 +2753,31 @@ public class ContentController extends BaseController {
 		redirectAttrs.addFlashAttribute("content", content);
 		try {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
+			
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course = new Course();
+			
+			if (null != idForCourse && !idForCourse.isEmpty()) {
+				businessBypassRule.validateNumeric(idForCourse);
+				course = courseService.findByID(Long.parseLong(idForCourse));
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
+			}
+			
+			businessBypassRule.validateNumeric(content.getAcadYear());
+			businessBypassRule.validateaccesstype(content.getAccessType());
+
+			utils.validateStartAndEndDates(content.getStartDate(),
+					content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			if(content.getLinkUrl() == null){
+				throw new ValidationException("Invalid link URL");
+			}
+			
 			performFolderPathCheck(content);
 			Course c = null;
 			content.setLastModifiedBy(p.getName());
@@ -2527,6 +2838,34 @@ public class ContentController extends BaseController {
 
 		try {
 			HtmlValidation.validateHtml(content, new ArrayList<>());
+			
+			businessBypassRule.validateNumeric(acadYear);
+			businessBypassRule.validateAlphaNumeric(content.getContentName());
+			Course course = new Course();
+			
+			if (null != idForModule && !idForModule.isEmpty()) {
+				businessBypassRule.validateNumeric(idForModule);
+				course = courseService.checkIfExistsInDB("moduleId", idForModule);
+				if (null == course) {
+					throw new ValidationException("Invalid course");
+				}
+			}
+
+			businessBypassRule.validateaccesstype(content.getAccessType());
+
+			logger.info("startDate---->" + content.getStartDate());
+			logger.info("endDate---->" + content.getEndDate());
+			
+			utils.validateStartAndEndDates(content.getStartDate(),
+					content.getEndDate());
+			businessBypassRule.validateYesOrNo(content.getSendEmailAlert());
+			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
+			businessBypassRule.validateYesOrNo(content.getExamViewType());
+			
+			if(content.getLinkUrl() == null){
+				throw new ValidationException("Invalid link URL");
+			}
+			
 			String username = p.getName();
 			Content contentForModule = new Content();
 
@@ -2582,16 +2921,21 @@ public class ContentController extends BaseController {
 			}else{
 				studentContentService.setActiveByContentId(content.getId());
 			}
-			int studentContentCount = studentContentService.getNoOfStudentsAllocated(c.getId());
+			int studentContentCount = studentContentService.getNoOfStudentsAllocated(content.getId());
 			if(studentContentCount == 0){
 				if (Content.ACCESS_TYPE_EVERYONE.equals(content
 	                    .getAccessType())){
-					redirectAttrs.addFlashAttribute("content",c);
+					redirectAttrs.addFlashAttribute("content",content);
 	              return "redirect:/saveStudentContentAllocationForAllStudentsForModule";
 	            }
 			}
 			setSuccess(redirectAttrs, "Link updated Successfully");
 
+		} catch (ValidationException e) {
+			logger.error(e.getMessage(), e);
+			setError(redirectAttrs, e.getMessage());
+			redirectAttrs.addFlashAttribute("edit", "true");
+			return "redirect:/addContentForm";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(redirectAttrs, "Error in updating Link");
@@ -2927,9 +3271,13 @@ public class ContentController extends BaseController {
 
 		if (content.getParentContentId() == null) {
 			// If path is not present, start with Course Root Folder
-
-			content.setFolderPath(courseRootFolder + "" + content.getCourseId()
-					+ FILE_SEPARATOR);
+			if(content.getCourseId()!=null){
+				content.setFolderPath(courseRootFolder + "" + content.getCourseId()
+						+ FILE_SEPARATOR);
+			} else if(content.getIdForCourse()!=null){
+				content.setFolderPath(courseRootFolder + "" + content.getIdForCourse()
+						+ FILE_SEPARATOR);
+			}
 
 		}
 
@@ -2941,8 +3289,14 @@ public class ContentController extends BaseController {
 
 	private void performFolderPathCheckForModule(Content content) {
 		if (content.getParentContentId() == null) {
-			content.setFolderPath(courseRootFolder + content.getIdForModule()
-					+ FILE_SEPARATOR);
+			
+			if(content.getIdForModule()!=null){
+				content.setFolderPath(courseRootFolder + content.getIdForModule()
+						+ FILE_SEPARATOR);
+			}else if(content.getModuleId()!=null){
+				content.setFolderPath(courseRootFolder + content.getModuleId()
+						+ FILE_SEPARATOR);
+			}
 		}
 		if (!content.getFolderPath().endsWith(FILE_SEPARATOR)) {
 			content.setFolderPath(content.getFolderPath() + FILE_SEPARATOR);
@@ -3088,6 +3442,7 @@ public class ContentController extends BaseController {
 			subject = buff.toString();
 			if (content.getStudents() != null
 					&& content.getStudents().size() > 0) {
+				businessBypassRule.validateStudentAllocationListForModule(content.getStudents());
 				for (String studentUsername : content.getStudents()) {
 					StudentContent bean = new StudentContent();
 
@@ -3195,10 +3550,15 @@ public class ContentController extends BaseController {
 							+ " students successfully");
 				}
 
+			}else{
+				throw new ValidationException("No Student selected or you have tampered the student SAP IDs.");
 			}
 
-		} catch (Exception e) {
+		} catch (ValidationException e) {
 			logger.error(e.getMessage(), e);
+			setError(m, e.getMessage());
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
 			setError(m, "Error in sharing folder");
 		}
 		m.addAttribute("content", content);
@@ -3233,6 +3593,9 @@ public class ContentController extends BaseController {
 			subject = buff.toString();
 			if (content.getStudents() != null
 					&& content.getStudents().size() > 0) {
+				
+				businessBypassRule.validateStudentAllocationList(content.getStudents(), content.getCourseId().toString());
+				
 				for (String studentUsername : content.getStudents()) {
 					StudentContent bean = new StudentContent();
 					bean.setAcadMonth(content.getAcadMonth());
@@ -3323,10 +3686,15 @@ public class ContentController extends BaseController {
 							+ " students successfully");
 				}
 
+			} else{
+				throw new ValidationException("No Student selected or you have tampered the student SAP IDs.");
 			}
 
-		} catch (Exception e) {
+		} catch (ValidationException e) {
 			logger.error(e.getMessage(), e);
+			setError(m, e.getMessage());
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
 			setError(m, "Error in sharing folder");
 		}
 		m.addAttribute("content", content);

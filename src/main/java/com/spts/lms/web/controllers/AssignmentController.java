@@ -208,6 +208,8 @@ public class AssignmentController extends BaseController {
 	@Autowired
 	TestQuestionPoolsService testQuestionPoolsService;
 	
+	@Autowired
+	BusinessBypassRule businessBypassRule;
 
 	protected static final int BUFFER_SIZE = 4096;
 
@@ -634,9 +636,7 @@ public class AssignmentController extends BaseController {
 					//Audit change end
 				} else {
 					assignment.setFilePath(retrived.getFilePath());
-					assignment.setFilePreviewPath(retrived
-
-							.getFilePreviewPath());
+					assignment.setFilePreviewPath(retrived.getFilePreviewPath());
 				}
 			} // If User has not added a new file then take the path from
 
@@ -1001,11 +1001,14 @@ public class AssignmentController extends BaseController {
 	@RequestMapping(value = "/saveStudentAssignmentAllocation", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentAssignmentAllocation(
-			@ModelAttribute Assignment assignment, Model m, Principal principal) {
+			@ModelAttribute Assignment assignment, Model m, Principal principal,RedirectAttributes redirectAttributes) {
 		m.addAttribute("webPage", new WebPage("assignment",
 				"Create Assignment", true, false));
 		String username = principal.getName();
 
+		
+		
+		
 		Token userdetails1 = (Token) principal;
 		String ProgramName = userdetails1.getProgramName();
 		User u = userService.findByUserName(username);
@@ -1032,7 +1035,7 @@ public class AssignmentController extends BaseController {
 		try {
 			if (assignment.getStudents() != null
 					&& assignment.getStudents().size() > 0) {
-				
+				businessBypassRule.validateStudentAllocationList(assignment.getStudents(), String.valueOf(assignment.getCourseId()));
 				if (userdetails1.getAuthorities().contains(Role.ROLE_ADMIN)) {
 					studentList.add(retrived.getFacultyId());
 				}
@@ -1147,14 +1150,22 @@ public class AssignmentController extends BaseController {
 				}	
 
 				return viewAssignment(assignment.getId(), m, null, principal);
+			} else {
+				setError(m, "No Student selected or you have tampered the student SAP IDs.");
+				return viewAssignment(assignment.getId(), m, null, principal);
 			}
 
+		}catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttributes, ve.getMessage());
+//			return "redirect:/viewAssignment?id=" + assignment.getId();
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in allocating assignment");
 			m.addAttribute("webPage", new WebPage("assignment",
 					"Create Assignment", false, false));
-			return "redirect:/viewAssignment?id=" + assignment.getId();
+//			return "redirect:/viewAssignment?id=" + assignment.getId();
 		}
 		m.addAttribute("assignment", assignment);
 		return "redirect:/viewAssignment?id=" + assignment.getId();
@@ -1479,12 +1490,20 @@ public class AssignmentController extends BaseController {
 			}
 
 			m.addAttribute("allCampuses", userService.findCampus());
+			boolean groupAssignment = false;
 			for (StudentAssignment uc : students) {
 				User u1 = userService.findByUserName(uc.getUsername());
 				uc.setRollNo(u1.getRollNo());
 				students.set(students.indexOf(uc), uc);
+				if(uc.getId() != null) {
+					if(uc.getGroupId() != null) {
+						groupAssignment = true;
+					}
+				}
 			}
-
+			if(groupAssignment) {
+				return "redirect:/viewByGroupAssignment?id="+assignment.getId();
+			}
 			m.addAttribute("students", students);
 			m.addAttribute("noOfStudentAllocated",
 					studentAssignmentService.getNoOfStudentsAllocated(id));
@@ -1777,13 +1796,11 @@ public class AssignmentController extends BaseController {
 			} else {
 				assignment.setShowFileDownload("false");
 			}
-			List<StudentAssignment> groups = studentAssignmentService
-					.getGroupsForAssignment(id, assignment.getCourseId());
+			List<StudentAssignment> groups = studentAssignmentService.getGroupsForAssignment(id, assignment.getCourseId());
 
 			Set<Long> groupIdList = new HashSet<>();
 
-			List<StudentAssignment> getStudentsByGroup = studentAssignmentService
-					.getStudentsByGroup(assignment.getId());
+			List<StudentAssignment> getStudentsByGroup = studentAssignmentService.getStudentsByGroup(assignment.getId());
 			Map<Long, String> mapper = new HashMap<>();
 			Map<Long, List<StudentAssignment>> mapperGroup = new HashMap<>();
 
@@ -2550,8 +2567,11 @@ public class AssignmentController extends BaseController {
 		}
 
 		if (id != null) {
-			group = groupService.findByID(id);
 			assignment = assignmentService.findByID(id);
+			group = groupService.findByID(id);
+			List<StudentAssignment> groups = studentAssignmentService.getGroupsForAssignment(id, assignment.getCourseId());
+			List<String> groupIds = groups.stream().map(map -> map.getGroupId().toString()).collect(Collectors.toList());
+			m.addAttribute("groupIds",groupIds);
 			m.addAttribute("edit", "true");
 		}
 		List<UserCourse> totalStudentsList = userCourseService
@@ -4209,7 +4229,7 @@ public class AssignmentController extends BaseController {
 	@RequestMapping(value = "/saveStudentAssignmentAllocationForModule", method = {
 			RequestMethod.GET, RequestMethod.POST })
 	public String saveStudentAssignmentAllocationForModule(
-			@ModelAttribute Assignment assignment, Model m, Principal principal) {
+			@ModelAttribute Assignment assignment, Model m, Principal principal, RedirectAttributes redirectAttributes) {
 		m.addAttribute("webPage", new WebPage("assignment",
 				"Create Assignment", true, false));
 		String username = principal.getName();
@@ -4242,9 +4262,19 @@ public class AssignmentController extends BaseController {
 			if (assignment.getStudents() != null
 					&& assignment.getStudents().size() > 0) {
 				studentList.add(username);
+				logger.info("assignment.getStudents()--->"+assignment.getStudents());
+//				List<String> studentUsernames = assignment.getStudents().stream().map(student -> student.split("_")[0]).distinct().collect(Collectors.toList());
+				List<String> courseList = assignment.getStudents().stream().map(student -> student.split("_")[1]).distinct().collect(Collectors.toList());
+//				logger.info("courseList--->"+courseList);
+				for(String c: courseList) {
+					List<String> studentUsernames = assignment.getStudents().stream().filter(student -> student.split("_")[1].equals(c)).map(student -> student.split("_")[0]).distinct().collect(Collectors.toList());
+//					logger.info("course--->"+c);
+//					logger.info("studentUsernames--->"+studentUsernames);
+					businessBypassRule.validateStudentAllocationList(studentUsernames, c);
+				}
 				for (String studentUsername : assignment.getStudents()) {
 					StudentAssignment bean = new StudentAssignment();
-					logger.info("studentUsername------->"+studentUsername);
+//					logger.info("studentUsername------->"+studentUsername);
 					String[] sUsername = null;
 					if(studentUsername.contains("_")){
 						sUsername = studentUsername.split("_");
@@ -4268,11 +4298,7 @@ public class AssignmentController extends BaseController {
 
 					studentList.add(studentUsername);
 
-					if (bean.getUsername().equals(studentUsername)) {
-
-					} else {
-
-					}
+					
 					studentAssignmentMappingList.add(bean);
 
 				}
@@ -4344,14 +4370,21 @@ public class AssignmentController extends BaseController {
 						+ " students successfully");
 
 				return viewAssignmentForModule(assignment.getId(), m, null, principal);
+			} else {
+				throw new ValidationException("No Student selected or you have tampered the student SAP IDs.");
 			}
 
+		} catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(redirectAttributes, ve.getMessage());
+//			return "redirect:/viewAssignmentForModule?id=" + assignment.getId();
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in allocating assignment");
 			m.addAttribute("webPage", new WebPage("assignment",
 					"Create Assignment", false, false));
-			return "redirect:/viewAssignmentForModule?id=" + assignment.getId();
+//			return "redirect:/viewAssignmentForModule?id=" + assignment.getId();
 		}
 		m.addAttribute("assignment", assignment);
 		return "redirect:/viewAssignmentForModule?id=" + assignment.getId();
@@ -6482,6 +6515,223 @@ public class AssignmentController extends BaseController {
 
 			return "redirect:/getAssignmentStatus";
 			
+		}
+	
+		@RequestMapping(value = "/updateGroupAssignment", method = { RequestMethod.GET,
+
+				RequestMethod.POST })
+		public String updateGroupAssignment(@ModelAttribute Assignment assignment,
+
+				@RequestParam("file") List<MultipartFile> files, Model m,
+
+				Principal principal, RedirectAttributes ra) {
+
+			m.addAttribute("webPage", new WebPage("assignment",
+
+					"Create Assignment", true, false));
+
+			String errorMessage = null;
+			
+			String username = principal.getName();
+
+			Token userdetails1 = (Token) principal;
+
+			try {
+
+				Assignment assignDB = assignmentService.findByID(assignment.getId());
+				String ProgramName = userdetails1.getProgramName();
+				User u = userService.findByUserName(username);
+				String acadSession = u.getAcadSession();
+				m.addAttribute("Program_Name", ProgramName);
+				m.addAttribute("AcadSession", acadSession);
+			
+				m.addAttribute("allCourses",courseService.findByUserActive(username,userdetails1.getProgramName()));
+				/* New Audit changes start */
+				HtmlValidation.validateHtml(assignment, Arrays.asList("assignmentText"));
+				Utils.validateStartAndEndDates(assignment.getStartDate(), assignment.getEndDate());
+				BusinessBypassRule.validateNumeric(assignment.getMaxScore());
+				BusinessBypassRule.validateAlphaNumeric(assignment.getAssignmentName());
+				validateAssignmentType(assignment.getAssignmentType());
+				Course course = courseService.findByID(assignment.getCourseId());
+				if(null == course) {
+					throw new ValidationException("Invalid Course selected.");
+				}
+				if(!assignment.getPlagscanRequired().equals("Yes") && !assignment.getPlagscanRequired().equals("No")) {
+					throw new ValidationException("Invalid Input.");
+				}
+//				BusinessBypassRule.validateYesOrNo(assignment.getPlagscanRequired());
+				BusinessBypassRule.validateYesOrNo(assignment.getAllowAfterEndDate());
+				BusinessBypassRule.validateYesOrNo(assignment.getShowResultsToStudents());
+				BusinessBypassRule.validateYesOrNo(assignment.getRightGrant());
+				BusinessBypassRule.validateYesOrNo(assignment.getSendEmailAlert());
+				BusinessBypassRule.validateYesOrNo(assignment.getSendSmsAlert());
+				/* New Audit changes end */
+
+				// Upload new assignment file, if user selected one.
+				Assignment retrived = assignmentService.findByID(assignment.getId());
+				for (MultipartFile file : files) {
+					if (file != null && !file.isEmpty()) {
+
+						errorMessage = uploadAssignmentFileForS3(assignment, file);
+
+					} else {
+						assignment.setFilePath(retrived.getFilePath());
+						assignment.setFilePreviewPath(retrived
+
+								.getFilePreviewPath());
+					}
+				} 
+				for (MultipartFile file : files) {
+					if (file != null && !file.isEmpty()) {
+						//Audit change start
+						Tika tika = new Tika();
+						  String detectedType = tika.detect(file.getBytes());
+						if (file.getOriginalFilename().contains(".")) {
+							Long count = file.getOriginalFilename().chars().filter(c -> c == ('.')).count();
+							logger.info("length--->"+count);
+							if (count > 1 || count == 0) {
+								setError(ra, "File uploaded is invalid!");
+								ra.addAttribute("id", assignment.getId());
+								return "redirect:/createAssignmentFromGroup";
+							}else {
+								String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+								logger.info("extension--->"+extension);
+								if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+										|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
+									setError(ra, "File uploaded is invalid!");
+									ra.addAttribute("id", assignment.getId());
+									return "redirect:/createAssignmentFromGroup";
+								}else {
+									byte [] byteArr=file.getBytes();
+									if((Byte.toUnsignedInt(byteArr[0]) == 0xFF && Byte.toUnsignedInt(byteArr[1]) == 0xD8) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x89 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x25 && Byte.toUnsignedInt(byteArr[1]) == 0x50) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x42 && Byte.toUnsignedInt(byteArr[1]) == 0x4D) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x47 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x49 && Byte.toUnsignedInt(byteArr[1]) == 0x49) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x38 && Byte.toUnsignedInt(byteArr[1]) == 0x42) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x1F && Byte.toUnsignedInt(byteArr[1]) == 0x8B) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x75 && Byte.toUnsignedInt(byteArr[1]) == 0x73) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
+																		(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
+																		("text/plain").equals(detectedType)) {
+										errorMessage = uploadAssignmentFileForS3(assignment, file);
+									} else {
+										setError(ra, "File uploaded is invalid!");
+										ra.addAttribute("id", assignment.getId());
+										return "redirect:/createAssignmentFromGroup";
+									}
+								}
+							}
+						}else {
+							setError(ra, "File uploaded is invalid!");
+							ra.addAttribute("id", assignment.getId());
+							return "redirect:/createAssignmentFromGroup";
+						}
+						//Audit change end
+					} else {
+						assignment.setFilePath(retrived.getFilePath());
+						assignment.setFilePreviewPath(retrived.getFilePreviewPath());
+					}
+				} 
+				// If User has not added a new file then take the path from
+
+				// existing assignment to use generic update query
+
+//				Course course = retrived.getCourseId() != null ? courseService.findByID(Long.valueOf(retrived.getCourseId())) : null;
+				String subject = " Assigment with name  ";
+
+				StringBuffer buff = new StringBuffer(subject);
+				buff.append(retrived.getAssignmentName());
+				if (course != null) {
+					buff.append(" for Course ");
+					buff.append(course.getCourseName());
+				}
+				buff.append(" is updated on" + retrived.getLastModifiedDate());
+				subject = buff.toString();
+
+				assignment.setLastModifiedBy(username);
+				
+				assignmentService.update(assignment);
+
+				retrived = assignmentService.findByID(assignment.getId());
+
+				assignment.setCourse(course);
+
+				setSuccess(ra,"Assigment updated successfully");
+
+				m.addAttribute("noOfStudentAllocated",studentAssignmentService.getNoOfStudentsAllocated(assignment.getId()));
+
+				List<StudentAssignment> students = studentAssignmentService.getStudentsForAssignment(assignment.getId(), assignment.getCourseId());
+
+				List<String> studentList = new ArrayList<>();
+				for (StudentAssignment sa : students) {
+					studentList.add(sa.getUsername());
+				}
+
+				m.addAttribute("students", students);
+
+					if (students != null && students.size() > 0) {
+
+
+							Map<String, Map<String, String>> result = null;
+
+							if (!students.isEmpty()) {
+
+								if ("Y".equals(retrived.getSendEmailAlert())) {
+
+									for (String s : studentList) {
+
+										List<String> singleStudList = new ArrayList<>();
+										singleStudList.add(s);
+										result = userService.findEmailByUserName(singleStudList);
+										Map<String, String> email = result.get("emails");
+										Map<String, String> mobiles = new HashMap();
+										notifier.sendEmail(email, mobiles, subject, subject);
+									}
+
+								}
+
+								if ("Y".equals(retrived.getSendSmsAlert())) {
+
+									result = userService
+
+											.findEmailByUserName(studentList);
+
+									Map<String, String> email = new HashMap();
+
+									Map<String, String> mobiles = result.get("mobiles");
+
+									notifier.sendEmail(email, mobiles, subject, subject);
+
+								}
+
+							}
+
+					
+//						setSuccess(ra,"Assigment updated successfully");
+						ra.addAttribute("id", assignment.getId());
+						return "redirect:/viewByGroupAssignment";
+
+					}
+
+
+			} catch (ValidationException ve) {
+				setError(ra, ve.getMessage());
+				ra.addAttribute("id", assignment.getId());
+				return "redirect:/createAssignmentFromGroup";
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				setError(ra, "Error in updating assignment");
+				ra.addAttribute("id", assignment.getId());
+				return "redirect:/createAssignmentFromGroup";
+				
+
+			}
+			ra.addAttribute("id", assignment.getId());
+			return "redirect:/viewByGroupAssignment";
 		}
 	
 }

@@ -35,7 +35,6 @@
 	</div>
 	<script>
 		//window.setTimeout(function() { $('.alert-warning').alert('close'); }, 5000);
-		
 		$('.alert-warning').alert('close');
 	</script>
 </c:if>
