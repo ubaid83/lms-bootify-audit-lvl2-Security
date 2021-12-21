@@ -9979,6 +9979,8 @@ public class IcaController extends BaseController {
 							.toString();
 					if (!compMark.trim().isEmpty()) {
 						componentCount++;
+						logger.info("compMark is " + compMark);
+						BusinessBypassRule.validateNumeric(compMark);
 						if (!excelReader.ISVALIDINPUT(compMark)) {
 							setError(redirectAttributes, "Input Mark is not valid for student:"
 									+ (String) mapper.get("SAPID") + "-" + compMark);
@@ -10185,7 +10187,12 @@ public class IcaController extends BaseController {
 				}
 			}
 
-		} catch (Exception ex) {
+		} 
+		catch (ValidationException ve) {
+			logger.info("INSIDE Validation Exception");
+			logger.error(ve.getMessage(), ve);
+		}
+		catch (Exception ex) {
 
 			setError(redirectAttributes, "Error in uploading marks");
 
