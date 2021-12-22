@@ -4262,11 +4262,14 @@ public class AssignmentController extends BaseController {
 			if (assignment.getStudents() != null
 					&& assignment.getStudents().size() > 0) {
 				studentList.add(username);
-//				logger.info("assignment.getStudents()--->"+assignment.getStudents());
-				List<String> studentUsernames = assignment.getStudents().stream().map(student -> student.split("_")[0]).distinct().collect(Collectors.toList());
+				logger.info("assignment.getStudents()--->"+assignment.getStudents());
+//				List<String> studentUsernames = assignment.getStudents().stream().map(student -> student.split("_")[0]).distinct().collect(Collectors.toList());
 				List<String> courseList = assignment.getStudents().stream().map(student -> student.split("_")[1]).distinct().collect(Collectors.toList());
 //				logger.info("courseList--->"+courseList);
 				for(String c: courseList) {
+					List<String> studentUsernames = assignment.getStudents().stream().filter(student -> student.split("_")[1].equals(c)).map(student -> student.split("_")[0]).distinct().collect(Collectors.toList());
+//					logger.info("course--->"+c);
+//					logger.info("studentUsernames--->"+studentUsernames);
 					businessBypassRule.validateStudentAllocationList(studentUsernames, c);
 				}
 				for (String studentUsername : assignment.getStudents()) {

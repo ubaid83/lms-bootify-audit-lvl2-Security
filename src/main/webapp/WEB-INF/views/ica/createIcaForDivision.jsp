@@ -50,7 +50,7 @@
 				</ol>
 			</nav>
 
-			<jsp:include page="../common/alert.jsp" />
+			<%-- <jsp:include page="../common/alert.jsp" /> --%>
 
 			<!-- Input Form Panel -->
 			<div class="card bg-white border">
@@ -716,8 +716,8 @@
 							</div>
 						</c:if>
 
- <form:input path="isPublishCompWise" type="hidden" value="N"/> 
-					<%-- 	<c:if test="${edit eq 'true'}">
+<%--  <form:input path="isPublishCompWise" type="hidden" value="N"/>  --%>
+						<c:if test="${edit eq 'true'}">
 							<div class="row">
 								<div class="col-lg-6 col-md-6 col-sm-12 mt-3 mb-3">
 									<label class="textStrong">Do You Want This Ica to Evaluate/Publish
@@ -730,17 +730,17 @@
 										<c:otherwise>
 											<div>
 												<div class="pretty p-switch p-fill p-toggle">
-													<c:if test="${icaBean.scaledReq eq 'Y'}">
+													<%-- <c:if test="${icaBean.scaledReq eq 'Y'}">
 									 <form:checkbox id="scaledReq" value="Y"
 											path="scaledReq" checked="true"/> 
 									</c:if>
 									<c:if test="${icaBean.scaledReq ne 'Y'}">
 									<form:checkbox id="scaledReq" value="N"
 											path="scaledReq" checked="false"/> 
-									</c:if>	
+									</c:if>	 --%>
 										
 													<form:checkbox id="isPublishCompWise" value="${icaBean.isPublishCompWise}"
-														path="isPublishCompWise" />
+														path="isPublishCompWise" data-id="12"/>
 
 													<div class="state p-success p-on">
 														<label>Yes</label>
@@ -781,7 +781,7 @@
 							
 
 							</div>
-						</c:if>  --%>
+						</c:if>  
 						
 						<div class="col-12 mt-3 position-relative">
 							<div class="form-group">
@@ -836,7 +836,6 @@
 				if ($('#scaledReq').val() == "N") {
 					$('#scaledReq').attr('checked', false);
 				}
-
 			});
 		</script>
 		<script>
