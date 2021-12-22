@@ -544,56 +544,24 @@ public class GroupController extends BaseController {
 			
 			//Sandip 06/12/2021
 
-			
-			//businessBypassRule.validateAlphaNumeric(String.valueOf(groups.getCourseId()));
-			
-			System.out.println("student allocation group ID : "+groups.getCourseId());
-			
-			
-			Course courseI2 = courseService.checkIfCourseId(groups
-					.getCourseId());
-			System.out.println("Course Id 2:  " + groups.getCourseId());
-			if (null != groups.getCourseId() && null != courseI2) {
-				System.out.println("course id is valid");
-			} else {
-			
-				throw new ValidationException("Invalid course ID");	
-			}
-
-			
-			Course acadYear = courseService.checkIfAcadYearExists(String
-					.valueOf(groups.getAcadYear()), groups.getCourseId());
-			if (null != groups.getAcadYear() && null != acadYear) {
-				System.out.println("Academic year is valid!");
-			} else {
-				throw new ValidationException("Invalid academic year!");
-			}
-
-			User facultyId = userService.checkIfExistsInDB( groups
-					.getFacultyId());
+			UserCourse facultyId = userCourseService.checkIfFacultyCourseAcadYear(groups
+					.getFacultyId(), groups.getCourseId(), groups.getAcadYear());
 			if (null != groups.getFacultyId() && null != facultyId) {
 				System.out.println("Faculty ID is valid!");
 			} else {
-				throw new ValidationException("Invalid Faculty ID!");
+				throw new ValidationException("Invalid Faculty ID / Course ID / Acad Year!");
 				
 			}
 
 			System.out.println("groupdetails: " + groups.getAcadYear());
-
 			List<String> stu = groups.getStudents();
-
-			for (String student : stu) {
-				BusinessBypassRule.validateNumeric(student);
-				if (student != null) {
-					User students = userService.checkIfExistsInDB(student);
-					if (students == null) {
-						throw new ValidationException(
-								"Invalid Students SAP ID!");
-					}
-				}
-			}
-
 			
+			if(stu.size() > 0) {
+				businessBypassRule.validateStudentAllocationList(stu, String.valueOf(groups.getCourseId()));
+			} else {
+				throw new ValidationException("Invalid Student SAP ID!");
+			}
+		
 			//Sandip 06/12/2021
 			
 			if (stu != null && stu.size() > 0) {
@@ -608,13 +576,15 @@ public class GroupController extends BaseController {
 					bean.setLastModifiedBy(username);
 					studentGroupMappingList.add(bean);
 				}
+				
 
 				int noOfStudentsAllocated = studentGroupService
 						.getNoOfStudentsAllocated(grpDB.getId());
+				
 				int noOfStudentSelected = stu.size();
 				int noOfStudent = Integer.parseInt(grpDB.getNoOfStudents());
 				int totalLimit = noOfStudent - noOfStudentsAllocated;
-
+				
 				if (totalLimit >= noOfStudentSelected) {
 					studentGroupService.insertBatch(studentGroupMappingList);
 					setSuccess(m, "Group created for "
@@ -626,7 +596,7 @@ public class GroupController extends BaseController {
 
 				return viewGroup(groups.getId(), m, null, principal,redirectAttributes);
 			}
-
+			
 		}
 		catch (ValidationException er) {
 			logger.info("temp-----------");

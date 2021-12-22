@@ -61,7 +61,10 @@ public class MessageController extends BaseController {
 
 	@Autowired
 	StudentMessageDAO studentMessageDAO;
-
+	
+    @Autowired
+	 BusinessBypassRule businessBypassRule;
+	
 	@Autowired
 	UserService userService;
 
@@ -248,11 +251,9 @@ public class MessageController extends BaseController {
 		
 		ArrayList<StudentMessage> studentMessageMappingList = new ArrayList<StudentMessage>();
 		try {
-		
 			List<StudentMessage> students = studentMessageService
 					.getStudentsForMessage(message.getId(),
 							message.getCourseId());
-
 			for (StudentMessage uc : students) {
 				User u1 = userService.findByUserName(uc.getUsername());
 				uc.setRollNo(u1.getRollNo());
@@ -260,10 +261,14 @@ public class MessageController extends BaseController {
 				
 			}
 			m.addAttribute("students", students);
-
-			List<String> msg = message.getStudents();
-			System.out.println("Message >>>>>>>"+msg);
-			if (msg != null && msg.size() > 0) {
+             if(message.getStudents().size()>0 && message.getStudents() !=null)
+             {
+            	 businessBypassRule.validateStudentAllocationList(message.getStudents(), String.valueOf(message.getCourseId()));
+//             }
+//			List<String> msg = message.getStudents();
+//			System.out.println("Message >>>>>>>"+msg);
+//			
+		//if (msg != null && msg.size() > 0) {
 				for (String studentname : message.getStudents()) {
 					StudentMessage bean = new StudentMessage();
 					bean.setMessageId(message.getId());
@@ -285,14 +290,20 @@ public class MessageController extends BaseController {
 				return viewMessage(message.getId(), principal, m);
 			}
 
-		} catch (Exception e) {
+		} 
+		catch (ValidationException ve) {
+			logger.error(ve.getMessage(), ve);
+			setError(m, ve.getMessage());
+			m.addAttribute("webPage", new WebPage("message", "Create Message",
+					false, false));
+			return "message/message";
+		}
+		catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			setError(m, "Error in allocating message");
 			m.addAttribute("webPage", new WebPage("message", "Create Message",
 					false, false));
 			return "message/message";
-			
-		
 		}
 		m.addAttribute("message", message);
 		return "message/message";

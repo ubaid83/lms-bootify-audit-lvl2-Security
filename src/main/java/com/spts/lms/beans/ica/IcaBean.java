@@ -85,7 +85,7 @@ public class IcaBean extends BaseBean{
 	}
 
 	public void setIsPublishCompWise(String isPublishCompWise) {
-		this.isPublishCompWise = isPublishCompWise;
+		this.isPublishCompWise = isPublishCompWise != null ? isPublishCompWise : "N";
 	}
 
 	public String getFlagTcs() {

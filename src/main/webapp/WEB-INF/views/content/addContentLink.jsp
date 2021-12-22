@@ -292,7 +292,7 @@
 												<input id="startDate" type="text"
 													placeholder="Start Date - End Date" class="form-control"
 													required="required"
-													value="${content.startDate} - ${content.endDate}" readonly />
+													value="${content.startDate}-${content.endDate}" readonly />
 												<div class="input-group-append">
 													<button class="btn btn-outline-secondary" type="button"
 														id="testDateRangeBtn">

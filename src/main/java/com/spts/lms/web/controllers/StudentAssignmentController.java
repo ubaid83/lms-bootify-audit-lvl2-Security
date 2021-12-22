@@ -4470,9 +4470,9 @@ public class StudentAssignmentController extends BaseController {
 				sa.setEvaluatedBy(username);
 				sa.setLastModifiedBy(username);
 				studentAssignmentService.updateAssignmentsEvaluationMarks(sa,childAssignmentId);
-				}
+			}
 			
-			
+			setSuccess(redirectAttributes, "Marks updates Successfully ");
 			
 		} catch (
 
@@ -4482,7 +4482,7 @@ public class StudentAssignmentController extends BaseController {
 
 			logger.error("Exception", ex);
 		}
-		setSuccess(redirectAttributes, "Marks updates Successfully ");
+		
 		
 		return "redirect:/evaluateByStudent?id="+assignmentId;
 
@@ -4574,7 +4574,7 @@ public class StudentAssignmentController extends BaseController {
 			}
 		
 		
-			
+			setSuccess(redirectAttributes, "Marks updates Successfully ");
 			
 		} catch (
 
@@ -4584,7 +4584,7 @@ public class StudentAssignmentController extends BaseController {
 
 			logger.error("Exception", ex);
 		}
-		setSuccess(redirectAttributes, "Marks updates Successfully ");
+		
 		
 		//return "redirect:/evaluateByStudentFormForModule?id="+assignmentId;
 return  "redirect:/evaluateByStudentForModule?id="+assignmentId; 

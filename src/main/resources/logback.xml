@@ -20,6 +20,7 @@
 			<fileNamePattern>/data/logs/BSSA-NM-M/archived/debug.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 
 
+
 			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
 				<maxFileSize>10MB</maxFileSize>
 			</timeBasedFileNamingAndTriggeringPolicy>

@@ -211,6 +211,8 @@ public class ExcelReader {
 						}
 						
 						
+						
+						
 						if (valueMap.containsKey("answerRangeFrom")) {
 
 							if (!ISVALIDINPUT((String) valueMap
@@ -245,7 +247,23 @@ public class ExcelReader {
 							}
 						}
 
-
+                        
+						if (valueMap.containsKey("ASSIGNED SCORE")) {
+							
+							if (!ISVALIDINPUT((String) valueMap.get("ASSIGNED SCORE"))) {
+								if (ErrorMessage != null && ErrorMessage != "") {
+									ErrorMessage = ErrorMessage
+											+ header.get(count)
+											+ " Not Numeric RowNum:ColumnNum "
+											+ rowNum + "," + count + " |";
+								} else {
+									ErrorMessage = header.get(count)
+											+ " Not Numeric RowNum:ColumnNum "
+											+ rowNum + "," + count + " |";
+								}
+							}
+						}
+						
 					
 						// validate Headers value as Number or not
 						if (ValidateHeader.contains(header.get(count))) {

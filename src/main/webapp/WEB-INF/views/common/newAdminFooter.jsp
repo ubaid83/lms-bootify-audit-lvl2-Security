@@ -544,6 +544,7 @@ $(document).ready(function(){
 	} else {
 		$('#setTestPwd').prop('checked', false);
 	}
+
 });
 </script>
 
@@ -1805,23 +1806,7 @@ $('#scaledReq').click(function() {
 
 		});
 		
-$('#isPublishCompWise').click(function() {
-	
-	console.log('isPublishCompWise req clicked');
-	var isPcw = $('#isPublishCompWise').val();
-	
-	//IF Y AND N
 
-	if (isPcw == 'Y') {
-		$('#isPublishCompWise').val('N');
-		
-	} else {
-		$('#isPublishCompWise').val('Y');
-		
-	
-	}
-
-});
 
 
 		</script>
@@ -1879,6 +1864,23 @@ $('#isPublishCompWise').click(function() {
 					$('#isQuesConfigFromPool').prop('checked', false);
 				}
 				/*  For Assignment Pool End */
+					/* isPublishCompWise JS */
+				 var isPublishCompWise = $('#isPublishCompWise').val();
+				console.log("isPublishCompWise-->",isPublishCompWise);
+				if (isPublishCompWise == 'Y') {
+					$('#isPublishCompWise').prop('checked', true);
+				} else {
+					$('#isPublishCompWise').prop('checked', false);
+				}
+			});
+			$('#isPublishCompWise').click(function() {
+				console.log('isPublishCompWise req clicked');
+				var isPcw = $('#isPublishCompWise').val();
+				if (isPcw == 'Y') {
+					$('#isPublishCompWise').val('N');
+				} else {
+					$('#isPublishCompWise').val('Y');
+				}
 			});
 			$('#subAfterEndDate').click(function() {
 				var subAfterEndDate = $('#subAfterEndDate').val();

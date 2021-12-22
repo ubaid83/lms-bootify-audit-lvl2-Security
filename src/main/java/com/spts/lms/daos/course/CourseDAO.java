@@ -1425,12 +1425,16 @@ public List<Course> acadSessionListByAcadYearAndCampusCE(String acadYear,
 		String sql="SELECT Id FROM course WHERE Id=?";
 		return findOneSQL(sql, new Object[] {courseId});
 	}
-	
+	//sandip
 	public Course checkIfAcadYearExists(String acadYear, Long courseId){
 		String sql="SELECT acadYear FROM course WHERE acadYear=? and Id=?";
 		return findOneSQL(sql, new Object[] {acadYear, courseId});
-
 	}
+//	//Sandip
+//	 public Course checkIfStudentCourseId(String courseId) {
+//		String sql="SELECT courseId FROM user_course WHERE courseId=? limit 1";
+//		return findOneSQL(sql, new Object[] {courseId});
+//	}
 }
 
 

@@ -35,7 +35,7 @@ public class ClassParticipationDAO extends BaseDAO<ClassParticipation> {
 				+ " lastModifiedBy = :lastModifiedBy,"
 				+ " lastModifiedDate =:lastModifiedDate "
 
-				+ " where username = :username ";
+				+ " where username = :username and courseId =:courseId ";
 		return sql;
 	}
 

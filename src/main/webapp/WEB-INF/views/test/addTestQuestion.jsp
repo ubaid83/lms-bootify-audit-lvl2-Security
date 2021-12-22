@@ -622,7 +622,7 @@
 																	required="required" placeholder="Marks"
 																	class="form-control" /> --%>
 
-														<c:if test="${randomQuestionStatus eq 'N'}">
+														<c:if test="${randomQuestionStatus eq 'N' && (empty sameMarksQue || sameMarksQue eq 'N')}">
 															<form:input id="marks" path="marks" type="number"
 																required="required" placeholder="Marks"
 																class="form-control" step=".00001" />
@@ -641,7 +641,7 @@
 														</c:if>
 
 														<c:if
-															test="${randomQuestionStatus eq 'Y' && sameMarksQue eq 'Y'}">
+															test="${sameMarksQue eq 'Y'}">
 															<form:input id="marks" path="marks" type="number"
 																readonly="true" required="required" placeholder="Marks"
 																class="form-control" value="${ marksPerQue }" />
