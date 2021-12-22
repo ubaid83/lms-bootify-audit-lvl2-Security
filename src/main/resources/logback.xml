@@ -5,7 +5,7 @@
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILE-AUDIT">
 
 
-		<file>/data/logs/BSSA-NM-M/log-${myTimestamp}.log</file>
+		<file>/data/logs/SAMSOE/log-${myTimestamp}.log</file>
 
 
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -17,7 +17,7 @@
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- rollover daily -->
 
-			<fileNamePattern>/data/logs/BSSA-NM-M/archived/debug.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<fileNamePattern>/data/logs/SAMSOE/archived/debug.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 
 
 

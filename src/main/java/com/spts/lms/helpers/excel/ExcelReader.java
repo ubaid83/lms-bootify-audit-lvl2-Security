@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -27,6 +29,9 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.spts.lms.web.utils.BusinessBypassRule;
+import com.spts.lms.web.utils.ValidationException;
 
 @Component
 public class ExcelReader {
@@ -280,6 +285,23 @@ public class ExcelReader {
 						} else {
 							ErrorMessage = "excel format is wrong ";
 							
+						}
+						if(valueMap.containsKey("Save Remarks")) {
+							Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-.()+]");
+						     Matcher m = p.matcher(valueMap.get("Save Remarks").toString());
+						     boolean b = m.find();
+						     if(b) {
+						    	 ErrorMessage = header.get(count)
+											+ " Invalid Character RowNum:ColumnNum "
+											+ rowNum + "," + count + " |";
+						     }
+						}
+						if(valueMap.containsKey("Save Low Score Reason")) {
+							if(!valueMap.get("Save Low Score Reason").toString().equals("Copy Case-Internet") && !valueMap.get("Save Low Score Reason").toString().equals("Copy Case-Other Student") && !valueMap.get("Save Low Score Reason").toString().equals("Wrong Answers") &&
+									!valueMap.get("Save Low Score Reason").toString().equals("Other subject Assignment") && !valueMap.get("Save Low Score Reason").toString().equals("Scanned/Handwritten Assignment") && !valueMap.get("Save Low Score Reason").toString().equals("Only Questions written") && 
+									!valueMap.get("Save Low Score Reason").toString().equals("Question Paper Uploaded") && !valueMap.get("Save Low Score Reason").toString().equals("Blank Assignment") && !valueMap.get("Save Low Score Reason").toString().equals("Corrupt file uploaded")) {
+								ErrorMessage = header.get(count) + " Invalid Character RowNum:ColumnNum " + rowNum + "," + count + " |";
+							}
 						}
 					}
 
@@ -815,6 +837,19 @@ public class ExcelReader {
 							ErrorMessage = "excel format is wrong ";
 							
 						}
+						
+						//validate remarks 
+						if(valueMap.containsKey("REMARKS")) {
+							Pattern p = Pattern.compile("[^A-Za-z0-9\\s,_&\\-.()+]");
+						     Matcher m = p.matcher(valueMap.get("REMARKS").toString());
+						     boolean b = m.find();
+						     if(b) {
+						    	 ErrorMessage = header.get(count)
+											+ " Invalid Character RowNum:ColumnNum "
+											+ rowNum + "," + count + " |";
+						     }
+						}
+						
 					}
 
 					valueMap.put("Error", removeLastChar(ErrorMessage));
