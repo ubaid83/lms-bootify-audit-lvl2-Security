@@ -380,7 +380,7 @@ public class StudentAssignmentController extends BaseController {
 				}else {
 					String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+					if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 							|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 						setError(rd, "File uploaded is invalid!");
 						return "redirect:/viewAssignmentFinal";
@@ -399,7 +399,7 @@ public class StudentAssignmentController extends BaseController {
 															(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 															(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 															(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-															("text/plain").equals(detectedType)) {
+															(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 							logger.info("file is valid--->");
 						} else {
 							setError(rd, "File uploaded is invalid!");
@@ -3196,7 +3196,7 @@ public class StudentAssignmentController extends BaseController {
 					return "redirect:/submitAssignmentForm";
 				}else {
 					logger.info("extension--->"+extension);
-					if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+					if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 							|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 						setError(redirectAttrs, "File uploaded is invalid!");
 						return "redirect:/submitAssignmentForm";
@@ -3215,7 +3215,7 @@ public class StudentAssignmentController extends BaseController {
 															(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 															(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 															(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-															("text/plain").equals(detectedType)) {
+															(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 							logger.info("file is valid--->");
 						} else {
 							setError(redirectAttrs, "File uploaded is invalid!");
@@ -4840,7 +4840,7 @@ return  "redirect:/evaluateByStudentForModule?id="+assignmentId;
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 								|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(rd, "File uploaded is invalid!");
 							return "redirect:/viewAssignmentFinal";
@@ -4859,7 +4859,7 @@ return  "redirect:/evaluateByStudentForModule?id="+assignmentId;
 																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-																("text/plain").equals(detectedType)) {
+																(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 								logger.info("file is valid--->");
 							} else {
 								setError(rd, "File uploaded is invalid!");

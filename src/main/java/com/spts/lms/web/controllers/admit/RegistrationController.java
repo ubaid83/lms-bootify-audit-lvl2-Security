@@ -1149,7 +1149,7 @@ public class RegistrationController extends BaseController {
 					} else {
 						String extension = FilenameUtils.getExtension(originalfileName);
 						logger.info("extension--->" + extension);
-						if (extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+						if (extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 								|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/updateProfileForm";
@@ -1168,7 +1168,7 @@ public class RegistrationController extends BaseController {
 									(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 									(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 									(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-									("text/plain").equals(detectedType)) {
+									(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 							//Audit change end
 							File convFile = new File(originalfileName);
 							File saveimage = new File(saveimagePath);

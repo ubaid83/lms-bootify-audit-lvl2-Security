@@ -169,7 +169,7 @@ public class studentDetailConfirmationController extends BaseController {
 			}else {
 				String extension = FilenameUtils.getExtension(originalfileName);
 				logger.info("extension--->"+extension);
-				if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+				if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 						|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 					m.addAttribute("fileuploaderror", "File uploaded is invalid!");
 					setError(r, "File uploaded is invalid!");
@@ -189,7 +189,7 @@ public class studentDetailConfirmationController extends BaseController {
 														(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 														(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 														(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) ||
-														("text/plain").equals(detectedType)) {
+														(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 						logger.info("File is valid--->");
 					}else {
 						m.addAttribute("fileuploaderror", "File uploaded is invalid!");
@@ -611,7 +611,7 @@ public class studentDetailConfirmationController extends BaseController {
 				sb.append("<th>First Name</th><th>Father Name</th><th>Mother Name</th>");
 				sb.append("</tr></thead>");
 				sb.append("<tbody><tr>");
-				for (User b : bf) {0
+				for (User b : bf) {
 
 					/*
 					 * sb.append("<td>" + b.getFirstname() +" "+b.getLastname()+

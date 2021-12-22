@@ -539,7 +539,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 								|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttributes, "File uploaded is invalid!");
 							return "redirect:/viewLibraryAnnouncements";
@@ -558,7 +558,7 @@ public class LibraryController extends BaseController {
 																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-																("text/plain").equals(detectedType)) {
+																(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 							String errorMessage = uploadWebpageFile(webpages, file);
 							} else {
 								setError(redirectAttributes, "File uploaded is invalid!");
@@ -655,7 +655,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 								|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttributes, "File uploaded is invalid!");
 							return "redirect:/viewLibraryAnnouncements";
@@ -674,7 +674,7 @@ public class LibraryController extends BaseController {
 																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-																("text/plain").equals(detectedType)) {
+																(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 							String errorMessage = uploadWebpageFile(webpages, file);
 							} else {
 								setError(redirectAttributes, "File uploaded is invalid!");
@@ -1162,7 +1162,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 								|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							return "redirect:/addLibraryItemForm";
@@ -1181,7 +1181,7 @@ public class LibraryController extends BaseController {
 																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-																("text/plain").equals(detectedType)) {
+																(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 								logger.info("file is valid--->");
 							} else {
 								setError(redirectAttrs, "File uploaded is invalid!");
@@ -2333,7 +2333,7 @@ public class LibraryController extends BaseController {
 						}else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->"+extension);
-							if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+							if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 									|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(redirectAttrs, "File uploaded is invalid!");
 								return "redirect:/addLibraryItemForm";
@@ -2352,7 +2352,7 @@ public class LibraryController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-																	("text/plain").equals(detectedType)) {
+																	(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 								errorMessage = uploadLibraryFile(library, library.getFolderPath(), file);
 								} else {
 									setError(redirectAttrs, "File uploaded is invalid!");
@@ -2536,7 +2536,7 @@ public class LibraryController extends BaseController {
 					}else {
 						String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 						logger.info("extension--->"+extension);
-						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+						if(extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 								|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 							setError(redirectAttrs, "File uploaded is invalid!");
 							redirectAttrs.addAttribute("id", library.getId());
@@ -2558,7 +2558,7 @@ public class LibraryController extends BaseController {
 																(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 																(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-																("text/plain").equals(detectedType)) {
+																(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 								errorMessage = uploadLibraryFile(library, library.getFolderPath(), file);
 							} else {
 								setError(redirectAttrs, "File uploaded is invalid!");

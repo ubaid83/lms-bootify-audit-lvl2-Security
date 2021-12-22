@@ -2215,7 +2215,7 @@ public class TeeController extends BaseController {
 						} else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->" + extension);
-							if (extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+							if (extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 									|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								setError(redirectAttributes, "File uploaded is invalid!");
 								return "redirect:/showTeeQueries";
@@ -2234,7 +2234,7 @@ public class TeeController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-																	("text/plain").equals(detectedType)) {
+																	(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 								String filePath = baseDirS3 + "/" + "TEEUploads";
 								Map<String, String> returnMap = amazonS3ClientService
 										.uploadFileToS3BucketWithRandomString(file, filePath);
@@ -2351,7 +2351,7 @@ public class TeeController extends BaseController {
 						} else {
 							String extension = FilenameUtils.getExtension(file.getOriginalFilename());
 							logger.info("extension--->" + extension);
-							if (extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") 
+							if (extension.equalsIgnoreCase("exe") || extension.equalsIgnoreCase("php") || extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("json") 
 									|| ("application/x-msdownload").equals(detectedType) || ("application/x-sh").equals(detectedType)) {
 								errCount++;
 							} else {
@@ -2369,7 +2369,7 @@ public class TeeController extends BaseController {
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x52 && Byte.toUnsignedInt(byteArr[1]) == 0x61) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0xD0 && Byte.toUnsignedInt(byteArr[1]) == 0xCF) || 
 																	(Byte.toUnsignedInt(byteArr[0]) == 0x50 && Byte.toUnsignedInt(byteArr[1]) == 0x4B) || 
-																	("text/plain").equals(detectedType)) {
+																	(extension.equalsIgnoreCase("txt") && ("text/plain").equals(detectedType))) {
 								String filePath = baseDirS3 + "/" + "TEEUploads";
 								Map<String, String> returnMap = amazonS3ClientService
 										.uploadFileToS3BucketWithRandomString(file, filePath);
