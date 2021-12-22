@@ -2640,6 +2640,7 @@ public class ContentController extends BaseController {
 				businessBypassRule.validateUrl(content.getLinkUrl());
 			}
 			
+			
 			if(content.getContentType() != null){
 				if(!content.getContentType().equals("Link")){
 					throw new ValidationException("you have tampered the Content Type.");
