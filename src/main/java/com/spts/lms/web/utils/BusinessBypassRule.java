@@ -204,17 +204,6 @@ public class BusinessBypassRule {
 	    	 throw new ValidationException("Special characters are not allowed to enter except (),?,/");
 	     }
 	 }
-
-	public static void validateRatings(String s) throws ValidationException {
-		if (s == null || s.trim().isEmpty()) {
-	    	 throw new ValidationException("Input field cannot be empty");
-	    }
-		Integer rating = Integer.valueOf(s);
-		if(rating>7 || rating <1){
-			throw new ValidationException("Please Rate Between 1 to 7");
-		}
-		
-	}
 	
 	//Peter 05/12/2021
 	public static void validateStartAndEndDatesToUpdate(String date1, String date2) throws ValidationException {

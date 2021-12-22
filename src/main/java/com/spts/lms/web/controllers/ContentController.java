@@ -2535,8 +2535,10 @@ public class ContentController extends BaseController {
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 			
-			if(content.getLinkUrl() == null){
+			if(content.getLinkUrl() == null || content.getLinkUrl().isEmpty()){
 				throw new ValidationException("Invalid link URL");
+			}else{
+				businessBypassRule.validateUrl(content.getLinkUrl());
 			}
 			
 			if(content.getContentType() != null){
@@ -2632,8 +2634,10 @@ public class ContentController extends BaseController {
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 		
-			if(content.getLinkUrl() == null){
+			if(content.getLinkUrl() == null || content.getLinkUrl().isEmpty()){
 				throw new ValidationException("Invalid link URL");
+			}else{
+				businessBypassRule.validateUrl(content.getLinkUrl());
 			}
 			
 			if(content.getContentType() != null){
@@ -2774,8 +2778,10 @@ public class ContentController extends BaseController {
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 			
-			if(content.getLinkUrl() == null){
+			if(content.getLinkUrl() == null || content.getLinkUrl().isEmpty()){
 				throw new ValidationException("Invalid link URL");
+			}else{
+				businessBypassRule.validateUrl(content.getLinkUrl());
 			}
 			
 			performFolderPathCheck(content);
@@ -2862,8 +2868,10 @@ public class ContentController extends BaseController {
 			businessBypassRule.validateYesOrNo(content.getSendSmsAlert());
 			businessBypassRule.validateYesOrNo(content.getExamViewType());
 			
-			if(content.getLinkUrl() == null){
+			if(content.getLinkUrl() == null || content.getLinkUrl().isEmpty()){
 				throw new ValidationException("Invalid link URL");
+			}else{
+				businessBypassRule.validateUrl(content.getLinkUrl());
 			}
 			
 			String username = p.getName();
