@@ -410,7 +410,6 @@ public class FAQController extends BaseController {
 			System.out.println("mapsmapsmaps--------12222"+maps.get(1));
 			
 			//Sandip
-			
 			for (Map<String, Object> map : maps) {
 				System.out.println("student username : " + map.get("SAP ID"));
 
