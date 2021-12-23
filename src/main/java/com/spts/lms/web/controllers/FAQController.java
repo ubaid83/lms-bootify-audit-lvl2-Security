@@ -412,8 +412,13 @@ public class FAQController extends BaseController {
 			//Sandip
 			
 			for (Map<String, Object> map : maps) {
-				System.out.println("student username : " + map.get("SAP ID"));
-
+				
+				Object marks=map.get("ASSIGNED SCORE");
+				BusinessBypassRule.validateNumeric(String.valueOf(marks));
+				
+				Object remarks=map.get("ASSIGN REMARKS");
+				BusinessBypassRule.validateAlphaNumeric(String.valueOf(remarks));
+				
 				UserCourse classPart = userCourseService.checkIfStudentExistsInDB(map
 						.get("SAP ID").toString(), Long.valueOf(classParticipation.getCourseId()));
 				System.out.println("shshsh : " + classPart);
@@ -542,9 +547,9 @@ public class FAQController extends BaseController {
 			
 			System.out.println("saveClassParticipation course Id : "+courseId);
 			 
-			String s=String.valueOf(classParticipation.getScore());
-			
 			BusinessBypassRule.validateAlphaNumeric(classParticipation.getRemarks());
+			
+			String s=String.valueOf(classParticipation.getScore());
 			
 			BusinessBypassRule.validateNumeric(s);
 	        /*****By sandip 25/10/2021******/
