@@ -2838,21 +2838,32 @@ public class AnnouncementController extends BaseController {
 		try {
 
 			HtmlValidation.validateHtml(announcement, Arrays.asList("description"));
-			Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
-
-			if(null==semdata || semdata.toString().isEmpty())
-			{
-				
-				 throw new ValidationException("Invalid Semester");
-			}
+//			Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
+//
+//			if(null==semdata || semdata.toString().isEmpty())
+//			{
+//				
+//				 throw new ValidationException("Invalid Semester");
+//			}
 			if(null!=announcement.getAcadSession() && !announcement.getAcadSession().isEmpty())
 			{
-	//	Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
+				Course	semdata	=courseService.checkIfExistsInDB("acadSession", announcement.getAcadSession());
 
-				businessBypassRule.validateAlphaNumeric(announcement.getAcadSession());
+				if(null==semdata || semdata.toString().isEmpty())
+				{
+					 throw new ValidationException("Invalid Semester");
+				}
 			}
 		
-		
+			if(null!=announcement.getCampusId())
+			{
+				Course	campus	=courseService.checkIfExistsInDB("campusId", String.valueOf(announcement.getCampusId()));
+
+				if(null==campus || campus.toString().isEmpty())
+				{
+					 throw new ValidationException("Invalid Campus selected");
+				}
+			}
 			if(announcement.getProgramIds().isEmpty() || null==announcement.getProgramIds())
 			{ 
 				throw new ValidationException("Invalid Program Id");
@@ -3187,8 +3198,7 @@ public class AnnouncementController extends BaseController {
 			}
 			if (announcement.getCampusId() != null) {
 				Long campusId = announcement.getCampusId();
-				announcement
-						.setCampusName(userService.findCampusName(campusId));
+				announcement.setCampusName(userService.findCampusName(campusId));
 			}
 			try {
 

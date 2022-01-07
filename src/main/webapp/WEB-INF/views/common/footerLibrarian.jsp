@@ -11,7 +11,7 @@
                 &copy;2017 NMIMS. All Rights Reserved.<br>V.L.Mehta Road, Vile Parle (W), Mumbai, Maharashtra - 400056
             </div>
             <div class="col-md-3">
-                <a href="mailto:portal_app_team@svkm.ac.in">portal_app_team@svkm.ac.in</a><br>022-42199993
+                <a href="mailto:portal_app_team@svkm.ac.in">portal_app_team@svkm.ac.in</a><br>022-35476608/022-42199993
             </div>
             <!--  <div class="col-md-3 text-right">
                         Follow Us:

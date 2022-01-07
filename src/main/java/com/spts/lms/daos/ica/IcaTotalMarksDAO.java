@@ -969,7 +969,7 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 						+ " inner join ica_queries iq on iq.icaId=i.id "
 						+ " where itm.icaId=i.id and itm.username=u.username"
 						+ " and i.moduleId=m.module_id and i.acadYear=m.acadyear " + " and u.programId=p.id "
-						+ " and itm.isQueryRaise= 'Y'  "
+						+ " and itm.isQueryRaise= 'Y' and (itm.flagTcs <> 'S' or itm.flagTcs is NULL)  "
 						+ " and (i.createdBy=? or i.lastModifiedBy= ?) and i.acadYear = ? AND i.active = 'Y' and i.isNonEventModule = 'Y' "
 						+ " group by itm.username,itm.icaId";
 				return findAllSQL(sql, new Object[] { username, username, acadYear });
@@ -982,7 +982,7 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 						+ " inner join ica_queries iq on iq.icaId=i.id "
 						+ " where itm.icaId=i.id and itm.username=u.username"
 						+ " and i.moduleId=m.module_id and i.acadYear=m.acadyear " + " and u.programId=p.id "
-						+ " and itm.isQueryRaise= 'Y'  "
+						+ " and itm.isQueryRaise= 'Y' and (itm.flagTcs <> 'S' or itm.flagTcs is NULL)  "
 						+ " and (i.createdBy=? or i.lastModifiedBy= ?) AND i.active = 'Y' and i.isNonEventModule = 'Y' "
 						+ " group by itm.username,itm.icaId";
 				return findAllSQL(sql, new Object[] { username, username });
@@ -1074,7 +1074,7 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 						+ " inner join ica_queries iq on iq.icaId=i.id "
 						+ " where itm.icaId=i.id and itm.username=u.username and FIND_IN_SET(u1.username,i.assignedFaculty) "
 						+ " and i.moduleId=c.moduleId and i.acadYear=c.acadYearCode " + " and u.programId=p.id "
-						+ " and itm.isQueryRaise= 'Y' "
+						+ " and itm.isQueryRaise= 'Y' and (itm.flagTcs <> 'S' or itm.flagTcs is NULL)  "
 						+ " and (i.createdBy=? or i.lastModifiedBy= ?) and i.acadYear = ? AND i.active = 'Y' "
 						+ " group by itm.username,itm.icaId ";
 
@@ -1131,7 +1131,7 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 						+ " inner join ica_queries iq on iq.icaId=i.id "
 						+ " where itm.icaId=i.id and itm.username=u.username and FIND_IN_SET(u1.username,i.assignedFaculty) "
 						+ " and i.moduleId=c.moduleId and i.acadYear=c.acadYearCode  " + " and u.programId=p.id "
-						+ " and itm.isQueryRaise= 'Y'  "
+						+ " and itm.isQueryRaise= 'Y' and (itm.flagTcs <> 'S' or itm.flagTcs is NULL)  "
 						+ " and (FIND_IN_SET(?,i.assignedFaculty)) and i.acadYear = ? AND i.active = 'Y' "
 						+ " group by itm.username,itm.icaId ";
 
@@ -1192,7 +1192,7 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 						+ " inner join ica_queries iq on iq.icaId=i.id "
 						+ " where itm.icaId=i.id and itm.username=u.username and FIND_IN_SET(u1.username,i.assignedFaculty) "
 						+ " and i.moduleId=c.moduleId and i.acadYear=c.acadYearCode  " + " and u.programId=p.id "
-						+ " and itm.isQueryRaise= 'Y'  "
+						+ " and itm.isQueryRaise= 'Y' and (itm.flagTcs <> 'S' or itm.flagTcs is NULL)  "
 						+ " and (i.createdBy=? or i.lastModifiedBy= ?)  AND i.active = 'Y' "
 						+ " group by itm.username,itm.icaId ";
 
@@ -1229,7 +1229,7 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 						+ " inner join ica_queries iq on iq.icaId=i.id "
 						+ " where itm.icaId=i.id and itm.username=u.username and FIND_IN_SET(u1.username,i.assignedFaculty) "
 						+ " and i.moduleId=c.moduleId and i.acadYear=c.acadYearCode and i.acadSession=c.acadSession "
-						+ " and u.programId=p.id " + " and itm.isQueryRaise= 'Y'  "
+						+ " and u.programId=p.id " + " and itm.isQueryRaise= 'Y' and (itm.flagTcs <> 'S' or itm.flagTcs is NULL)  "
 						+ " and (FIND_IN_SET(?,i.assignedFaculty))  AND i.active = 'Y' "
 						+ " group by itm.username,itm.icaId ";
 
@@ -1255,7 +1255,7 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 						+ " inner join ica_queries iq on iq.icaId=i.id "
 						+ " where itm.icaId=i.id and itm.username=u.username"
 						+ " and i.moduleId=m.module_id and i.acadYear=m.acadyear " + " and u.programId=p.id "
-						+ " and itm.isQueryRaise= 'Y'  "
+						+ " and itm.isQueryRaise= 'Y' and (itm.flagTcs <> 'S' or itm.flagTcs is NULL)  "
 						+ " and (i.createdBy=? or i.lastModifiedBy= ?) and i.acadYear = ? AND i.active = 'Y' and i.isNonEventModule = 'Y' "
 						+ " group by itm.username,itm.icaId";
 				return findAllSQL(sql, new Object[] { username, username, acadYear });
@@ -1268,7 +1268,7 @@ public class IcaTotalMarksDAO extends BaseDAO<IcaTotalMarks> {
 						+ " inner join ica_queries iq on iq.icaId=i.id "
 						+ " where itm.icaId=i.id and itm.username=u.username"
 						+ " and i.moduleId=m.module_id and i.acadYear=m.acadyear " + " and u.programId=p.id "
-						+ " and itm.isQueryRaise= 'Y'  "
+						+ " and itm.isQueryRaise= 'Y' and (itm.flagTcs <> 'S' or itm.flagTcs is NULL)  "
 						+ " and (i.createdBy=? or i.lastModifiedBy= ?) AND i.active = 'Y' and i.isNonEventModule = 'Y' "
 						+ " group by itm.username,itm.icaId";
 				return findAllSQL(sql, new Object[] { username, username });
