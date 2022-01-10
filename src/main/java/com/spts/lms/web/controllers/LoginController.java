@@ -1091,7 +1091,9 @@ public class LoginController extends BaseController {
 			logger.error("Exception ", ex);
 		}
 		// setSuccess(redirectAttrs, "Password changed successfully.");
-		return "redirect:/changePasswordForm";
+//		return "redirect:/changePasswordForm";
+		return "redirect://loggedout";
+		
 	}
 
 	// This is for login//
